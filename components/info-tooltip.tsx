@@ -6,19 +6,19 @@ export function InfoTooltip({ text }: { text: string }) {
   const [visible, setVisible] = useState(false)
 
   return (
-    <span className="relative inline-flex items-center">
+    <span className="relative inline-flex items-start">
       <button
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
-        className="w-5 h-5 rounded-full border border-white/20 text-gray-500 hover:text-white hover:border-white/40 transition-colors text-xs font-bold leading-none flex items-center justify-center"
+        className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold leading-none flex items-center justify-center mt-1"
         aria-label="More information"
       >
         ?
       </button>
       {visible && (
-        <span className="absolute left-7 top-1/2 -translate-y-1/2 z-20 w-72 bg-zinc-900 border border-white/10 rounded-xl p-4 text-xs text-gray-400 leading-relaxed shadow-xl">
+        <span className="absolute left-7 top-0 z-20 w-72 bg-zinc-900 border border-white/10 rounded-xl p-4 text-xs text-gray-400 leading-relaxed shadow-xl">
           {text}
         </span>
       )}
