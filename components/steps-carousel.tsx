@@ -80,7 +80,7 @@ export function StepsCarousel() {
 
   return (
     <>
-      <div className="w-full">
+      <div className="w-full px-14">
         <Carousel opts={{ align: 'start', loop: false }} className="w-full">
           <CarouselContent>
             {STEPS.map((step) => (
@@ -109,8 +109,8 @@ export function StepsCarousel() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="border-white/20 text-white hover:bg-white/10 hover:text-white -left-4" />
-          <CarouselNext className="border-white/20 text-white hover:bg-white/10 hover:text-white -right-4" />
+          <CarouselPrevious className="w-10 h-10 -left-12 border-white/20 text-white hover:bg-white/10 hover:text-white" />
+          <CarouselNext className="w-10 h-10 -right-12 border-white/20 text-white hover:bg-white/10 hover:text-white" />
         </Carousel>
       </div>
 
