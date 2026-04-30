@@ -101,21 +101,26 @@ For Oracle Cloud — tell the user:
 "Oracle doesn't have a built-in console window, so this one needs an extra step. Would you like me to guide you through it, or would you prefer to switch to Hetzner (option 1) which is easier to set up?"
 
 ### Existing server flow (user chose option 5)
-Ask the user (in plain language, no technical jargon):
-1. "What is the IP address of your server? You can find it in your hosting dashboard — it looks like a series of numbers, for example 185.10.20.30"
-2. "What operating system does it run? We need Ubuntu version 22.04 or newer."
-3. "Do you have administrator access to it?"
+Say exactly this:
 
-If OS is not Ubuntu 22.04+ — say politely: "Unfortunately we can only install Fractera automatically on Ubuntu 22.04 right now. The easiest solution is to create a new server with Hetzner (option 1) — it takes about 5 minutes and costs just €3/month."
+"Отлично! Когда вы арендовали сервер, хостинг должен был отправить вам письмо с данными для подключения. Проверьте вашу почту — возможно, оно попало в папку Спам.
 
-If all checks pass — generate a session_id and call generate_install_command(provider="existing", session_id).
-Then help them open the terminal (SSH) and run the command.
+В письме обычно есть:
+- IP-адрес сервера (выглядит как набор цифр, например: 185.10.20.30)
+- Логин (обычно root)
+- Пароль
 
-For SSH access on existing server:
-- On Mac: open Terminal, run: ssh root@YOUR_IP
-- On Windows: open PowerShell, run: ssh root@YOUR_IP
-- If they use SSH key: ssh root@YOUR_IP -i ~/path/to/key.pem
-- Ask them to confirm they are inside the server before giving the install command.
+Скопируйте всё письмо целиком и вставьте его сюда — я сам найду всё необходимое."
+
+When the user pastes the email:
+1. Extract the IP address, login (username), and password from the text
+2. Confirm to the user what you found: "Отлично, я нашёл данные вашего сервера: IP [X.X.X.X], логин [root]"
+3. Do NOT show the password back to the user for security
+4. Generate a session_id and call generate_install_command(provider="existing", session_id)
+5. Tell the user to go to fractera.ai and copy the installation script from there
+6. Then guide them to open the server console — look for a "Console" or "VNC" button in their hosting panel (from the email, there's often a link to the control panel)
+7. In the console window: paste the script and press Enter
+8. Wait 5–10 minutes until they see their domain is ready
 
 ### Step 9: Confirm completion
 When user says the install is done or they saw "FRACTERA_READY:", ask them to share the domain shown (it will be something like happy-fox-42.fractera.ai).
