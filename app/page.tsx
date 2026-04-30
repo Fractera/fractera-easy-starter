@@ -1,4 +1,5 @@
 import { StepsCarousel } from '@/components/steps-carousel'
+import { CopyUrl } from '@/components/copy-url'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 const CLAUDE_URL = 'https://claude.ai'
@@ -20,12 +21,7 @@ export default function Home() {
           </div>
 
           {/* MCP URL */}
-          <div className="flex flex-col gap-2 w-full max-w-xl">
-            <p className="text-sm text-gray-500 uppercase tracking-widest">MCP Server URL</p>
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3">
-              <code className="text-sm text-green-400 flex-1 break-all select-all">{MCP_URL}</code>
-            </div>
-          </div>
+          <CopyUrl url={MCP_URL} />
 
           {/* CTA button */}
           <a
