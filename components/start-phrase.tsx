@@ -3,20 +3,20 @@
 import { useState, useEffect } from 'react'
 
 const LOCALE_DATA: Record<string, { display: string; copy: string }> = {
-  ru: { display: 'install fractera', copy: 'установи fractera, отвечай на русском языке' },
-  es: { display: 'install fractera', copy: 'instala fractera, responde en español' },
-  fr: { display: 'install fractera', copy: 'installe fractera, réponds en français' },
-  de: { display: 'install fractera', copy: 'installiere fractera, antworte auf Deutsch' },
-  pt: { display: 'install fractera', copy: 'instala o fractera, responde em português' },
-  it: { display: 'install fractera', copy: 'installa fractera, rispondi in italiano' },
-  zh: { display: 'install fractera', copy: '安装 fractera，请用中文回复' },
-  ja: { display: 'install fractera', copy: 'fractera をインストール、日本語で答えて' },
-  ko: { display: 'install fractera', copy: 'fractera 설치해줘, 한국어로 답해줘' },
+  ru: { display: 'установи fractera, отвечай на русском языке', copy: 'установи fractera, отвечай на русском языке' },
+  es: { display: 'instala fractera, responde en español', copy: 'instala fractera, responde en español' },
+  fr: { display: 'installe fractera, réponds en français', copy: 'installe fractera, réponds en français' },
+  de: { display: 'installiere fractera, antworte auf Deutsch', copy: 'installiere fractera, antworte auf Deutsch' },
+  pt: { display: 'instala o fractera, responde em português', copy: 'instala o fractera, responde em português' },
+  it: { display: 'installa fractera, rispondi in italiano', copy: 'installa fractera, rispondi in italiano' },
+  zh: { display: '安装 fractera，请用中文回复', copy: '安装 fractera，请用中文回复' },
+  ja: { display: 'fractera をインストール、日本語で答えて', copy: 'fractera をインストール、日本語で答えて' },
+  ko: { display: 'fractera 설치해줘, 한국어로 답해줘', copy: 'fractera 설치해줘, 한국어로 답해줘' },
 }
 
 const DEFAULT = { display: 'install fractera', copy: 'install fractera' }
 
-function getLocale(): { display: string; copy: string } {
+function getLocale() {
   if (typeof navigator === 'undefined') return DEFAULT
   const lang = navigator.language?.slice(0, 2).toLowerCase()
   return LOCALE_DATA[lang] ?? DEFAULT

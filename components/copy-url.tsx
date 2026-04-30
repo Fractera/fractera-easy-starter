@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export function CopyUrl({ url }: { url: string }) {
+export function CopyUrl({ url, label = 'MCP Server URL' }: { url: string; label?: string }) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy() {
@@ -13,7 +13,7 @@ export function CopyUrl({ url }: { url: string }) {
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-xl">
-      <p className="text-sm text-gray-500 uppercase tracking-widest">MCP Server URL</p>
+      <p className="text-sm text-gray-500 uppercase tracking-widest">{label}</p>
       <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3">
         <code className="text-sm text-green-400 flex-1 break-all select-all">{url}</code>
         <button

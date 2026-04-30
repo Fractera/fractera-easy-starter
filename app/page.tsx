@@ -23,6 +23,9 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Connector name */}
+          <CopyUrl label="Connector Name" url="Fractera" />
+
           {/* MCP URL */}
           <CopyUrl url={MCP_URL} />
 
