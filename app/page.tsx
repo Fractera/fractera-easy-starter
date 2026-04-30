@@ -3,6 +3,7 @@ import { CopyUrl } from '@/components/copy-url'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { StartPhrase } from '@/components/start-phrase'
 import { InfoTooltip } from '@/components/info-tooltip'
+import { DomainStatus } from '@/components/domain-status'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -31,6 +32,9 @@ export default function Home() {
 
           {/* Start phrase */}
           <StartPhrase />
+
+          {/* Domain status */}
+          <DomainStatus />
 
           {/* CTA button + disclaimer */}
           <div className="flex flex-col gap-3">
