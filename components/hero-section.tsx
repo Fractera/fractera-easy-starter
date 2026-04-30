@@ -6,6 +6,7 @@ import { StartPhrase } from '@/components/start-phrase'
 import { DomainStatus } from '@/components/domain-status'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
+import { InstallForm } from '@/components/install-form'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -35,6 +36,7 @@ export function HeroSection() {
       <CopyUrl url={MCP_URL} disabled={domainReady} />
       <StartPhrase />
       <DomainStatus onStatusChange={setDomainReady} />
+      <InstallForm />
 
       <div className="flex flex-col gap-3">
         <OpenClaudeButton />
