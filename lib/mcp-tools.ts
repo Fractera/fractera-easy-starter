@@ -77,11 +77,11 @@ export function handleToolCall(name: string, args: Record<string, string>, baseU
 
   if (name === 'generate_install_command') {
     const { provider, session_id } = args
-    const scriptUrl = `${baseUrl}/api/script?provider=${provider}&session_id=${session_id}`
+    const scriptUrl = `https://fractera.ai/api/script?provider=${provider}&session_id=${session_id}`
     return {
       command: `curl -fsSL "${scriptUrl}" | sudo bash`,
       session_id,
-      note: 'Tell the user to copy this command, paste it into their server terminal, and press Enter. The installation takes about 5 minutes.',
+      note: 'IMPORTANT: Before showing this command, first explain to the user HOW to open their server terminal (use the provider-specific instructions from Step 8). Only then show the command and tell them to copy-paste it and press Enter. Installation takes about 5 minutes.',
     }
   }
 

@@ -46,13 +46,16 @@ For DigitalOcean:
 7. Click "Create Droplet"
 8. IP appears in dashboard after ~1 minute
 
-For Oracle:
-1. Go to oracle.com/cloud/free → Sign up
-2. Go to Compute → Instances → Create Instance
-3. Image: Ubuntu 22.04
-4. Shape: VM.Standard.E2.1.Micro (Always Free)
-5. Add SSH key or set password
-6. Create instance, wait for IP
+For Oracle Cloud Always Free (the most powerful free option — 4 vCPUs, 24GB RAM):
+1. Go to oracle.com/cloud/free → Sign up (requires credit card for verification — no charge)
+2. After login: go to Compute → Instances → click "Create Instance"
+3. Name: "fractera" (or anything you like)
+4. Click "Change image" → select Ubuntu → pick Ubuntu 22.04 (aarch64)
+5. Click "Change shape" → Specialty and previous generation → VM.Standard.A1.Flex → set OCPUs: 2, Memory: 12 GB → click Select shape
+6. Under "Add SSH keys" → select "Generate a key pair for me" → click "Save private key" (download it — you'll need it)
+7. Click "Create" — wait 2-3 minutes
+8. Important: If you see "Out of capacity" error — try changing the Availability Domain (there are 3) or try again in a few hours
+9. Once running, copy the Public IP address shown in the instance details
 
 ### Step 5: Onboarding dialogue (while they wait ~5 min for server)
 While the user is setting up their server, have a friendly conversation:
@@ -68,28 +71,34 @@ Ask the user to share their server's IP address.
 It should look like: 1.2.3.4
 Generate a session_id by combining a timestamp and random string, e.g. "sess-1234567890-abc"
 
-### Step 7: Generate install command
-Call generate_install_command(provider, session_id) and show the user the curl command.
-Tell them:
-- "Copy this command"
-- "Open your server terminal (if you don't know how, I'll help)"
-- "Paste it and press Enter"
-- "You'll see text scrolling — this is normal. It takes about 5 minutes."
-- "When you see 'FRACTERA_READY:' at the end — come back and tell me!"
+### Step 7: Open the server terminal FIRST, then give the install command
+IMPORTANT: Always explain how to open the server terminal BEFORE calling generate_install_command. Never give the command without first explaining where to paste it.
 
-### Step 8: Help with terminal access (if needed)
-If they don't know how to access their server terminal:
+How to open the terminal for each provider:
 
 For Hetzner:
-- Go to your server in Hetzner Cloud console
-- Click "Console" button at the top
-- Log in as: root
-- Password: the one shown when you created the server
+- Go to cloud.hetzner.com → click your server → click the "Console" button at the top right
+- A terminal window opens in the browser
+- Log in: type "root" and press Enter, then type your password (you copied it when creating the server)
 
 For DigitalOcean:
-- Go to your Droplet in the dashboard
-- Click "Console" button
-- Or use any SSH client: ssh root@YOUR_IP
+- Go to cloud.digitalocean.com → click your Droplet → click "Console" button
+- A terminal opens in the browser — you are already logged in as root
+
+For Oracle Cloud:
+- Oracle does NOT have a browser console — you need SSH
+- On Mac: open Terminal app (press Cmd+Space, type "Terminal", press Enter)
+- On Windows: open PowerShell (press Windows key, type "PowerShell", press Enter)
+- Type this command (replace YOUR_IP with your server IP):
+  ssh ubuntu@YOUR_IP -i ~/Downloads/ssh-key-*.key
+- If asked "Are you sure you want to continue connecting?" — type "yes" and press Enter
+
+After explaining, ask: "Are you inside the server terminal now?"
+Wait for confirmation, then call generate_install_command(provider, session_id) and show the command.
+Tell them:
+- "Copy this command, paste it into the terminal, and press Enter"
+- "You will see text scrolling — this is normal. It takes about 5 minutes."
+- "When you see 'FRACTERA_READY:' at the end — come back and tell me!"
 
 ### Step 9: Confirm completion
 When user says the install is done or they saw "FRACTERA_READY:", ask them to share the domain shown (it will be something like happy-fox-42.fractera.ai).
