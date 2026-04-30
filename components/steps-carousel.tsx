@@ -9,32 +9,9 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { Card, CardContent } from '@/components/ui/card'
+import { SLIDES, type Slide } from '@/slides.config'
 
-const STEPS = [
-  {
-    number: 1,
-    title: 'Open claude.ai Settings',
-    description: 'Go to Settings → Integrations → Add custom connector',
-    placeholder: 'Screenshot: claude.ai Settings → Integrations',
-    image: '/screenshots/step-1.png',
-  },
-  {
-    number: 2,
-    title: 'Paste the MCP URL',
-    description: 'Name it "Fractera" and paste: https://fractera.ai/api/mcp',
-    placeholder: 'Screenshot: Add connector dialog with URL field',
-    image: '/screenshots/step-2.png',
-  },
-  {
-    number: 3,
-    title: 'Type "install fractera"',
-    description: 'Start a new chat and Claude will guide you through the whole process',
-    placeholder: 'Screenshot: Claude chat with install fractera message',
-    image: '/screenshots/step-3.png',
-  },
-]
-
-type Step = typeof STEPS[number]
+type Step = Slide
 
 function Lightbox({ step, onClose }: { step: Step; onClose: () => void }) {
   return (
@@ -54,7 +31,7 @@ function Lightbox({ step, onClose }: { step: Step; onClose: () => void }) {
           ✕
         </button>
         <div className="w-full h-[300px] bg-white/5 flex items-center justify-center">
-          <p className="text-xs text-gray-600 text-center px-6">{step.placeholder}</p>
+          <p className="text-xs text-gray-600 text-center px-6">{step.title}</p>
         </div>
         <div className="p-5 flex flex-col gap-2">
           <div className="flex items-center gap-3">
@@ -123,7 +100,7 @@ export function StepsCarousel() {
       <div className="w-full px-14">
         <Carousel opts={{ align: 'start', loop: false }} className="w-full">
           <CarouselContent>
-            {STEPS.map((step) => (
+            {SLIDES.map((step) => (
               <CarouselItem key={step.number} className="md:basis-1/2 lg:basis-1/3">
                 <Card className="bg-white/5 border-white/10 h-full">
                   <CardContent className="p-0 flex flex-col h-full">
@@ -131,7 +108,7 @@ export function StepsCarousel() {
                       onClick={() => setActiveStep(step)}
                       className="aspect-video bg-white/5 rounded-t-xl flex items-center justify-center border-b border-white/10 w-full cursor-zoom-in hover:bg-white/10 transition-colors"
                     >
-                      <p className="text-xs text-gray-600 text-center px-4">{step.placeholder}</p>
+                      <p className="text-xs text-gray-600 text-center px-4">{step.title}</p>
                     </button>
                     <div className="p-5 flex flex-col gap-2 flex-1">
                       <div className="flex items-center gap-3">
