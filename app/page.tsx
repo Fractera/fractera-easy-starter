@@ -23,8 +23,22 @@ export default function Home() {
           {/* MCP URL */}
           <CopyUrl url={MCP_URL} />
 
-          {/* CTA button */}
-          <OpenClaudeButton />
+          {/* CTA button + disclaimer */}
+          <div className="flex flex-col gap-3">
+            <OpenClaudeButton />
+            <p className="text-sm text-gray-500">
+              Requires{' '}
+              <a
+                href="https://claude.ai/upgrade"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors"
+              >
+                Claude Pro
+              </a>
+              {' '}($20/mo) — needed to use custom MCP connectors.
+            </p>
+          </div>
         </section>
 
         {/* Steps carousel */}

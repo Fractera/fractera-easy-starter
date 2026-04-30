@@ -109,8 +109,8 @@ export function StepsCarousel() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="w-10 h-10 -left-12 border-white/20 text-white hover:bg-white/10 hover:text-white" />
-          <CarouselNext className="w-10 h-10 -right-12 border-white/20 text-white hover:bg-white/10 hover:text-white" />
+          <CarouselPrevious className="w-10 h-10 -left-12 bg-transparent border-white/20 text-white hover:bg-white hover:text-black active:translate-y-0 active:scale-110 transition-transform" />
+          <CarouselNext className="w-10 h-10 -right-12 bg-transparent border-white/20 text-white hover:bg-white hover:text-black active:translate-y-0 active:scale-110 transition-transform" />
         </Carousel>
       </div>
 
