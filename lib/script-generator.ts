@@ -43,7 +43,7 @@ RESPONSE=$(curl -s -X POST ${registerUrl} \\
   -H "x-install-secret: ${secret}" \\
   -d "{\\"ip\\": \\"$SERVER_IP\\", \\"session_id\\": \\"${sessionId}\\"}")
 
-SUBDOMAIN=$(echo $RESPONSE | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
+SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
 
 echo ""
 echo "✓ Fractera installed successfully!"

@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing session_id' }, { status: 400 })
   }
 
-  const secret = process.env.INSTALL_SCRIPT_SECRET!
+  const secret = process.env.INSTALL_SCRIPT_SECRET
+  if (!secret) {
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
   const script = generateInstallScript(provider, sessionId, secret)
 
   return new NextResponse(script, {
