@@ -224,6 +224,26 @@ KV_URL=                   ← Vercel KV connection string
 
 ---
 
+## Claude Code authentication on the server
+
+Claude Code requires a one-time login after install. This is handled entirely through the Fractera interface — no SSH or terminal knowledge needed from the user.
+
+**How it works:**
+
+1. Install script installs Claude Code binary on the VPS
+2. Fractera app + Bridge start on the server
+3. User opens `abc123.fractera.ai` in their browser
+4. Bridge runs Claude Code via PTY (pseudo-terminal) inside the browser terminal
+5. Claude Code outputs its login URL — user sees it in the browser terminal
+6. User clicks the URL, logs into claude.ai in a new tab
+7. Authentication completes — Claude Code is ready
+
+This is the core value of the Bridge: it turns any CLI tool including Claude Code into a browser-accessible terminal. Interactive login flows work exactly as they do in a local terminal — they are just rendered in the browser.
+
+**No API keys needed. No SSH. Just a browser.**
+
+---
+
 ## MVP scope (what to build first)
 
 1. `/api/register` — receives IP, creates Cloudflare DNS record, returns subdomain
