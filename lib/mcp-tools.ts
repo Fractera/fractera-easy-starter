@@ -1,3 +1,5 @@
+import { MAIN_PROVIDERS, EXTENDED_PROVIDERS } from '@/providers.config'
+
 export const MCP_TOOLS = [
   {
     name: 'get_hosting_options',
@@ -48,96 +50,25 @@ export const MCP_TOOLS = [
   },
 ]
 
-const MAIN_OPTIONS = [
-  {
-    number: 1,
-    provider: 'hetzner',
-    name: 'Hetzner CX11',
-    url: 'https://www.hetzner.com/cloud',
-    price: '~€3.29/month*',
-    recommended: true,
-    specs: '2 vCPU, 2GB RAM, 20GB SSD',
-    note: 'Best price/performance. Reliable Linux VPS, EU/US locations. Takes ~5 minutes to create.',
-  },
-  {
-    number: 2,
-    provider: 'oracle',
-    name: 'Oracle Cloud Always Free ARM',
-    url: 'https://www.oracle.com/cloud/free/',
-    price: 'Free forever*',
-    recommended: false,
-    specs: '4 ARM vCPUs, 24GB RAM',
-    note: 'Most powerful free option. Requires credit card for verification (no charge). Setup is more involved.',
-  },
-  {
-    number: 3,
-    provider: 'digitalocean',
-    name: 'DigitalOcean Droplet',
-    url: 'https://www.digitalocean.com/pricing/droplets',
-    price: '~$6/month*',
-    recommended: false,
-    specs: '1 vCPU, 1GB RAM, 25GB SSD',
-    note: 'Simple and reliable. Good if you already have a DigitalOcean account.',
-  },
-  {
-    number: 4,
-    provider: null,
-    name: 'Show more options',
-    url: null,
-    price: null,
-    note: 'See all supported providers',
-  },
-  {
-    number: 5,
-    provider: 'existing',
-    name: 'I already have a server',
-    url: null,
-    price: null,
-    note: 'Connect your existing Linux VPS (Ubuntu 22.04+)',
-  },
+const SPECIAL_OPTIONS = [
+  { number: 0, provider: 'show_more', name: 'Show more options', url: null, price: null, specs: null, note: 'See all supported providers' },
+  { number: 0, provider: 'existing', name: 'I already have a server', url: null, price: null, specs: null, note: 'Connect your existing Linux VPS (Ubuntu 22.04+)' },
 ]
 
-const EXTENDED_OPTIONS = [
-  ...MAIN_OPTIONS.filter(o => o.provider && o.provider !== 'existing'),
-  {
-    number: 4,
-    provider: 'hostinger',
-    name: 'Hostinger VPS',
-    price: '~€4-5/month*',
-    specs: '1-2 vCPU, 2-4GB RAM',
-    note: 'Good price, user-friendly hPanel management.',
-  },
-  {
-    number: 5,
-    provider: 'fly',
-    name: 'Fly.io',
-    price: '~$5-8/month*',
-    specs: 'Shared CPU, 256MB-1GB RAM',
-    note: 'Automatic HTTPS, easy scaling, no SSH needed for basic ops.',
-  },
-  {
-    number: 6,
-    provider: 'gcp',
-    name: 'Google Cloud (e2-micro)',
-    price: '~$5-12/month*',
-    specs: '2 vCPU shared, 1GB RAM',
-    note: 'Free tier available. Suitable if you already use Google services.',
-  },
-  {
-    number: 7,
-    provider: 'existing',
-    name: 'I already have a server',
-    price: null,
-    note: 'Connect your existing Linux VPS (Ubuntu 22.04+)',
-  },
-]
+function buildOptions(providers: typeof MAIN_PROVIDERS) {
+  return [
+    ...providers.map((p, i) => ({ number: i + 1, ...p })),
+    { ...SPECIAL_OPTIONS[0], number: providers.length + 1 },
+    { ...SPECIAL_OPTIONS[1], number: providers.length + 2 },
+  ]
+}
 
 export function handleToolCall(name: string, args: Record<string, string | boolean>, baseUrl: string): unknown {
   if (name === 'get_hosting_options') {
     const extended = args.extended === true || args.extended === 'true'
-    const options = extended ? EXTENDED_OPTIONS : MAIN_OPTIONS
+    const options = buildOptions(extended ? EXTENDED_PROVIDERS : MAIN_PROVIDERS)
     return {
-      disclaimer: '* Prices are approximate and may differ from the provider\'s current rates. Always check the provider\'s website for up-to-date pricing.',
+      disclaimer: 'Prices are approximate and may differ from the provider\'s current rates. Always check the provider\'s website for up-to-date pricing.',
       options,
     }
   }
