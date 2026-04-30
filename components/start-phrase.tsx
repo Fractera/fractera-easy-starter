@@ -2,34 +2,36 @@
 
 import { useState, useEffect } from 'react'
 
-const PHRASES: Record<string, string> = {
-  ru: 'установи fractera',
-  es: 'instala fractera',
-  fr: 'installe fractera',
-  de: 'installiere fractera',
-  pt: 'instala o fractera',
-  it: 'installa fractera',
-  zh: '安装 fractera',
-  ja: 'fractera をインストール',
-  ko: 'fractera 설치해줘',
+const LOCALE_DATA: Record<string, { display: string; copy: string }> = {
+  ru: { display: 'install fractera', copy: 'установи fractera, отвечай на русском языке' },
+  es: { display: 'install fractera', copy: 'instala fractera, responde en español' },
+  fr: { display: 'install fractera', copy: 'installe fractera, réponds en français' },
+  de: { display: 'install fractera', copy: 'installiere fractera, antworte auf Deutsch' },
+  pt: { display: 'install fractera', copy: 'instala o fractera, responde em português' },
+  it: { display: 'install fractera', copy: 'installa fractera, rispondi in italiano' },
+  zh: { display: 'install fractera', copy: '安装 fractera，请用中文回复' },
+  ja: { display: 'install fractera', copy: 'fractera をインストール、日本語で答えて' },
+  ko: { display: 'install fractera', copy: 'fractera 설치해줘, 한국어로 답해줘' },
 }
 
-function getPhrase(): string {
-  if (typeof navigator === 'undefined') return 'install fractera'
+const DEFAULT = { display: 'install fractera', copy: 'install fractera' }
+
+function getLocale(): { display: string; copy: string } {
+  if (typeof navigator === 'undefined') return DEFAULT
   const lang = navigator.language?.slice(0, 2).toLowerCase()
-  return PHRASES[lang] ?? 'install fractera'
+  return LOCALE_DATA[lang] ?? DEFAULT
 }
 
 export function StartPhrase() {
-  const [phrase, setPhrase] = useState('install fractera')
+  const [locale, setLocale] = useState(DEFAULT)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    setPhrase(getPhrase())
+    setLocale(getLocale())
   }, [])
 
   function handleCopy() {
-    navigator.clipboard.writeText(phrase)
+    navigator.clipboard.writeText(locale.copy)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -38,7 +40,7 @@ export function StartPhrase() {
     <div className="flex flex-col gap-2 w-full max-w-xl">
       <p className="text-sm text-gray-500 uppercase tracking-widest">Start phrase for Claude</p>
       <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3">
-        <code className="text-sm text-green-400 flex-1 break-all select-all">{phrase}</code>
+        <code className="text-sm text-green-400 flex-1 break-all select-all">{locale.display}</code>
         <button
           onClick={handleCopy}
           className="shrink-0 text-xs text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/30"
