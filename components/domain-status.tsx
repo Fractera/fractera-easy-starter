@@ -61,6 +61,19 @@ export function DomainStatus() {
     ? pulse ? 'text-orange-400' : 'text-yellow-500'
     : 'text-gray-600'
 
+  function simulate(next: DomainState) {
+    if (next === 'empty') {
+      localStorage.removeItem('fractera_domain')
+      setDomain('')
+      setState('empty')
+    } else {
+      const stored: StoredDomain = { domain: 'happy-fox-42.fractera.ai', status: next }
+      localStorage.setItem('fractera_domain', JSON.stringify(stored))
+      setDomain(stored.domain)
+      setState(next)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full max-w-xl">
       <p className="text-sm text-gray-500 uppercase tracking-widest">Your Domain</p>
@@ -91,6 +104,18 @@ export function DomainStatus() {
           Installation in progress — please wait...
         </p>
       )}
+
+      {/* DEV: state switcher — remove before launch */}
+      <div className="flex gap-2 mt-1">
+        {(['empty', 'installing', 'ready'] as DomainState[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => simulate(s)}
+            className="w-4 h-4 rounded-sm border border-white/20 transition-colors"
+            style={{ background: state === s ? 'white' : 'transparent' }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
