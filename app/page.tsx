@@ -2,6 +2,7 @@ import { StepsCarousel } from '@/components/steps-carousel'
 import { CopyUrl } from '@/components/copy-url'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { StartPhrase } from '@/components/start-phrase'
+import { InfoTooltip } from '@/components/info-tooltip'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -16,8 +17,9 @@ export default function Home() {
             <h1 className="text-6xl font-bold tracking-tight">
               Fractera
             </h1>
-            <p className="text-2xl text-gray-400 max-w-xl">
-              Your own AI workspace. On your own server. No coding required.
+            <p className="text-2xl text-gray-400 max-w-xl flex items-center gap-3">
+              Install your own AI workspace on a dedicated server — in 5 to 15 minutes.
+              <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 5–15 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you purchase." />
             </p>
           </div>
 
