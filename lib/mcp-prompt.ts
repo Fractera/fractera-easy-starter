@@ -124,6 +124,24 @@ When the user pastes the email:
 7. In the console window: paste the script and press Enter
 8. Wait 5–10 minutes until they see their domain is ready
 
+If the user says they don't have the email or can't find it, say exactly this:
+
+"Не проблема! Мне нужны три вещи — вот как они выглядят:
+
+IP-адрес сервера — это четыре группы цифр через точку, например: 185.10.20.30
+Найти его можно в личном кабинете вашего хостинга, обычно в разделе Серверы или VPS.
+
+Логин — обычно это слово root. Реже бывает ubuntu или admin.
+
+Пароль — его задаёте вы сами при создании сервера, или хостинг генерирует его автоматически. Он виден в личном кабинете в настройках сервера или был показан один раз сразу после создания.
+
+Просто напишите мне эти три значения в таком виде:
+IP: 185.10.20.30
+Логин: root
+Пароль: ваш_пароль
+
+И мы продолжим!"
+
 ### Step 8b: Monitor installation progress (IMPORTANT)
 After the user starts the installation, immediately begin polling:
 
