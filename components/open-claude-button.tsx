@@ -1,18 +1,33 @@
 'use client'
 
+import { toast } from 'sonner'
+
 const CLAUDE_URL = 'https://claude.ai'
 
+async function isLikelyIncognito(): Promise<boolean> {
+  try {
+    const estimate = await navigator.storage.estimate()
+    return (estimate.quota ?? 0) < 200 * 1024 * 1024 // < 200MB suggests incognito
+  } catch {
+    return false
+  }
+}
+
 export function OpenClaudeButton() {
-  function handleClick() {
+  async function handleClick() {
+    const incognito = await isLikelyIncognito()
+    if (incognito) {
+      toast.warning('Incognito mode detected', {
+        description: 'We recommend opening Claude in a regular browser window — incognito mode may interfere with Claude Code login.',
+        duration: 6000,
+      })
+    }
+
     if (window.screen.width >= 1536) {
       const w = Math.floor(window.screen.width / 2)
       const h = window.screen.height
       const left = window.screen.width - w
-      window.open(
-        CLAUDE_URL,
-        'claude-window',
-        `width=${w},height=${h},left=${left},top=0,resizable=yes`
-      )
+      window.open(CLAUDE_URL, 'claude-window', `width=${w},height=${h},left=${left},top=0,resizable=yes`)
     } else {
       window.open(CLAUDE_URL, '_blank')
     }
