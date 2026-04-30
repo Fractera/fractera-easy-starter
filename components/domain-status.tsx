@@ -19,17 +19,24 @@ function getStored(): StoredDomain | null {
   }
 }
 
-export function DomainStatus() {
+export function DomainStatus({ onStatusChange }: { onStatusChange?: (ready: boolean) => void } = {}) {
   const [state, setState] = useState<DomainState>('empty')
   const [domain, setDomain] = useState('')
   const [copied, setCopied] = useState(false)
   const [pulse, setPulse] = useState(false)
+
+  function updateState(next: DomainState, d?: string) {
+    setState(next)
+    if (d) setDomain(d)
+    onStatusChange?.(next === 'ready')
+  }
 
   useEffect(() => {
     const stored = getStored()
     if (!stored) return
     setDomain(stored.domain)
     setState(stored.status)
+    onStatusChange?.(stored.status === 'ready')
   }, [])
 
   useEffect(() => {
@@ -64,13 +71,12 @@ export function DomainStatus() {
   function simulate(next: DomainState) {
     if (next === 'empty') {
       localStorage.removeItem('fractera_domain')
+      updateState('empty')
       setDomain('')
-      setState('empty')
     } else {
       const stored: StoredDomain = { domain: 'happy-fox-42.fractera.ai', status: next }
       localStorage.setItem('fractera_domain', JSON.stringify(stored))
-      setDomain(stored.domain)
-      setState(next)
+      updateState(next, stored.domain)
     }
   }
 
