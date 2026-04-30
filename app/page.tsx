@@ -47,6 +47,9 @@ export default function Home() {
               </a>
               {' '}($20/mo) — needed to use custom MCP connectors.
             </p>
+            <p className="text-sm text-gray-600">
+              Incognito mode is not recommended — it may interfere with Claude Code login.
+            </p>
           </div>
         </section>
 
