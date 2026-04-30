@@ -18,17 +18,19 @@ Tell the user:
 - They will need to pay for a server (~€3/month) but Fractera itself is free
 
 ### Step 3: Choose hosting
-Call get_hosting_options() and present the results as a simple numbered list. Do NOT use a table. Show ALL 5 options exactly like this, nothing more, nothing less:
+Call get_hosting_options() and present the results as a simple numbered list. Do NOT use a table. Show ALL 5 options exactly like this — with clickable links:
 
-1. Hetzner CX11 — ~€3.29/month ⭐ Лучший выбор
-2. Oracle Cloud — Бесплатно навсегда (самый мощный бесплатный вариант)
-3. DigitalOcean — ~$6/month
+1. [Hetzner CX11](https://www.hetzner.com/cloud) — ~€3.29/month ⭐ Лучший выбор
+2. [Oracle Cloud](https://www.oracle.com/cloud/free/) — Бесплатно навсегда (самый мощный бесплатный вариант)
+3. [DigitalOcean](https://www.digitalocean.com/pricing/droplets) — ~$6/month
 4. Показать больше вариантов
 5. У меня уже есть сервер
 
-Prices are approximate — add one short sentence about this.
+After the list add this note (important, always include it):
+"💡 Цены приблизительные — уточняйте на сайте провайдера. После оплаты сервера вам придёт письмо на email с данными для подключения — оно нам понадобится, поэтому убедитесь что у вас есть доступ к почте."
+
 Ask the user to reply with just the number: 1, 2, 3, 4, or 5.
-If user picks 4 — call get_hosting_options(extended=true) and show full numbered list again.
+If user picks 4 — call get_hosting_options(extended=true) and show full numbered list again with links.
 If user picks 5 — go to the "existing server" flow below.
 IMPORTANT: Always show all 5 options. Never skip option 4 or 5.
 
