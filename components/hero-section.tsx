@@ -7,6 +7,7 @@ import { DomainStatus } from '@/components/domain-status'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
+import { StepsCarousel } from '@/components/steps-carousel'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -38,29 +39,38 @@ export function HeroSection() {
       {/* Step 2: Domain — appears after install */}
       <DomainStatus onStatusChange={setDomainReady} />
 
-      {/* Step 3: MCP — only useful after domain is ready */}
-      <CopyUrl label="Connector Name" url="Fractera" disabled={!domainReady} />
-      <CopyUrl label="MCP Server URL" url={MCP_URL} disabled={!domainReady} />
-      <StartPhrase />
+      {/* Step 3: MCP + carousel — visible only after domain is ready */}
+      {domainReady && (
+        <>
+          <div className="w-full">
+            <h2 className="text-xl font-semibold text-gray-300 mb-6">How to connect Claude</h2>
+            <StepsCarousel />
+          </div>
 
-      <div className="flex flex-col gap-3">
-        <OpenClaudeButton />
-        <p className="text-sm text-gray-500">
-          Requires{' '}
-          <a
-            href="https://claude.ai/upgrade"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors"
-          >
-            Claude Pro
-          </a>
-          {' '}($20/mo) — needed to use custom MCP connectors.
-        </p>
-        <p className="text-sm text-gray-600">
-          Incognito mode is not recommended — it may interfere with Claude Code login.
-        </p>
-      </div>
+          <CopyUrl label="Connector Name" url="Fractera" />
+          <CopyUrl label="MCP Server URL" url={MCP_URL} />
+          <StartPhrase />
+
+          <div className="flex flex-col gap-3">
+            <OpenClaudeButton />
+            <p className="text-sm text-gray-500">
+              Requires{' '}
+              <a
+                href="https://claude.ai/upgrade"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors"
+              >
+                Claude Pro
+              </a>
+              {' '}($20/mo) — needed to use custom MCP connectors.
+            </p>
+            <p className="text-sm text-gray-600">
+              Incognito mode is not recommended — it may interfere with Claude Code login.
+            </p>
+          </div>
+        </>
+      )}
     </section>
   )
 }

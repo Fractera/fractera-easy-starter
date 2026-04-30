@@ -111,17 +111,6 @@ export function DomainStatus({ onStatusChange }: { onStatusChange?: (ready: bool
         </p>
       )}
 
-      {/* DEV: state switcher — remove before launch */}
-      <div className="flex gap-2 mt-1">
-        {(['empty', 'installing', 'ready'] as DomainState[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => simulate(s)}
-            className="w-4 h-4 rounded-sm border border-white/20 transition-colors"
-            style={{ background: state === s ? 'white' : 'transparent' }}
-          />
-        ))}
-      </div>
     </div>
   )
 }

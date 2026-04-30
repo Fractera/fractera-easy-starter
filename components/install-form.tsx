@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 
 type Step = { id: string; label: string; done: boolean }
@@ -28,6 +28,36 @@ const ALL_STEPS: Step[] = [
 
 function generateSessionId() {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+function Tooltip({ text, children }: { text: React.ReactNode; children: React.ReactNode }) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <span className="relative inline-flex items-start">
+      <span
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        className="cursor-pointer"
+      >
+        {children}
+      </span>
+      {visible && (
+        <span className="absolute left-7 top-0 z-20 w-72 bg-zinc-900 border border-white/10 rounded-xl p-4 text-xs text-gray-400 leading-relaxed shadow-xl">
+          {text}
+        </span>
+      )}
+    </span>
+  )
+}
+
+function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
+  return (
+    <Tooltip text={tooltip}>
+      <span className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold flex items-center justify-center shrink-0 mt-1.5 ml-2">
+        ?
+      </span>
+    </Tooltip>
+  )
 }
 
 export function InstallForm() {
@@ -61,7 +91,7 @@ export function InstallForm() {
     })
 
     if (!res.ok || !res.body) {
-      toast.error('Не удалось подключиться к серверу установки')
+      toast.error('Could not connect to install server')
       setInstalling(false)
       return
     }
@@ -111,13 +141,47 @@ export function InstallForm() {
   const progress = Math.round((doneCount / steps.length) * 100)
   const currentStep = steps.find(s => s.id === activeStep)
 
+  const hostingTooltip = (
+    <>
+      Recommended hosting:{' '}
+      <a
+        href="https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-orange-400 underline underline-offset-2"
+      >
+        Contabo Cloud VPS
+      </a>
+      {' '}— 4 vCPU, 8GB RAM, 150GB SSD, ~€3.60/month.
+      <br /><br />
+      Note: you must set your password during checkout. Copy it and paste it into the Password field below. If you forget it, follow the recovery instructions.
+    </>
+  )
+
+  const passwordTooltip = (
+    <>
+      To recover your password on Contabo:
+      <br /><br />
+      Log in at{' '}
+      <a href="https://my.contabo.com" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline underline-offset-2">
+        my.contabo.com
+      </a>
+      {' '}(login and password were sent to your email at registration).
+      <br /><br />
+      Then follow: Control Panel → Your Services → Manage → Control → Manage → Reset Password → Password → Name (any) → Add new password → Create
+    </>
+  )
+
   return (
     <div className="w-full max-w-xl flex flex-col gap-6">
 
       {/* Form */}
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-gray-500 uppercase tracking-widest">Install Fractera on your server</p>
+          <p className="text-sm text-gray-500 uppercase tracking-widest flex items-start">
+            Install Fractera on your server
+            <OrangeQ tooltip={hostingTooltip} />
+          </p>
 
           <div className="flex flex-col gap-3">
             <input
@@ -134,13 +198,23 @@ export function InstallForm() {
               onChange={e => setLogin(e.target.value)}
               className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
-            />
+            <div className="flex flex-col gap-1.5">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+              />
+              <p className="text-xs text-gray-600 flex items-center gap-1.5 px-1">
+                Forgot your password?
+                <Tooltip text={passwordTooltip}>
+                  <span className="text-orange-400 underline underline-offset-2 cursor-pointer hover:text-orange-300 transition-colors">
+                    Recovery instructions
+                  </span>
+                </Tooltip>
+              </p>
+            </div>
           </div>
 
           <button
@@ -161,11 +235,10 @@ export function InstallForm() {
       {installing && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">{currentStep?.label ?? 'Подготовка...'}</p>
+            <p className="text-sm text-gray-400">{currentStep?.label ?? 'Preparing...'}</p>
             <p className="text-sm text-gray-600">{progress}%</p>
           </div>
 
-          {/* Progress bar */}
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full bg-green-400 transition-all duration-500"
@@ -173,14 +246,13 @@ export function InstallForm() {
             />
           </div>
 
-          {/* Steps list */}
           <div className="flex flex-col gap-1.5 mt-2">
             {steps.map(step => (
               <div key={step.id} className="flex items-center gap-3">
                 <span className={`text-sm transition-colors duration-500 ${
                   step.done ? 'text-green-400' : step.id === activeStep ? 'text-yellow-400' : 'text-gray-700'
                 }`}>
-                  {step.done ? '✓' : step.id === activeStep ? '...' : '○'}
+                  {step.done ? '✓' : step.id === activeStep ? '…' : '○'}
                 </span>
                 <span className={`text-sm transition-colors duration-500 ${
                   step.done ? 'text-gray-300' : step.id === activeStep ? 'text-white' : 'text-gray-700'
