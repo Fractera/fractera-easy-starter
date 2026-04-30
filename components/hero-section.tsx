@@ -32,11 +32,16 @@ export function HeroSection() {
         </p>
       </div>
 
-      <CopyUrl label="Connector Name" url="Fractera" disabled={domainReady} />
-      <CopyUrl url={MCP_URL} disabled={domainReady} />
-      <StartPhrase />
-      <DomainStatus onStatusChange={setDomainReady} />
+      {/* Step 1: Install */}
       <InstallForm />
+
+      {/* Step 2: Domain — appears after install */}
+      <DomainStatus onStatusChange={setDomainReady} />
+
+      {/* Step 3: MCP — only useful after domain is ready */}
+      <CopyUrl label="Connector Name" url="Fractera" disabled={!domainReady} />
+      <CopyUrl label="MCP Server URL" url={MCP_URL} disabled={!domainReady} />
+      <StartPhrase />
 
       <div className="flex flex-col gap-3">
         <OpenClaudeButton />
