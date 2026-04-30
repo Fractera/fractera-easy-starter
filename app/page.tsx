@@ -1,8 +1,8 @@
 import { StepsCarousel } from '@/components/steps-carousel'
 import { CopyUrl } from '@/components/copy-url'
+import { OpenClaudeButton } from '@/components/open-claude-button'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
-const CLAUDE_URL = 'https://claude.ai'
 
 export default function Home() {
   return (
@@ -24,17 +24,7 @@ export default function Home() {
           <CopyUrl url={MCP_URL} />
 
           {/* CTA button */}
-          <a
-            href={CLAUDE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors"
-          >
-            Open Claude
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
-            </svg>
-          </a>
+          <OpenClaudeButton />
         </section>
 
         {/* Steps carousel */}
