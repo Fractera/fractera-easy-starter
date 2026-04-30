@@ -12,7 +12,7 @@ export function InfoTooltip({ text }: { text: string }) {
         onMouseLeave={() => setVisible(false)}
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
-        className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold leading-none flex items-center justify-center mt-1"
+        className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold leading-none flex items-center justify-center shrink-0 mt-1.5"
         aria-label="More information"
       >
         ?
