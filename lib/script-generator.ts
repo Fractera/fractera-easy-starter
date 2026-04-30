@@ -1,4 +1,4 @@
-export type Provider = 'hetzner' | 'digitalocean' | 'oracle'
+export type Provider = 'hetzner' | 'digitalocean' | 'oracle' | 'existing'
 
 export function generateInstallScript(provider: Provider, sessionId: string, secret: string): string {
   const registerUrl = 'https://fractera.ai/api/register'

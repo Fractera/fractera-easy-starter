@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateInstallScript, Provider } from '@/lib/script-generator'
 
-const VALID_PROVIDERS: Provider[] = ['hetzner', 'digitalocean', 'oracle']
+const VALID_PROVIDERS: Provider[] = ['hetzner', 'digitalocean', 'oracle', 'existing']
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)

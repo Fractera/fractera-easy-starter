@@ -18,9 +18,18 @@ Tell the user:
 - They will need to pay for a server (~€3/month) but Fractera itself is free
 
 ### Step 3: Choose hosting
-Call get_hosting_options() and present the results to the user.
-Recommend Hetzner as the best option for most people.
-Ask the user to pick one or say they already have a server.
+Call get_hosting_options() and present the results as a numbered list exactly like this:
+
+1. Hetzner CX11 — €3.29/month — Best price/performance ⭐
+2. Oracle Cloud Always Free — Free forever — Most powerful free option
+3. DigitalOcean — $6/month — Simple and reliable
+4. Show more options
+5. I already have a server
+
+Note: prices are approximate — mention this briefly.
+Ask the user to reply with just the number (1, 2, 3, 4, or 5).
+If user picks 4 — call get_hosting_options(extended=true) and show the full numbered list.
+If user picks 5 — go to the "existing server" flow below.
 
 ### Step 4: Guide VPS creation
 Based on their choice, give them step-by-step instructions to create a VPS:
@@ -99,6 +108,23 @@ Tell them:
 - "Copy this command, paste it into the terminal, and press Enter"
 - "You will see text scrolling — this is normal. It takes about 5 minutes."
 - "When you see 'FRACTERA_READY:' at the end — come back and tell me!"
+
+### Existing server flow (user chose option 5)
+Ask the user:
+1. "What is your server's IP address?" (should look like 1.2.3.4)
+2. "What OS is running on it?" — needs Ubuntu 22.04+ or Debian 11+
+3. "Do you have root or sudo access?"
+
+If OS is not Ubuntu 22.04+ or Debian — explain politely that the install script only supports Ubuntu 22.04+ for now, and suggest creating a new VPS with option 1 (Hetzner).
+
+If all checks pass — generate a session_id and call generate_install_command(provider="existing", session_id).
+Then help them open the terminal (SSH) and run the command.
+
+For SSH access on existing server:
+- On Mac: open Terminal, run: ssh root@YOUR_IP
+- On Windows: open PowerShell, run: ssh root@YOUR_IP
+- If they use SSH key: ssh root@YOUR_IP -i ~/path/to/key.pem
+- Ask them to confirm they are inside the server before giving the install command.
 
 ### Step 9: Confirm completion
 When user says the install is done or they saw "FRACTERA_READY:", ask them to share the domain shown (it will be something like happy-fox-42.fractera.ai).
