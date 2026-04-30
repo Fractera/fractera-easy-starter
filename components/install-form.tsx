@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 
 type Step = { id: string; label: string; done: boolean }
@@ -32,13 +32,22 @@ function generateSessionId() {
 
 function Tooltip({ text, children }: { text: React.ReactNode; children: React.ReactNode }) {
   const [visible, setVisible] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!visible) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setVisible(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [visible])
+
   return (
-    <span className="relative inline-flex items-start">
-      <span
-        onMouseEnter={() => setVisible(true)}
-        onMouseLeave={() => setVisible(false)}
-        className="cursor-pointer"
-      >
+    <span ref={ref} className="relative inline-flex items-center">
+      <span onClick={() => setVisible(v => !v)} className="cursor-pointer inline-flex items-center">
         {children}
       </span>
       {visible && (
@@ -53,7 +62,7 @@ function Tooltip({ text, children }: { text: React.ReactNode; children: React.Re
 function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
   return (
     <Tooltip text={tooltip}>
-      <span className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold flex items-center justify-center shrink-0 mt-1.5 ml-2">
+      <span className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2">
         ?
       </span>
     </Tooltip>
@@ -178,10 +187,10 @@ export function InstallForm() {
       {/* Form */}
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-gray-500 uppercase tracking-widest flex items-start">
+          <div className="text-sm text-gray-500 uppercase tracking-widest flex items-center gap-0">
             Install Fractera on your server
             <OrangeQ tooltip={hostingTooltip} />
-          </p>
+          </div>
 
           <div className="flex flex-col gap-3">
             <input
@@ -206,14 +215,10 @@ export function InstallForm() {
                 onChange={e => setPassword(e.target.value)}
                 className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
               />
-              <p className="text-xs text-gray-600 flex items-center gap-1.5 px-1">
+              <div className="text-xs text-gray-600 flex items-center gap-1 px-1">
                 Forgot your password?
-                <Tooltip text={passwordTooltip}>
-                  <span className="text-orange-400 underline underline-offset-2 cursor-pointer hover:text-orange-300 transition-colors">
-                    Recovery instructions
-                  </span>
-                </Tooltip>
-              </p>
+                <OrangeQ tooltip={passwordTooltip} />
+              </div>
             </div>
           </div>
 
