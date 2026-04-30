@@ -1,71 +1,57 @@
-export default function Home() {
-  const mcpUrl = 'https://fractera.ai/api/mcp'
+import { StepsCarousel } from '@/components/steps-carousel'
 
+const MCP_URL = 'https://fractera.ai/api/mcp'
+const CLAUDE_URL = 'https://claude.ai'
+
+export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-      <div className="max-w-2xl w-full space-y-12">
+    <main className="min-h-screen bg-black text-white">
+      <div className="max-w-5xl mx-auto px-6 py-20 flex flex-col gap-20">
 
         {/* Hero */}
-        <div className="space-y-4">
-          <h1 className="text-5xl font-bold tracking-tight">
-            Fractera
-          </h1>
-          <p className="text-xl text-gray-400">
-            Your own AI workspace. On your own server. No coding required.
-          </p>
-        </div>
+        <section className="flex flex-col gap-8 items-start">
+          <div className="flex flex-col gap-4">
+            <h1 className="text-6xl font-bold tracking-tight">
+              Fractera
+            </h1>
+            <p className="text-2xl text-gray-400 max-w-xl">
+              Your own AI workspace. On your own server. No coding required.
+            </p>
+          </div>
 
-        {/* CTA */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6">
-          <h2 className="text-2xl font-semibold">
-            Launch your workspace in 15 minutes
-          </h2>
-          <p className="text-gray-400">
-            Install this MCP in claude.ai, then type <span className="text-white font-mono bg-white/10 px-2 py-1 rounded">&quot;install fractera&quot;</span> to start.
-          </p>
-
-          {/* Install steps */}
-          <div className="space-y-4">
-            <div className="flex gap-4 items-start">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold shrink-0">1</span>
-              <div>
-                <p className="font-medium">Open claude.ai Settings</p>
-                <p className="text-sm text-gray-400">Go to Settings → Integrations → Add MCP</p>
-              </div>
-            </div>
-            <div className="flex gap-4 items-start">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold shrink-0">2</span>
-              <div>
-                <p className="font-medium">Paste this URL</p>
-                <div className="mt-2 flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
-                  <code className="text-sm text-green-400 flex-1 break-all">{mcpUrl}</code>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-4 items-start">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold shrink-0">3</span>
-              <div>
-                <p className="font-medium">Start a new chat</p>
-                <p className="text-sm text-gray-400">Type <span className="text-white font-mono">&quot;install fractera&quot;</span> and Claude will guide you</p>
-              </div>
+          {/* MCP URL */}
+          <div className="flex flex-col gap-2 w-full max-w-xl">
+            <p className="text-sm text-gray-500 uppercase tracking-widest">MCP Server URL</p>
+            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3">
+              <code className="text-sm text-green-400 flex-1 break-all select-all">{MCP_URL}</code>
             </div>
           </div>
-        </div>
 
-        {/* What you get */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-300">What you get</h3>
-          <ul className="space-y-2 text-gray-400">
-            <li className="flex gap-2"><span className="text-green-400">✓</span> Your own subdomain: <span className="text-white">name.fractera.ai</span></li>
-            <li className="flex gap-2"><span className="text-green-400">✓</span> Claude Code, Gemini, Codex — all in one place</li>
-            <li className="flex gap-2"><span className="text-green-400">✓</span> Your data stays on your server</li>
-            <li className="flex gap-2"><span className="text-green-400">✓</span> Server costs ~€3/month (you pay your host directly)</li>
-          </ul>
-        </div>
+          {/* CTA button */}
+          <a
+            href={CLAUDE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors"
+          >
+            Open Claude
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+            </svg>
+          </a>
+        </section>
 
-        <p className="text-sm text-gray-600 text-center">
+        {/* Steps carousel */}
+        <section className="flex flex-col gap-6">
+          <h2 className="text-xl font-semibold text-gray-300">How to get started</h2>
+          <StepsCarousel />
+        </section>
+
+        {/* Footer */}
+        <p className="text-sm text-gray-700 text-center">
           Fractera is open source. fractera.ai handles subdomain registration only.
         </p>
+
       </div>
     </main>
   )
