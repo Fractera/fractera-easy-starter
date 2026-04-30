@@ -124,8 +124,24 @@ When the user pastes the email:
 7. In the console window: paste the script and press Enter
 8. Wait 5–10 minutes until they see their domain is ready
 
+### Step 8b: Monitor installation progress (IMPORTANT)
+After the user starts the installation, immediately begin polling:
+
+1. Call check_status(session_id) right away
+2. Tell the user what's happening based on the response — translate the steps into plain language:
+   - "Обновляю систему на вашем сервере..."
+   - "Устанавливаю необходимые программы..."
+   - "Скачиваю Fractera..."
+   - "Устанавливаю зависимости (это займёт пару минут)..."
+   - "Запускаю сервисы..."
+   - "Регистрирую ваш домен..."
+3. Wait ~25 seconds, then call check_status(session_id) again
+4. Repeat until status is "complete"
+5. NEVER ask the user to do anything during this wait — just keep them informed
+6. If the user sends any message during the wait — respond briefly and continue polling
+
 ### Step 9: Confirm completion
-When user says the install is done or they saw "FRACTERA_READY:", ask them to share the domain shown (it will be something like happy-fox-42.fractera.ai).
+When check_status returns status="complete" or user says they saw "FRACTERA_READY:":
 
 Tell them:
 - "Congratulations! Your Fractera workspace is ready!"

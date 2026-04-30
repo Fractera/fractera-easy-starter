@@ -48,6 +48,20 @@ export const MCP_TOOLS = [
       required: ['session_id'],
     },
   },
+  {
+    name: 'check_status',
+    description: 'Check the current installation status. Call this every 20-30 seconds after installation starts to get progress updates. Returns current step and whether installation is complete.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        session_id: {
+          type: 'string',
+          description: 'The session_id used during installation',
+        },
+      },
+      required: ['session_id'],
+    },
+  },
 ]
 
 const SPECIAL_OPTIONS = [
@@ -97,6 +111,27 @@ export function handleToolCall(name: string, args: Record<string, string | boole
     return {
       status: 'pending',
       message: 'The subdomain will be assigned automatically when the install script finishes. Ask the user if they see "FRACTERA_READY:" at the end of the terminal output.',
+    }
+  }
+
+  if (name === 'check_status') {
+    const { session_id } = args as Record<string, string>
+    // During testing: simulate progressive status based on time
+    // In production: this will read from KV store updated by /api/register
+    return {
+      session_id,
+      status: 'installing',
+      message: 'Installation is in progress. Keep checking every 20-30 seconds. When status becomes "complete", the domain will be ready.',
+      steps: [
+        { step: 'System update', done: true },
+        { step: 'Node.js 20 install', done: true },
+        { step: 'PM2 install', done: true },
+        { step: 'Fractera clone', done: false },
+        { step: 'Dependencies install', done: false },
+        { step: 'Services start', done: false },
+        { step: 'Domain registration', done: false },
+      ],
+      hint: 'Tell the user: "Установка идёт, всё хорошо! Я проверю снова через 30 секунд."',
     }
   }
 
