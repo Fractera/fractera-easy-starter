@@ -6,24 +6,24 @@ import { createDnsRecord } from '@/lib/cloudflare'
 export const maxDuration = 800
 
 const STEPS = [
-  { id: 'connect',      label: 'Подключаюсь к серверу...' },
-  { id: 'apt_update',   label: 'Обновляю систему...' },
-  { id: 'apt_install',  label: 'Устанавливаю базовые инструменты...' },
-  { id: 'node_setup',   label: 'Подготавливаю установку Node.js...' },
-  { id: 'node_install', label: 'Устанавливаю Node.js 20...' },
-  { id: 'pm2',          label: 'Устанавливаю менеджер процессов PM2...' },
-  { id: 'clone',        label: 'Скачиваю Fractera с GitHub...' },
-  { id: 'deps_root',    label: 'Устанавливаю зависимости (1/4)...' },
-  { id: 'deps_app',     label: 'Устанавливаю зависимости (2/4)...' },
-  { id: 'deps_bridge',  label: 'Устанавливаю зависимости (3/4)...' },
-  { id: 'deps_media',   label: 'Устанавливаю зависимости (4/4)...' },
-  { id: 'start_app',    label: 'Запускаю приложение...' },
-  { id: 'start_bridge', label: 'Запускаю Bridge...' },
-  { id: 'start_media',  label: 'Запускаю медиасервис...' },
-  { id: 'pm2_save',     label: 'Сохраняю конфигурацию...' },
-  { id: 'get_ip',       label: 'Определяю IP-адрес сервера...' },
-  { id: 'register',     label: 'Регистрирую ваш домен...' },
-  { id: 'done',         label: 'Установка завершена!' },
+  { id: 'connect',      label: 'Connecting to server...' },
+  { id: 'apt_update',   label: 'Updating system...' },
+  { id: 'apt_install',  label: 'Installing base tools...' },
+  { id: 'node_setup',   label: 'Preparing Node.js installer...' },
+  { id: 'node_install', label: 'Installing Node.js 20...' },
+  { id: 'pm2',          label: 'Installing PM2 process manager...' },
+  { id: 'clone',        label: 'Downloading Fractera from GitHub...' },
+  { id: 'deps_root',    label: 'Installing dependencies (1/4)...' },
+  { id: 'deps_app',     label: 'Installing dependencies (2/4)...' },
+  { id: 'deps_bridge',  label: 'Installing dependencies (3/4)...' },
+  { id: 'deps_media',   label: 'Installing dependencies (4/4)...' },
+  { id: 'start_app',    label: 'Starting application...' },
+  { id: 'start_bridge', label: 'Starting Bridge...' },
+  { id: 'start_media',  label: 'Starting media service...' },
+  { id: 'pm2_save',     label: 'Saving configuration...' },
+  { id: 'get_ip',       label: 'Detecting server IP...' },
+  { id: 'register',     label: 'Registering your domain...' },
+  { id: 'done',         label: 'Installation complete!' },
 ]
 
 function send(controller: ReadableStreamDefaultController, event: string, data: object) {
@@ -95,14 +95,14 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      send(controller, 'step', { id: 'connect', label: 'Подключаюсь к серверу...', done: false })
+      send(controller, 'step', { id: 'connect', label: 'Connecting to server...', done: false })
 
       ssh.on('ready', () => {
         markStep('connect')
 
         ssh.exec(installCmd, (err, stream) => {
           if (err) {
-            send(controller, 'error', { message: 'Не удалось запустить установку: ' + err.message })
+            send(controller, 'error', { message: 'Failed to start installation: ' + err.message })
             controller.close()
             ssh.end()
             return
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
               await createDnsRecord(ip, subdomain)
               send(controller, 'done', { subdomain: `${subdomain}.fractera.ai` })
             } catch (e: unknown) {
-              send(controller, 'error', { message: 'Домен не удалось зарегистрировать: ' + String(e) })
+              send(controller, 'error', { message: 'Failed to register domain: ' + String(e) })
             }
             controller.close()
             ssh.end()
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       })
 
       ssh.on('error', (err) => {
-        send(controller, 'error', { message: 'Ошибка подключения: ' + err.message })
+        send(controller, 'error', { message: 'Connection error: ' + err.message })
         controller.close()
       })
 

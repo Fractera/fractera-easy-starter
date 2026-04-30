@@ -6,24 +6,24 @@ import { toast } from 'sonner'
 type Step = { id: string; label: string; done: boolean }
 
 const ALL_STEPS: Step[] = [
-  { id: 'connect',      label: 'Подключаюсь к серверу',            done: false },
-  { id: 'apt_update',   label: 'Обновляю систему',                  done: false },
-  { id: 'apt_install',  label: 'Устанавливаю базовые инструменты',  done: false },
-  { id: 'node_setup',   label: 'Подготавливаю Node.js',             done: false },
-  { id: 'node_install', label: 'Устанавливаю Node.js 20',           done: false },
-  { id: 'pm2',          label: 'Устанавливаю PM2',                  done: false },
-  { id: 'clone',        label: 'Скачиваю Fractera',                 done: false },
-  { id: 'deps_root',    label: 'Зависимости 1/4',                   done: false },
-  { id: 'deps_app',     label: 'Зависимости 2/4',                   done: false },
-  { id: 'deps_bridge',  label: 'Зависимости 3/4',                   done: false },
-  { id: 'deps_media',   label: 'Зависимости 4/4',                   done: false },
-  { id: 'start_app',    label: 'Запускаю приложение',               done: false },
-  { id: 'start_bridge', label: 'Запускаю Bridge',                   done: false },
-  { id: 'start_media',  label: 'Запускаю медиасервис',              done: false },
-  { id: 'pm2_save',     label: 'Сохраняю конфигурацию',             done: false },
-  { id: 'get_ip',       label: 'Определяю IP-адрес',                done: false },
-  { id: 'register',     label: 'Регистрирую домен',                 done: false },
-  { id: 'done',         label: 'Установка завершена',               done: false },
+  { id: 'connect',      label: 'Connecting to server',              done: false },
+  { id: 'apt_update',   label: 'Updating system',                   done: false },
+  { id: 'apt_install',  label: 'Installing base tools',             done: false },
+  { id: 'node_setup',   label: 'Preparing Node.js installer',       done: false },
+  { id: 'node_install', label: 'Installing Node.js 20',             done: false },
+  { id: 'pm2',          label: 'Installing PM2 process manager',    done: false },
+  { id: 'clone',        label: 'Downloading Fractera',              done: false },
+  { id: 'deps_root',    label: 'Installing dependencies (1/4)',     done: false },
+  { id: 'deps_app',     label: 'Installing dependencies (2/4)',     done: false },
+  { id: 'deps_bridge',  label: 'Installing dependencies (3/4)',     done: false },
+  { id: 'deps_media',   label: 'Installing dependencies (4/4)',     done: false },
+  { id: 'start_app',    label: 'Starting application',              done: false },
+  { id: 'start_bridge', label: 'Starting Bridge',                   done: false },
+  { id: 'start_media',  label: 'Starting media service',            done: false },
+  { id: 'pm2_save',     label: 'Saving configuration',              done: false },
+  { id: 'get_ip',       label: 'Detecting server IP',               done: false },
+  { id: 'register',     label: 'Registering your domain',           done: false },
+  { id: 'done',         label: 'Installation complete!',            done: false },
 ]
 
 function generateSessionId() {
@@ -117,26 +117,26 @@ export function InstallForm() {
       {/* Form */}
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-gray-500 uppercase tracking-widest">Установить Fractera на сервер</p>
+          <p className="text-sm text-gray-500 uppercase tracking-widest">Install Fractera on your server</p>
 
           <div className="flex flex-col gap-3">
             <input
               type="text"
-              placeholder="IP-адрес сервера (например: 109.199.105.213)"
+              placeholder="Server IP address (e.g. 109.199.105.213)"
               value={ip}
               onChange={e => setIp(e.target.value)}
               className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
             />
             <input
               type="text"
-              placeholder="Логин (обычно: root)"
+              placeholder="Login (usually: root)"
               value={login}
               onChange={e => setLogin(e.target.value)}
               className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
             />
             <input
               type="password"
-              placeholder="Пароль"
+              placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
@@ -148,11 +148,11 @@ export function InstallForm() {
             disabled={!ip || !password}
             className="bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            Установить Fractera
+            Install Fractera
           </button>
 
           <p className="text-xs text-gray-600">
-            Данные используются только для установки и не сохраняются на наших серверах.
+            Your credentials are used only for installation and are never stored on our servers.
           </p>
         </div>
       )}
@@ -196,8 +196,8 @@ export function InstallForm() {
       {/* Done */}
       {subdomain && (
         <div className="flex flex-col gap-4">
-          <p className="text-lg font-semibold text-green-400">Fractera установлена!</p>
-          <p className="text-sm text-gray-400">Ваш адрес готов:</p>
+          <p className="text-lg font-semibold text-green-400">Fractera installed!</p>
+          <p className="text-sm text-gray-400">Your address is ready:</p>
           <a
             href={`https://${subdomain}`}
             target="_blank"
@@ -207,7 +207,7 @@ export function InstallForm() {
             https://{subdomain}
           </a>
           <p className="text-xs text-gray-600">
-            Первый аккаунт который вы создадите станет Администратором.
+            The first account you create will be the Administrator.
           </p>
         </div>
       )}
