@@ -1,4 +1,9 @@
-import { kv } from '@vercel/kv'
+import { Redis } from '@upstash/redis'
+
+const kv = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
 
 export type ProgressStep = {
   id: string
@@ -16,47 +21,35 @@ export type InstallProgress = {
 }
 
 export async function initProgress(session_id: string): Promise<void> {
-  const initial: InstallProgress = {
-    session_id,
-    status: 'installing',
-    steps: [],
-  }
-  await kv.set(`progress:${session_id}`, JSON.stringify(initial), { ex: 3600 })
+  const initial: InstallProgress = { session_id, status: 'installing', steps: [] }
+  await kv.set(`progress:${session_id}`, initial, { ex: 3600 })
 }
 
 export async function appendStep(session_id: string, step: ProgressStep): Promise<void> {
-  const raw = await kv.get<string>(`progress:${session_id}`)
-  if (!raw) return
-  const progress: InstallProgress = JSON.parse(raw)
+  const progress = await kv.get<InstallProgress>(`progress:${session_id}`)
+  if (!progress) return
   const existing = progress.steps.findIndex(s => s.id === step.id)
-  if (existing >= 0) {
-    progress.steps[existing] = step
-  } else {
-    progress.steps.push(step)
-  }
-  await kv.set(`progress:${session_id}`, JSON.stringify(progress), { ex: 3600 })
+  if (existing >= 0) progress.steps[existing] = step
+  else progress.steps.push(step)
+  await kv.set(`progress:${session_id}`, progress, { ex: 3600 })
 }
 
 export async function completeProgress(session_id: string, subdomain: string): Promise<void> {
-  const raw = await kv.get<string>(`progress:${session_id}`)
-  if (!raw) return
-  const progress: InstallProgress = JSON.parse(raw)
+  const progress = await kv.get<InstallProgress>(`progress:${session_id}`)
+  if (!progress) return
   progress.status = 'done'
   progress.subdomain = subdomain
-  await kv.set(`progress:${session_id}`, JSON.stringify(progress), { ex: 86400 })
+  await kv.set(`progress:${session_id}`, progress, { ex: 86400 })
 }
 
 export async function failProgress(session_id: string, error: string): Promise<void> {
-  const raw = await kv.get<string>(`progress:${session_id}`)
-  if (!raw) return
-  const progress: InstallProgress = JSON.parse(raw)
+  const progress = await kv.get<InstallProgress>(`progress:${session_id}`)
+  if (!progress) return
   progress.status = 'error'
   progress.error = error
-  await kv.set(`progress:${session_id}`, JSON.stringify(progress), { ex: 3600 })
+  await kv.set(`progress:${session_id}`, progress, { ex: 3600 })
 }
 
 export async function getProgress(session_id: string): Promise<InstallProgress | null> {
-  const raw = await kv.get<string>(`progress:${session_id}`)
-  if (!raw) return null
-  return JSON.parse(raw)
+  return kv.get<InstallProgress>(`progress:${session_id}`)
 }
