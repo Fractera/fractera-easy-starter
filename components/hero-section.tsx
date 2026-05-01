@@ -14,6 +14,8 @@ const MCP_URL = 'https://fractera.ai/api/mcp'
 
 export function HeroSection() {
   const [domainReady, setDomainReady] = useState(false)
+  const [liveSubdomain, setLiveSubdomain] = useState('')
+  const [installing, setInstalling] = useState(false)
 
   useEffect(() => {
     try {
@@ -35,10 +37,17 @@ export function HeroSection() {
       </div>
 
       {/* Step 1: Install */}
-      <InstallForm />
+      <InstallForm
+        onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
+        onInstallingChange={setInstalling}
+      />
 
       {/* Step 2: Domain — appears after install */}
-      <DomainStatus onStatusChange={setDomainReady} />
+      <DomainStatus
+        onStatusChange={setDomainReady}
+        subdomain={liveSubdomain}
+        installing={installing}
+      />
 
       {/* Always-available troubleshoot — works during install, after success, after error */}
       <Troubleshoot />

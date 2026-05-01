@@ -49,7 +49,7 @@ function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
   )
 }
 
-export function InstallForm() {
+export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdomainReady?: (subdomain: string) => void; onInstallingChange?: (installing: boolean) => void } = {}) {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
@@ -73,6 +73,7 @@ export function InstallForm() {
   async function handleInstall() {
     if (!ip || !password) return
     setInstalling(true)
+    onInstallingChange?.(true)
     setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
     setActiveStep('connect')
@@ -126,6 +127,8 @@ export function InstallForm() {
             status: 'ready',
           }))
           setInstalling(false)
+          onInstallingChange?.(false)
+          onSubdomainReady?.(progress.subdomain)
         }
 
         if (progress.status === 'error') {
@@ -304,24 +307,6 @@ export function InstallForm() {
         </div>
       )}
 
-      {/* Done */}
-      {subdomain && (
-        <div className="flex flex-col gap-4">
-          <p className="text-lg font-semibold text-green-400">Fractera installed!</p>
-          <p className="text-sm text-gray-400">Your address is ready:</p>
-          <a
-            href={`https://${subdomain}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-400 underline underline-offset-2 text-base font-mono"
-          >
-            https://{subdomain}
-          </a>
-          <p className="text-xs text-gray-600">
-            The first account you create will be the Administrator.
-          </p>
-        </div>
-      )}
     </div>
   )
 }

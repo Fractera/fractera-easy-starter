@@ -19,7 +19,7 @@ function getStored(): StoredDomain | null {
   }
 }
 
-export function DomainStatus({ onStatusChange }: { onStatusChange?: (ready: boolean) => void } = {}) {
+export function DomainStatus({ onStatusChange, subdomain, installing }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean } = {}) {
   const [state, setState] = useState<DomainState>('empty')
   const [domain, setDomain] = useState('')
   const [copied, setCopied] = useState(false)
@@ -38,6 +38,15 @@ export function DomainStatus({ onStatusChange }: { onStatusChange?: (ready: bool
     setState(stored.status)
     onStatusChange?.(stored.status === 'ready')
   }, [])
+
+  // Sync live install state from install-form
+  useEffect(() => {
+    if (subdomain) {
+      updateState('ready', subdomain)
+    } else if (installing) {
+      setState(s => s === 'empty' ? 'installing' : s)
+    }
+  }, [subdomain, installing])
 
   useEffect(() => {
     if (state !== 'installing') return
@@ -109,6 +118,21 @@ export function DomainStatus({ onStatusChange }: { onStatusChange?: (ready: bool
         >
           Installation in progress — please wait...
         </p>
+      )}
+      {isReady && (
+        <div className="flex flex-col gap-1">
+          <a
+            href={`https://${domain}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-green-500 hover:text-green-400 transition-colors"
+          >
+            Open ↗
+          </a>
+          <p className="text-xs text-gray-600">
+            The first account you create will be the Administrator.
+          </p>
+        </div>
       )}
 
     </div>
