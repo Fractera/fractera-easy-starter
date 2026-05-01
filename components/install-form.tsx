@@ -62,6 +62,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [now, setNow] = useState<number>(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const eventSourceRef = useRef<(() => void) | null>(null)
+  const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
+  const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
+  const [statusError, setStatusError] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Tick every second while installing — for elapsed time and silence detection
   useEffect(() => {
@@ -70,8 +74,49 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
     return () => clearInterval(t)
   }, [installing])
 
+  // Auto-check server status when credentials are filled
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
+    if (ip.length < 4 || login.length < 2 || password.length < 4) {
+      setServerStatus('idle')
+      setDetectedSubdomain(null)
+      setStatusError(null)
+      return
+    }
+
+    setServerStatus('checking')
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, login, password }),
+        })
+        if (!res.ok) { setServerStatus('fresh'); return }
+        const data = await res.json()
+        if (data.installed) {
+          setDetectedSubdomain(data.subdomain ?? null)
+          setServerStatus('installed')
+          if (data.subdomain) onSubdomainReady?.(data.subdomain)
+        } else {
+          setStatusError(data.sshError ?? null)
+          setServerStatus('fresh')
+        }
+      } catch {
+        setServerStatus('fresh')
+      }
+    }, 800)
+
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [ip, login, password])
+
   async function handleInstall() {
     if (!ip || !password) return
+    setServerStatus('idle')
+    setDetectedSubdomain(null)
+    setStatusError(null)
     setInstalling(true)
     onInstallingChange?.(true)
     setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
@@ -227,13 +272,53 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             </div>
           </div>
 
-          <button
-            onClick={handleInstall}
-            disabled={!ip || !password}
-            className="bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Install Fractera
-          </button>
+          {serverStatus === 'checking' && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+              Checking server...
+            </div>
+          )}
+
+          {serverStatus === 'installed' && (
+            <div className="flex flex-col gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-5">
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">&#10003;</span>
+                <p className="text-sm font-semibold text-green-400">Fractera is already installed on this server</p>
+              </div>
+              {detectedSubdomain && (
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs text-gray-500 uppercase tracking-widest">Your domain</p>
+                  <a
+                    href={`https://${detectedSubdomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-green-300 hover:text-green-200 transition-colors break-all"
+                  >
+                    https://{detectedSubdomain} ↗
+                  </a>
+                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                To manage your server, use the options below. To remove Fractera, use the Danger Zone.
+              </p>
+            </div>
+          )}
+
+          {(serverStatus === 'fresh' || serverStatus === 'idle') && (
+            <button
+              onClick={handleInstall}
+              disabled={!ip || !password}
+              className="bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Install Fractera
+            </button>
+          )}
+
+          {serverStatus === 'fresh' && statusError && (
+            <p className="text-xs text-yellow-600 px-1">
+              Could not reach server. You can still try installing.
+            </p>
+          )}
 
           <p className="text-xs text-gray-600">
             Your credentials are used only for installation and are never stored on our servers.
