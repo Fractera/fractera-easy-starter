@@ -13,6 +13,7 @@ export function HeroSection() {
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
+  const [destroyed, setDestroyed] = useState(false)
 
   useEffect(() => {
     try {
@@ -47,6 +48,7 @@ export function HeroSection() {
         onStatusChange={setDomainReady}
         subdomain={liveSubdomain}
         installing={installing}
+        destroyed={destroyed}
       />
 
       {/* Error state: install started but no domain yet — show troubleshoot + platform selector */}
@@ -74,7 +76,7 @@ export function HeroSection() {
             <PlatformSelector />
           </div>
 
-          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain('') }} />
+          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); setDestroyed(true) }} />
         </>
       )}
     </section>

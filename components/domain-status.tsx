@@ -19,7 +19,7 @@ function getStored(): StoredDomain | null {
   }
 }
 
-export function DomainStatus({ onStatusChange, subdomain, installing }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean } = {}) {
+export function DomainStatus({ onStatusChange, subdomain, installing, destroyed }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean; destroyed?: boolean } = {}) {
   const [state, setState] = useState<DomainState>('empty')
   const [domain, setDomain] = useState('')
   const [copied, setCopied] = useState(false)
@@ -47,6 +47,13 @@ export function DomainStatus({ onStatusChange, subdomain, installing }: { onStat
       setState(s => s === 'empty' ? 'installing' : s)
     }
   }, [subdomain, installing])
+
+  // Reset when server is destroyed
+  useEffect(() => {
+    if (!destroyed) return
+    setState('empty')
+    setDomain('')
+  }, [destroyed])
 
   useEffect(() => {
     if (state !== 'installing') return
