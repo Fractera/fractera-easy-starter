@@ -24,7 +24,7 @@ apt-get update -qq
 report "apt_update" "Updating system" true
 
 report "apt_install" "Installing base tools" false
-apt-get install -y -qq git curl nginx certbot python3-certbot-nginx build-essential
+apt-get install -y -qq git curl nginx build-essential
 report "apt_install" "Installing base tools" true
 
 report "node_setup" "Preparing Node.js installer" false
@@ -50,13 +50,6 @@ report "deps_root" "Installing dependencies (1/4)" true
 
 report "deps_app" "Installing dependencies (2/4)" false
 npm install --prefix app > /dev/null 2>&1
-# Ensure native lightningcss binary for current platform
-ARCH=$(uname -m)
-if [ "$ARCH" = "x86_64" ]; then
-  npm install --prefix app lightningcss-linux-x64-gnu --save-optional > /dev/null 2>&1
-elif [ "$ARCH" = "aarch64" ]; then
-  npm install --prefix app lightningcss-linux-arm64-gnu --save-optional > /dev/null 2>&1
-fi
 report "deps_app" "Installing dependencies (2/4)" true
 
 report "deps_bridge" "Installing dependencies (3/4)" false
@@ -67,8 +60,12 @@ report "deps_media" "Installing dependencies (4/4)" false
 npm install --prefix services/media > /dev/null 2>&1
 report "deps_media" "Installing dependencies (4/4)" true
 
+report "build_app" "Building application (production)" false
+npm run build --prefix app > /tmp/fractera-build.log 2>&1
+report "build_app" "Building application (production)" true
+
 report "start_app" "Starting application" false
-pm2 start npm --name "fractera-app" -- run dev --prefix app
+pm2 start npm --name "fractera-app" -- run start --prefix app
 report "start_app" "Starting application" true
 
 report "start_bridge" "Starting Bridge" false
@@ -83,6 +80,32 @@ report "pm2_save" "Saving configuration" false
 pm2 save
 pm2 startup | tail -1 | bash > /dev/null 2>&1 || true
 report "pm2_save" "Saving configuration" true
+
+report "configure_nginx" "Configuring web server" false
+cat > /etc/nginx/sites-available/fractera <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+EOF
+rm -f /etc/nginx/sites-enabled/default
+ln -sf /etc/nginx/sites-available/fractera /etc/nginx/sites-enabled/fractera
+nginx -t > /dev/null 2>&1
+systemctl reload nginx
+report "configure_nginx" "Configuring web server" true
 
 report "register" "Registering your domain" false
 SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
