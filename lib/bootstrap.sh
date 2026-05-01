@@ -54,7 +54,7 @@ step "apt_install"     "Installing base tools"          "apt-get install -y -qq 
 step "node_setup"      "Preparing Node.js installer"    "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
 step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
-step "clone"           "Downloading Fractera"           "git clone https://github.com/Fractera/ai-workspace.git /opt/fractera && cd /opt/fractera"
+step "clone"           "Downloading Fractera"           "rm -rf /opt/fractera && git clone https://github.com/Fractera/ai-workspace.git /opt/fractera && cd /opt/fractera"
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
@@ -76,6 +76,10 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
 step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media"
 step "build_app"   "Building application"          "npm run build --prefix app"
+
+# Remove any previous services before starting fresh
+pm2 delete all >> "$LOG_FILE" 2>&1 || true
+
 step "start_app"   "Starting application"          "pm2 start npm --name fractera-app -- run start --prefix app"
 step "start_bridge" "Starting Bridge"              "pm2 start npm --name fractera-bridge -- run start --prefix bridges/platforms"
 step "start_media" "Starting media service"        "pm2 start npm --name fractera-media -- run start --prefix services/media"
