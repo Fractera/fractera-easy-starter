@@ -50,7 +50,7 @@ step() {
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"      "Updating system"                "apt-get update -qq"
-step "apt_install"     "Installing base tools"          "apt-get install -y -qq git curl nginx build-essential"
+step "apt_install"     "Installing base tools"          "apt-get install -y -qq git curl nginx build-essential certbot python3-certbot-nginx dnsutils"
 step "node_setup"      "Preparing Node.js installer"    "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
 step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
@@ -80,19 +80,21 @@ step "build_app"   "Building application"          "npm run build --prefix app"
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"   "Starting application"          "pm2 start npm --name fractera-app -- run start --prefix app"
-step "start_bridge" "Starting Bridge"              "pm2 start npm --name fractera-bridge -- run start --prefix bridges/platforms"
-step "start_media" "Starting media service"        "pm2 start npm --name fractera-media -- run start --prefix services/media"
+step "start_app"    "Starting application"     "pm2 start npm --name fractera-app -- run start --prefix app"
+step "start_bridge" "Starting Bridge"          "pm2 start npm --name fractera-bridge -- run start --prefix bridges/platforms"
+step "start_media"  "Starting media service"   "pm2 start npm --name fractera-media -- run start --prefix services/media"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 save >> "$LOG_FILE" 2>&1 || true
-pm2 startup | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
+pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
+systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-CURRENT_STEP="configure_nginx"
-CURRENT_LABEL="Configuring web server"
+# === Initial Nginx config — HTTP only, default server. Needed for certbot challenge. ===
+CURRENT_STEP="configure_nginx_http"
+CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 cat > /etc/nginx/sites-available/fractera <<'EOF'
 server {
@@ -119,10 +121,10 @@ nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+# === Health check before SSL ===
 CURRENT_STEP="health_check"
 CURRENT_LABEL="Verifying server is responding"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-# Wait up to 60s for app to actually serve traffic
 for i in $(seq 1 30); do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 2>/dev/null || echo "0")
   if [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || [ "$CODE" = "307" ]; then
@@ -135,6 +137,7 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+# === Register domain ===
 CURRENT_STEP="register"
 CURRENT_LABEL="Registering your domain"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
@@ -149,6 +152,60 @@ RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
 if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
   fail "domain registration failed: $RESPONSE"
 fi
+SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
+if [ -z "$SUBDOMAIN" ]; then
+  fail "could not parse subdomain from response: $RESPONSE"
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Wait for DNS propagation ===
+CURRENT_STEP="wait_dns"
+CURRENT_LABEL="Waiting for DNS to propagate"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+for i in $(seq 1 60); do
+  RESOLVED=$(dig +short "$SUBDOMAIN" @1.1.1.1 2>/dev/null | head -1)
+  if [ "$RESOLVED" = "$SERVER_IP" ]; then
+    break
+  fi
+  sleep 5
+done
+if [ "$RESOLVED" != "$SERVER_IP" ]; then
+  fail "DNS did not propagate within 5 minutes: $SUBDOMAIN resolves to '$RESOLVED', expected $SERVER_IP"
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Get SSL certificate ===
+CURRENT_STEP="ssl_cert"
+CURRENT_LABEL="Getting SSL certificate"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+certbot --nginx \
+  -d "$SUBDOMAIN" \
+  --non-interactive \
+  --agree-tos \
+  --email "noreply@fractera.ai" \
+  --redirect \
+  --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot failed to get certificate for $SUBDOMAIN"
+
+# Verify certbot timer is enabled (auto-renewal)
+systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
+systemctl start certbot.timer >> "$LOG_FILE" 2>&1 || true
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Final HTTPS health check ===
+CURRENT_STEP="https_check"
+CURRENT_LABEL="Verifying HTTPS is working"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+for i in $(seq 1 15); do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$SUBDOMAIN" 2>/dev/null || echo "0")
+  if [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || [ "$CODE" = "307" ]; then
+    break
+  fi
+  sleep 2
+done
+if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
+  fail "HTTPS not responding on $SUBDOMAIN (got $CODE)"
+fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # Signal completion with subdomain
@@ -159,4 +216,4 @@ curl -s -X POST "$PROGRESS_URL" \
   > /dev/null 2>&1 || true
 
 echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
-echo "FRACTERA_READY"
+echo "FRACTERA_READY: https://$SUBDOMAIN"
