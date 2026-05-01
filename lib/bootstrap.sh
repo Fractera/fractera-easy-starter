@@ -50,6 +50,13 @@ report "deps_root" "Installing dependencies (1/4)" true
 
 report "deps_app" "Installing dependencies (2/4)" false
 npm install --prefix app > /dev/null 2>&1
+# Ensure native lightningcss binary for current platform
+ARCH=$(uname -m)
+if [ "$ARCH" = "x86_64" ]; then
+  npm install --prefix app lightningcss-linux-x64-gnu --save-optional > /dev/null 2>&1
+elif [ "$ARCH" = "aarch64" ]; then
+  npm install --prefix app lightningcss-linux-arm64-gnu --save-optional > /dev/null 2>&1
+fi
 report "deps_app" "Installing dependencies (2/4)" true
 
 report "deps_bridge" "Installing dependencies (3/4)" false
@@ -65,11 +72,11 @@ pm2 start npm --name "fractera-app" -- run dev --prefix app
 report "start_app" "Starting application" true
 
 report "start_bridge" "Starting Bridge" false
-pm2 start npm --name "fractera-bridge" -- run dev --prefix bridges/platforms
+pm2 start npm --name "fractera-bridge" -- run start --prefix bridges/platforms
 report "start_bridge" "Starting Bridge" true
 
 report "start_media" "Starting media service" false
-pm2 start npm --name "fractera-media" -- run dev --prefix services/media
+pm2 start npm --name "fractera-media" -- run start --prefix services/media
 report "start_media" "Starting media service" true
 
 report "pm2_save" "Saving configuration" false

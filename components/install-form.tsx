@@ -57,22 +57,19 @@ export function InstallForm() {
     setInstalling(true)
     setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
-    setActiveStep(null)
+    setActiveStep('connect')
 
-    const res = await fetch('/api/install', {
+    // Generate session_id on client — start polling immediately
+    const session_id = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
+    // Fire-and-forget the install request — don't await it
+    fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, login, password }),
+      body: JSON.stringify({ ip, login, password, session_id }),
+    }).catch(() => {
+      // Vercel may timeout the connection but bootstrap is already running on the server
     })
-
-    if (!res.ok) {
-      const err = await res.json()
-      toast.error(err.error ?? 'Could not connect to server')
-      setInstalling(false)
-      return
-    }
-
-    const { session_id } = await res.json()
 
     const pollInterval = setInterval(async () => {
       try {

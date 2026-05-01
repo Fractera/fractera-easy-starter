@@ -6,19 +6,14 @@ import { initProgress } from '@/lib/kv'
 
 export const maxDuration = 300
 
-function generateSessionId() {
-  return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
 export async function POST(req: NextRequest) {
-  const { ip, login, password } = await req.json()
+  const { ip, login, password, session_id } = await req.json()
 
-  if (!ip || !login || !password) {
-    return NextResponse.json({ error: 'Missing ip, login or password' }, { status: 400 })
+  if (!ip || !login || !password || !session_id) {
+    return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
   }
 
   const secret = process.env.INSTALL_SCRIPT_SECRET!
-  const session_id = generateSessionId()
 
   const bootstrapPath = join(process.cwd(), 'lib', 'bootstrap.sh')
   const bootstrapContent = readFileSync(bootstrapPath, 'utf-8')
