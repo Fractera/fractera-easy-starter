@@ -32,12 +32,14 @@ export async function POST(req: NextRequest) {
       ssh.sftp((err, sftp) => {
         if (err) { reject(err); ssh.end(); return }
 
-        const writeStream = sftp.createWriteStream('/tmp/fractera-bootstrap.sh')
-        writeStream.write(bootstrapContent)
-        writeStream.end()
+        const remoteScript = '/tmp/fractera-bootstrap.sh'
+        const writeStream = sftp.createWriteStream(remoteScript)
+
+        writeStream.on('error', (err: Error) => { reject(err); ssh.end() })
 
         writeStream.on('close', () => {
-          const cmd = `chmod +x /tmp/fractera-bootstrap.sh && nohup bash /tmp/fractera-bootstrap.sh "${session_id}" "${secret}" > /tmp/fractera-install.log 2>&1 &`
+          sftp.end()
+          const cmd = `chmod +x ${remoteScript} && nohup bash ${remoteScript} "${session_id}" "${secret}" > /tmp/fractera-install.log 2>&1 &`
           ssh.exec(cmd, (err, stream) => {
             if (err) { reject(err); ssh.end(); return }
             stream.on('close', () => { ssh.end(); resolve() })
@@ -46,7 +48,7 @@ export async function POST(req: NextRequest) {
           })
         })
 
-        writeStream.on('error', (err: Error) => { reject(err); ssh.end() })
+        writeStream.end(bootstrapContent)
       })
     })
 
