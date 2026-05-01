@@ -74,7 +74,7 @@ fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
-step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media"
+step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media && npm rebuild sharp --prefix services/media && npm rebuild better-sqlite3 --prefix services/media"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -107,9 +107,9 @@ step "build_app"   "Building application (production)"  "npm run build --prefix 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"    "Starting application"     "pm2 start npm --name fractera-app -- run start --prefix app"
-step "start_bridge" "Starting Bridge"          "pm2 start npm --name fractera-bridge -- run start --prefix bridges/platforms"
-step "start_media"  "Starting media service"   "pm2 start npm --name fractera-media -- run start --prefix services/media"
+step "start_app"    "Starting application"     "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
+step "start_bridge" "Starting Bridge"          "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
+step "start_media"  "Starting media service"   "cd /opt/fractera/services/media && pm2 start npm --name fractera-media -- run start && cd /opt/fractera"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
