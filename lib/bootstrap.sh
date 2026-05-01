@@ -212,7 +212,7 @@ source /etc/fractera/secrets.env
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
-NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/media
+NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN
 ENVEOF
 pm2 restart fractera-app >> "$LOG_FILE" 2>&1 || true
 
