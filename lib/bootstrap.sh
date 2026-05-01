@@ -85,6 +85,9 @@ case "$PLATFORM" in
   claude-code)
     curl -fsSL https://claude.ai/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "claude install failed"
     ;;
+  codex)
+    npm install -g @openai/codex >> "$LOG_FILE" 2>&1 || fail "codex install failed"
+    ;;
   gemini)
     npm install -g @google/gemini-cli >> "$LOG_FILE" 2>&1 || fail "gemini install failed"
     ;;

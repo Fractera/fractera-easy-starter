@@ -36,10 +36,14 @@ const ALL_STEPS: Step[] = [
 ]
 
 function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
+  const [open, setOpen] = useState(false)
   return (
     <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2">
+      <Tooltip open={open} onOpenChange={setOpen}>
+        <TooltipTrigger
+          onClick={() => setOpen(v => !v)}
+          className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2"
+        >
           ?
         </TooltipTrigger>
         <TooltipContent side="right" className="!block max-w-72 text-sm leading-relaxed whitespace-normal w-72">
@@ -276,9 +280,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
 
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500 uppercase tracking-widest">AI Platform</p>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {[
                 { id: 'claude-code', label: 'Claude Code' },
+                { id: 'codex',       label: 'Codex' },
                 { id: 'gemini',      label: 'Gemini CLI' },
                 { id: 'qwen',        label: 'Qwen Code' },
                 { id: 'kimi',        label: 'Kimi Code' },
@@ -287,7 +292,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                 <button
                   key={p.id}
                   onClick={() => setPlatform(p.id)}
-                  className={`py-3 px-2 rounded-xl text-xs font-medium border transition-colors text-center ${
+                  className={`shrink-0 py-3 px-3 rounded-xl text-xs font-medium border transition-colors text-center ${
                     platform === p.id
                       ? 'bg-white text-black border-white'
                       : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/30'
