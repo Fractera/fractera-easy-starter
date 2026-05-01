@@ -52,12 +52,14 @@ export function HeroSection() {
       {/* Always-available troubleshoot — works during install, after success, after error */}
       <Troubleshoot />
 
-      {/* Step 3: MCP + carousel — visible only after domain is ready */}
+      {/* Step 3: MCP — visible only after domain is ready */}
       {domainReady && (
         <>
-          <div className="w-full">
-            <h2 className="text-xl font-semibold text-gray-300 mb-6">How to connect Claude</h2>
-            <StepsCarousel />
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-semibold text-gray-300">Connect via Fractera MCP</h2>
+            <p className="text-sm text-gray-500 max-w-xl">
+              Use the Fractera MCP to work with your server and your project directly from the Claude chat — no terminal, no SSH. You get full control over your application through the standard Claude chat interface.
+            </p>
           </div>
 
           <CopyUrl label="Connector Name" url="Fractera" />
@@ -81,6 +83,11 @@ export function HeroSection() {
             <p className="text-sm text-gray-600">
               Incognito mode is not recommended — it may interfere with Claude Code login.
             </p>
+          </div>
+
+          <div className="w-full">
+            <h2 className="text-xl font-semibold text-gray-300 mb-6">How to connect Claude</h2>
+            <StepsCarousel />
           </div>
         </>
       )}
