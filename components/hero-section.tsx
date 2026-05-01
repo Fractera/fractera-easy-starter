@@ -8,6 +8,7 @@ import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { StepsCarousel } from '@/components/steps-carousel'
+import { Troubleshoot } from '@/components/troubleshoot'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -38,6 +39,9 @@ export function HeroSection() {
 
       {/* Step 2: Domain — appears after install */}
       <DomainStatus onStatusChange={setDomainReady} />
+
+      {/* Always-available troubleshoot — works during install, after success, after error */}
+      <Troubleshoot />
 
       {/* Step 3: MCP + carousel — visible only after domain is ready */}
       {domainReady && (

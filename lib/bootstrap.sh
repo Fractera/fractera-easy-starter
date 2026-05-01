@@ -75,7 +75,34 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
 step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media"
-step "build_app"   "Building application"          "npm run build --prefix app"
+
+# === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
+CURRENT_STEP="prepare_secrets"
+CURRENT_LABEL="Generating security keys"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+mkdir -p /etc/fractera
+SECRETS_FILE="/etc/fractera/secrets.env"
+if [ ! -f "$SECRETS_FILE" ] || ! grep -q "AUTH_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
+  NEW_SECRET=$(openssl rand -base64 32)
+  echo "AUTH_SECRET=$NEW_SECRET" > "$SECRETS_FILE"
+fi
+chmod 600 "$SECRETS_FILE"
+source "$SECRETS_FILE"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Write .env.local before build (NEXT_PUBLIC_* must be present at build time) ===
+CURRENT_STEP="prepare_env"
+CURRENT_LABEL="Writing environment configuration"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+source /etc/fractera/secrets.env
+cat > /opt/fractera/app/.env.local <<ENVEOF
+AUTH_SECRET=$AUTH_SECRET
+AUTH_TRUST_HOST=true
+NEXT_PUBLIC_MEDIA_URL=
+ENVEOF
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+step "build_app"   "Building application (production)"  "npm run build --prefix app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
@@ -101,6 +128,28 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:3300/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+
+    location /bridge/ {
+        proxy_pass http://127.0.0.1:3201/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -157,6 +206,15 @@ if [ -z "$SUBDOMAIN" ]; then
   fail "could not parse subdomain from response: $RESPONSE"
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# Update .env.local with final subdomain-based URLs, then restart app
+source /etc/fractera/secrets.env
+cat > /opt/fractera/app/.env.local <<ENVEOF
+AUTH_SECRET=$AUTH_SECRET
+AUTH_TRUST_HOST=true
+NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/media
+ENVEOF
+pm2 restart fractera-app >> "$LOG_FILE" 2>&1 || true
 
 # === Wait for DNS propagation ===
 CURRENT_STEP="wait_dns"

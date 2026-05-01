@@ -19,6 +19,8 @@ const ALL_STEPS: Step[] = [
   { id: 'deps_app_native',      label: 'Installing native modules',           done: false },
   { id: 'deps_bridge',          label: 'Installing dependencies (3/4)',       done: false },
   { id: 'deps_media',           label: 'Installing dependencies (4/4)',       done: false },
+  { id: 'prepare_secrets',      label: 'Generating security keys',            done: false },
+  { id: 'prepare_env',          label: 'Writing environment configuration',   done: false },
   { id: 'build_app',            label: 'Building application (production)',   done: false },
   { id: 'start_app',            label: 'Starting application',                done: false },
   { id: 'start_bridge',         label: 'Starting Bridge',                     done: false },
