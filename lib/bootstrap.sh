@@ -50,6 +50,13 @@ report "deps_root" "Installing dependencies (1/4)" true
 
 report "deps_app" "Installing dependencies (2/4)" false
 npm install --prefix app > /dev/null 2>&1
+# Install platform-specific native binaries for Tailwind v4
+ARCH=$(uname -m)
+if [ "$ARCH" = "x86_64" ]; then
+  npm install --prefix app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional > /dev/null 2>&1
+elif [ "$ARCH" = "aarch64" ]; then
+  npm install --prefix app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional > /dev/null 2>&1
+fi
 report "deps_app" "Installing dependencies (2/4)" true
 
 report "deps_bridge" "Installing dependencies (3/4)" false
