@@ -181,6 +181,18 @@ server {
         proxy_read_timeout 86400;
     }
 
+    location /claude-bridge/ {
+        proxy_pass http://127.0.0.1:3200/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -243,6 +255,8 @@ cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN
+NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/bridge/
+NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/claude-bridge/
 ENVEOF
 pm2 restart fractera-app >> "$LOG_FILE" 2>&1 || true
 
