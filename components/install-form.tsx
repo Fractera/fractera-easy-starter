@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 type Step = { id: string; label: string; done: boolean }
 
@@ -30,42 +31,18 @@ function generateSessionId() {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-function Tooltip({ text, children }: { text: React.ReactNode; children: React.ReactNode }) {
-  const [visible, setVisible] = useState(false)
-  const ref = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    if (!visible) return
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setVisible(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [visible])
-
-  return (
-    <span ref={ref} className="relative inline-flex items-center">
-      <span onClick={() => setVisible(v => !v)} className="cursor-pointer inline-flex items-center">
-        {children}
-      </span>
-      {visible && (
-        <span className="absolute left-7 top-0 z-20 w-72 bg-zinc-900 border border-white/10 rounded-xl p-4 shadow-xl" style={{ fontSize: '14px', lineHeight: '1.6', color: '#9ca3af' }}>
-          {text}
-        </span>
-      )}
-    </span>
-  )
-}
-
 function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
   return (
-    <Tooltip text={tooltip}>
-      <span className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2">
-        ?
-      </span>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2">
+          ?
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-72 text-sm leading-relaxed whitespace-normal">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 
