@@ -3,7 +3,7 @@ import { Client } from 'ssh2'
 import { generateSubdomain } from '@/lib/subdomain'
 import { createDnsRecord } from '@/lib/cloudflare'
 
-export const maxDuration = 800
+export const maxDuration = 300
 
 const STEPS = [
   { id: 'connect',      label: 'Connecting to server...' },
