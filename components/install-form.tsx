@@ -19,6 +19,7 @@ const ALL_STEPS: Step[] = [
   { id: 'deps_app_native',      label: 'Installing native modules',           done: false },
   { id: 'deps_bridge',          label: 'Installing dependencies (3/4)',       done: false },
   { id: 'deps_media',           label: 'Installing dependencies (4/4)',       done: false },
+  { id: 'install_platform',     label: 'Installing AI platform',              done: false },
   { id: 'prepare_secrets',      label: 'Generating security keys',            done: false },
   { id: 'prepare_env',          label: 'Writing environment configuration',   done: false },
   { id: 'build_app',            label: 'Building application (production)',   done: false },
@@ -62,6 +63,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [now, setNow] = useState<number>(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const eventSourceRef = useRef<(() => void) | null>(null)
+  const [platform, setPlatform] = useState('claude-code')
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -133,7 +135,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
     fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, login, password, session_id }),
+      body: JSON.stringify({ ip, login, password, session_id, platform }),
     }).catch(() => {})
 
     let prevDoneCount = 0
@@ -269,6 +271,31 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                 Forgot your password?
                 <OrangeQ tooltip={passwordTooltip} />
               </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-gray-500 uppercase tracking-widest">AI Platform</p>
+            <div className="grid grid-cols-5 gap-2">
+              {[
+                { id: 'claude-code', label: 'Claude Code' },
+                { id: 'gemini',      label: 'Gemini CLI' },
+                { id: 'qwen',        label: 'Qwen Code' },
+                { id: 'kimi',        label: 'Kimi Code' },
+                { id: 'open-code',   label: 'Open Code' },
+              ].map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setPlatform(p.id)}
+                  className={`py-3 px-2 rounded-xl text-xs font-medium border transition-colors text-center ${
+                    platform === p.id
+                      ? 'bg-white text-black border-white'
+                      : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/30'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
             </div>
           </div>
 

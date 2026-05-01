@@ -6,6 +6,7 @@ SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
 INSTALL_SECRET="$2"
+PLATFORM="${3:-claude-code}"
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -75,6 +76,32 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
 step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media && npm rebuild sharp --prefix services/media && npm rebuild better-sqlite3 --prefix services/media"
+
+# === Install AI platform binary ===
+CURRENT_STEP="install_platform"
+CURRENT_LABEL="Installing AI platform"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+case "$PLATFORM" in
+  claude-code)
+    curl -fsSL https://claude.ai/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "claude install failed"
+    ;;
+  gemini)
+    npm install -g @google/gemini-cli >> "$LOG_FILE" 2>&1 || fail "gemini install failed"
+    ;;
+  qwen)
+    npm install -g @qwen-code/qwen-code@latest >> "$LOG_FILE" 2>&1 || fail "qwen install failed"
+    ;;
+  kimi)
+    curl -LsSf https://code.kimi.com/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "kimi install failed"
+    ;;
+  open-code)
+    npm install -g opencode-ai >> "$LOG_FILE" 2>&1 || fail "open-code install failed"
+    ;;
+  *)
+    fail "unknown platform: $PLATFORM"
+    ;;
+esac
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"

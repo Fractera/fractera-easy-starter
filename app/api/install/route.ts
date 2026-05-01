@@ -7,11 +7,13 @@ import { initProgress } from '@/lib/kv'
 export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
-  const { ip, login, password, session_id } = await req.json()
+  const { ip, login, password, session_id, platform } = await req.json()
 
   if (!ip || !login || !password || !session_id) {
     return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
   }
+
+  const safePlatform = /^[a-z0-9-]+$/.test(platform ?? '') ? platform : 'claude-code'
 
   const secret = process.env.INSTALL_SCRIPT_SECRET!
 
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
 
         writeStream.on('close', () => {
           sftp.end()
-          const cmd = `chmod +x ${remoteScript} && setsid bash ${remoteScript} "${session_id}" "${secret}" > /tmp/fractera-install.log 2>&1 < /dev/null &`
+          const cmd = `chmod +x ${remoteScript} && setsid bash ${remoteScript} "${session_id}" "${secret}" "${safePlatform}" > /tmp/fractera-install.log 2>&1 < /dev/null &`
           ssh.exec(cmd, (err, stream) => {
             if (err) { reject(err); ssh.end(); return }
             stream.on('close', () => { ssh.end(); resolve() })
