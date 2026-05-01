@@ -1,13 +1,17 @@
 #!/bin/bash
 # Fractera Bootstrap Agent
-# Runs on the user's VPS. Reports progress to fractera.ai/api/progress.
-set -e
+# Reports progress + errors back to fractera-easy-starter.
 
 SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
 INSTALL_SECRET="$2"
+LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
+CURRENT_STEP=""
+CURRENT_LABEL=""
+
+# Send a step update (start or finish)
 report() {
   local id="$1"
   local label="$2"
@@ -19,76 +23,73 @@ report() {
     > /dev/null 2>&1 || true
 }
 
-report "apt_update" "Updating system" false
-apt-get update -qq
-report "apt_update" "Updating system" true
+# Send error and exit
+fail() {
+  local message="$1"
+  local last_log=$(tail -c 800 "$LOG_FILE" 2>/dev/null | tr '"' "'" | tr '\n' ' ' | head -c 700)
+  curl -s -X POST "$PROGRESS_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"session_id\":\"$SESSION_ID\",\"error\":\"Step '$CURRENT_LABEL' failed: $message. Last log: $last_log\"}" \
+    > /dev/null 2>&1 || true
+  exit 1
+}
 
-report "apt_install" "Installing base tools" false
-apt-get install -y -qq git curl nginx build-essential
-report "apt_install" "Installing base tools" true
+# Run a step. Args: id, label, command
+step() {
+  CURRENT_STEP="$1"
+  CURRENT_LABEL="$2"
+  local cmd="$3"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" false
+  if ! eval "$cmd" >> "$LOG_FILE" 2>&1; then
+    fail "command failed (exit $?)"
+  fi
+  report "$CURRENT_STEP" "$CURRENT_LABEL" true
+}
 
-report "node_setup" "Preparing Node.js installer" false
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
-report "node_setup" "Preparing Node.js installer" true
+echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
-report "node_install" "Installing Node.js 20" false
-apt-get install -y nodejs > /dev/null 2>&1
-report "node_install" "Installing Node.js 20" true
+step "apt_update"      "Updating system"                "apt-get update -qq"
+step "apt_install"     "Installing base tools"          "apt-get install -y -qq git curl nginx build-essential"
+step "node_setup"      "Preparing Node.js installer"    "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
+step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
+step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
+step "clone"           "Downloading Fractera"           "git clone https://github.com/Fractera/ai-workspace.git /opt/fractera && cd /opt/fractera"
 
-report "pm2" "Installing PM2" false
-npm install -g pm2 > /dev/null 2>&1
-report "pm2" "Installing PM2" true
+cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
-report "clone" "Downloading Fractera" false
-git clone https://github.com/Fractera/ai-workspace.git /opt/fractera > /dev/null 2>&1
-cd /opt/fractera
-report "clone" "Downloading Fractera" true
+step "deps_root"   "Installing dependencies (1/4)" "npm install"
+step "deps_app"    "Installing dependencies (2/4)" "npm install --prefix app"
 
-report "deps_root" "Installing dependencies (1/4)" false
-npm install > /dev/null 2>&1
-report "deps_root" "Installing dependencies (1/4)" true
-
-report "deps_app" "Installing dependencies (2/4)" false
-npm install --prefix app > /dev/null 2>&1
-# Install platform-specific native binaries for Tailwind v4
+# Install native binaries for Tailwind v4
 ARCH=$(uname -m)
+CURRENT_STEP="deps_app_native"
+CURRENT_LABEL="Installing native modules for $ARCH"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
 if [ "$ARCH" = "x86_64" ]; then
-  npm install --prefix app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional > /dev/null 2>&1
+  npm install --prefix app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "native modules install failed"
 elif [ "$ARCH" = "aarch64" ]; then
-  npm install --prefix app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional > /dev/null 2>&1
+  npm install --prefix app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "native modules install failed"
 fi
-report "deps_app" "Installing dependencies (2/4)" true
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-report "deps_bridge" "Installing dependencies (3/4)" false
-npm install --prefix bridges/platforms > /dev/null 2>&1
-report "deps_bridge" "Installing dependencies (3/4)" true
+step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
+step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media"
+step "build_app"   "Building application"          "npm run build --prefix app"
+step "start_app"   "Starting application"          "pm2 start npm --name fractera-app -- run start --prefix app"
+step "start_bridge" "Starting Bridge"              "pm2 start npm --name fractera-bridge -- run start --prefix bridges/platforms"
+step "start_media" "Starting media service"        "pm2 start npm --name fractera-media -- run start --prefix services/media"
 
-report "deps_media" "Installing dependencies (4/4)" false
-npm install --prefix services/media > /dev/null 2>&1
-report "deps_media" "Installing dependencies (4/4)" true
+CURRENT_STEP="pm2_save"
+CURRENT_LABEL="Saving configuration"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+pm2 save >> "$LOG_FILE" 2>&1 || true
+pm2 startup | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-report "build_app" "Building application (production)" false
-npm run build --prefix app > /tmp/fractera-build.log 2>&1
-report "build_app" "Building application (production)" true
-
-report "start_app" "Starting application" false
-pm2 start npm --name "fractera-app" -- run start --prefix app
-report "start_app" "Starting application" true
-
-report "start_bridge" "Starting Bridge" false
-pm2 start npm --name "fractera-bridge" -- run start --prefix bridges/platforms
-report "start_bridge" "Starting Bridge" true
-
-report "start_media" "Starting media service" false
-pm2 start npm --name "fractera-media" -- run start --prefix services/media
-report "start_media" "Starting media service" true
-
-report "pm2_save" "Saving configuration" false
-pm2 save
-pm2 startup | tail -1 | bash > /dev/null 2>&1 || true
-report "pm2_save" "Saving configuration" true
-
-report "configure_nginx" "Configuring web server" false
+CURRENT_STEP="configure_nginx"
+CURRENT_LABEL="Configuring web server"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
 cat > /etc/nginx/sites-available/fractera <<'EOF'
 server {
     listen 80 default_server;
@@ -110,17 +111,41 @@ server {
 EOF
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/fractera /etc/nginx/sites-enabled/fractera
-nginx -t > /dev/null 2>&1
-systemctl reload nginx
-report "configure_nginx" "Configuring web server" true
+nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid"
+systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-report "register" "Registering your domain" false
+CURRENT_STEP="health_check"
+CURRENT_LABEL="Verifying server is responding"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+# Wait up to 60s for app to actually serve traffic
+for i in $(seq 1 30); do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 2>/dev/null || echo "0")
+  if [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || [ "$CODE" = "307" ]; then
+    break
+  fi
+  sleep 2
+done
+if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
+  fail "server not responding on port 80 (got $CODE)"
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+CURRENT_STEP="register"
+CURRENT_LABEL="Registering your domain"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
 SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
+if [ -z "$SERVER_IP" ]; then
+  fail "could not detect server IP"
+fi
 RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
   -H "Content-Type: application/json" \
   -H "x-install-secret: $INSTALL_SECRET" \
   -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
-report "register" "Registering your domain" true
+if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
+  fail "domain registration failed: $RESPONSE"
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # Signal completion with subdomain
 curl -s -X POST "$PROGRESS_URL" \
@@ -129,4 +154,5 @@ curl -s -X POST "$PROGRESS_URL" \
   -d "{\"session_id\":\"$SESSION_ID\",\"done\":true,\"response\":$RESPONSE}" \
   > /dev/null 2>&1 || true
 
+echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
 echo "FRACTERA_READY"

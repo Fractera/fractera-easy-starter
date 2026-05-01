@@ -25,10 +25,15 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { session_id, step, done, response } = body
+  const { session_id, step, done, response, error } = body
 
   if (!session_id) {
     return NextResponse.json({ error: 'Missing session_id' }, { status: 400 })
+  }
+
+  if (error) {
+    await failProgress(session_id, String(error))
+    return NextResponse.json({ ok: true })
   }
 
   if (done && response) {

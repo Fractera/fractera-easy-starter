@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -50,7 +50,18 @@ export function InstallForm() {
   const [steps, setSteps] = useState<Step[]>(ALL_STEPS)
   const [subdomain, setSubdomain] = useState('')
   const [activeStep, setActiveStep] = useState<string | null>(null)
+  const [installError, setInstallError] = useState<string | null>(null)
+  const [stepStartedAt, setStepStartedAt] = useState<number>(Date.now())
+  const [now, setNow] = useState<number>(Date.now())
+  const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const eventSourceRef = useRef<(() => void) | null>(null)
+
+  // Tick every second while installing — for elapsed time and silence detection
+  useEffect(() => {
+    if (!installing) return
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [installing])
 
   async function handleInstall() {
     if (!ip || !password) return
@@ -58,18 +69,22 @@ export function InstallForm() {
     setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
     setActiveStep('connect')
+    setInstallError(null)
+    const startTime = Date.now()
+    setStepStartedAt(startTime)
+    setLastUpdateAt(startTime)
+    setNow(startTime)
 
-    // Generate session_id on client — start polling immediately
     const session_id = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    // Fire-and-forget the install request — don't await it
     fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ip, login, password, session_id }),
-    }).catch(() => {
-      // Vercel may timeout the connection but bootstrap is already running on the server
-    })
+    }).catch(() => {})
+
+    let prevDoneCount = 0
+    let prevActive: string | null = null
 
     const pollInterval = setInterval(async () => {
       try {
@@ -78,11 +93,23 @@ export function InstallForm() {
 
         const progress = await pollRes.json()
 
-        for (const step of progress.steps) {
-          setSteps(prev => prev.map(s => s.id === step.id ? { ...s, done: step.done } : s))
-          if (!step.done) setActiveStep(step.id)
-          if (step.done) setActiveStep(null)
+        const newSteps = ALL_STEPS.map(s => {
+          const reported = progress.steps.find((p: Step) => p.id === s.id)
+          return reported ? { ...s, done: reported.done } : s
+        })
+        setSteps(newSteps)
+
+        const doneCount = newSteps.filter(s => s.done).length
+        const lastStep = progress.steps[progress.steps.length - 1]
+        const newActive = lastStep && !lastStep.done ? lastStep.id : null
+
+        if (doneCount !== prevDoneCount || newActive !== prevActive) {
+          setLastUpdateAt(Date.now())
+          if (newActive !== prevActive) setStepStartedAt(Date.now())
+          prevDoneCount = doneCount
+          prevActive = newActive
         }
+        setActiveStep(newActive)
 
         if (progress.status === 'done' && progress.subdomain) {
           clearInterval(pollInterval)
@@ -96,8 +123,8 @@ export function InstallForm() {
 
         if (progress.status === 'error') {
           clearInterval(pollInterval)
-          toast.error(progress.error ?? 'Installation failed')
-          setInstalling(false)
+          setInstallError(progress.error ?? 'Installation failed')
+          toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
         }
       } catch {
         // Network error — retry next cycle
@@ -105,6 +132,13 @@ export function InstallForm() {
     }, 3000)
 
     eventSourceRef.current = () => clearInterval(pollInterval)
+  }
+
+  function reset() {
+    setInstalling(false)
+    setInstallError(null)
+    setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
+    setActiveStep(null)
   }
 
   const doneCount = steps.filter(s => s.done).length
@@ -201,24 +235,56 @@ export function InstallForm() {
       {installing && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">{currentStep?.label ?? 'Preparing...'}</p>
+            <p className="text-sm text-gray-400">
+              {installError ? 'Installation failed' : (currentStep?.label ?? 'Preparing...')}
+              {!installError && activeStep && (
+                <span className="text-gray-600 ml-2">— {Math.floor((now - stepStartedAt) / 1000)}s</span>
+              )}
+            </p>
             <p className="text-sm text-gray-600">{progress}%</p>
           </div>
 
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-400 transition-all duration-500"
+              className={`h-full transition-all duration-500 ${installError ? 'bg-red-500' : 'bg-green-400'}`}
               style={{ width: `${progress}%` }}
             />
           </div>
+
+          {/* Silence warning */}
+          {!installError && installing && now - lastUpdateAt > 60000 && (
+            <p className="text-xs text-orange-400 bg-orange-500/10 border border-orange-500/30 rounded-lg px-3 py-2">
+              Server has been silent for {Math.floor((now - lastUpdateAt) / 1000)}s. The installation may still be running, or the server may be unreachable.
+            </p>
+          )}
+
+          {/* Error message */}
+          {installError && (
+            <div className="flex flex-col gap-3 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <p className="text-sm text-red-400 font-medium">Error details:</p>
+              <p className="text-xs text-red-300 break-all whitespace-pre-wrap font-mono">{installError}</p>
+              <button
+                onClick={reset}
+                className="self-start text-xs text-white bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-lg"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5 mt-2">
             {steps.map(step => (
               <div key={step.id} className="flex items-center gap-3">
                 <span className={`text-sm transition-colors duration-500 ${
-                  step.done ? 'text-green-400' : step.id === activeStep ? 'text-yellow-400' : 'text-gray-700'
+                  step.done
+                    ? 'text-green-400'
+                    : step.id === activeStep && installError
+                    ? 'text-red-400'
+                    : step.id === activeStep
+                    ? 'text-yellow-400'
+                    : 'text-gray-700'
                 }`}>
-                  {step.done ? '✓' : step.id === activeStep ? '…' : '○'}
+                  {step.done ? '✓' : step.id === activeStep && installError ? '✗' : step.id === activeStep ? '…' : '○'}
                 </span>
                 <span className={`text-sm transition-colors duration-500 ${
                   step.done ? 'text-gray-300' : step.id === activeStep ? 'text-white' : 'text-gray-700'
