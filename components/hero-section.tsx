@@ -1,22 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CopyUrl } from '@/components/copy-url'
-import { StartPhrase } from '@/components/start-phrase'
 import { DomainStatus } from '@/components/domain-status'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
-import { StepsCarousel } from '@/components/steps-carousel'
-import { Troubleshoot } from '@/components/troubleshoot'
 import { DangerZone } from '@/components/danger-zone'
-
-const MCP_URL = 'https://fractera.ai/api/mcp'
+import { PlatformSelector } from '@/components/platform-selector'
 
 export function HeroSection() {
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
+  const [installStarted, setInstallStarted] = useState(false)
 
   useEffect(() => {
     try {
@@ -26,6 +22,9 @@ export function HeroSection() {
       setDomainReady(stored.status === 'ready')
     } catch {}
   }, [])
+
+  // error state = install was started but domain never appeared
+  const showTroubleshoot = installStarted && !domainReady
 
   return (
     <section className="flex flex-col gap-8 items-start">
@@ -40,61 +39,42 @@ export function HeroSection() {
       {/* Step 1: Install */}
       <InstallForm
         onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
-        onInstallingChange={setInstalling}
+        onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
       />
 
-      {/* Step 2: Domain — appears after install */}
+      {/* Step 2: Domain */}
       <DomainStatus
         onStatusChange={setDomainReady}
         subdomain={liveSubdomain}
         installing={installing}
       />
 
-      {/* Always-available troubleshoot — works during install, after success, after error */}
-      <Troubleshoot />
-
-      {/* Danger Zone — only when a domain is registered */}
-      {domainReady && (
-        <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain('') }} />
+      {/* Error state: install started but no domain yet — show troubleshoot + platform selector */}
+      {showTroubleshoot && (
+        <div className="w-full max-w-xl flex flex-col gap-3">
+          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-5">
+            <p className="text-sm text-gray-400">
+              Having trouble? Choose your AI platform to get help:
+            </p>
+            <PlatformSelector />
+          </div>
+        </div>
       )}
 
-      {/* Step 3: MCP — visible only after domain is ready */}
+      {/* Success state: domain ready — show MCP section */}
       {domainReady && (
         <>
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-semibold text-gray-300">Connect via Fractera MCP</h2>
-            <p className="text-sm text-gray-500 max-w-xl">
-              Use the Fractera MCP to work with your server and your project directly from the Claude chat — no terminal, no SSH. You get full control over your application through the standard Claude chat interface.
-            </p>
+          <div className="flex flex-col gap-6 w-full max-w-xl">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-xl font-semibold text-gray-300">Connect via Fractera MCP</h2>
+              <p className="text-sm text-gray-500 max-w-xl">
+                Use the Fractera MCP to work with your server and your project directly from the Claude chat — no terminal, no SSH. You get full control over your application through the standard Claude chat interface.
+              </p>
+            </div>
+            <PlatformSelector />
           </div>
 
-          <CopyUrl label="Connector Name" url="Fractera" />
-          <CopyUrl label="MCP Server URL" url={MCP_URL} />
-          <StartPhrase />
-
-          <div className="flex flex-col gap-3">
-            <OpenClaudeButton />
-            <p className="text-sm text-gray-500">
-              Requires{' '}
-              <a
-                href="https://claude.ai/upgrade"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors"
-              >
-                Claude Pro
-              </a>
-              {' '}($20/mo) — needed to use custom MCP connectors.
-            </p>
-            <p className="text-sm text-gray-600">
-              Incognito mode is not recommended — it may interfere with Claude Code login.
-            </p>
-          </div>
-
-          <div className="w-full">
-            <h2 className="text-xl font-semibold text-gray-300 mb-6">How to connect Claude</h2>
-            <StepsCarousel />
-          </div>
+          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain('') }} />
         </>
       )}
     </section>
