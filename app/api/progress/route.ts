@@ -7,12 +7,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing session_id' }, { status: 400 })
   }
 
-  const progress = await getProgress(session_id)
-  if (!progress) {
-    return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+  try {
+    const progress = await getProgress(session_id)
+    if (!progress) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+    }
+    return NextResponse.json(progress)
+  } catch (e: unknown) {
+    return NextResponse.json({ error: 'Redis error', detail: String(e) }, { status: 500 })
   }
-
-  return NextResponse.json(progress)
 }
 
 export async function POST(req: NextRequest) {
