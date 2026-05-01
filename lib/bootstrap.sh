@@ -84,6 +84,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 case "$PLATFORM" in
   claude-code)
     curl -fsSL https://claude.ai/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "claude install failed"
+    ln -sf /root/.local/bin/claude /usr/local/bin/claude >> "$LOG_FILE" 2>&1 || true
     ;;
   codex)
     npm install -g @openai/codex >> "$LOG_FILE" 2>&1 || fail "codex install failed"
