@@ -27,10 +27,6 @@ const ALL_STEPS: Step[] = [
   { id: 'done',         label: 'Installation complete!',            done: false },
 ]
 
-function generateSessionId() {
-  return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
 function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
   return (
     <TooltipProvider>
@@ -56,11 +52,6 @@ export function InstallForm() {
   const [activeStep, setActiveStep] = useState<string | null>(null)
   const eventSourceRef = useRef<(() => void) | null>(null)
 
-  function updateStep(id: string) {
-    setSteps(prev => prev.map(s => s.id === id ? { ...s, done: true } : s))
-    setActiveStep(id)
-  }
-
   async function handleInstall() {
     if (!ip || !password) return
     setInstalling(true)
@@ -68,59 +59,55 @@ export function InstallForm() {
     setSubdomain('')
     setActiveStep(null)
 
-    const session_id = generateSessionId()
-
     const res = await fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, login, password, session_id }),
+      body: JSON.stringify({ ip, login, password }),
     })
 
-    if (!res.ok || !res.body) {
-      toast.error('Could not connect to install server')
+    if (!res.ok) {
+      const err = await res.json()
+      toast.error(err.error ?? 'Could not connect to server')
       setInstalling(false)
       return
     }
 
-    const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
+    const { session_id } = await res.json()
 
-    eventSourceRef.current = () => reader.cancel()
+    const pollInterval = setInterval(async () => {
+      try {
+        const pollRes = await fetch(`/api/progress?session_id=${session_id}`)
+        if (!pollRes.ok) return
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
+        const progress = await pollRes.json()
 
-      buffer += decoder.decode(value, { stream: true })
-      const parts = buffer.split('\n\n')
-      buffer = parts.pop() ?? ''
+        for (const step of progress.steps) {
+          setSteps(prev => prev.map(s => s.id === step.id ? { ...s, done: step.done } : s))
+          if (!step.done) setActiveStep(step.id)
+          if (step.done) setActiveStep(null)
+        }
 
-      for (const part of parts) {
-        const eventLine = part.match(/^event: (\w+)$/m)
-        const dataLine = part.match(/^data: (.+)$/m)
-        if (!eventLine || !dataLine) continue
-
-        const event = eventLine[1]
-        const data = JSON.parse(dataLine[1])
-
-        if (event === 'step') updateStep(data.id)
-        if (event === 'done') {
-          setSubdomain(data.subdomain)
+        if (progress.status === 'done' && progress.subdomain) {
+          clearInterval(pollInterval)
+          setSubdomain(progress.subdomain)
           localStorage.setItem('fractera_domain', JSON.stringify({
-            domain: data.subdomain,
+            domain: progress.subdomain,
             status: 'ready',
           }))
-        }
-        if (event === 'error') {
-          toast.error(data.message)
           setInstalling(false)
-          return
         }
-      }
-    }
 
-    setInstalling(false)
+        if (progress.status === 'error') {
+          clearInterval(pollInterval)
+          toast.error(progress.error ?? 'Installation failed')
+          setInstalling(false)
+        }
+      } catch {
+        // Network error — retry next cycle
+      }
+    }, 3000)
+
+    eventSourceRef.current = () => clearInterval(pollInterval)
   }
 
   const doneCount = steps.filter(s => s.done).length
