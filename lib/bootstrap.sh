@@ -4,8 +4,8 @@
 set -e
 
 SESSION_ID="$1"
-PROGRESS_URL="https://fractera.ai/api/progress"
-REGISTER_URL="https://fractera.ai/api/register"
+PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
+REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
 INSTALL_SECRET="$2"
 
 report() {
