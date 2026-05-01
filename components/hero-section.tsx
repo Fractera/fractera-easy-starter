@@ -9,6 +9,7 @@ import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { StepsCarousel } from '@/components/steps-carousel'
 import { Troubleshoot } from '@/components/troubleshoot'
+import { DangerZone } from '@/components/danger-zone'
 
 const MCP_URL = 'https://fractera.ai/api/mcp'
 
@@ -51,6 +52,11 @@ export function HeroSection() {
 
       {/* Always-available troubleshoot — works during install, after success, after error */}
       <Troubleshoot />
+
+      {/* Danger Zone — only when a domain is registered */}
+      {domainReady && (
+        <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain('') }} />
+      )}
 
       {/* Step 3: MCP — visible only after domain is ready */}
       {domainReady && (
