@@ -37,38 +37,66 @@ location /        → proxy_pass http://127.0.0.1:3000
 
 ---
 
-## Next step: install AI platforms in bootstrap
+## Next step: platform selection in UI + install in bootstrap
 
 ### Problem
-Bridge server (`bridges/platforms`) starts correctly and listens on all WebSocket ports (3200–3206). But when a user tries to start a Claude Code session, bridge cannot find the `claude` binary:
+Bridge server (`bridges/platforms`) starts correctly and listens on all WebSocket ports (3200–3206). But when a user tries to start a session, bridge cannot find any platform binary:
 ```
 /bin/sh: 1: /root/.local/bin/claude: not found
 ```
 No AI platform binaries are installed on the server after bootstrap.
 
-### Required: add platform installation to bootstrap.sh
+### UI change: platform selector in install-form
 
-**Claude Code** (minimum viable — enables the main flow):
+After the three server inputs (IP, login, password), show a platform selector — radio/single-select cards. The "Install Fractera" button is only active when a platform is selected. Selected platform is passed to `/api/install` → bootstrap.sh as a parameter.
+
+**5 cards (Codex excluded — desktop only, no Linux server install):**
+
+| Card | ID |
+|---|---|
+| Claude Code | `claude-code` |
+| Gemini CLI | `gemini` |
+| Qwen Code | `qwen` |
+| Kimi Code | `kimi` |
+| Open Code | `open-code` |
+
+### Bootstrap change: new step `install_platform`
+
+Add after `deps_media`, before `prepare_secrets`. Receives platform ID as `$3` argument.
+
+**Install commands (Linux, confirmed from official docs):**
+
 ```bash
-# Install Node.js-based Claude Code CLI
-npm install -g @anthropic-ai/claude-code
-# Verify
-claude --version
+# Claude Code
+curl -fsSL https://claude.ai/install.sh | bash
+# binary lands at: /root/.local/bin/claude
+
+# Gemini CLI
+npm install -g @google/gemini-cli
+# binary: gemini
+
+# Qwen Code
+npm install -g @qwen-code/qwen-code@latest
+# binary: qwen
+
+# Kimi Code
+curl -LsSf https://code.kimi.com/install.sh | bash
+# binary: kimi
+
+# Open Code
+npm install -g opencode-ai
+# binary: opencode
 ```
 
-Claude Code requires authentication after install. This is the hard part — it needs a browser login flow. Options:
-1. Show user a one-time auth URL in the UI after install
-2. Use `claude auth login --print-url` if available
-3. Bridge handles auth via PTY (already implemented in bridge spec)
+**Codex** — desktop app only (macOS/Windows), no Linux CLI install available. Excluded from server install.
 
-**Other platforms** (lower priority, add one by one):
-- Codex: `npm install -g @openai/codex`
-- Gemini CLI: `npm install -g @google/gemini-cli`
-- Qwen, Kimi, OpenCode: TBD
+### Auth after install
+
+Each platform requires authentication after install. Claude Code is the only one with a browser-based OAuth flow via PTY bridge (already specced). Others require API keys set as env vars. Auth flow is a separate task — install is the first step.
 
 ### Bridge auth flow (already specced)
 See: `docs/superpowers/specs/2026-05-01-self-healing-deploy-architecture.md`
-The bridge runs Claude Code via PTY and can surface the auth URL to the user through the existing Bridge PTY connection. This is the cleanest path — no SSH needed from the user side.
+Bridge runs the platform via PTY and surfaces the auth URL through the existing WebSocket connection. No SSH needed from the user side.
 
 ---
 
