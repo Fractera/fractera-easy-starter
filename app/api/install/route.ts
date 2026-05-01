@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
         writeStream.on('close', () => {
           sftp.end()
-          const cmd = `chmod +x ${remoteScript} && nohup bash ${remoteScript} "${session_id}" "${secret}" > /tmp/fractera-install.log 2>&1 &`
+          const cmd = `chmod +x ${remoteScript} && setsid bash ${remoteScript} "${session_id}" "${secret}" > /tmp/fractera-install.log 2>&1 < /dev/null &`
           ssh.exec(cmd, (err, stream) => {
             if (err) { reject(err); ssh.end(); return }
             stream.on('close', () => { ssh.end(); resolve() })
