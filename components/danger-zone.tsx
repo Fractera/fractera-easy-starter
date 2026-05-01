@@ -104,7 +104,7 @@ export function DangerZone({ onDestroyed }: { onDestroyed: () => void }) {
           <button
             onClick={handleDestroy}
             disabled={!canDestroy || destroying}
-            className="self-start bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {destroying ? 'Deleting...' : 'Delete server and domain'}
           </button>
