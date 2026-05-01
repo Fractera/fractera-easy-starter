@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DomainStatus } from '@/components/domain-status'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
@@ -13,7 +13,7 @@ export function HeroSection() {
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
-  const [destroyed, setDestroyed] = useState(false)
+  const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
   useEffect(() => {
     try {
@@ -48,7 +48,7 @@ export function HeroSection() {
         onStatusChange={setDomainReady}
         subdomain={liveSubdomain}
         installing={installing}
-        destroyed={destroyed}
+        onResetRef={fn => { domainResetRef.current = fn }}
       />
 
       {/* Error state: install started but no domain yet — show troubleshoot + platform selector */}
@@ -76,7 +76,7 @@ export function HeroSection() {
             <PlatformSelector />
           </div>
 
-          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); setDestroyed(true) }} />
+          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); domainResetRef.current?.() }} />
         </>
       )}
     </section>

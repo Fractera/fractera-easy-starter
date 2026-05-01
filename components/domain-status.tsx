@@ -19,7 +19,7 @@ function getStored(): StoredDomain | null {
   }
 }
 
-export function DomainStatus({ onStatusChange, subdomain, installing, destroyed }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean; destroyed?: boolean } = {}) {
+export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean; onResetRef?: (resetFn: () => void) => void } = {}) {
   const [state, setState] = useState<DomainState>('empty')
   const [domain, setDomain] = useState('')
   const [copied, setCopied] = useState(false)
@@ -30,6 +30,16 @@ export function DomainStatus({ onStatusChange, subdomain, installing, destroyed 
     if (d) setDomain(d)
     onStatusChange?.(next === 'ready')
   }
+
+  function reset() {
+    setState('empty')
+    setDomain('')
+    onStatusChange?.(false)
+  }
+
+  useEffect(() => {
+    onResetRef?.(reset)
+  }, [])
 
   useEffect(() => {
     const stored = getStored()
@@ -47,13 +57,6 @@ export function DomainStatus({ onStatusChange, subdomain, installing, destroyed 
       setState(s => s === 'empty' ? 'installing' : s)
     }
   }, [subdomain, installing])
-
-  // Reset when server is destroyed
-  useEffect(() => {
-    if (!destroyed) return
-    setState('empty')
-    setDomain('')
-  }, [destroyed])
 
   useEffect(() => {
     if (state !== 'installing') return
@@ -83,18 +86,6 @@ export function DomainStatus({ onStatusChange, subdomain, installing, destroyed 
     : isInstalling
     ? pulse ? 'text-orange-400' : 'text-yellow-500'
     : 'text-gray-600'
-
-  function simulate(next: DomainState) {
-    if (next === 'empty') {
-      localStorage.removeItem('fractera_domain')
-      updateState('empty')
-      setDomain('')
-    } else {
-      const stored: StoredDomain = { domain: 'happy-fox-42.fractera.ai', status: next }
-      localStorage.setItem('fractera_domain', JSON.stringify(stored))
-      updateState(next, stored.domain)
-    }
-  }
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-xl">
