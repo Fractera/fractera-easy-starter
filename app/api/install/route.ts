@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { initProgress } from '@/lib/kv'
 
-export const maxDuration = 30
+export const maxDuration = 300
 
 function generateSessionId() {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`

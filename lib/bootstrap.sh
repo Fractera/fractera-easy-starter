@@ -78,7 +78,7 @@ pm2 startup | tail -1 | bash > /dev/null 2>&1 || true
 report "pm2_save" "Saving configuration" true
 
 report "register" "Registering your domain" false
-SERVER_IP=$(curl -s ifconfig.me)
+SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
 RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
   -H "Content-Type: application/json" \
   -H "x-install-secret: $INSTALL_SECRET" \
