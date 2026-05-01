@@ -18,10 +18,16 @@ export function DangerZone({ onDestroyed }: { onDestroyed: () => void }) {
     setDestroying(true)
     setError(null)
     try {
+      let domain: string | undefined
+      try {
+        const raw = localStorage.getItem('fractera_domain')
+        if (raw) domain = JSON.parse(raw).domain
+      } catch {}
+
       const res = await fetch('/api/destroy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password }),
+        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))

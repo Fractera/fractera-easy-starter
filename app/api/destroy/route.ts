@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client } from 'ssh2'
+import { deleteDnsRecord } from '@/lib/cloudflare'
 
 export const maxDuration = 60
 
@@ -14,7 +15,7 @@ echo "DESTROYED"
 `
 
 export async function POST(req: NextRequest) {
-  const { ip, login, password } = await req.json()
+  const { ip, login, password, domain } = await req.json()
 
   if (!ip || !login || !password) {
     return NextResponse.json({ error: 'Missing ip, login or password' }, { status: 400 })
@@ -42,6 +43,10 @@ export async function POST(req: NextRequest) {
       readyTimeout: 20000,
     })
   })
+
+  if (domain) {
+    await deleteDnsRecord(domain).catch(() => {})
+  }
 
   return NextResponse.json({ status: 'destroyed' })
 }

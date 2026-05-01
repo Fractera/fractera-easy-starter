@@ -24,3 +24,30 @@ export async function createDnsRecord(ip: string, subdomain: string): Promise<vo
     throw new Error(`Cloudflare API error: ${JSON.stringify(err.errors)}`)
   }
 }
+
+export async function deleteDnsRecord(fullDomain: string): Promise<void> {
+  const zoneId = process.env.CLOUDFLARE_ZONE_ID!
+  const token = process.env.CLOUDFLARE_API_TOKEN!
+
+  // Find record ID by name
+  const listRes = await fetch(
+    `${CLOUDFLARE_API}/zones/${zoneId}/dns_records?type=A&name=${encodeURIComponent(fullDomain)}`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  )
+  if (!listRes.ok) {
+    const err = await listRes.json()
+    throw new Error(`Cloudflare list error: ${JSON.stringify(err.errors)}`)
+  }
+  const list = await listRes.json()
+  const record = list.result?.[0]
+  if (!record) return // already gone
+
+  const delRes = await fetch(
+    `${CLOUDFLARE_API}/zones/${zoneId}/dns_records/${record.id}`,
+    { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }
+  )
+  if (!delRes.ok) {
+    const err = await delRes.json()
+    throw new Error(`Cloudflare delete error: ${JSON.stringify(err.errors)}`)
+  }
+}
