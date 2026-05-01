@@ -130,7 +130,7 @@ server {
     server_name _;
 
     location /media/ {
-        proxy_pass http://127.0.0.1:3300/;
+        proxy_pass http://127.0.0.1:3300/media/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -140,7 +140,7 @@ server {
     }
 
     location /bridge/ {
-        proxy_pass http://127.0.0.1:3201/;
+        proxy_pass http://127.0.0.1:3201/bridge/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
