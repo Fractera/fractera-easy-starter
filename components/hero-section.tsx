@@ -34,7 +34,7 @@ export function HeroSection() {
         <h1 className="text-6xl font-bold tracking-tight">Fractera</h1>
         <p className="text-2xl text-gray-400 max-w-xl flex items-start gap-3">
           Install your own AI workspace on a dedicated server — in 3 to 7 minutes.
-          <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 5–15 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you purchase." />
+          <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 3 to 7 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you purchase." />
         </p>
       </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { InfoTooltip } from '@/components/info-tooltip'
 
 type Step = { id: string; label: string; done: boolean }
 
@@ -35,24 +35,6 @@ const ALL_STEPS: Step[] = [
   { id: 'https_check',          label: 'Verifying HTTPS is working',          done: false },
 ]
 
-function OrangeQ({ tooltip }: { tooltip: React.ReactNode }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <TooltipProvider>
-      <Tooltip open={open} onOpenChange={setOpen}>
-        <TooltipTrigger
-          onClick={() => setOpen(v => !v)}
-          className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2"
-        >
-          ?
-        </TooltipTrigger>
-        <TooltipContent side="right" className="!block max-w-72 text-sm leading-relaxed whitespace-normal w-72">
-          {tooltip}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
 
 export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdomainReady?: (subdomain: string) => void; onInstallingChange?: (installing: boolean) => void } = {}) {
   const [ip, setIp] = useState('')
@@ -245,7 +227,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
         <div className="flex flex-col gap-4">
           <div className="text-sm text-gray-500 uppercase tracking-widest flex items-center gap-0">
             Install Fractera on your server
-            <OrangeQ tooltip={hostingTooltip} />
+            <InfoTooltip text={hostingTooltip} />
           </div>
 
           <div className="flex flex-col gap-3">
@@ -273,7 +255,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
               />
               <div className="text-xs text-gray-600 flex items-center gap-1 px-1">
                 Forgot your password?
-                <OrangeQ tooltip={passwordTooltip} />
+                <InfoTooltip text={passwordTooltip} />
               </div>
             </div>
           </div>
