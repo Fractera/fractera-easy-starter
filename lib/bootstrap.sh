@@ -259,6 +259,14 @@ NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN
 NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/bridge/
 NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/claude-bridge/
 ENVEOF
+
+# NEXT_PUBLIC_* are baked into the Next.js bundle at build time, so rebuild is mandatory after .env.local update.
+CURRENT_STEP="rebuild_app"
+CURRENT_LABEL="Rebuilding application with domain"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+npm run build --prefix app >> "$LOG_FILE" 2>&1 || fail "rebuild after domain register failed"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
 pm2 restart fractera-app >> "$LOG_FILE" 2>&1 || true
 
 # === Wait for DNS propagation ===

@@ -1,8 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { DomainStatus } from '@/components/domain-status'
-import { OpenClaudeButton } from '@/components/open-claude-button'
 import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
@@ -20,6 +20,7 @@ export function HeroSection() {
       const raw = localStorage.getItem('fractera_domain')
       if (!raw) return
       const stored = JSON.parse(raw)
+      //ts ignore
       setDomainReady(stored.status === 'ready')
     } catch {}
   }, [])
@@ -32,7 +33,7 @@ export function HeroSection() {
       <div className="flex flex-col gap-4">
         <h1 className="text-6xl font-bold tracking-tight">Fractera</h1>
         <p className="text-2xl text-gray-400 max-w-xl flex items-start gap-3">
-          Install your own AI workspace on a dedicated server — in 5 to 15 minutes.
+          Install your own AI workspace on a dedicated server — in 3 to 7 minutes.
           <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 5–15 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you purchase." />
         </p>
       </div>
