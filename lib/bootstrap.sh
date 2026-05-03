@@ -95,7 +95,7 @@ soft_step "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install
 soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
-soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://code.kimi.com/install.sh | bash"
+soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 soft_step "install_opencode" "Open Code"   "npm install -g opencode-ai"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
