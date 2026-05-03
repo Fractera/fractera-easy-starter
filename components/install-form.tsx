@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 import { InfoTooltip } from '@/components/info-tooltip'
 
-type Step = { id: string; label: string; done: boolean }
+type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
 const ALL_STEPS: Step[] = [
   { id: 'connect',              label: 'Connecting to server',                done: false },
@@ -19,7 +19,12 @@ const ALL_STEPS: Step[] = [
   { id: 'deps_app_native',      label: 'Installing native modules',           done: false },
   { id: 'deps_bridge',          label: 'Installing dependencies (3/4)',       done: false },
   { id: 'deps_media',           label: 'Installing dependencies (4/4)',       done: false },
-  { id: 'install_platform',     label: 'Installing AI platform',              done: false },
+  { id: 'install_claude',       label: 'Claude Code',                         done: false },
+  { id: 'install_codex',        label: 'Codex',                               done: false },
+  { id: 'install_gemini',       label: 'Gemini CLI',                          done: false },
+  { id: 'install_qwen',         label: 'Qwen Code',                           done: false },
+  { id: 'install_kimi',         label: 'Kimi Code',                           done: false },
+  { id: 'install_opencode',     label: 'Open Code',                           done: false },
   { id: 'prepare_secrets',      label: 'Generating security keys',            done: false },
   { id: 'prepare_env',          label: 'Writing environment configuration',   done: false },
   { id: 'build_app',            label: 'Building application (production)',   done: false },
@@ -49,7 +54,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [now, setNow] = useState<number>(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const eventSourceRef = useRef<(() => void) | null>(null)
-  const [platform, setPlatform] = useState('claude-code')
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -121,7 +125,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
     fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, login, password, session_id, platform }),
+      body: JSON.stringify({ ip, login, password, session_id }),
     }).catch(() => {})
 
     let prevDoneCount = 0
@@ -136,7 +140,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
 
         const newSteps = ALL_STEPS.map(s => {
           const reported = progress.steps.find((p: Step) => p.id === s.id)
-          return reported ? { ...s, done: reported.done } : s
+          if (!reported) return s
+          const skipped = typeof reported.label === 'string' && reported.label.includes('(skipped)')
+          return { ...s, done: reported.done, skipped }
         })
         setSteps(newSteps)
 
@@ -260,32 +266,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-gray-500 uppercase tracking-widest">AI Platform</p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {[
-                { id: 'claude-code', label: 'Claude Code' },
-                { id: 'codex',       label: 'Codex' },
-                { id: 'gemini',      label: 'Gemini CLI' },
-                { id: 'qwen',        label: 'Qwen Code' },
-                { id: 'kimi',        label: 'Kimi Code' },
-                { id: 'open-code',   label: 'Open Code' },
-              ].map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => setPlatform(p.id)}
-                  className={`shrink-0 py-3 px-3 rounded-xl text-xs font-medium border transition-colors text-center ${
-                    platform === p.id
-                      ? 'bg-white text-black border-white'
-                      : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/30'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {serverStatus === 'checking' && (
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
@@ -385,7 +365,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             {steps.map(step => (
               <div key={step.id} className="flex items-center gap-3">
                 <span className={`text-sm transition-colors duration-500 ${
-                  step.done
+                  step.done && step.skipped
+                    ? 'text-gray-600'
+                    : step.done
                     ? 'text-green-400'
                     : step.id === activeStep && installError
                     ? 'text-red-400'
@@ -393,10 +375,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                     ? 'text-yellow-400'
                     : 'text-gray-700'
                 }`}>
-                  {step.done ? '✓' : step.id === activeStep && installError ? '✗' : step.id === activeStep ? '…' : '○'}
+                  {step.done && step.skipped ? '—' : step.done ? '✓' : step.id === activeStep && installError ? '✗' : step.id === activeStep ? '…' : '○'}
                 </span>
                 <span className={`text-sm transition-colors duration-500 ${
-                  step.done ? 'text-gray-300' : step.id === activeStep ? 'text-white' : 'text-gray-700'
+                  step.done && step.skipped ? 'text-gray-600' : step.done ? 'text-gray-300' : step.id === activeStep ? 'text-white' : 'text-gray-700'
                 }`}>
                   {step.label}
                 </span>

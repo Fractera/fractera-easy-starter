@@ -77,35 +77,26 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
 step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media && npm rebuild sharp --prefix services/media && npm rebuild better-sqlite3 --prefix services/media"
 
-# === Install AI platform binary ===
-CURRENT_STEP="install_platform"
-CURRENT_LABEL="Installing AI platform"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-case "$PLATFORM" in
-  claude-code)
-    curl -fsSL https://claude.ai/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "claude install failed"
-    ln -sf /root/.local/bin/claude /usr/local/bin/claude >> "$LOG_FILE" 2>&1 || true
-    ;;
-  codex)
-    npm install -g @openai/codex >> "$LOG_FILE" 2>&1 || fail "codex install failed"
-    ;;
-  gemini)
-    npm install -g @google/gemini-cli >> "$LOG_FILE" 2>&1 || fail "gemini install failed"
-    ;;
-  qwen)
-    npm install -g @qwen-code/qwen-code@latest >> "$LOG_FILE" 2>&1 || fail "qwen install failed"
-    ;;
-  kimi)
-    curl -LsSf https://code.kimi.com/install.sh | bash >> "$LOG_FILE" 2>&1 || fail "kimi install failed"
-    ;;
-  open-code)
-    npm install -g opencode-ai >> "$LOG_FILE" 2>&1 || fail "open-code install failed"
-    ;;
-  *)
-    fail "unknown platform: $PLATFORM"
-    ;;
-esac
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
+# === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
+soft_step() {
+  local id="$1"
+  local label="$2"
+  local cmd="$3"
+  report "$id" "Installing $label" false
+  if eval "$cmd" >> "$LOG_FILE" 2>&1; then
+    report "$id" "$label" true
+  else
+    echo "[skip] $label installation failed, continuing" >> "$LOG_FILE"
+    report "$id" "$label (skipped)" true
+  fi
+}
+
+soft_step "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
+soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
+soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
+soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
+soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://code.kimi.com/install.sh | bash"
+soft_step "install_opencode" "Open Code"   "npm install -g opencode-ai"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -194,6 +185,66 @@ server {
         proxy_read_timeout 86400;
     }
 
+    location /codex-bridge/ {
+        proxy_pass http://127.0.0.1:3202/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /gemini-bridge/ {
+        proxy_pass http://127.0.0.1:3203/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /qwen-bridge/ {
+        proxy_pass http://127.0.0.1:3204/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /kimi-bridge/ {
+        proxy_pass http://127.0.0.1:3205/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /opencode-bridge/ {
+        proxy_pass http://127.0.0.1:3206/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -258,6 +309,11 @@ AUTH_TRUST_HOST=true
 NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN
 NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/bridge/
 NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/claude-bridge/
+NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/codex-bridge/
+NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/gemini-bridge/
+NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/qwen-bridge/
+NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/kimi-bridge/
+NEXT_PUBLIC_OPENCODE_URL=wss://$SUBDOMAIN/opencode-bridge/
 ENVEOF
 
 # NEXT_PUBLIC_* are baked into the Next.js bundle at build time, so rebuild is mandatory after .env.local update.
