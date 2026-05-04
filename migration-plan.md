@@ -583,4 +583,8 @@ Before starting, Claude Code should confirm the following with the operator:
 
 -----
 
+<<<<<<< HEAD
 *This document was created as a migration technical specification for the Fractera AI Workspace project. Implement stages sequentially. Do not skip verification steps.*
+=======
+*This document was created as a migration technical specification for the Fractera AI Workspace project. Implement stages sequentially. Do not skip verification steps.*
+>>>>>>> 4daa13a8b0cdb8ad8a3d264fefd9044d86ecfb7c
