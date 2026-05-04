@@ -5,6 +5,7 @@
 SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
+REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
 INSTALL_SECRET="$2"
 PLATFORM="${3:-claude-code}"
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
@@ -69,12 +70,16 @@ rm -rf \
   2>/dev/null || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step "clone"           "Downloading Fractera"           "rm -rf /opt/fractera && git clone https://github.com/Fractera/ai-workspace.git /opt/fractera && cd /opt/fractera"
+step "clone" "Downloading Fractera" \
+  "rm -rf /opt/fractera && git clone https://github.com/Fractera/ai-workspace.git /opt/fractera"
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
-step "deps_root"   "Installing dependencies (1/4)" "npm install"
-step "deps_app"    "Installing dependencies (2/4)" "npm install --prefix app"
+step "checkout" "Switching to migration branch" \
+  "git -C /opt/fractera checkout migration/v2-four-services"
+
+step "deps_root"   "Installing dependencies (1/6)" "npm install"
+step "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app"
 
 # Install native binaries for Tailwind v4
 ARCH=$(uname -m)
@@ -88,8 +93,12 @@ elif [ "$ARCH" = "aarch64" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step "deps_bridge" "Installing dependencies (3/4)" "npm install --prefix bridges/platforms"
-step "deps_media"  "Installing dependencies (4/4)" "npm install --prefix services/media && npm rebuild sharp --prefix services/media && npm rebuild better-sqlite3 --prefix services/media"
+step "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms"
+step "deps_auth"        "Installing dependencies (4/6)" \
+  "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth"
+step "deps_bridges_app" "Installing dependencies (5/6)" "npm install --prefix bridges/app"
+step "deps_data"        "Installing dependencies (6/6)" \
+  "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data"
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
 soft_step() {
@@ -125,26 +134,57 @@ chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Write .env.local before build (NEXT_PUBLIC_* must be present at build time) ===
+# === Initial .env.local files (before build, without real subdomain) ===
 CURRENT_STEP="prepare_env"
 CURRENT_LABEL="Writing environment configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 source /etc/fractera/secrets.env
+
 cat > /opt/fractera/app/.env.local <<ENVEOF
+AUTH_TRUST_HOST=true
+NEXT_PUBLIC_AUTH_URL=
+NEXT_PUBLIC_ADMIN_URL=
+ENVEOF
+
+cat > /opt/fractera/services/auth/.env.local <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
-NEXT_PUBLIC_MEDIA_URL=
+COOKIE_DOMAIN=
+COOKIE_SECURE=false
+NEXTAUTH_URL=http://localhost:3001
+DATABASE_URL=file:./data/auth.db
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
+
+cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_AUTH_URL=http://localhost:3001
+NEXT_PUBLIC_BRIDGE_URL=ws://localhost:3201/bridge/
+NEXT_PUBLIC_PTY_URL=ws://localhost:3201/bridge/
+NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
+NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
+NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
+NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
+ENVEOF
+
+cat > /opt/fractera/services/data/.env.local <<ENVEOF
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
+ENVEOF
+
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step "build_app"   "Building application (production)"  "npm run build --prefix app"
+step "build_app"         "Building shell (production)"   "npm run build --prefix app"
+step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
+step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"    "Starting application"     "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
-step "start_bridge" "Starting Bridge"          "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
-step "start_media"  "Starting media service"   "cd /opt/fractera/services/media && pm2 start npm --name fractera-media -- run start && cd /opt/fractera"
+step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
+step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
+step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
+step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
+step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
@@ -154,25 +194,50 @@ pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || t
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Initial Nginx config — HTTP only, default server. Needed for certbot challenge. ===
+# === Initial Nginx config — 4 server blocks, SUBDOMAIN_PLACEHOLDER for certbot later ===
 CURRENT_STEP="configure_nginx_http"
 CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-cat > /etc/nginx/sites-available/fractera <<'EOF'
+
+cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
+# shell — default server for certbot challenge
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
 
-    location /media/ {
-        proxy_pass http://127.0.0.1:3300/media/;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+
+# auth
+server {
+    listen 80;
+    server_name auth.SUBDOMAIN_PLACEHOLDER;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 500m;
     }
+}
+
+# admin + WebSocket bridges
+server {
+    listen 80;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
 
     location /bridge/ {
         proxy_pass http://127.0.0.1:3201/bridge/;
@@ -247,7 +312,7 @@ server {
     }
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -258,14 +323,40 @@ server {
         proxy_read_timeout 86400;
     }
 }
-EOF
+
+# data
+server {
+    listen 80;
+    server_name data.SUBDOMAIN_PLACEHOLDER;
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:3300/media/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINXEOF
+
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/fractera /etc/nginx/sites-enabled/fractera
 nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Health check before SSL ===
+# === Health check before registration ===
 CURRENT_STEP="health_check"
 CURRENT_LABEL="Verifying server is responding"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
@@ -281,7 +372,7 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Register domain ===
+# === Register main domain ===
 CURRENT_STEP="register"
 CURRENT_LABEL="Registering your domain"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
@@ -302,59 +393,112 @@ if [ -z "$SUBDOMAIN" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# Update .env.local with final subdomain-based URLs, then restart app
-source /etc/fractera/secrets.env
-cat > /opt/fractera/app/.env.local <<ENVEOF
-AUTH_SECRET=$AUTH_SECRET
-AUTH_TRUST_HOST=true
-NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN
-NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/bridge/
-NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/claude-bridge/
-NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/codex-bridge/
-NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/gemini-bridge/
-NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/qwen-bridge/
-NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/kimi-bridge/
-ENVEOF
-
-# NEXT_PUBLIC_* are baked into the Next.js bundle at build time, so rebuild is mandatory after .env.local update.
-CURRENT_STEP="rebuild_app"
-CURRENT_LABEL="Rebuilding application with domain"
+# === Register auth.*, admin.*, data.* subdomains ===
+CURRENT_STEP="register_subdomains"
+CURRENT_LABEL="Registering service subdomains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-npm run build --prefix app >> "$LOG_FILE" 2>&1 || fail "rebuild after domain register failed"
+# SUBDOMAIN = "happy-wolf-86.fractera.ai", BASE = "happy-wolf-86"
+BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
+for PREFIX in auth admin data; do
+  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
+    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
+done
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-pm2 restart fractera-app >> "$LOG_FILE" 2>&1 || true
+# === Update Nginx with real server_name ===
+CURRENT_STEP="nginx_domains"
+CURRENT_LABEL="Updating web server with real domains"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+sed -i "s/SUBDOMAIN_PLACEHOLDER/$SUBDOMAIN/g" /etc/nginx/sites-available/fractera
+nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid after domain substitution"
+systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Wait for DNS propagation ===
+# === Update .env.local with real HTTPS URLs ===
+CURRENT_STEP="update_env"
+CURRENT_LABEL="Updating environment with real domains"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+source /etc/fractera/secrets.env
+
+cat > /opt/fractera/app/.env.local <<ENVEOF
+AUTH_TRUST_HOST=true
+NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
+ENVEOF
+
+cat > /opt/fractera/services/auth/.env.local <<ENVEOF
+AUTH_SECRET=$AUTH_SECRET
+AUTH_TRUST_HOST=true
+COOKIE_DOMAIN=.$SUBDOMAIN
+COOKIE_SECURE=true
+NEXTAUTH_URL=https://auth.$SUBDOMAIN
+DATABASE_URL=file:./data/auth.db
+ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
+ENVEOF
+
+cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_BRIDGE_URL=wss://admin.$SUBDOMAIN/bridge/
+NEXT_PUBLIC_PTY_URL=wss://admin.$SUBDOMAIN/bridge/
+NEXT_PUBLIC_CODEX_URL=wss://admin.$SUBDOMAIN/codex-bridge/
+NEXT_PUBLIC_GEMINI_URL=wss://admin.$SUBDOMAIN/gemini-bridge/
+NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
+NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
+ENVEOF
+
+cat > /opt/fractera/services/data/.env.local <<ENVEOF
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+ENVEOF
+
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Rebuild with real URLs (NEXT_PUBLIC_* are baked at build time) ===
+step "rebuild_app"         "Rebuilding shell with domain"   "npm run build --prefix app"
+step "rebuild_auth"        "Rebuilding auth with domain"    "npm run build --prefix services/auth"
+step "rebuild_bridges_app" "Rebuilding admin with domain"   "npm run build --prefix bridges/app"
+
+CURRENT_STEP="pm2_restart"
+CURRENT_LABEL="Restarting services with new config"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+pm2 restart fractera-app fractera-auth fractera-admin fractera-data >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Wait for DNS propagation for all 4 domains ===
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for i in $(seq 1 60); do
-  RESOLVED=$(dig +short "$SUBDOMAIN" @1.1.1.1 2>/dev/null | head -1)
-  if [ "$RESOLVED" = "$SERVER_IP" ]; then
-    break
+for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN"; do
+  RESOLVED=""
+  for i in $(seq 1 60); do
+    RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
+    if [ "$RESOLVED" = "$SERVER_IP" ]; then
+      break
+    fi
+    sleep 5
+  done
+  if [ "$RESOLVED" != "$SERVER_IP" ]; then
+    fail "DNS did not propagate within 5 minutes: $DOMAIN resolves to '$RESOLVED', expected $SERVER_IP"
   fi
-  sleep 5
 done
-if [ "$RESOLVED" != "$SERVER_IP" ]; then
-  fail "DNS did not propagate within 5 minutes: $SUBDOMAIN resolves to '$RESOLVED', expected $SERVER_IP"
-fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Get SSL certificate ===
+# === Get SSL certificates for all 4 domains ===
 CURRENT_STEP="ssl_cert"
-CURRENT_LABEL="Getting SSL certificate"
+CURRENT_LABEL="Getting SSL certificates"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-certbot --nginx \
-  -d "$SUBDOMAIN" \
-  --non-interactive \
-  --agree-tos \
-  --email "noreply@fractera.ai" \
-  --redirect \
-  --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot failed to get certificate for $SUBDOMAIN"
+certbot --nginx -d "$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot failed for $SUBDOMAIN"
+certbot --nginx -d "auth.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot failed for auth.$SUBDOMAIN"
+certbot --nginx -d "admin.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot failed for admin.$SUBDOMAIN"
+certbot --nginx -d "data.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot failed for data.$SUBDOMAIN"
 
-# Verify certbot timer is enabled (auto-renewal)
 systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
 systemctl start certbot.timer >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
