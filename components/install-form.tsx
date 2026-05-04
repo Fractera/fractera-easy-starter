@@ -9,9 +9,7 @@ type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 const ALL_STEPS: Step[] = [
   { id: 'connect',              label: 'Connecting to server',                    done: false },
   { id: 'apt_update',           label: 'Updating system',                         done: false },
-  { id: 'apt_install_sys',      label: 'Installing system tools',                 done: false },
-  { id: 'apt_install_web',      label: 'Installing web server',                   done: false },
-  { id: 'apt_install_ssl',      label: 'Installing SSL tools',                    done: false },
+  { id: 'apt_install',          label: 'Installing base tools',                   done: false },
   { id: 'node_repo',            label: 'Adding Node.js repository',               done: false },
   { id: 'node_install',         label: 'Installing Node.js 20',                   done: false },
   { id: 'pm2',                  label: 'Installing PM2 process manager',          done: false },
@@ -51,6 +49,7 @@ const ALL_STEPS: Step[] = [
   { id: 'rebuild_auth',         label: 'Rebuilding auth with domain',             done: false },
   { id: 'rebuild_bridges_app',  label: 'Rebuilding admin with domain',            done: false },
   { id: 'pm2_restart',          label: 'Restarting services with new config',     done: false },
+  { id: 'install_certbot',      label: 'Installing SSL tools',                    done: false },
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',            done: false },
   { id: 'ssl_cert',             label: 'Getting SSL certificates (4 domains)',    done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },

@@ -51,12 +51,10 @@ step() {
 
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
-step "apt_update"      "Updating system"                "apt-get update -qq"
-step "apt_install_sys" "Installing system tools"        "apt-get install -y -qq git curl build-essential dnsutils zsh"
-step "apt_install_web" "Installing web server"          "apt-get install -y -qq nginx"
-step "apt_install_ssl" "Installing SSL tools"           "apt-get install -y -qq certbot python3-certbot-nginx"
-step "node_repo"       "Adding Node.js repository"      "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && echo 'deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodesource.list && apt-get update -qq"
-step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
+step "apt_update"   "Updating system"         "apt-get update -qq"
+step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh"
+step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && echo 'deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodesource.list && apt-get update -qq"
+step "node_install" "Installing Node.js 20"   "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
 
 # === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
@@ -468,6 +466,9 @@ CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-app fractera-auth fractera-admin fractera-data >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Install certbot (done here — after builds, right before it's needed) ===
+step "install_certbot" "Installing SSL tools" "apt-get install -y -qq certbot python3-certbot-nginx"
 
 # === Wait for DNS propagation for all 4 domains ===
 CURRENT_STEP="wait_dns"
