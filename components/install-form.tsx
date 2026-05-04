@@ -12,7 +12,7 @@ const ALL_STEPS: Step[] = [
   { id: 'apt_install_sys',      label: 'Installing system tools',                 done: false },
   { id: 'apt_install_web',      label: 'Installing web server',                   done: false },
   { id: 'apt_install_ssl',      label: 'Installing SSL tools',                    done: false },
-  { id: 'node_setup',           label: 'Preparing Node.js installer',             done: false },
+  { id: 'node_repo',            label: 'Adding Node.js repository',               done: false },
   { id: 'node_install',         label: 'Installing Node.js 20',                   done: false },
   { id: 'pm2',                  label: 'Installing PM2 process manager',          done: false },
   { id: 'clear_creds',          label: 'Clearing platform credentials',           done: false },
