@@ -55,6 +55,20 @@ step "apt_install"     "Installing base tools"          "apt-get install -y -qq 
 step "node_setup"      "Preparing Node.js installer"    "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
 step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
+
+# === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
+CURRENT_STEP="clear_creds"
+CURRENT_LABEL="Clearing platform credentials"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+rm -rf \
+  ~/.gemini \
+  ~/.claude \
+  ~/.config/openai ~/.openai \
+  ~/.config/qwen-code ~/.qwen \
+  ~/.config/kimi-cli ~/.kimi ~/.local/share/kimi-cli ~/.local/share/kimi \
+  2>/dev/null || true
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
 step "clone"           "Downloading Fractera"           "rm -rf /opt/fractera && git clone https://github.com/Fractera/ai-workspace.git /opt/fractera && cd /opt/fractera"
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"

@@ -8,6 +8,7 @@ const DESTROY_SCRIPT = `
 pm2 delete all 2>/dev/null || true
 rm -rf /opt/fractera
 rm -rf /etc/fractera
+rm -rf /root/.gemini /root/.claude /root/.config/openai /root/.openai /root/.config/qwen-code /root/.qwen /root/.config/kimi-cli /root/.kimi /root/.local/share/kimi-cli /root/.local/share/kimi 2>/dev/null || true
 rm -f /etc/nginx/sites-enabled/fractera
 rm -f /etc/nginx/sites-available/fractera
 nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true

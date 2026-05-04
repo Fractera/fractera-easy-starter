@@ -13,6 +13,7 @@ const ALL_STEPS: Step[] = [
   { id: 'node_setup',           label: 'Preparing Node.js installer',         done: false },
   { id: 'node_install',         label: 'Installing Node.js 20',               done: false },
   { id: 'pm2',                  label: 'Installing PM2 process manager',      done: false },
+  { id: 'clear_creds',          label: 'Clearing platform credentials',        done: false },
   { id: 'clone',                label: 'Downloading Fractera',                done: false },
   { id: 'deps_root',            label: 'Installing dependencies (1/4)',       done: false },
   { id: 'deps_app',             label: 'Installing dependencies (2/4)',       done: false },
