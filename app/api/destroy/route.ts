@@ -46,7 +46,13 @@ export async function POST(req: NextRequest) {
   })
 
   if (domain) {
-    await deleteDnsRecord(domain).catch(() => {})
+    const base = domain.replace('.fractera.ai', '')
+    await Promise.all([
+      deleteDnsRecord(domain).catch(() => {}),
+      deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
+    ])
   }
 
   return NextResponse.json({ status: 'destroyed' })
