@@ -63,12 +63,12 @@ export function HeroSection() {
         <div className="flex flex-col gap-3 max-w-xl">
           <p className="text-2xl text-gray-300 leading-snug">
             Your own AI coding server —{' '}
-            <span className="text-white font-semibold">10× cheaper</span> than the cloud,
+            <span className="text-white font-semibold">5× cheaper & 10× faster</span>,
             installed in one click.
           </p>
           <p className="text-base text-gray-500 leading-relaxed flex items-start gap-3">
             Run all 8 AI platforms on a dedicated server you own. No subscriptions to cloud
-            infrastructure, no data leaving your environment. Fracterasadd architecture reuses
+            infrastructure, no data leaving your environment. Fractera's architecture reuses
             a single subscription across every platform — saving tokens and compute time up
             to 10×. Ready in 3–7 minutes.
             <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 3 to 7 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you own." />
