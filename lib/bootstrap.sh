@@ -52,7 +52,9 @@ step() {
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"      "Updating system"                "apt-get update -qq"
-step "apt_install"     "Installing base tools"          "apt-get install -y -qq git curl nginx build-essential certbot python3-certbot-nginx dnsutils zsh"
+step "apt_install_sys" "Installing system tools"        "apt-get install -y -qq git curl build-essential dnsutils zsh"
+step "apt_install_web" "Installing web server"          "apt-get install -y -qq nginx"
+step "apt_install_ssl" "Installing SSL tools"           "apt-get install -y -qq certbot python3-certbot-nginx"
 step "node_setup"      "Preparing Node.js installer"    "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
 step "node_install"    "Installing Node.js 20"          "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"

@@ -9,7 +9,9 @@ type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 const ALL_STEPS: Step[] = [
   { id: 'connect',              label: 'Connecting to server',                    done: false },
   { id: 'apt_update',           label: 'Updating system',                         done: false },
-  { id: 'apt_install',          label: 'Installing base tools',                   done: false },
+  { id: 'apt_install_sys',      label: 'Installing system tools',                 done: false },
+  { id: 'apt_install_web',      label: 'Installing web server',                   done: false },
+  { id: 'apt_install_ssl',      label: 'Installing SSL tools',                    done: false },
   { id: 'node_setup',           label: 'Preparing Node.js installer',             done: false },
   { id: 'node_install',         label: 'Installing Node.js 20',                   done: false },
   { id: 'pm2',                  label: 'Installing PM2 process manager',          done: false },
