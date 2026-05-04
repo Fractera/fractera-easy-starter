@@ -16,7 +16,6 @@ const PLATFORMS: Platform[] = [
   { id: 'gemini',      name: 'Gemini CLI',   subscription: 'Google AI Pro'            },
   { id: 'qwen',        name: 'Qwen Code',    subscription: 'Qwen Cloud'               },
   { id: 'kimi',        name: 'Kimi Code',    subscription: 'Kimi Cloud'               },
-  { id: 'open-code',   name: 'Open Code',    subscription: 'OpenRouter or local LLM'  },
 ]
 
 export function PlatformSelector() {

@@ -24,7 +24,6 @@ const ALL_STEPS: Step[] = [
   { id: 'install_gemini',       label: 'Gemini CLI',                          done: false },
   { id: 'install_qwen',         label: 'Qwen Code',                           done: false },
   { id: 'install_kimi',         label: 'Kimi Code',                           done: false },
-  { id: 'install_opencode',     label: 'Open Code',                           done: false },
   { id: 'prepare_secrets',      label: 'Generating security keys',            done: false },
   { id: 'prepare_env',          label: 'Writing environment configuration',   done: false },
   { id: 'build_app',            label: 'Building application (production)',   done: false },

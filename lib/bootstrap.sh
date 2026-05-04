@@ -96,7 +96,6 @@ soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
-soft_step "install_opencode" "Open Code"   "npm install -g opencode-ai"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -233,18 +232,6 @@ server {
         proxy_read_timeout 86400;
     }
 
-    location /opencode-bridge/ {
-        proxy_pass http://127.0.0.1:3206/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -313,7 +300,6 @@ NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/codex-bridge/
 NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/gemini-bridge/
 NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/kimi-bridge/
-NEXT_PUBLIC_OPENCODE_URL=wss://$SUBDOMAIN/opencode-bridge/
 ENVEOF
 
 # NEXT_PUBLIC_* are baked into the Next.js bundle at build time, so rebuild is mandatory after .env.local update.
