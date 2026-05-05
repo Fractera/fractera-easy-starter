@@ -172,7 +172,8 @@ NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 ENVEOF
 
 cat > /opt/fractera/services/data/.env.local <<ENVEOF
-NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
+AUTH_SERVICE_URL=http://localhost:3001
+DATA_PUBLIC_URL=http://localhost:3300
 ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -458,8 +459,25 @@ NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 ENVEOF
 
 cat > /opt/fractera/services/data/.env.local <<ENVEOF
-NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+AUTH_SERVICE_URL=http://localhost:3001
+DATA_PUBLIC_URL=https://data.$SUBDOMAIN
 ENVEOF
+
+# === Validate critical env vars are not empty or localhost ===
+MEDIA_VAL=$(grep "^DATA_PUBLIC_URL=" /opt/fractera/services/data/.env.local | cut -d'=' -f2)
+APP_VAL=$(grep "^NEXT_PUBLIC_APP_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
+MEDIA_ADMIN_VAL=$(grep "^NEXT_PUBLIC_MEDIA_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
+
+if [ -z "$MEDIA_VAL" ] || echo "$MEDIA_VAL" | grep -q "localhost"; then
+  fail "DATA_PUBLIC_URL is empty or localhost in services/data/.env.local — Vercel deploy may not be ready"
+fi
+if [ -z "$APP_VAL" ] || echo "$APP_VAL" | grep -q "localhost"; then
+  fail "NEXT_PUBLIC_APP_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
+fi
+if [ -z "$MEDIA_ADMIN_VAL" ] || echo "$MEDIA_ADMIN_VAL" | grep -q "localhost"; then
+  fail "NEXT_PUBLIC_MEDIA_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
+fi
+echo "ENV VALIDATION PASSED: all critical vars have real domains" >> "$LOG_FILE"
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
