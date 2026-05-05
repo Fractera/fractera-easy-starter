@@ -15,11 +15,14 @@ const ALL_STEPS: Step[] = [
   { id: 'pm2',                  label: 'Installing PM2 process manager',      done: false },
   { id: 'clear_creds',          label: 'Clearing platform credentials',        done: false },
   { id: 'clone',                label: 'Downloading Fractera',                done: false },
-  { id: 'deps_root',            label: 'Installing dependencies (1/4)',       done: false },
-  { id: 'deps_app',             label: 'Installing dependencies (2/4)',       done: false },
+  { id: 'checkout',             label: 'Switching to migration branch',       done: false },
+  { id: 'deps_root',            label: 'Installing dependencies (1/6)',       done: false },
+  { id: 'deps_app',             label: 'Installing dependencies (2/6)',       done: false },
   { id: 'deps_app_native',      label: 'Installing native modules',           done: false },
-  { id: 'deps_bridge',          label: 'Installing dependencies (3/4)',       done: false },
-  { id: 'deps_media',           label: 'Installing dependencies (4/4)',       done: false },
+  { id: 'deps_bridge',          label: 'Installing dependencies (3/6)',       done: false },
+  { id: 'deps_auth',            label: 'Installing dependencies (4/6)',       done: false },
+  { id: 'deps_bridges_app',     label: 'Installing dependencies (5/6)',       done: false },
+  { id: 'deps_data',            label: 'Installing dependencies (6/6)',       done: false },
   { id: 'install_claude',       label: 'Claude Code',                         done: false },
   { id: 'install_codex',        label: 'Codex',                               done: false },
   { id: 'install_gemini',       label: 'Gemini CLI',                          done: false },
@@ -27,16 +30,27 @@ const ALL_STEPS: Step[] = [
   { id: 'install_kimi',         label: 'Kimi Code',                           done: false },
   { id: 'prepare_secrets',      label: 'Generating security keys',            done: false },
   { id: 'prepare_env',          label: 'Writing environment configuration',   done: false },
-  { id: 'build_app',            label: 'Building application (production)',   done: false },
-  { id: 'start_app',            label: 'Starting application',                done: false },
-  { id: 'start_bridge',         label: 'Starting Bridge',                     done: false },
-  { id: 'start_media',          label: 'Starting media service',              done: false },
+  { id: 'build_app',            label: 'Building shell (production)',         done: false },
+  { id: 'build_auth',           label: 'Building auth service',               done: false },
+  { id: 'build_bridges_app',    label: 'Building admin workspace',            done: false },
+  { id: 'start_app',            label: 'Starting shell service',              done: false },
+  { id: 'start_bridge',         label: 'Starting bridge service',             done: false },
+  { id: 'start_auth',           label: 'Starting auth service',               done: false },
+  { id: 'start_admin',          label: 'Starting admin service',              done: false },
+  { id: 'start_data',           label: 'Starting data service',               done: false },
   { id: 'pm2_save',             label: 'Saving configuration',                done: false },
   { id: 'configure_nginx_http', label: 'Configuring web server (HTTP)',       done: false },
   { id: 'health_check',         label: 'Verifying server is responding',      done: false },
   { id: 'register',             label: 'Registering your domain',             done: false },
+  { id: 'register_subdomains',  label: 'Registering service subdomains',      done: false },
+  { id: 'nginx_domains',        label: 'Updating web server with domains',    done: false },
+  { id: 'update_env',           label: 'Updating environment with domains',   done: false },
+  { id: 'rebuild_app',          label: 'Rebuilding shell with domain',        done: false },
+  { id: 'rebuild_auth',         label: 'Rebuilding auth with domain',         done: false },
+  { id: 'rebuild_bridges_app',  label: 'Rebuilding admin with domain',        done: false },
+  { id: 'pm2_restart',          label: 'Restarting services',                 done: false },
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',        done: false },
-  { id: 'ssl_cert',             label: 'Getting SSL certificate',             done: false },
+  { id: 'ssl_cert',             label: 'Getting SSL certificates (4 domains)', done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',          done: false },
 ]
 
@@ -57,6 +71,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
+  const [destroying, setDestroying] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Tick every second while installing — for elapsed time and silence detection
@@ -295,6 +310,37 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
               <p className="text-xs text-gray-500">
                 To manage your server, use the options below. To remove Fractera, use the Danger Zone.
               </p>
+              <button
+                onClick={async () => {
+                  if (destroying) return
+                  setDestroying(true)
+                  try {
+                    // detectedSubdomain may be "data.xxx.fractera.ai" — extract main domain
+                    const domainToDelete = detectedSubdomain
+                      ? detectedSubdomain.replace(/^(auth|admin|data)\./, '')
+                      : undefined
+                    await fetch('/api/destroy', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: domainToDelete }),
+                    })
+                    localStorage.removeItem('fractera_domain')
+                    setServerStatus('fresh')
+                    setDetectedSubdomain(null)
+                    onSubdomainReady?.('')
+                  } catch {
+                    // ignore — let user try Install button anyway
+                    setServerStatus('fresh')
+                    setDetectedSubdomain(null)
+                  } finally {
+                    setDestroying(false)
+                  }
+                }}
+                disabled={destroying}
+                className="self-start text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
+              >
+                {destroying ? 'Removing…' : 'Delete and reinstall fresh'}
+              </button>
             </div>
           )}
 

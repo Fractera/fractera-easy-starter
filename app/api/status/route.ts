@@ -3,14 +3,18 @@ import { Client } from 'ssh2'
 
 export const maxDuration = 30
 
+// Grep NEXT_PUBLIC_AUTH_URL to detect installation and extract the main subdomain.
+// auth URL looks like https://auth.happy-wolf-86.fractera.ai — strip "auth." to get main domain.
 const STATUS_CMD =
   'test -f /opt/fractera/app/.env.local ' +
-  '&& grep NEXT_PUBLIC_MEDIA_URL /opt/fractera/app/.env.local ' +
+  '&& grep NEXT_PUBLIC_AUTH_URL /opt/fractera/app/.env.local ' +
   '|| echo NOT_INSTALLED'
 
 function parseSubdomain(line: string): string | null {
   const match = line.match(/https?:\/\/([^/]+)/)
-  return match ? match[1] : null
+  if (!match) return null
+  // Strip service prefixes to get the main subdomain
+  return match[1].replace(/^(auth|admin|data)\./, '')
 }
 
 export async function POST(req: NextRequest) {
