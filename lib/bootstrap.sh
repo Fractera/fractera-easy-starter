@@ -145,6 +145,7 @@ cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -430,6 +431,7 @@ cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
