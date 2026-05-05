@@ -96,7 +96,8 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 step "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms"
 step "deps_auth"        "Installing dependencies (4/6)" \
   "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth"
-step "deps_bridges_app" "Installing dependencies (5/6)" "npm install --prefix bridges/app"
+step "deps_bridges_app" "Installing dependencies (5/6)" \
+  "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app"
 step "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data"
 
@@ -159,6 +160,8 @@ ENVEOF
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://localhost:3001
+NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 NEXT_PUBLIC_BRIDGE_URL=ws://localhost:3201/bridge/
 NEXT_PUBLIC_PTY_URL=ws://localhost:3201/bridge/
 NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
@@ -442,6 +445,8 @@ ENVEOF
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 NEXT_PUBLIC_BRIDGE_URL=wss://admin.$SUBDOMAIN/bridge/
 NEXT_PUBLIC_PTY_URL=wss://admin.$SUBDOMAIN/bridge/
 NEXT_PUBLIC_CODEX_URL=wss://admin.$SUBDOMAIN/codex-bridge/
