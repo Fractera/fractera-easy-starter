@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
+import { failProgress, initProgress } from '@/lib/kv'
 
 export const maxDuration = 300
 
@@ -52,9 +53,18 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    const ip = process.env.FRACTERA_DEPLOY_IP!
-    const login = process.env.FRACTERA_DEPLOY_USER!
-    const password = process.env.FRACTERA_DEPLOY_PASSWORD!
+    const ip = process.env.FRACTERA_DEPLOY_IP
+    const login = process.env.FRACTERA_DEPLOY_USER
+    const password = process.env.FRACTERA_DEPLOY_PASSWORD
+
+    // Check required env vars before attempting deploy
+    if (!ip || !login || !password) {
+      await initProgress(deploySessionId)
+      await failProgress(deploySessionId, `Server credentials not configured: missing ${[!ip && 'FRACTERA_DEPLOY_IP', !login && 'FRACTERA_DEPLOY_USER', !password && 'FRACTERA_DEPLOY_PASSWORD'].filter(Boolean).join(', ')}`)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } })
+      console.error('[webhook] missing deploy env vars')
+      return NextResponse.json({ ok: true })
+    }
 
     deployToServer({
       ip,
@@ -63,7 +73,11 @@ export async function POST(req: NextRequest) {
       session_id: deploySessionId,
       platform: 'claude-code',
       serverToken: serverToken.token,
-    }).catch(err => console.error('[webhook] deploy error:', err))
+    }).catch(async (err) => {
+      console.error('[webhook] deploy error:', err)
+      await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
+    })
   }
 
   if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {

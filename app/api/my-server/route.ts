@@ -13,7 +13,7 @@ export async function GET() {
   const serverToken = await db.serverToken.findFirst({
     where: {
       userId: session.user.id,
-      status: { not: 'offline' },
+      status: { notIn: ['offline'] },
     },
     orderBy: { createdAt: 'desc' },
     select: {
