@@ -76,8 +76,11 @@ step "clone" "Downloading Fractera" \
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
 # Record deployed commit and branch for verification
-git rev-parse HEAD > /opt/fractera/DEPLOYED_COMMIT 2>/dev/null || true
-git branch --show-current > /opt/fractera/DEPLOYED_BRANCH 2>/dev/null || true
+DEPLOYED_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+DEPLOYED_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+echo "$DEPLOYED_COMMIT" > /opt/fractera/DEPLOYED_COMMIT
+echo "$DEPLOYED_BRANCH" > /opt/fractera/DEPLOYED_BRANCH
+echo "=== DEPLOYED: branch=$DEPLOYED_BRANCH commit=$DEPLOYED_COMMIT ===" >> "$LOG_FILE"
 
 
 step "deps_root"   "Installing dependencies (1/6)" "npm install"
