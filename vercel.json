@@ -1,4 +1,4 @@
 {
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "npx prisma generate && npm run build"
+  "buildCommand": "npx prisma db push --accept-data-loss && npx prisma generate && npm run build"
 }
