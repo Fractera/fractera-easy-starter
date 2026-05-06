@@ -6,8 +6,10 @@ SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
 REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
+PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 INSTALL_SECRET="$2"
 PLATFORM="${3:-claude-code}"
+SERVER_TOKEN="${4:-}"
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -551,6 +553,15 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
   fail "HTTPS not responding on $SUBDOMAIN (got $CODE)"
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === Install ping agent cron (if SERVER_TOKEN provided) ===
+if [ -n "$SERVER_TOKEN" ]; then
+  echo "SERVER_TOKEN=$SERVER_TOKEN" >> /etc/fractera/secrets.env
+  # Cron: ping platform every 15 min, send subdomain on first ping
+  CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
+  (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
+  echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
+fi
 
 # Signal completion with subdomain
 curl -s -X POST "$PROGRESS_URL" \
