@@ -15,7 +15,7 @@ const PLATFORMS = [
   'Qwen Code',
   'Kimi Code',
   'LightRAG',
-  'Open Claw',
+  //'Open Claw',
 ]
 
 export function HeroSection() {
