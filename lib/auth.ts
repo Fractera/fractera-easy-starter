@@ -8,6 +8,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
   debug: true,
   trustHost: true,
+  logger: {
+    error(error) {
+      console.error('[auth][logger][error]', error.name, error.message, JSON.stringify(error, null, 2))
+    },
+    warn(code) {
+      console.warn('[auth][logger][warn]', code)
+    },
+    debug(message, metadata) {
+      console.log('[auth][logger][debug]', message, JSON.stringify(metadata, null, 2))
+    },
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -20,6 +31,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   pages: {
     signIn: '/',
+    error: '/',
   },
   callbacks: {
     session({ session, user }) {
