@@ -164,18 +164,19 @@ export function HeroSection() {
                 <h2 className="text-xl font-bold text-white mt-1">One-click START</h2>
                 <p className="text-sm text-gray-400">
                   Launch your coding server for{' '}
-                  <span className="text-white font-semibold">$1</span>
+                  <span className="text-white font-semibold">$1/day</span>
                 </p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-3xl font-bold text-white">$1</p>
-                <p className="text-xs text-gray-600">per month</p>
+                <p className="text-xs text-gray-600">per day</p>
+                <p className="text-xs text-gray-700">min 3 days</p>
               </div>
             </div>
 
             <p className="text-xs text-gray-500 leading-relaxed">
-              Subscribe and get a fully ready project on a unique domain in a few minutes.
-              No server setup required — we handle everything.
+              Get a fully ready project on a unique domain in a few minutes.
+              Minimum 3 days — cancel anytime after. No server setup required.
             </p>
 
             <button
