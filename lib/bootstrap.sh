@@ -75,8 +75,6 @@ step "clone" "Downloading Fractera" \
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
-step "checkout" "Switching to migration branch" \
-  "git -C /opt/fractera checkout migration/v2-four-services"
 
 step "deps_root"   "Installing dependencies (1/6)" "npm install"
 step "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app"
