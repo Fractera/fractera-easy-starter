@@ -164,7 +164,7 @@ export function HeroSection() {
                 <h2 className="text-xl font-bold text-white mt-1">One-click START</h2>
                 <p className="text-sm text-gray-400">
                   Launch your coding server for{' '}
-                  <span className="text-white font-semibold">$1 / month</span>
+                  <span className="text-white font-semibold">$1</span>
                 </p>
               </div>
               <div className="text-right shrink-0">
