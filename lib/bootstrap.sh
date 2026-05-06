@@ -561,6 +561,12 @@ if [ -n "$SERVER_TOKEN" ]; then
   CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
   (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
   echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
+  # Ping immediately so welcome email fires right after install (don't wait up to 15 min for cron)
+  curl -s -X POST "$PING_URL" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $SERVER_TOKEN" \
+    -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
+    >> /var/log/fractera-ping.log 2>&1 || true
 fi
 
 # Signal completion with subdomain
