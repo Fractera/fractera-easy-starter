@@ -72,6 +72,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
   const [destroying, setDestroying] = useState(false)
+  const [renewingSsl, setRenewingSsl] = useState(false)
+  const [sslRenewResult, setSslRenewResult] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Tick every second while installing — for elapsed time and silence detection
@@ -295,52 +297,79 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                 <p className="text-sm font-semibold text-green-400">Fractera is already installed on this server</p>
               </div>
               {detectedSubdomain && (
-                <div className="flex flex-col gap-1">
-                  <p className="text-xs text-gray-500 uppercase tracking-widest">Your domain</p>
-                  <a
-                    href={`https://${detectedSubdomain}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-green-300 hover:text-green-200 transition-colors break-all"
-                  >
-                    https://{detectedSubdomain} ↗
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs text-gray-500 uppercase tracking-widest">Your domains</p>
+                  <a href={`https://${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
+                    ↗ {detectedSubdomain} <span className="text-gray-600 text-xs">site</span>
+                  </a>
+                  <a href={`https://auth.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
+                    ↗ auth.{detectedSubdomain} <span className="text-gray-600 text-xs">login / register</span>
+                  </a>
+                  <a href={`https://admin.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
+                    ↗ admin.{detectedSubdomain} <span className="text-gray-600 text-xs">admin</span>
                   </a>
                 </div>
               )}
-              <p className="text-xs text-gray-500">
-                To manage your server, use the options below. To remove Fractera, use the Danger Zone.
-              </p>
-              <button
-                onClick={async () => {
-                  if (destroying) return
-                  setDestroying(true)
-                  try {
-                    // detectedSubdomain may be "data.xxx.fractera.ai" — extract main domain
-                    const domainToDelete = detectedSubdomain
-                      ? detectedSubdomain.replace(/^(auth|admin|data)\./, '')
-                      : undefined
-                    await fetch('/api/destroy', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: domainToDelete }),
-                    })
-                    localStorage.removeItem('fractera_domain')
-                    setServerStatus('fresh')
-                    setDetectedSubdomain(null)
-                    onSubdomainReady?.('')
-                  } catch {
-                    // ignore — let user try Install button anyway
-                    setServerStatus('fresh')
-                    setDetectedSubdomain(null)
-                  } finally {
-                    setDestroying(false)
-                  }
-                }}
-                disabled={destroying}
-                className="self-start text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
-              >
-                {destroying ? 'Removing…' : 'Delete and reinstall fresh'}
-              </button>
+              <div className="flex flex-wrap gap-2 mt-1">
+                <button
+                  onClick={async () => {
+                    if (renewingSsl) return
+                    setRenewingSsl(true)
+                    setSslRenewResult(null)
+                    try {
+                      const res = await fetch('/api/renew-ssl', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password }),
+                      })
+                      const data = await res.json()
+                      setSslRenewResult(data.ok ? '✓ SSL renewed' : `✗ ${data.error ?? 'failed'}`)
+                    } catch {
+                      setSslRenewResult('✗ Connection error')
+                    } finally {
+                      setRenewingSsl(false)
+                    }
+                  }}
+                  disabled={renewingSsl}
+                  className="text-xs text-orange-400 hover:text-orange-300 border border-orange-500/30 hover:border-orange-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
+                >
+                  {renewingSsl ? 'Renewing SSL…' : 'Renew SSL certificates'}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (destroying) return
+                    setDestroying(true)
+                    try {
+                      await fetch('/api/destroy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: detectedSubdomain ?? undefined }),
+                      })
+                      localStorage.removeItem('fractera_domain')
+                      setServerStatus('fresh')
+                      setDetectedSubdomain(null)
+                      onSubdomainReady?.('')
+                    } catch {
+                      setServerStatus('fresh')
+                      setDetectedSubdomain(null)
+                    } finally {
+                      setDestroying(false)
+                    }
+                  }}
+                  disabled={destroying}
+                  className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
+                >
+                  {destroying ? 'Removing…' : 'Delete and reinstall fresh'}
+                </button>
+              </div>
+              {sslRenewResult && (
+                <p className={`text-xs px-1 ${sslRenewResult.startsWith('✓') ? 'text-green-400' : 'text-red-400'}`}>
+                  {sslRenewResult}
+                </p>
+              )}
             </div>
           )}
 
