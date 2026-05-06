@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
@@ -66,17 +66,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    deployToServer({
-      ip,
-      login,
-      password,
-      session_id: deploySessionId,
-      platform: 'claude-code',
-      serverToken: serverToken.token,
-    }).catch(async (err) => {
-      console.error('[webhook] deploy error:', err)
-      await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
+    // after() keeps the Vercel function alive until deploy task completes
+    // (without it, Vercel kills the process right after returning { ok: true })
+    after(async () => {
+      try {
+        await deployToServer({
+          ip,
+          login,
+          password,
+          session_id: deploySessionId,
+          platform: 'claude-code',
+          serverToken: serverToken.token,
+        })
+      } catch (err) {
+        console.error('[webhook] deploy error:', err)
+        await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
+        await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
+      }
     })
   }
 
