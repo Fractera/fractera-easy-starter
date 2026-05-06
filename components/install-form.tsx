@@ -73,7 +73,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
   const [destroying, setDestroying] = useState(false)
-  const [cleaning, setCleaning] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Tick every second while installing — for elapsed time and silence detection
@@ -356,31 +355,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             </button>
           )}
 
-          {serverStatus === 'fresh' && !statusError && ip && password && (
-            <button
-              onClick={async () => {
-                if (cleaning) return
-                setCleaning(true)
-                try {
-                  await fetch('/api/destroy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password }),
-                  })
-                } catch {
-                  // ignore
-                } finally {
-                  setCleaning(false)
-                }
-              }}
-              disabled={cleaning}
-              className="self-start text-xs text-orange-400 hover:text-orange-300 border border-orange-500/30 hover:border-orange-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
-            >
-              {cleaning ? 'Cleaning…' : 'Clean server before installing'}
-            </button>
-          )}
-
-          {serverStatus === 'fresh' && statusError && (
+{serverStatus === 'fresh' && statusError && (
             <p className="text-xs text-yellow-600 px-1">
               Could not reach server. You can still try installing.
             </p>
