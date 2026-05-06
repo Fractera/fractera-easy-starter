@@ -30,7 +30,7 @@ export async function sendExpiryWarningEmail(to: string, daysLeft: number, subdo
       <h2>Subscription expiring soon</h2>
       <p>Your Fractera server <strong>${subdomain}</strong> subscription expires in <strong>${daysLeft} days</strong>.</p>
       <p>To keep your server running, please renew your subscription.</p>
-      <p><a href="https://fractera-easy-starter.vercel.app">Manage subscription →</a></p>
+      <p><a href="https://fractera.ai">Manage subscription →</a></p>
     `,
   })
 }
@@ -43,7 +43,7 @@ export async function sendCancellationEmail(to: string) {
     html: `
       <h2>Subscription cancelled</h2>
       <p>Your Fractera subscription has been cancelled. Your server will be deactivated at the end of the current billing period.</p>
-      <p>If this was a mistake, you can resubscribe at any time from <a href="https://fractera-easy-starter.vercel.app">fractera.ai</a>.</p>
+      <p>If this was a mistake, you can resubscribe at any time from <a href="https://fractera.ai">fractera.ai</a>.</p>
     `,
   })
 }
