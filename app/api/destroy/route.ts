@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
   })
 
   if (domain) {
-    const base = domain.replace('.fractera.ai', '')
+    // Delete main domain + all 3 service subdomains
+    const base = domain.replace(/\.fractera\.ai$/, '')
     await Promise.all([
       deleteDnsRecord(domain).catch(() => {}),
       deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),

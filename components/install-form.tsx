@@ -72,6 +72,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
+  const [destroying, setDestroying] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Tick every second while installing — for elapsed time and silence detection
@@ -310,6 +311,37 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
               <p className="text-xs text-gray-500">
                 To manage your server, use the options below. To remove Fractera, use the Danger Zone.
               </p>
+              <button
+                onClick={async () => {
+                  if (destroying) return
+                  setDestroying(true)
+                  try {
+                    // detectedSubdomain may be "data.xxx.fractera.ai" — extract main domain
+                    const domainToDelete = detectedSubdomain
+                      ? detectedSubdomain.replace(/^(auth|admin|data)\./, '')
+                      : undefined
+                    await fetch('/api/destroy', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: domainToDelete }),
+                    })
+                    localStorage.removeItem('fractera_domain')
+                    setServerStatus('fresh')
+                    setDetectedSubdomain(null)
+                    onSubdomainReady?.('')
+                  } catch {
+                    // ignore — let user try Install button anyway
+                    setServerStatus('fresh')
+                    setDetectedSubdomain(null)
+                  } finally {
+                    setDestroying(false)
+                  }
+                }}
+                disabled={destroying}
+                className="self-start text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
+              >
+                {destroying ? 'Removing…' : 'Delete and reinstall fresh'}
+              </button>
             </div>
           )}
 

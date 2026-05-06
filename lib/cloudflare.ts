@@ -4,6 +4,23 @@ export async function createDnsRecord(ip: string, subdomain: string): Promise<vo
   const zoneId = process.env.CLOUDFLARE_ZONE_ID!
   const token = process.env.CLOUDFLARE_API_TOKEN!
 
+  // If record already exists — delete it first (idempotent upsert)
+  const fullName = subdomain.endsWith('.fractera.ai') ? subdomain : `${subdomain}.fractera.ai`
+  const listRes = await fetch(
+    `${CLOUDFLARE_API}/zones/${zoneId}/dns_records?type=A&name=${encodeURIComponent(fullName)}`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  )
+  if (listRes.ok) {
+    const list = await listRes.json()
+    const existing = list.result?.[0]
+    if (existing) {
+      await fetch(`${CLOUDFLARE_API}/zones/${zoneId}/dns_records/${existing.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }).catch(() => {})
+    }
+  }
+
   const res = await fetch(`${CLOUDFLARE_API}/zones/${zoneId}/dns_records`, {
     method: 'POST',
     headers: {

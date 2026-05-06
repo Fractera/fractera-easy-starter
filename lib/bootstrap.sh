@@ -96,7 +96,8 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 step "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms"
 step "deps_auth"        "Installing dependencies (4/6)" \
   "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth"
-step "deps_bridges_app" "Installing dependencies (5/6)" "npm install --prefix bridges/app"
+step "deps_bridges_app" "Installing dependencies (5/6)" \
+  "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app"
 step "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data"
 
@@ -144,6 +145,7 @@ cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -159,6 +161,8 @@ ENVEOF
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://localhost:3001
+NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 NEXT_PUBLIC_BRIDGE_URL=ws://localhost:3201/bridge/
 NEXT_PUBLIC_PTY_URL=ws://localhost:3201/bridge/
 NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
@@ -167,8 +171,9 @@ NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 ENVEOF
 
-cat > /opt/fractera/services/data/.env.local <<ENVEOF
-NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
+cat > /opt/fractera/services/data/.env <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+DATA_PUBLIC_URL=http://localhost:3300
 ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -427,6 +432,7 @@ cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -442,6 +448,8 @@ ENVEOF
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 NEXT_PUBLIC_BRIDGE_URL=wss://admin.$SUBDOMAIN/bridge/
 NEXT_PUBLIC_PTY_URL=wss://admin.$SUBDOMAIN/bridge/
 NEXT_PUBLIC_CODEX_URL=wss://admin.$SUBDOMAIN/codex-bridge/
@@ -450,9 +458,26 @@ NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 ENVEOF
 
-cat > /opt/fractera/services/data/.env.local <<ENVEOF
-NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+cat > /opt/fractera/services/data/.env <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+DATA_PUBLIC_URL=https://data.$SUBDOMAIN
 ENVEOF
+
+# === Validate critical env vars are not empty or localhost ===
+MEDIA_VAL=$(grep "^DATA_PUBLIC_URL=" /opt/fractera/services/data/.env | cut -d'=' -f2)
+APP_VAL=$(grep "^NEXT_PUBLIC_APP_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
+MEDIA_ADMIN_VAL=$(grep "^NEXT_PUBLIC_MEDIA_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
+
+if [ -z "$MEDIA_VAL" ] || echo "$MEDIA_VAL" | grep -q "localhost"; then
+  fail "DATA_PUBLIC_URL is empty or localhost in services/data/.env — Vercel deploy may not be ready"
+fi
+if [ -z "$APP_VAL" ] || echo "$APP_VAL" | grep -q "localhost"; then
+  fail "NEXT_PUBLIC_APP_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
+fi
+if [ -z "$MEDIA_ADMIN_VAL" ] || echo "$MEDIA_ADMIN_VAL" | grep -q "localhost"; then
+  fail "NEXT_PUBLIC_MEDIA_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
+fi
+echo "ENV VALIDATION PASSED: all critical vars have real domains" >> "$LOG_FILE"
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
