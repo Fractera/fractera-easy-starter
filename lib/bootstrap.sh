@@ -75,6 +75,10 @@ step "clone" "Downloading Fractera" \
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
+# Record deployed commit and branch for verification
+git rev-parse HEAD > /opt/fractera/DEPLOYED_COMMIT 2>/dev/null || true
+git branch --show-current > /opt/fractera/DEPLOYED_BRANCH 2>/dev/null || true
+
 
 step "deps_root"   "Installing dependencies (1/6)" "npm install"
 step "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app"
