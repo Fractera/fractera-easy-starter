@@ -67,6 +67,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <p className="text-xs text-gray-400">
               We sent a login link to <strong className="text-white">{email}</strong>. Click it to sign in.
             </p>
+            <p className="text-xs text-yellow-600">
+              Don&apos;t see it? Check your <strong>spam or junk folder</strong>.
+            </p>
           </div>
         ) : (
           <>

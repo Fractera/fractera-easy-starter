@@ -183,6 +183,10 @@ export function HeroSection() {
               <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready (3–7 min).
             </p>
           )}
+
+          <p className="text-xs text-yellow-600">
+            Emails from us may land in <strong>spam or junk</strong> — please check there if you don&apos;t see them.
+          </p>
         </div>
       )}
 
