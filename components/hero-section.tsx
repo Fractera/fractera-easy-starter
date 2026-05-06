@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
 import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
@@ -41,6 +42,14 @@ export function HeroSection() {
       setDomainReady(stored.status === 'ready')
     } catch {}
   }, [])
+
+  useEffect(() => {
+    if (!paymentSuccess) return
+    toast.success('Deployment started', {
+      description: "After setup finishes, you'll receive an email that your server is ready to use.",
+      duration: 10000,
+    })
+  }, [paymentSuccess])
 
   async function triggerCheckout() {
     setCheckoutLoading(true)
@@ -135,7 +144,7 @@ export function HeroSection() {
               </div>
               <div className="text-right shrink-0">
                 <p className="text-3xl font-bold text-white">$1</p>
-                <p className="text-xs text-gray-600">per month</p>
+                <p className="text-xs text-gray-600">per day · min. 3 days</p>
               </div>
             </div>
 
