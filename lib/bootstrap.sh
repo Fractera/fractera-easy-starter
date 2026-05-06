@@ -14,6 +14,21 @@ LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
 CURRENT_LABEL=""
+INSTALL_START=$(date +%s)
+# DEBUG — remove before launch
+LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
+
+log_email() {
+  [ -z "$SERVER_TOKEN" ] && return
+  local step="$1" label="$2" percent="$3"
+  local elapsed=$(( $(date +%s) - INSTALL_START ))
+  local elapsed_str="${elapsed}s"
+  curl -s -X POST "$LOG_URL" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $SERVER_TOKEN" \
+    -d "{\"step\":\"$step\",\"label\":\"$label\",\"percent\":$percent,\"elapsed\":\"$elapsed_str\"}" \
+    > /dev/null 2>&1 &
+}
 
 # Send a step update (start or finish)
 report() {
@@ -58,6 +73,7 @@ step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl n
 step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
 step "node_install" "Installing Node.js 20"   "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
+log_email "pm2" "Node.js + PM2 installed" 10
 
 # === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
 CURRENT_STEP="clear_creds"
@@ -107,6 +123,7 @@ step "deps_bridges_app" "Installing dependencies (5/6)" \
   "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app"
 step "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data"
+log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
 soft_step() {
@@ -185,6 +202,7 @@ ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+log_email "build_start" "Building services (this takes 5-10 min)" 40
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
 step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
@@ -197,6 +215,7 @@ step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platfor
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
+log_email "start_data" "All 5 services started" 65
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
@@ -489,6 +508,7 @@ echo "ENV VALIDATION PASSED: all critical vars have real domains" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs (NEXT_PUBLIC_* are baked at build time) ===
+log_email "rebuild_start" "Domain registered — rebuilding with real URLs" 75
 step "rebuild_app"         "Rebuilding shell with domain"   "npm run build --prefix app"
 step "rebuild_auth"        "Rebuilding auth with domain"    "npm run build --prefix services/auth"
 step "rebuild_bridges_app" "Rebuilding admin with domain"   "npm run build --prefix bridges/app"
@@ -501,6 +521,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Install certbot (done here — after builds, right before it's needed) ===
 step "install_certbot" "Installing SSL tools" "apt-get install -y -qq certbot python3-certbot-nginx"
+log_email "install_certbot" "Waiting for DNS + getting SSL certificates" 85
 
 # === Wait for DNS propagation for all 4 domains ===
 CURRENT_STEP="wait_dns"
@@ -561,6 +582,7 @@ if [ -n "$SERVER_TOKEN" ]; then
   CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
   (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
   echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
+  log_email "complete" "Server is ready! SSL installed, all services running" 100
   # Ping immediately so welcome email fires right after install (don't wait up to 15 min for cron)
   curl -s -X POST "$PING_URL" \
     -H "Content-Type: application/json" \

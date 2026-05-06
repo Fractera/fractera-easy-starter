@@ -35,6 +35,27 @@ export async function sendExpiryWarningEmail(to: string, daysLeft: number, subdo
   })
 }
 
+// DEBUG — remove before launch
+export async function sendInstallLogEmail(to: string, step: string, label: string, percent: number, elapsed: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `[${percent}%] Fractera install: ${label}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <p style="margin:0 0 8px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Debug · Install Log</p>
+        <h2 style="margin:0 0 16px;font-size:18px">${percent}% — ${label}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr><td style="padding:4px 0;color:#999">Step ID</td><td style="padding:4px 8px;color:#fff">${step}</td></tr>
+          <tr><td style="padding:4px 0;color:#999">Progress</td><td style="padding:4px 8px;color:#fff">${percent}%</td></tr>
+          <tr><td style="padding:4px 0;color:#999">Elapsed</td><td style="padding:4px 8px;color:#fff">${elapsed}</td></tr>
+        </table>
+        <p style="margin:16px 0 0;font-size:11px;color:#555">This is a debug email — will be removed before launch.</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({
     from: FROM,
