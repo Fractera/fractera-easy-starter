@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? 'https://fractera-easy-starter.vercel.app'
+  const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'subscription',

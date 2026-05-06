@@ -41,15 +41,16 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
     const serverToken = await db.serverToken.create({
       data: {
         userId,
         subscriptionId: subscription.id,
         status: 'pending',
+        deploySessionId,
       },
     })
-
-    const deploySessionId = `sess-stripe-${serverToken.token.slice(-10)}`
 
     const ip = process.env.FRACTERA_DEPLOY_IP!
     const login = process.env.FRACTERA_DEPLOY_USER!

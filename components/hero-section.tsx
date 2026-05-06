@@ -10,7 +10,16 @@ import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
+import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal } from '@/components/providers'
+
+type MyServer = {
+  id: string
+  status: string
+  subdomain: string | null
+  deploySessionId: string | null
+  createdAt: string
+} | null
 
 const PLATFORMS = [
   'Claude Code',
@@ -34,6 +43,11 @@ export function HeroSection() {
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
+  // Stripe one-click: server from DB
+  const [myServer, setMyServer] = useState<MyServer>(undefined as unknown as MyServer)
+  const [myServerLoading, setMyServerLoading] = useState(false)
+  const [stripeSubdomain, setStripeSubdomain] = useState<string | null>(null)
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem('fractera_domain')
@@ -49,6 +63,27 @@ export function HeroSection() {
       description: "After setup finishes, you'll receive an email that your server is ready to use.",
       duration: 10000,
     })
+    // Poll /api/my-server until deploySessionId appears (webhook may be slightly delayed)
+    setMyServerLoading(true)
+    let attempts = 0
+    const maxAttempts = 20
+    const pollServer = async () => {
+      try {
+        const res = await fetch('/api/my-server')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.server) {
+            setMyServer(data.server)
+            setMyServerLoading(false)
+            return
+          }
+        }
+      } catch {}
+      attempts++
+      if (attempts < maxAttempts) setTimeout(pollServer, 3000)
+      else setMyServerLoading(false)
+    }
+    pollServer()
   }, [paymentSuccess])
 
   async function triggerCheckout() {
@@ -109,18 +144,45 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Payment success banner */}
+      {/* Payment success: pipeline or server links */}
       {paymentSuccess && (
-        <div className="w-full max-w-xl flex flex-col gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-5">
+        <div className="w-full max-w-xl flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-lg">✓</span>
-            <p className="text-sm font-semibold text-green-400">Payment confirmed — your server is being deployed</p>
+            <p className="text-sm font-semibold text-green-400">Payment confirmed</p>
           </div>
-          <p className="text-xs text-gray-400">
-            Your Fractera coding environment is being set up. You&apos;ll receive an email at{' '}
-            <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready
-            (usually 3–7 minutes).
-          </p>
+
+          {/* Server already active — show links */}
+          {(myServer?.status === 'active' && (myServer.subdomain || stripeSubdomain)) && (
+            <ServerLinks subdomain={(stripeSubdomain ?? myServer.subdomain)!} email={session?.user?.email ?? ''} />
+          )}
+
+          {/* Deploy in progress — show pipeline */}
+          {myServer && myServer.status !== 'active' && myServer.deploySessionId && (
+            <DeployProgress
+              sessionId={myServer.deploySessionId}
+              onComplete={sub => {
+                setStripeSubdomain(sub)
+                setMyServer(prev => prev ? { ...prev, status: 'active', subdomain: sub } : prev)
+              }}
+            />
+          )}
+
+          {/* Waiting for webhook to fire (first 60s) */}
+          {myServerLoading && !myServer && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+              Connecting to your server…
+            </div>
+          )}
+
+          {/* Webhook didn't fire — rare fallback */}
+          {!myServerLoading && !myServer && (
+            <p className="text-xs text-gray-500">
+              Your Fractera environment is being set up. You&apos;ll receive an email at{' '}
+              <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready (3–7 min).
+            </p>
+          )}
         </div>
       )}
 
@@ -243,5 +305,38 @@ export function HeroSection() {
         </>
       )}
     </section>
+  )
+}
+
+function ServerLinks({ subdomain, email }: { subdomain: string; email: string }) {
+  const links = [
+    { href: `https://${subdomain}`, label: subdomain, note: 'your app' },
+    { href: `https://auth.${subdomain}`, label: `auth.${subdomain}`, note: 'login / register' },
+    { href: `https://admin.${subdomain}`, label: `admin.${subdomain}`, note: 'AI coding workspace' },
+  ]
+  return (
+    <div className="flex flex-col gap-4 bg-green-500/5 border border-green-500/20 rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <span className="text-green-400">✓</span>
+        <p className="text-sm font-semibold text-green-400">Your server is ready!</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        {links.map(({ href, label, note }) => (
+          <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-between group bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 transition-colors">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm text-white font-mono">{label}</span>
+              <span className="text-xs text-gray-600">{note}</span>
+            </div>
+            <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">↗</span>
+          </a>
+        ))}
+      </div>
+      {email && (
+        <p className="text-xs text-gray-600">
+          A confirmation email with these links was sent to <strong className="text-gray-400">{email}</strong>
+        </p>
+      )}
+    </div>
   )
 }
