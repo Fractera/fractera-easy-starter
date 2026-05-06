@@ -1,29 +1,32 @@
 'use client'
 
-import { useSession, signIn, signOut } from 'next-auth/react'
-import Image from 'next/image'
+import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
+import { useAuthModal } from '@/components/providers'
 
 export function SiteHeader() {
   const { data: session, status } = useSession()
+  const { openModal } = useAuthModal()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const initials = session?.user?.name
+    ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+    : session?.user?.email?.[0]?.toUpperCase() ?? '?'
 
   return (
     <header className="w-full border-b border-white/[0.06] bg-black/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        {/* Logo */}
         <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
 
-        {/* Auth */}
         <div className="flex items-center gap-3">
           {status === 'loading' && (
-            <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+            <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse" />
           )}
 
           {status === 'unauthenticated' && (
             <button
               type="button"
-              onClick={() => signIn()}
+              onClick={openModal}
               className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
             >
               Sign in
@@ -35,21 +38,11 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(v => !v)}
-                className="flex items-center gap-2 rounded-full hover:bg-white/[0.06] pl-2 pr-3 py-1 transition-colors"
+                className="flex items-center gap-2 rounded-full hover:bg-white/[0.06] pl-1 pr-3 py-1 transition-colors"
               >
-                {session.user.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name ?? 'avatar'}
-                    width={28}
-                    height={28}
-                    className="rounded-full ring-1 ring-white/20"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-orange-500/20 ring-1 ring-orange-500/40 flex items-center justify-center text-xs font-semibold text-orange-400">
-                    {(session.user.name ?? session.user.email ?? '?')[0].toUpperCase()}
-                  </div>
-                )}
+                <div className="w-12 h-12 rounded-full bg-orange-500/20 ring-2 ring-orange-500/30 flex items-center justify-center text-sm font-bold text-orange-400 shrink-0">
+                  {initials}
+                </div>
                 <span className="text-sm text-gray-300 max-w-[140px] truncate hidden sm:block">
                   {session.user.name ?? session.user.email}
                 </span>

@@ -9,7 +9,7 @@ import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
-import { AuthModal } from '@/components/auth-modal'
+import { useAuthModal } from '@/components/providers'
 
 const PLATFORMS = [
   'Claude Code',
@@ -24,14 +24,12 @@ export function HeroSection() {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const paymentSuccess = searchParams.get('payment') === 'success'
+  const { openModal } = useAuthModal()
 
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
-  const [showCredentials, setShowCredentials] = useState(false)
-  const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<'oneclick' | 'credentials' | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
@@ -43,19 +41,6 @@ export function HeroSection() {
       setDomainReady(stored.status === 'ready')
     } catch {}
   }, [])
-
-  // After auth completes, resume the pending action
-  useEffect(() => {
-    if (!session || !pendingAction) return
-    if (pendingAction === 'oneclick') {
-      setPendingAction(null)
-      triggerCheckout()
-    } else if (pendingAction === 'credentials') {
-      setPendingAction(null)
-      setShowCredentials(true)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session])
 
   async function triggerCheckout() {
     setCheckoutLoading(true)
@@ -69,32 +54,14 @@ export function HeroSection() {
   }
 
   function handleOneClick() {
-    if (!session) {
-      setPendingAction('oneclick')
-      setAuthModalOpen(true)
-      return
-    }
+    if (!session) { openModal(); return }
     triggerCheckout()
-  }
-
-  function handleCredentialsToggle() {
-    if (!session) {
-      setPendingAction('credentials')
-      setAuthModalOpen(true)
-      return
-    }
-    setShowCredentials(v => !v)
   }
 
   const showTroubleshoot = installStarted && !domainReady
 
   return (
     <section className="flex flex-col gap-8 items-start">
-      <AuthModal
-        open={authModalOpen}
-        onClose={() => { setAuthModalOpen(false); setPendingAction(null) }}
-      />
-
       <div className="flex flex-col gap-5">
         {/* Platform chips */}
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -148,7 +115,6 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* Two scenarios */}
       {!paymentSuccess && (
         <div className="w-full max-w-xl flex flex-col gap-4">
 
@@ -194,34 +160,40 @@ export function HeroSection() {
             )}
           </div>
 
-          {/* Use your credentials toggle */}
-          <div className="flex flex-col gap-0">
-            <button
-              type="button"
-              onClick={handleCredentialsToggle}
-              className="flex items-center justify-between w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-xl hover:border-white/20 transition-colors group"
-            >
-              <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                Use your own server credentials
-              </span>
-              <div className={`relative w-11 h-6 rounded-full transition-colors ${showCredentials ? 'bg-white/30' : 'bg-white/10'}`}>
-                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${showCredentials ? 'left-6' : 'left-1'}`} />
-              </div>
-            </button>
+          {/* OR separator */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/[0.08]" />
+            <span className="text-xs text-gray-600 uppercase tracking-widest">or</span>
+            <div className="flex-1 h-px bg-white/[0.08]" />
+          </div>
 
-            {showCredentials && (
-              <div className="mt-3">
-                <InstallForm
-                  onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
-                  onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
-                />
-              </div>
+          {/* Use your own credentials */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm font-medium text-gray-300">Use your own server</h3>
+              <p className="text-xs text-gray-600">Have a VPS? Enter your credentials and we install Fractera automatically.</p>
+            </div>
+
+            {session ? (
+              <InstallForm
+                onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
+                onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={openModal}
+                className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 font-medium px-6 py-3.5 rounded-xl text-sm transition-colors"
+              >
+                Sign in to continue
+              </button>
             )}
           </div>
+
         </div>
       )}
 
-      {/* Domain status (shown after install starts) */}
+      {/* Domain status */}
       {(liveSubdomain || installing) && (
         <DomainStatus
           onStatusChange={setDomainReady}
