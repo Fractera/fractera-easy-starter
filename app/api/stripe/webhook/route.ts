@@ -42,6 +42,12 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // Mark all previous non-offline server tokens as offline before creating a new one
+    await db.serverToken.updateMany({
+      where: { userId, status: { not: 'offline' } },
+      data: { status: 'offline' },
+    })
+
     const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
     const serverToken = await db.serverToken.create({

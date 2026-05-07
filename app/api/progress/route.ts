@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
+import { db } from '@/lib/db'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -40,8 +41,17 @@ export async function POST(req: NextRequest) {
     const subdomain = response?.subdomain ?? null
     if (subdomain) {
       await completeProgress(session_id, subdomain)
+      // Sync subdomain + status to DB so Dashboard shows the real domain immediately
+      await db.serverToken.updateMany({
+        where: { deploySessionId: session_id, status: { not: 'offline' } },
+        data: { subdomain, status: 'active' },
+      })
     } else {
       await failProgress(session_id, 'Domain registration failed')
+      await db.serverToken.updateMany({
+        where: { deploySessionId: session_id, status: { not: 'offline' } },
+        data: { status: 'error' },
+      })
     }
     return NextResponse.json({ ok: true })
   }
