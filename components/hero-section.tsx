@@ -108,13 +108,6 @@ export function HeroSection() {
 
   return (
     <section className="flex flex-col gap-8 items-start">
-      {/* User dropdown — visible only when logged in */}
-      {session && (
-        <UserMenu
-          email={session.user?.email ?? ''}
-          onDashboard={openDashboard}
-        />
-      )}
 
       <div className="flex flex-col gap-5">
         {/* Platform chips */}
