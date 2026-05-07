@@ -155,6 +155,9 @@ if [ ! -f "$SECRETS_FILE" ] || ! grep -q "AUTH_SECRET=" "$SECRETS_FILE" 2>/dev/n
   NEW_SECRET=$(openssl rand -base64 32)
   echo "AUTH_SECRET=$NEW_SECRET" > "$SECRETS_FILE"
 fi
+if ! grep -q "DEPLOY_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "DEPLOY_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -193,6 +196,7 @@ NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
 NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
 NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
+DEPLOY_SECRET=$DEPLOY_SECRET
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -482,6 +486,7 @@ NEXT_PUBLIC_CODEX_URL=wss://admin.$SUBDOMAIN/codex-bridge/
 NEXT_PUBLIC_GEMINI_URL=wss://admin.$SUBDOMAIN/gemini-bridge/
 NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
+DEPLOY_SECRET=$DEPLOY_SECRET
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
