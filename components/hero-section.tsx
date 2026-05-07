@@ -230,6 +230,18 @@ export function HeroSection() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-orange-400">✓</span>
+                  <span>PostgreSQL — local project database</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
+                  <span>File storage — images, docs & media</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
+                  <span>Auth service — built-in authentication</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
                   <span className="text-white font-medium">Fractera Pro</span>
                 </li>
               </ul>
@@ -306,6 +318,18 @@ export function HeroSection() {
               <li className="flex items-center gap-2">
                 <span className="text-gray-500">✓</span>
                 <span>LightRAG — the company brain</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-500">✓</span>
+                <span>PostgreSQL — local project database</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-500">✓</span>
+                <span>File storage — images, docs & media</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-500">✓</span>
+                <span>Auth service — built-in authentication</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-gray-600">—</span>
