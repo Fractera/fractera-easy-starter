@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
@@ -107,18 +107,12 @@ export function HeroSection() {
 
   return (
     <section className="flex flex-col gap-8 items-start">
-      {/* Top nav — visible only when logged in */}
+      {/* User dropdown — visible only when logged in */}
       {session && (
-        <div className="flex items-center gap-3 w-full">
-          <button
-            type="button"
-            onClick={openDashboard}
-            className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Dashboard
-          </button>
-          <span className="text-xs text-gray-700">{session.user?.email}</span>
-        </div>
+        <UserMenu
+          email={session.user?.email ?? ''}
+          onDashboard={openDashboard}
+        />
       )}
 
       <div className="flex flex-col gap-5">
@@ -365,6 +359,60 @@ export function HeroSection() {
         </>
       )}
     </section>
+  )
+}
+
+function UserMenu({ email, onDashboard }: { email: string; onDashboard: () => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const close = useCallback(() => setOpen(false), [])
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) close()
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open, close])
+
+  const initials = email ? email[0].toUpperCase() : '?'
+
+  return (
+    <div ref={ref} className="relative self-start">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+      >
+        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[11px] font-medium text-gray-300">
+          {initials}
+        </span>
+        <span className="hidden sm:inline truncate max-w-[160px]">{email}</span>
+        <span className="text-gray-700">▾</span>
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-44 bg-neutral-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-20">
+          <button
+            type="button"
+            onClick={() => { close(); onDashboard() }}
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/[0.05] transition-colors"
+          >
+            Dashboard
+          </button>
+          <div className="h-px bg-white/[0.06]" />
+          <button
+            type="button"
+            onClick={() => { close(); signOut() }}
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:text-gray-300 hover:bg-white/[0.05] transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
