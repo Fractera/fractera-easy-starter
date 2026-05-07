@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
-import { db } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -10,16 +9,6 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = session.user.id
-
-  // Guard: if user already has a pending or active server, don't create a new checkout
-  const existing = await db.serverToken.findFirst({
-    where: { userId, status: { in: ['pending', 'active'] } },
-    orderBy: { createdAt: 'desc' },
-    select: { id: true, status: true, subdomain: true, deploySessionId: true, createdAt: true },
-  })
-  if (existing) {
-    return NextResponse.json({ hasServer: true, server: existing })
-  }
 
   const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
 

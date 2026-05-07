@@ -92,11 +92,6 @@ export function HeroSection() {
     try {
       const res = await fetch('/api/stripe/checkout', { method: 'POST' })
       const data = await res.json()
-      if (data.hasServer) {
-        setCheckoutLoading(false)
-        openDashboard()
-        return
-      }
       if (data.url) window.location.href = data.url
     } catch {
       setCheckoutLoading(false)
