@@ -267,6 +267,7 @@ export function DashboardModal({ open, onClose }: Props) {
     }
   }, [])
 
+  // Initial fetch
   useEffect(() => {
     if (open && !fetchedRef.current) {
       fetchedRef.current = true
@@ -274,6 +275,15 @@ export function DashboardModal({ open, onClose }: Props) {
     }
     if (!open) fetchedRef.current = false
   }, [open, fetchServers])
+
+  // Poll while any server is pending — stop when all are settled
+  useEffect(() => {
+    if (!open) return
+    const hasPending = servers.some(s => s.status === 'pending')
+    if (!hasPending) return
+    const iv = setInterval(fetchServers, 5000)
+    return () => clearInterval(iv)
+  }, [open, servers, fetchServers])
 
   useEffect(() => {
     if (!open) return
