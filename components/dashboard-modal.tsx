@@ -98,8 +98,12 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
 }
 
 function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: () => void }) {
-  const progress = useDeployProgress(server.status === 'pending' ? server.deploySessionId : null)
+  const isStale = server.status === 'pending' && !server.subdomain
+  const progress = useDeployProgress(
+    server.status === 'pending' && !isStale ? server.deploySessionId : null
+  )
   const [showDelete, setShowDelete] = useState(false)
+  const [removing, setRemoving] = useState(false)
 
   const expiry = server.subscription?.currentPeriodEnd
     ? new Date(server.subscription.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -108,6 +112,20 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   const planLabel = server.subscription?.planId
     ? server.subscription.planId.charAt(0).toUpperCase() + server.subscription.planId.slice(1)
     : null
+
+  async function handleRemove() {
+    setRemoving(true)
+    try {
+      await fetch('/api/server/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverId: server.id }),
+      })
+      onRefresh()
+    } finally {
+      setRemoving(false)
+    }
+  }
 
   const statusColors: Record<string, string> = {
     pending: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
@@ -121,17 +139,37 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
     offline: 'Offline',
     error:   'Error',
   }
+
+  // Stale pending card (no domain — setup never completed)
+  if (isStale) {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm text-gray-600">Incomplete setup</p>
+          <p className="text-xs text-gray-700">
+            {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </p>
+        </div>
+        <button
+          onClick={handleRemove}
+          disabled={removing}
+          className="text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-40"
+        >
+          {removing ? 'Removing…' : 'Remove'}
+        </button>
+      </div>
+    )
+  }
+
   const color = statusColors[server.status] ?? statusColors.offline
   const label = statusLabel[server.status] ?? server.status
-
-  const subdomain = server.subdomain ?? 'Setting up your server…'
 
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/[0.06] bg-white/[0.01]' : 'border-white/10 bg-white/[0.03]'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1 min-w-0">
           <p className={`text-sm font-mono truncate ${server.status === 'offline' ? 'text-gray-600' : 'text-white'}`}>
-            {subdomain}
+            {server.subdomain}
           </p>
           {expiry && server.status !== 'offline' && (
             <p className="text-xs text-gray-600">
@@ -150,8 +188,8 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
         </span>
       </div>
 
-      {/* Progress bar for pending */}
-      {server.status === 'pending' && (
+      {/* Progress bar for pending with known domain */}
+      {server.status === 'pending' && server.subdomain && (
         <div className="flex flex-col gap-1.5">
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div
