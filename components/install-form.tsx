@@ -377,9 +377,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             <button
               onClick={handleInstall}
               disabled={!ip || !password}
-              className="bg-white text-black font-semibold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-full bg-white/[0.08] hover:bg-white/[0.12] border border-white/20 hover:border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Install Fractera
+              Launch my server →
             </button>
           )}
 

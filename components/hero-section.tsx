@@ -240,10 +240,20 @@ export function HeroSection() {
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Get a fully ready project on a unique domain in a few minutes.
-              No server setup required — we handle everything.
-            </p>
+            <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
+              <li className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                <span>LightRAG — the company brain</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                <span className="text-white font-medium">Fractera Pro</span>
+              </li>
+            </ul>
 
             <button
               type="button"
@@ -268,12 +278,32 @@ export function HeroSection() {
             <div className="flex-1 h-px bg-white/[0.08]" />
           </div>
 
-          {/* Use your own credentials */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm font-medium text-gray-300">Use your own server</h3>
-              <p className="text-xs text-gray-600">Have a VPS? Enter your credentials and we install Fractera automatically.</p>
+          {/* Use your own server card */}
+          <div className="flex flex-col gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-mono text-gray-500 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/10 self-start">
+                  YOUR OWN SERVER
+                </span>
+                <h2 className="text-xl font-bold text-white mt-1">Fractera Light</h2>
+                <p className="text-sm text-gray-400">Install on your VPS — you provide the server</p>
+              </div>
             </div>
+
+            <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
+              <li className="flex items-center gap-2">
+                <span className="text-gray-500">✓</span>
+                <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-500">✓</span>
+                <span>LightRAG — the company brain</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-600">—</span>
+                <span className="text-gray-600">Fractera Pro not included</span>
+              </li>
+            </ul>
 
             {session ? (
               <InstallForm
