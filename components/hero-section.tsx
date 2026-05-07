@@ -42,6 +42,7 @@ export function HeroSection() {
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(PLANS[1])
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
   // Stripe one-click: server from DB
@@ -214,52 +215,72 @@ export function HeroSection() {
         <div className="w-full max-w-xl flex flex-col gap-4">
 
           {/* One-click START card */}
-          <div className="flex flex-col gap-4 bg-white/[0.03] border border-orange-500/30 rounded-2xl p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
-                    RECOMMENDED
-                  </span>
-                </div>
-                <h2 className="text-xl font-bold text-white mt-1">One-click START</h2>
-                <p className="text-sm text-gray-400">
-                  Launch your coding server for{' '}
-                  <span className="text-white font-semibold">$1</span>
-                </p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-3xl font-bold text-white">$1</p>
-                <p className="text-xs text-gray-600">per day · min. 3 days</p>
-              </div>
+          <div className="flex flex-col gap-5 bg-white/[0.03] border border-orange-500/30 rounded-2xl p-6">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
+                RECOMMENDED
+              </span>
             </div>
+            <h2 className="text-xl font-bold text-white -mt-1">One-click START</h2>
 
-            <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
-              <li className="flex items-center gap-2">
-                <span className="text-orange-400">✓</span>
-                <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-orange-400">✓</span>
-                <span>LightRAG — the company brain</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-orange-400">✓</span>
-                <span className="text-white font-medium">Fractera Pro</span>
-              </li>
-            </ul>
+            <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
 
-            <button
-              type="button"
-              onClick={handleOneClick}
-              disabled={checkoutLoading}
-              className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {checkoutLoading ? 'Redirecting to checkout…' : 'Launch my server →'}
-            </button>
+            {selectedPlan.id !== 'free' && (
+              <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
+                  <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
+                  <span>LightRAG — the company brain</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
+                  <span className="text-white font-medium">Fractera Pro</span>
+                </li>
+              </ul>
+            )}
 
-            {!session && (
-              <p className="text-xs text-gray-600 text-center -mt-1">
+            {selectedPlan.id === 'free' && (
+              <p className="text-xs text-gray-500">
+                Use the <span className="text-gray-300">Fractera Light</span> option below — bring your own VPS server.
+              </p>
+            )}
+
+            {selectedPlan.id === 'trial' && (
+              <button
+                type="button"
+                onClick={handleOneClick}
+                disabled={checkoutLoading}
+                className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {checkoutLoading ? 'Redirecting to checkout…' : 'Launch my server →'}
+              </button>
+            )}
+
+            {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
+              <button
+                type="button"
+                disabled
+                className="w-full bg-white/[0.04] border border-white/10 text-gray-600 font-semibold px-6 py-3.5 rounded-xl text-sm cursor-not-allowed"
+              >
+                Coming soon
+              </button>
+            )}
+
+            {selectedPlan.id === 'free' && (
+              <button
+                type="button"
+                onClick={() => document.getElementById('light-card')?.scrollIntoView({ behavior: 'smooth' })}
+                className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors"
+              >
+                Use Fractera Light ↓
+              </button>
+            )}
+
+            {!session && selectedPlan.id === 'trial' && (
+              <p className="text-xs text-gray-600 text-center -mt-2">
                 You&apos;ll be asked to sign in first
               </p>
             )}
@@ -273,7 +294,7 @@ export function HeroSection() {
           </div>
 
           {/* Use your own server card */}
-          <div className="flex flex-col gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+          <div id="light-card" className="flex flex-col gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-mono text-gray-500 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/10 self-start">
@@ -361,6 +382,154 @@ export function HeroSection() {
     </section>
   )
 }
+
+// ─── Plan data ───────────────────────────────────────────────────────────────
+
+type Plan = {
+  id: string
+  name: string
+  sublabel: string
+  price: string | null
+  period: string | null
+  badge: string | null
+  comingSoon?: boolean
+}
+
+const PLANS: Plan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    sublabel: 'Your own server · Fractera Light',
+    price: null,
+    period: null,
+    badge: null,
+  },
+  {
+    id: 'trial',
+    name: 'Try Fractera Pro',
+    sublabel: 'One-time · 1 day · No subscription',
+    price: '$1',
+    period: null,
+    badge: 'POPULAR',
+  },
+  {
+    id: 'monthly',
+    name: 'Fractera Pro + Server',
+    sublabel: 'Monthly · Server included',
+    price: '$25',
+    period: '/mo',
+    badge: null,
+    comingSoon: true,
+  },
+  {
+    id: 'annual',
+    name: 'Fractera Pro + Server',
+    sublabel: 'Annual · Best value',
+    price: '$190',
+    period: '/yr',
+    badge: 'BEST VALUE',
+    comingSoon: true,
+  },
+]
+
+function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Plan) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between gap-3 bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 transition-colors"
+      >
+        <div className="flex flex-col items-start gap-0.5 min-w-0">
+          <span className="text-[10px] text-gray-600 uppercase tracking-widest">Тарифный план</span>
+          <span className="text-sm text-white font-medium">{selected.name}</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {selected.price && (
+            <span className="text-lg font-bold text-white">
+              {selected.price}
+              {selected.period && <span className="text-xs text-gray-500 font-normal">{selected.period}</span>}
+            </span>
+          )}
+          {!selected.price && <span className="text-sm text-gray-400">Free</span>}
+          <span className={`text-gray-500 text-xs transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>▾</span>
+        </div>
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-950 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30">
+          {PLANS.map((plan, i) => {
+            const isSelected = plan.id === selected.id
+            return (
+              <div key={plan.id}>
+                {i > 0 && <div className="h-px bg-white/[0.05] mx-4" />}
+                <button
+                  type="button"
+                  onClick={() => { onSelect(plan); setOpen(false) }}
+                  disabled={plan.comingSoon}
+                  className={`w-full flex items-center justify-between gap-3 px-5 py-4 text-left transition-colors
+                    ${plan.comingSoon ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/[0.04] cursor-pointer'}
+                    ${isSelected ? 'bg-orange-500/5' : ''}
+                  `}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-orange-400 bg-orange-500' : 'border-white/20'}`}>
+                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                          {plan.name}
+                        </span>
+                        {plan.badge && (
+                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full border ${
+                            plan.badge === 'BEST VALUE'
+                              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                              : 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+                          }`}>
+                            {plan.badge}
+                          </span>
+                        )}
+                        {plan.comingSoon && (
+                          <span className="text-[10px] font-mono text-gray-600 bg-white/[0.03] px-1.5 py-0.5 rounded-full border border-white/[0.06]">
+                            SOON
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-600">{plan.sublabel}</span>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    {plan.price
+                      ? <span className="text-base font-bold text-white">{plan.price}<span className="text-xs text-gray-500 font-normal">{plan.period}</span></span>
+                      : <span className="text-sm text-gray-500">Free</span>
+                    }
+                  </div>
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── User dropdown ────────────────────────────────────────────────────────────
 
 function UserMenu({ email, onDashboard }: { email: string; onDashboard: () => void }) {
   const [open, setOpen] = useState(false)
