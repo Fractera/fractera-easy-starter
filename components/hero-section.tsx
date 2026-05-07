@@ -143,18 +143,20 @@ export function HeroSection() {
         <div className="flex flex-col gap-3 max-w-xl">
           <div className="flex items-start gap-2">
             <p className="text-2xl text-gray-300 leading-snug">
-              Your own AI coding server —{' '}
-              <span className="text-white font-semibold">5× cheaper & 10× faster</span>,
-              installed in one click.
+              Production coding platform —{' '}
+              <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
+              on a real domain.{' '}
+              <span className="text-white font-semibold">5× cheaper & 10× faster</span> than vibe coding.
             </p>
-            <InfoTooltip text="Fractera ships with pre-built templates and skills that run autonomously with minimal AI usage — most routine tasks cost almost nothing. Complex or high-stakes tasks can be delegated to premium models like Claude (Anthropic) or Codex only when needed, so you pay for real intelligence only where it matters." />
+            <InfoTooltip text="Fractera runs five coding platforms on a server you own — not a SaaS, not a cloud IDE. Each platform reuses a single subscription, so routine tasks cost almost nothing. Premium AI (Claude, Codex) is called only when it matters." />
           </div>
           <p className="text-base text-gray-500 leading-relaxed flex items-start gap-3">
-            Run all 7 AI platforms on a dedicated server you own. No subscriptions to cloud
-            infrastructure, no data leaving your environment. Fractera architecture reuses
-            a single subscription across every platform — saving tokens and compute time up
-            to 10×. Ready in 3–7 minutes.
-            <InfoTooltip text="We help you choose the right hosting provider based on your needs and budget, then automate the full installation from this page. In 3 to 7 minutes you'll have your own server running on your own domain — ready to build any project using voice and AI. Nothing runs on your home computer. Everything happens over a secure connection to the server you own." />
+            Five coding platforms and a global agent RAG memory — your company brain — run entirely
+            on a server you own. Not SaaS. Not a CMS. 100% your infrastructure.
+            The Fractera Pro architecture is the engine of your coding factory, built for high load
+            and real project scale. Deployment takes ~10 minutes with zero setup on your end.
+            In 10 minutes, your partners can open your project live.
+            <InfoTooltip text="We automate the full server setup from this page — you don't touch a terminal. In about 10 minutes you get five AI coding platforms, a RAG memory layer, and your project running on your own domain. Nothing is shared. Everything is yours." />
           </p>
         </div>
       </div>
