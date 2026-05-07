@@ -62,6 +62,7 @@ model Subscription {
   stripeCustomerId     String
   status               String        // active | cancelled | past_due
   currentPeriodEnd     DateTime
+  planId               String        @default("monthly") // monthly | annual | oneshot
   createdAt            DateTime      @default(now())
   user                 User          @relation(fields: [userId], references: [id])
   serverTokens         ServerToken[]

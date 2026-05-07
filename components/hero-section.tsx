@@ -11,7 +11,7 @@ import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
-import { useAuthModal } from '@/components/providers'
+import { useAuthModal, useDashboard } from '@/components/providers'
 
 type MyServer = {
   id: string
@@ -35,6 +35,7 @@ export function HeroSection() {
   const searchParams = useSearchParams()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
+  const { openDashboard } = useDashboard()
 
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
@@ -91,6 +92,11 @@ export function HeroSection() {
     try {
       const res = await fetch('/api/stripe/checkout', { method: 'POST' })
       const data = await res.json()
+      if (data.hasServer) {
+        setCheckoutLoading(false)
+        openDashboard()
+        return
+      }
       if (data.url) window.location.href = data.url
     } catch {
       setCheckoutLoading(false)
@@ -106,6 +112,20 @@ export function HeroSection() {
 
   return (
     <section className="flex flex-col gap-8 items-start">
+      {/* Top nav — visible only when logged in */}
+      {session && (
+        <div className="flex items-center gap-3 w-full">
+          <button
+            type="button"
+            onClick={openDashboard}
+            className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Dashboard
+          </button>
+          <span className="text-xs text-gray-700">{session.user?.email}</span>
+        </div>
+      )}
+
       <div className="flex flex-col gap-5">
         {/* Platform chips */}
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -154,7 +174,16 @@ export function HeroSection() {
 
           {/* Server already active — show links */}
           {(myServer?.status === 'active' && (myServer.subdomain || stripeSubdomain)) && (
-            <ServerLinks subdomain={(stripeSubdomain ?? myServer.subdomain)!} email={session?.user?.email ?? ''} />
+            <>
+              <ServerLinks subdomain={(stripeSubdomain ?? myServer.subdomain)!} email={session?.user?.email ?? ''} />
+              <button
+                type="button"
+                onClick={openDashboard}
+                className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-4 py-2 rounded-lg transition-colors self-start"
+              >
+                Open Dashboard →
+              </button>
+            </>
           )}
 
           {/* Deploy in progress — show pipeline */}
