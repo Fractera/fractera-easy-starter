@@ -508,7 +508,7 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
         className="w-full flex items-center justify-between gap-3 bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 transition-colors"
       >
         <div className="flex flex-col items-start gap-0.5 min-w-0">
-          <span className="text-[10px] text-gray-600 uppercase tracking-widest">Тарифный план</span>
+          <span className="text-[10px] text-gray-600 uppercase tracking-widest">Pricing plan</span>
           <span className="text-sm text-white font-medium">{selected.name}</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
