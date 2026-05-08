@@ -146,7 +146,7 @@ export function HeroSection() {
             In 10 minutes, your partners can open your project live.
             <InfoTooltip text="We automate the full server setup from this page — you don't touch a terminal. In about 10 minutes you get five AI coding platforms, a RAG memory layer, and your project running on your own domain. Nothing is shared. Everything is yours." />
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-orange-400">
             ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
           </p>
         </div>
