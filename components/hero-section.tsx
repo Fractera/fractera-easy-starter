@@ -44,7 +44,7 @@ export function HeroSection() {
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[1])
+  const [selectedPlan, setSelectedPlan] = useState(PLANS[1]) // monthly
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
   // Stripe one-click: server from DB
@@ -283,23 +283,6 @@ export function HeroSection() {
               </p>
             )}
 
-            {selectedPlan.id === 'trial' && (
-              <>
-                <p className="text-xs text-gray-500 -mt-1 leading-relaxed">
-                  No server? We spin one up for you. You have <span className="text-gray-300">24 hours</span> to decide —
-                  keep it with a paid plan, switch to the free tier, or just let it go.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleOneClick}
-                  disabled={checkoutLoading}
-                  className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {checkoutLoading ? 'Redirecting to checkout…' : 'Start 24h trial →'}
-                </button>
-              </>
-            )}
-
             {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
               <button
                 type="button"
@@ -321,7 +304,7 @@ export function HeroSection() {
               </button>
             )}
 
-            {!session && selectedPlan.id === 'trial' && (
+            {!session && (selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
               <p className="text-xs text-gray-600 text-center -mt-2">
                 You&apos;ll be asked to sign in first
               </p>
@@ -459,21 +442,12 @@ const PLANS: Plan[] = [
     badge: null,
   },
   {
-    id: 'trial',
-    name: 'Try Fractera',
-    sublabel: '24-hour trial · One-time · No subscription',
-    price: '$1',
-    period: null,
-    badge: 'POPULAR',
-  },
-  {
     id: 'monthly',
     name: 'Fractera Pro + Server',
     sublabel: 'Monthly · Server included',
     price: '$25',
     period: '/mo',
-    badge: null,
-    comingSoon: true,
+    badge: 'POPULAR',
   },
   {
     id: 'annual',
@@ -482,7 +456,6 @@ const PLANS: Plan[] = [
     price: '$190',
     period: '/yr',
     badge: 'BEST VALUE',
-    comingSoon: true,
   },
 ]
 

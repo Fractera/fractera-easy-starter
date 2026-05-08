@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
 
 const PRICE_IDS: Record<string, string> = {
-  trial:   process.env.STRIPE_PRICE_TRIAL!,
   monthly: process.env.STRIPE_PRICE_MONTHLY!,
   annual:  process.env.STRIPE_PRICE_ANNUAL!,
 }
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   const userId = session.user.id
   const body = await req.json().catch(() => ({}))
-  const planId: string = body.planId ?? 'trial'
+  const planId: string = body.planId ?? 'monthly'
 
   const priceId = PRICE_IDS[planId]
   if (!priceId) {
@@ -24,10 +23,9 @@ export async function POST(req: NextRequest) {
   }
 
   const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
-  const isTrial = planId === 'trial'
 
   const checkoutSession = await stripe.checkout.sessions.create({
-    mode: isTrial ? 'payment' : 'subscription',
+    mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: { userId, planId },

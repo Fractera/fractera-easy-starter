@@ -32,38 +32,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    let subscription
+    if (!session.subscription) return NextResponse.json({ ok: true })
 
-    if (planId === 'trial') {
-      // One-time payment — no subscription object
-      const trialEndsAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      subscription = await db.subscription.create({
-        data: {
-          userId,
-          stripeCustomerId: session.customer as string,
-          stripePaymentIntentId: session.payment_intent as string,
-          status: 'trialing',
-          currentPeriodEnd: trialEndsAt,
-          trialEndsAt,
-          planId: 'trial',
-        },
-      })
-    } else {
-      // Recurring subscription
-      if (!session.subscription) return NextResponse.json({ ok: true })
-
-      const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string)
-      subscription = await db.subscription.create({
-        data: {
-          userId,
-          stripeCustomerId: session.customer as string,
-          stripeSubscriptionId: stripeSub.id,
-          status: stripeSub.status,
-          currentPeriodEnd: new Date(stripeSub.current_period_end * 1000),
-          planId,
-        },
-      })
-    }
+    const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string)
+    const subscription = await db.subscription.create({
+      data: {
+        userId,
+        stripeCustomerId: session.customer as string,
+        stripeSubscriptionId: stripeSub.id,
+        status: stripeSub.status,
+        currentPeriodEnd: new Date(stripeSub.current_period_end * 1000),
+        planId,
+      },
+    })
 
     const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
