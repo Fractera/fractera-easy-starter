@@ -66,7 +66,9 @@ export default async function DebugPage() {
       title: '💳 Stripe',
       rows: [
         { name: 'STRIPE_SECRET_KEY',         value: maskSecret(process.env.STRIPE_SECRET_KEY),             ok: !!process.env.STRIPE_SECRET_KEY },
-        { name: 'STRIPE_PRICE_ID',           value: showPartial(process.env.STRIPE_PRICE_ID, 30),          ok: !!process.env.STRIPE_PRICE_ID },
+        { name: 'STRIPE_PRICE_TRIAL',        value: showPartial(process.env.STRIPE_PRICE_TRIAL, 30),       ok: !!process.env.STRIPE_PRICE_TRIAL },
+        { name: 'STRIPE_PRICE_MONTHLY',      value: showPartial(process.env.STRIPE_PRICE_MONTHLY, 30),     ok: !!process.env.STRIPE_PRICE_MONTHLY },
+        { name: 'STRIPE_PRICE_ANNUAL',       value: showPartial(process.env.STRIPE_PRICE_ANNUAL, 30),      ok: !!process.env.STRIPE_PRICE_ANNUAL },
         { name: 'STRIPE_WEBHOOK_SECRET',     value: maskSecret(process.env.STRIPE_WEBHOOK_SECRET),         ok: !!process.env.STRIPE_WEBHOOK_SECRET },
       ],
     },
