@@ -58,11 +58,13 @@ model VerificationToken {
 model Subscription {
   id                   String        @id @default(cuid())
   userId               String
-  stripeSubscriptionId String        @unique
+  stripeSubscriptionId String?       @unique
   stripeCustomerId     String
-  status               String        // active | cancelled | past_due
+  stripePaymentIntentId String?      @unique
+  status               String        // active | cancelled | past_due | trialing
   currentPeriodEnd     DateTime
-  planId               String        @default("monthly") // monthly | annual | oneshot
+  trialEndsAt          DateTime?
+  planId               String        @default("monthly") // trial | monthly | annual
   createdAt            DateTime      @default(now())
   user                 User          @relation(fields: [userId], references: [id])
   serverTokens         ServerToken[]

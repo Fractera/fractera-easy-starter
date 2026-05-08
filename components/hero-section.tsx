@@ -90,10 +90,14 @@ export function HeroSection() {
     pollServer()
   }, [paymentSuccess])
 
-  async function triggerCheckout() {
+  async function triggerCheckout(planId: string) {
     setCheckoutLoading(true)
     try {
-      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId }),
+      })
       const data = await res.json()
       if (data.url) window.location.href = data.url
     } catch {
@@ -103,7 +107,7 @@ export function HeroSection() {
 
   function handleOneClick() {
     if (!session) { openModal(); return }
-    triggerCheckout()
+    triggerCheckout(selectedPlan.id)
   }
 
   const showTroubleshoot = installStarted && !domainReady
@@ -299,10 +303,11 @@ export function HeroSection() {
             {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
               <button
                 type="button"
-                disabled
-                className="w-full bg-white/[0.04] border border-white/10 text-gray-600 font-semibold px-6 py-3.5 rounded-xl text-sm cursor-not-allowed"
+                onClick={handleOneClick}
+                disabled={checkoutLoading}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Coming soon
+                {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} →`}
               </button>
             )}
 

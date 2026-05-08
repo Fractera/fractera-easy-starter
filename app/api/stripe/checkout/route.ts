@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
 
+const PRICE_IDS: Record<string, string> = {
+  trial:   process.env.STRIPE_PRICE_TRIAL!,
+  monthly: process.env.STRIPE_PRICE_MONTHLY!,
+  annual:  process.env.STRIPE_PRICE_ANNUAL!,
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) {
@@ -9,21 +15,22 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = session.user.id
+  const body = await req.json().catch(() => ({}))
+  const planId: string = body.planId ?? 'trial'
+
+  const priceId = PRICE_IDS[planId]
+  if (!priceId) {
+    return NextResponse.json({ error: 'Unknown plan' }, { status: 400 })
+  }
 
   const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
+  const isTrial = planId === 'trial'
 
   const checkoutSession = await stripe.checkout.sessions.create({
-    mode: 'subscription',
+    mode: isTrial ? 'payment' : 'subscription',
     payment_method_types: ['card'],
-    line_items: [
-      {
-        price: process.env.STRIPE_PRICE_ID!,
-        quantity: 1,
-      },
-    ],
-    metadata: {
-      userId,
-    },
+    line_items: [{ price: priceId, quantity: 1 }],
+    metadata: { userId, planId },
     customer_email: session.user.email ?? undefined,
     success_url: `${baseUrl}/?payment=success&stripe_session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/`,
