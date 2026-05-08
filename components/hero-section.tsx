@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -151,6 +152,18 @@ export function HeroSection() {
             ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
           </p>
         </div>
+      </div>
+
+      {/* Product snippet */}
+      <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+        <Image
+          src="/Fractera-start-image.jpg"
+          alt="Fractera — Your Code, Your Server, Your Choice"
+          width={1200}
+          height={628}
+          className="w-full h-auto"
+          priority
+        />
       </div>
 
       {/* Payment success: pipeline or server links */}
