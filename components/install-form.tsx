@@ -213,32 +213,19 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
 
   const hostingTooltip = (
     <>
-      Recommended hosting:{' '}
-      <a
-        href="https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-orange-400 underline underline-offset-2"
-      >
-        Contabo Cloud VPS
-      </a>
-      {' '}— 4 vCPU, 8GB RAM, 150GB SSD, ~€3.60/month.
+      Fractera requires a VPS with Ubuntu 24.04, a public IP, and root SSH access.
       <br /><br />
-      Note: you must set your password during checkout. Copy it and paste it into the Password field below. If you forget it, follow the recovery instructions.
+      Minimum specs: 4 vCPU, 8 GB RAM, 75 GB disk.
+      <br /><br />
+      Note: set your root password during server setup, then paste it into the Password field below.
     </>
   )
 
   const passwordTooltip = (
     <>
-      To recover your password on Contabo:
+      Use the root password you set when creating the server.
       <br /><br />
-      Log in at{' '}
-      <a href="https://my.contabo.com" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline underline-offset-2">
-        my.contabo.com
-      </a>
-      {' '}(login and password were sent to your email at registration).
-      <br /><br />
-      Then follow: Control Panel → Your Services → Manage → Control → Manage → Reset Password → Password → Name (any) → Add new password → Create
+      If you forgot it, use your hosting provider&apos;s control panel to reset the root password — the option is usually under Manage or Control.
     </>
   )
 
