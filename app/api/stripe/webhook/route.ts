@@ -3,6 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { failProgress, initProgress } from '@/lib/kv'
+import { createInstance, pollInstanceReady } from '@/lib/contabo'
+import { sendServerProvisionedEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -65,40 +67,62 @@ export async function POST(req: NextRequest) {
 
     const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
+    // Generate a random root password for the new VPS
+    const rootPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
+
+    let contaboInstanceId: number | null = null
+    try {
+      contaboInstanceId = await createInstance(rootPassword)
+    } catch (err) {
+      console.error('[webhook] Contabo createInstance failed:', err)
+    }
+
     const serverToken = await db.serverToken.create({
       data: {
         userId,
         subscriptionId: subscription.id,
-        status: 'pending',
+        status: contaboInstanceId ? 'provisioning' : 'error',
         deploySessionId,
+        contaboInstanceId: contaboInstanceId ? String(contaboInstanceId) : null,
+        serverPassword: rootPassword,
       },
     })
 
-    const ip = process.env.FRACTERA_DEPLOY_IP
-    const login = process.env.FRACTERA_DEPLOY_USER
-    const password = process.env.FRACTERA_DEPLOY_PASSWORD
-
-    if (!ip || !login || !password) {
+    if (!contaboInstanceId) {
       await initProgress(deploySessionId)
-      await failProgress(deploySessionId, `Server credentials not configured: missing ${[!ip && 'FRACTERA_DEPLOY_IP', !login && 'FRACTERA_DEPLOY_USER', !password && 'FRACTERA_DEPLOY_PASSWORD'].filter(Boolean).join(', ')}`)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } })
-      console.error('[webhook] missing deploy env vars')
+      await failProgress(deploySessionId, 'Failed to create Contabo VPS')
       return NextResponse.json({ ok: true })
     }
 
+    const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
+
     after(async () => {
       try {
+        await initProgress(deploySessionId)
+        const ip = await pollInstanceReady(contaboInstanceId!)
+
+        await db.serverToken.update({
+          where: { id: serverToken.id },
+          data: { serverIp: ip, status: 'pending' },
+        })
+
+        if (user?.email) {
+          await sendServerProvisionedEmail(user.email, ip, rootPassword)
+        }
+
         await deployToServer({
           ip,
-          login,
-          password,
+          login: 'root',
+          password: rootPassword,
           session_id: deploySessionId,
           platform: 'claude-code',
           serverToken: serverToken.token,
         })
       } catch (err) {
-        console.error('[webhook] deploy error:', err)
-        await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
+        console.error('[webhook] provision/deploy error:', err)
+        await failProgress(deploySessionId, `Provision failed: ${String(err)}`)
         await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
       }
     })

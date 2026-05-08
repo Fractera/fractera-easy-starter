@@ -25,6 +25,30 @@ function serviceListHtml(services: typeof PIPELINE_SERVICES) {
     .join('\n')
 }
 
+export async function sendServerProvisionedEmail(to: string, ip: string, password: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Your Fractera server is created — IP and access details',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="margin:0 0 12px">Your server is ready</h2>
+        <p style="margin:0 0 16px">Your dedicated VPS has been created. Fractera is now being installed automatically — you'll receive a second email with your workspace URL when it's done (~15 min).</p>
+
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Server credentials</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr><td style="padding:6px 0;color:#666;width:100px">IP address</td><td style="padding:6px 8px;font-weight:600">${ip}</td></tr>
+          <tr><td style="padding:6px 0;color:#666">User</td><td style="padding:6px 8px;font-weight:600">root</td></tr>
+          <tr><td style="padding:6px 0;color:#666">Password</td><td style="padding:6px 8px;font-weight:600;font-family:monospace">${password}</td></tr>
+        </table>
+
+        <p style="margin:0 0 8px;font-size:13px;color:#666">SSH access: <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px">ssh root@${ip}</code></p>
+        <p style="margin:0;font-size:12px;color:#999">You can use these credentials to upgrade your server plan directly on Contabo if needed.</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendWelcomeEmail(to: string, subdomain: string) {
   await resend.emails.send({
     from: FROM,

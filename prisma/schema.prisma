@@ -71,17 +71,20 @@ model Subscription {
 }
 
 model ServerToken {
-  id              String        @id @default(cuid())
-  token           String        @unique @default(cuid())
-  userId          String
-  subscriptionId  String?
-  subdomain       String?
-  deploySessionId String?
-  lastPingAt      DateTime?
-  status          String        @default("pending") // pending | active | offline
-  statusData      Json?
-  warningSentAt   DateTime?
-  createdAt       DateTime      @default(now())
-  user            User          @relation(fields: [userId], references: [id])
-  subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
+  id                String        @id @default(cuid())
+  token             String        @unique @default(cuid())
+  userId            String
+  subscriptionId    String?
+  subdomain         String?
+  deploySessionId   String?
+  lastPingAt        DateTime?
+  status            String        @default("pending") // pending | provisioning | active | offline
+  statusData        Json?
+  warningSentAt     DateTime?
+  createdAt         DateTime      @default(now())
+  contaboInstanceId String?
+  serverIp          String?
+  serverPassword    String?
+  user              User          @relation(fields: [userId], references: [id])
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
 }
