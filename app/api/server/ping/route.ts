@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown token' }, { status: 401 })
   }
 
+  if (serverToken.status === 'offline') {
+    return NextResponse.json({ error: 'Server deleted' }, { status: 410 })
+  }
+
   const body = await req.json().catch(() => ({}))
   const subdomain = (body.subdomain as string | undefined) ?? serverToken.subdomain ?? ''
 
