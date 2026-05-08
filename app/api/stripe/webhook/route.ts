@@ -67,10 +67,10 @@ export async function POST(req: NextRequest) {
 
     const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    // Generate a random root password for the new VPS
-    const rootPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
+    // In mock mode reuse existing test server password; otherwise generate fresh one
+    const rootPassword = process.env.CONTABO_MOCK === 'true'
+      ? (process.env.FRACTERA_DEPLOY_PASSWORD ?? '')
+      : Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
 
     let contaboInstanceId: number | null = null
     try {
