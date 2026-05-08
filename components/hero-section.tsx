@@ -280,14 +280,20 @@ export function HeroSection() {
             )}
 
             {selectedPlan.id === 'trial' && (
-              <button
-                type="button"
-                onClick={handleOneClick}
-                disabled={checkoutLoading}
-                className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {checkoutLoading ? 'Redirecting to checkout…' : 'Launch my server →'}
-              </button>
+              <>
+                <p className="text-xs text-gray-500 -mt-1 leading-relaxed">
+                  No server? We spin one up for you. You have <span className="text-gray-300">24 hours</span> to decide —
+                  keep it with a paid plan, switch to the free tier, or just let it go.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOneClick}
+                  disabled={checkoutLoading}
+                  className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkoutLoading ? 'Redirecting to checkout…' : 'Start 24h trial →'}
+                </button>
+              </>
             )}
 
             {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
@@ -449,8 +455,8 @@ const PLANS: Plan[] = [
   },
   {
     id: 'trial',
-    name: 'Try Fractera Pro',
-    sublabel: 'One-time · 1 day · No subscription',
+    name: 'Try Fractera',
+    sublabel: '24-hour trial · One-time · No subscription',
     price: '$1',
     period: null,
     badge: 'POPULAR',
