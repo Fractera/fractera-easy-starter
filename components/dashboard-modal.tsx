@@ -254,8 +254,8 @@ export function DashboardModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const fetchedRef = useRef(false)
 
-  const fetchServers = useCallback(async () => {
-    setLoading(true)
+  const fetchServers = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const res = await fetch('/api/my-servers')
       if (res.ok) {
@@ -263,7 +263,7 @@ export function DashboardModal({ open, onClose }: Props) {
         setServers(data.servers ?? [])
       }
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 
@@ -281,7 +281,7 @@ export function DashboardModal({ open, onClose }: Props) {
     if (!open) return
     const hasPending = servers.some(s => s.status === 'pending')
     if (!hasPending) return
-    const iv = setInterval(fetchServers, 5000)
+    const iv = setInterval(() => fetchServers(true), 5000)
     return () => clearInterval(iv)
   }, [open, servers, fetchServers])
 

@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
 import { InfoTooltip } from '@/components/info-tooltip'
@@ -33,6 +33,7 @@ const PLATFORMS = [
 export function HeroSection() {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
   const { openDashboard } = useDashboard()
@@ -164,13 +165,22 @@ export function HeroSection() {
           {(myServer?.status === 'active' && (myServer.subdomain || stripeSubdomain)) && (
             <>
               <ServerLinks subdomain={(stripeSubdomain ?? myServer.subdomain)!} email={session?.user?.email ?? ''} />
-              <button
-                type="button"
-                onClick={openDashboard}
-                className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-4 py-2 rounded-lg transition-colors self-start"
-              >
-                Open Dashboard →
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={openDashboard}
+                  className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Open Dashboard →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.replace('/')}
+                  className="text-sm text-orange-400 hover:text-orange-300 border border-orange-500/30 hover:border-orange-400/60 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Deploy another server →
+                </button>
+              </div>
             </>
           )}
 
