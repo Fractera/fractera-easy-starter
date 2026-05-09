@@ -13,6 +13,7 @@ type VpsReserve = {
   activatedAt: string | null
   paidAmount: number | null
   expiresAt: string | null
+  reservedUntil: string | null
   createdAt: string
 }
 
@@ -32,6 +33,27 @@ type SaleRecord = {
   status: string
 }
 
+function Countdown({ reservedUntil }: { reservedUntil: string }) {
+  const [remaining, setRemaining] = useState(() => new Date(reservedUntil).getTime() - Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRemaining(new Date(reservedUntil).getTime() - Date.now())
+    }, 1000)
+    return () => clearInterval(id)
+  }, [reservedUntil])
+
+  if (remaining <= 0) return <span className="text-gray-600 text-xs">истекает…</span>
+
+  const m = Math.floor(remaining / 60000)
+  const s = Math.floor((remaining % 60000) / 1000)
+  return (
+    <span className="font-mono text-xs text-yellow-500">
+      {m}:{String(s).padStart(2, '0')}
+    </span>
+  )
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -45,14 +67,6 @@ export default function AdminPage() {
   const [addLoading, setAddLoading] = useState(false)
   const [addError, setAddError] = useState('')
   const [counts, setCounts] = useState({ available: 0, pending: 0 })
-
-  useEffect(() => {
-    if (status === 'unauthenticated') { router.replace('/'); return }
-    if (status === 'loading') return
-    if (session?.user?.email !== 'admin@fractera.ai') { router.replace('/'); return }
-    loadServers()
-    loadQueued()
-  }, [status, session])
 
   async function loadServers() {
     const res = await fetch('/api/admin/servers?status=available,pending_payment')
@@ -70,6 +84,22 @@ export default function AdminPage() {
     if (!res.ok) return
     setQueued(await res.json())
   }
+
+  useEffect(() => {
+    if (status === 'unauthenticated') { router.replace('/'); return }
+    if (status === 'loading') return
+    if (session?.user?.email !== 'admin@fractera.ai') { router.replace('/'); return }
+
+    loadServers()
+    loadQueued()
+
+    const id = setInterval(() => {
+      loadServers()
+      loadQueued()
+    }, 5000)
+
+    return () => clearInterval(id)
+  }, [status, session])
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -159,7 +189,7 @@ export default function AdminPage() {
               <ol className="list-decimal list-inside flex flex-col gap-1 pl-1">
                 <li>Пользователь открывает fractera.ai → запрос <code className="text-gray-300">/api/pool/status</code></li>
                 <li>Если <code className="text-gray-300">available &gt; 0</code> — показывается кнопка «Купить»</li>
-                <li>Клик → резервируем сервер (<code className="text-gray-300">pending_payment</code>) → Stripe checkout</li>
+                <li>Клик → резервируем сервер (<code className="text-gray-300">pending_payment</code>, 30 мин) → Stripe checkout</li>
                 <li>Оплата → webhook → VpsReserve переходит в <code className="text-gray-300">paid</code> → создаётся ServerToken</li>
                 <li><strong className="text-white">Письмо 1</strong>: IP, логин, пароль — мгновенно (сервер уже готов)</li>
                 <li>bootstrap.sh разворачивает Fractera Lite (~15 мин)</li>
@@ -179,6 +209,18 @@ export default function AdminPage() {
                 <li><strong className="text-white">Письмо на admin@fractera.ai</strong> с данными пользователя</li>
                 <li>Администратор добавляет сервер в пул и нажимает «Назначить» → Письмо 1 → деплой → Письмо 2</li>
               </ol>
+            </div>
+
+            <div className="h-px bg-white/[0.06]" />
+
+            <div className="flex flex-col gap-2">
+              <p className="text-gray-500 font-semibold text-xs uppercase tracking-widest">Таймаут резерва</p>
+              <p className="text-gray-500 text-xs">
+                При открытии Stripe checkout сервер переходит в <code className="text-gray-400">pending_payment</code> на 30 минут.
+                Если пользователь не оплатил — Stripe стреляет <code className="text-gray-400">checkout.session.expired</code>,
+                сервер автоматически возвращается в <code className="text-gray-400">available</code>.
+                Таблица пула обновляется каждые 5 секунд.
+              </p>
             </div>
 
             <div className="h-px bg-white/[0.06]" />
@@ -207,7 +249,7 @@ export default function AdminPage() {
               <p className="text-xs text-gray-600 uppercase tracking-widest font-mono">Следующие этапы (запуск возможен без них)</p>
               <ul className="flex flex-col gap-1 text-gray-500">
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Контроль продления — подсвечивать строки за 7 дней до <code>expiresAt</code></li>
-                <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Таймаут <code>pending_payment</code> — освобождать зависшие резервы (Stripe: <code>checkout.session.expired</code>)</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Таймаут <code>pending_payment</code> — 30 мин резерв, <code>checkout.session.expired</code> освобождает автоматически</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Автоматическое создание VPS через Contabo API</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Автопополнение пула (cron, velocity-based)</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Email-алёрт при снижении запаса заранее (при N серверах)</li>
@@ -286,13 +328,18 @@ export default function AdminPage() {
                         <td className="px-4 py-3 font-mono text-gray-400">{s.login}</td>
                         <td className="px-4 py-3 font-mono text-gray-200 text-xs">{s.password}</td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                            s.status === 'available'
-                              ? 'text-green-400 border-green-500/30 bg-green-500/10'
-                              : 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10'
-                          }`}>
-                            {s.status === 'available' ? 'Доступен' : 'Зарезервирован'}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className={`text-xs px-2 py-0.5 rounded-full border w-fit ${
+                              s.status === 'available'
+                                ? 'text-green-400 border-green-500/30 bg-green-500/10'
+                                : 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10'
+                            }`}>
+                              {s.status === 'available' ? 'Доступен' : 'Зарезервирован'}
+                            </span>
+                            {s.status === 'pending_payment' && s.reservedUntil && (
+                              <Countdown reservedUntil={s.reservedUntil} />
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           {s.status === 'pending_payment' && (

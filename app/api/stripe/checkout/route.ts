@@ -8,6 +8,8 @@ const PRICE_IDS: Record<string, string> = {
   annual:  process.env.STRIPE_PRICE_ANNUAL!,
 }
 
+const CHECKOUT_TTL_SECONDS = 30 * 60 // 30 minutes
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) {
@@ -24,11 +26,13 @@ export async function POST(req: NextRequest) {
   }
 
   const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
+  const expiresAt = Math.floor(Date.now() / 1000) + CHECKOUT_TTL_SECONDS
+  const reservedUntil = new Date(expiresAt * 1000)
 
   // Path A: reserve server if available; Path B: proceed without reservation
   let vpsReserveId: string | null = null
   try {
-    const reserved = await reserveServer(userId)
+    const reserved = await reserveServer(userId, reservedUntil)
     vpsReserveId = reserved.id
   } catch {
     // Pool empty — Path B, no reservation
@@ -40,6 +44,7 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: { userId, planId, vpsReserveId: vpsReserveId ?? '' },
     customer_email: session.user.email ?? undefined,
+    expires_at: expiresAt,
     success_url: `${baseUrl}/?payment=success&stripe_session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/`,
   })

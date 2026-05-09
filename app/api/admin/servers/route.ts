@@ -86,7 +86,7 @@ export async function PATCH(req: NextRequest) {
 
   const server = await db.vpsReserve.update({
     where: { id },
-    data: { status: 'available', assignedUserId: null, assignedAt: null },
+    data: { status: 'available', assignedUserId: null, assignedAt: null, reservedUntil: null },
   })
   return NextResponse.json(server)
 }

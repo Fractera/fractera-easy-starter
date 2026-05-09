@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { failProgress, initProgress } from '@/lib/kv'
-import { confirmServerPayment } from '@/lib/pool'
+import { confirmServerPayment, releaseServer } from '@/lib/pool'
 import { sendServerProvisionedEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
 
 export const maxDuration = 300
@@ -104,6 +104,14 @@ export async function POST(req: NextRequest) {
       await sendQueuedEmail(user.email)
     }
     await sendAdminAlertEmail(user?.email ?? userId, subscription.id)
+  }
+
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object
+    const vpsReserveId = session.metadata?.vpsReserveId
+    if (vpsReserveId) {
+      await releaseServer(vpsReserveId)
+    }
   }
 
   if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {

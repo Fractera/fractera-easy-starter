@@ -99,6 +99,7 @@ model VpsReserve {
   activatedAt    DateTime?
   paidAmount     Float?
   expiresAt      DateTime?
+  reservedUntil  DateTime? // when the checkout session expires (auto-released by webhook)
   assignedUserId String?
   assignedAt     DateTime?
   paidAt         DateTime?

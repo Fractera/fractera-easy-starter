@@ -5,7 +5,7 @@ export async function getPoolStatus(): Promise<{ available: number }> {
   return { available }
 }
 
-export async function reserveServer(userId: string) {
+export async function reserveServer(userId: string, reservedUntil: Date) {
   const server = await db.vpsReserve.findFirst({
     where: { status: 'available' },
     orderBy: { createdAt: 'asc' },
@@ -14,14 +14,21 @@ export async function reserveServer(userId: string) {
 
   return db.vpsReserve.update({
     where: { id: server.id },
-    data: { status: 'pending_payment', assignedUserId: userId, assignedAt: new Date() },
+    data: { status: 'pending_payment', assignedUserId: userId, assignedAt: new Date(), reservedUntil },
+  })
+}
+
+export async function releaseServer(vpsReserveId: string) {
+  return db.vpsReserve.update({
+    where: { id: vpsReserveId },
+    data: { status: 'available', assignedUserId: null, assignedAt: null, reservedUntil: null },
   })
 }
 
 export async function confirmServerPayment(vpsReserveId: string) {
   return db.vpsReserve.update({
     where: { id: vpsReserveId },
-    data: { status: 'paid', paidAt: new Date() },
+    data: { status: 'paid', paidAt: new Date(), reservedUntil: null },
   })
 }
 
