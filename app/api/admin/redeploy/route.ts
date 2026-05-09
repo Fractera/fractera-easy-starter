@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
-import { initProgress } from '@/lib/kv'
+import { initProgress, failProgress } from '@/lib/kv'
 
 async function requireAdmin() {
   const session = await auth()
@@ -48,24 +48,29 @@ export async function POST(req: NextRequest) {
 
   await initProgress(deploySessionId)
 
-  deployToServer({
-    ip,
-    login: 'root',
-    password,
-    session_id: deploySessionId,
-    platform: 'claude-code',
-    serverToken: token.token,
-  }).catch(async (err) => {
-    console.error('[redeploy] error:', err)
-    const errMsg = String(err)
-    await db.serverToken.update({
-      where: { id: serverTokenId },
-      data: { status: 'error', deployError: errMsg },
-    }).catch(() => {})
-    await db.deployAttempt.updateMany({
-      where: { deploySessionId },
-      data: { status: 'failed', error: errMsg, completedAt: new Date() },
-    }).catch(() => {})
+  after(async () => {
+    try {
+      await deployToServer({
+        ip,
+        login: 'root',
+        password,
+        session_id: deploySessionId,
+        platform: 'claude-code',
+        serverToken: token.token,
+      })
+    } catch (err) {
+      console.error('[redeploy] error:', err)
+      const errMsg = String(err)
+      await failProgress(deploySessionId, `Deploy failed: ${errMsg}`).catch(() => {})
+      await db.serverToken.update({
+        where: { id: serverTokenId },
+        data: { status: 'error', deployError: errMsg },
+      }).catch(() => {})
+      await db.deployAttempt.updateMany({
+        where: { deploySessionId },
+        data: { status: 'failed', error: errMsg, completedAt: new Date() },
+      }).catch(() => {})
+    }
   })
 
   return NextResponse.json({ ok: true, deploySessionId })
