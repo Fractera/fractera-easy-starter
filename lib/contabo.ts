@@ -58,14 +58,7 @@ async function getUbuntu24ImageId(token: string): Promise<string> {
   return image.imageId as string
 }
 
-// Returns Contabo instanceId.
-// If CONTABO_MOCK=true — skips real API, returns fake id 99999.
 export async function createInstance(rootPassword: string): Promise<number> {
-  if (process.env.CONTABO_MOCK === 'true') {
-    console.log('[contabo] MOCK mode — skipping real VPS creation')
-    return 99999
-  }
-
   const token = await getAccessToken()
   const userData = `#cloud-config\npassword: ${rootPassword}\nchpasswd:\n  expire: false\nssh_pwauth: true\n`
 
@@ -97,17 +90,7 @@ export async function createInstance(rootPassword: string): Promise<number> {
   return data.data[0].instanceId as number
 }
 
-// Polls until VPS is running and returns IPv4.
-// If CONTABO_MOCK=true — waits 5s and returns FRACTERA_DEPLOY_IP.
 export async function pollInstanceReady(instanceId: number, maxWaitMs = 240_000): Promise<string> {
-  if (process.env.CONTABO_MOCK === 'true') {
-    await new Promise(r => setTimeout(r, 5_000))
-    const ip = process.env.FRACTERA_DEPLOY_IP
-    if (!ip) throw new Error('CONTABO_MOCK=true but FRACTERA_DEPLOY_IP is not set')
-    console.log(`[contabo] MOCK mode — returning test IP: ${ip}`)
-    return ip
-  }
-
   const token = await getAccessToken()
   const deadline = Date.now() + maxWaitMs
   const INTERVAL = 30_000
