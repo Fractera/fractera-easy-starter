@@ -137,10 +137,10 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   }
   const statusLabel: Record<string, string> = {
     pending:        'Deploying',
-    pendingRedeploy:'Устраняем',
+    pendingRedeploy:'Fixing',
     active:         'Active',
     offline:        'Offline',
-    error:          'Установка не удалась',
+    error:          'Installation failed',
   }
 
   const statusKey =
@@ -153,7 +153,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
       <div className="flex flex-col gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-col gap-0.5">
-            <p className="text-sm text-gray-600">Установка не завершена</p>
+            <p className="text-sm text-gray-600">Setup incomplete</p>
             <p className="text-xs text-gray-700">
               {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
@@ -170,7 +170,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
           href="mailto:admin@fractera.ai?subject=Server setup incomplete"
           className="text-xs text-gray-600 hover:text-gray-400 underline underline-offset-2 transition-colors self-start"
         >
-          Написать в поддержку →
+          Contact support →
         </a>
       </div>
     )
@@ -207,13 +207,13 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
       {server.status === 'error' && (
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 flex flex-col gap-2">
           <p className="text-xs text-orange-300/80 leading-relaxed">
-            Установка не завершилась — мы уже работаем над устранением. Вы получите письмо когда сервер будет готов.
+            Installation did not complete — our team is already working on it. You will receive an email when your server is ready.
           </p>
           <a
             href="mailto:admin@fractera.ai?subject=Server installation failed"
             className="text-xs text-orange-400 hover:text-orange-300 underline underline-offset-2 transition-colors self-start"
           >
-            Написать в поддержку →
+            Contact support →
           </a>
         </div>
       )}
@@ -222,7 +222,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
       {server.status === 'pending' && !isStale && (
         <div className="flex flex-col gap-1.5">
           {server.isRedeploy && (
-            <p className="text-xs text-blue-400/70">Устраняем проблему — установка запущена повторно</p>
+            <p className="text-xs text-blue-400/70">Fixing the issue — installation restarted</p>
           )}
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div
@@ -348,13 +348,13 @@ export function DashboardModal({ open, onClose }: Props) {
                 onClick={() => setTab('servers')}
                 className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'servers' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               >
-                Серверы
+                Servers
               </button>
               <button
                 onClick={() => setTab('subscription')}
                 className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'subscription' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               >
-                Подписка
+                Subscription
               </button>
             </div>
             {session?.user?.email && (
@@ -374,11 +374,11 @@ export function DashboardModal({ open, onClose }: Props) {
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
               <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
-              Загрузка…
+              Loading…
             </div>
           ) : tab === 'servers' ? (
             servers.length === 0 ? (
-              <p className="text-sm text-gray-600 py-4">Серверов пока нет. Запустите первый сервер на главной странице.</p>
+              <p className="text-sm text-gray-600 py-4">No servers yet. Launch your first server from the home page.</p>
             ) : (
               <>
                 {activeServers.map(s => (
@@ -395,13 +395,13 @@ export function DashboardModal({ open, onClose }: Props) {
           ) : (
             /* Subscription tab */
             servers.filter(s => s.status !== 'offline').length === 0 ? (
-              <p className="text-sm text-gray-600 py-4">Нет активных серверов.</p>
+              <p className="text-sm text-gray-600 py-4">No active servers.</p>
             ) : (
               <div className="flex flex-col gap-4">
                 {servers.filter(s => s.status !== 'offline').map(server => {
                   const sub = server.subscription
                   const periodEnd = sub?.currentPeriodEnd
-                    ? new Date(sub.currentPeriodEnd).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+                    ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
                     : null
                   const planLabel = sub?.planId
                     ? sub.planId.charAt(0).toUpperCase() + sub.planId.slice(1)
@@ -413,15 +413,15 @@ export function DashboardModal({ open, onClose }: Props) {
                         <p className="text-xs font-mono text-gray-500">{server.subdomain}</p>
                       ) : (
                         <p className="text-xs text-gray-600">
-                          Сервер:{' '}
+                          Server:{' '}
                           <span className={
                             server.status === 'error' ? 'text-orange-400' :
                             server.status === 'queued' ? 'text-yellow-500' :
                             'text-gray-500'
                           }>
-                            {server.status === 'pending' ? 'Устанавливается…' :
-                             server.status === 'error'   ? 'Ошибка установки' :
-                             server.status === 'queued'  ? 'В очереди' :
+                            {server.status === 'pending' ? 'Installing…' :
+                             server.status === 'error'   ? 'Installation error' :
+                             server.status === 'queued'  ? 'Queued' :
                              server.status}
                           </span>
                         </p>
@@ -430,30 +430,30 @@ export function DashboardModal({ open, onClose }: Props) {
                         <div className="flex flex-col gap-2 text-sm">
                           {planLabel && (
                             <div className="flex items-center justify-between">
-                              <span className="text-gray-500">Тариф</span>
+                              <span className="text-gray-500">Plan</span>
                               <span className="text-gray-200">{planLabel}</span>
                             </div>
                           )}
                           {periodEnd && (
                             <div className="flex items-center justify-between">
-                              <span className="text-gray-500">Текущий период до</span>
+                              <span className="text-gray-500">Current period until</span>
                               <span className="text-gray-200">{periodEnd}</span>
                             </div>
                           )}
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Статус подписки</span>
+                            <span className="text-gray-500">Subscription status</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full border ${isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-orange-400 border-orange-500/30 bg-orange-500/10'}`}>
-                              {isActive ? 'Активна' : sub.status}
+                              {isActive ? 'Active' : sub.status}
                             </span>
                           </div>
                           {!isActive && (
                             <p className="text-xs text-orange-300/70 mt-1">
-                              Подписка неактивна — проверьте платёжный метод в Stripe.
+                              Subscription inactive — check your payment method in Stripe.
                             </p>
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-600">Нет данных о подписке.</p>
+                        <p className="text-sm text-gray-600">No subscription data.</p>
                       )}
                     </div>
                   )
