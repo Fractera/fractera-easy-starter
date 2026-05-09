@@ -409,8 +409,22 @@ export function DashboardModal({ open, onClose }: Props) {
                   const isActive = sub?.status === 'active'
                   return (
                     <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                      {server.subdomain && (
+                      {server.subdomain ? (
                         <p className="text-xs font-mono text-gray-500">{server.subdomain}</p>
+                      ) : (
+                        <p className="text-xs text-gray-600">
+                          Сервер:{' '}
+                          <span className={
+                            server.status === 'error' ? 'text-orange-400' :
+                            server.status === 'queued' ? 'text-yellow-500' :
+                            'text-gray-500'
+                          }>
+                            {server.status === 'pending' ? 'Устанавливается…' :
+                             server.status === 'error'   ? 'Ошибка установки' :
+                             server.status === 'queued'  ? 'В очереди' :
+                             server.status}
+                          </span>
+                        </p>
                       )}
                       {sub ? (
                         <div className="flex flex-col gap-2 text-sm">
