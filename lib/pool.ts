@@ -57,8 +57,13 @@ export async function assignServerToQueued(serverTokenId: string) {
 
   await db.serverToken.update({
     where: { id: serverTokenId },
-    data: { serverIp: server.ip, serverPassword: server.password, status: 'pending' },
+    data: {
+      serverIp: server.ip,
+      serverPassword: server.password,
+      subdomain: server.subdomain ?? undefined,
+      status: 'active',
+    },
   })
 
-  return { ip: server.ip, login: server.login, password: server.password }
+  return { ip: server.ip, subdomain: server.subdomain }
 }

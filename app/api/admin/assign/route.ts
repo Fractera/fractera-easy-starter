@@ -1,12 +1,8 @@
-import { NextRequest, NextResponse, after } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { assignServerToQueued } from '@/lib/pool'
-import { deployToServer } from '@/lib/deploy'
-import { sendServerProvisionedEmail } from '@/lib/email'
-import { initProgress } from '@/lib/kv'
-
-export const maxDuration = 300
+import { sendWelcomeEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -24,29 +20,11 @@ export async function POST(req: NextRequest) {
   if (!serverToken) return NextResponse.json({ error: 'ServerToken not found' }, { status: 404 })
   if (serverToken.status !== 'queued') return NextResponse.json({ error: 'ServerToken is not queued' }, { status: 400 })
 
-  const { ip, login, password } = await assignServerToQueued(serverTokenId)
+  const { ip, subdomain } = await assignServerToQueued(serverTokenId)
 
-  const deploySessionId = serverToken.deploySessionId ?? `sess-admin-${Date.now()}`
-
-  if (serverToken.user.email) {
-    await sendServerProvisionedEmail(serverToken.user.email, ip, password)
+  if (serverToken.user.email && subdomain) {
+    await sendWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
   }
 
-  after(async () => {
-    try {
-      await initProgress(deploySessionId)
-      await deployToServer({
-        ip,
-        login,
-        password,
-        session_id: deploySessionId,
-        platform: 'claude-code',
-        serverToken: serverToken.token,
-      })
-    } catch (err) {
-      console.error('[admin/assign] deploy error:', err)
-    }
-  })
-
-  return NextResponse.json({ ok: true, ip })
+  return NextResponse.json({ ok: true, ip, subdomain })
 }
