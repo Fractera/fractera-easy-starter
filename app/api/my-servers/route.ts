@@ -26,8 +26,20 @@ export async function GET() {
           planId: true,
         },
       },
+      _count: { select: { deployAttempts: true } },
     },
   })
 
-  return NextResponse.json({ servers })
+  return NextResponse.json({
+    servers: servers.map(s => ({
+      id: s.id,
+      status: s.status,
+      subdomain: s.subdomain,
+      deploySessionId: s.deploySessionId,
+      createdAt: s.createdAt,
+      subscription: s.subscription,
+      // Если больше одной попытки деплоя — это редеплой (первый всегда webhook)
+      isRedeploy: s._count.deployAttempts > 1,
+    })),
+  })
 }

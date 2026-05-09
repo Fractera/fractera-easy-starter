@@ -69,6 +69,11 @@ export async function POST(req: NextRequest) {
         await sendServerProvisionedEmail(user.email, reserve.ip, reserve.password)
       }
 
+      // Аудит-запись о начале деплоя
+      await db.deployAttempt.create({
+        data: { serverTokenId: serverToken.id, deploySessionId, triggeredBy: 'webhook', serverIp: reserve.ip },
+      }).catch(() => {})
+
       after(async () => {
         try {
           await initProgress(deploySessionId)
@@ -85,6 +90,7 @@ export async function POST(req: NextRequest) {
           const errMsg = String(err)
           await failProgress(deploySessionId, `Deploy failed: ${errMsg}`)
           await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } }).catch(() => {})
+          await db.deployAttempt.updateMany({ where: { deploySessionId }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
           await sendDeployErrorUserEmail(user?.email ?? '').catch(() => {})
           await sendDeployErrorAdminEmail(user?.email ?? userId, serverToken.id, errMsg).catch(() => {})
         }

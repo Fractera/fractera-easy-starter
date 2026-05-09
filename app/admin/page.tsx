@@ -26,13 +26,26 @@ type QueuedToken = {
   paidAt: string
 }
 
-type ErrorToken = {
+type DeployAttemptRecord = {
+  id: string
+  triggeredBy: string
+  status: string
+  error: string | null
+  subdomain: string | null
+  serverIp: string | null
+  startedAt: string
+  completedAt: string | null
+}
+
+type DeployIssueToken = {
   id: string
   email: string | null
+  status: string  // 'error' | 'pending'
   serverIp: string | null
   serverPassword: string | null
   deployError: string | null
   createdAt: string
+  latestAttempt: DeployAttemptRecord | null
 }
 
 type SaleRecord = {
@@ -67,18 +80,34 @@ function Countdown({ reservedUntil }: { reservedUntil: string }) {
   )
 }
 
-// ─── Компонент строки ошибки с inline-формой перезапуска ─────────────────────
+// ─── Строка деплоя: ошибка (форма) или pending-редеплой (история попыток) ────
 
-function ErrorRow({ token, onRedeployed }: { token: ErrorToken; onRedeployed: () => void }) {
+function DeployRow({ token, onRedeployed }: { token: DeployIssueToken; onRedeployed: () => void }) {
   const [expanded, setExpanded] = useState(false)
   const [ip, setIp] = useState(token.serverIp ?? '')
   const [password, setPassword] = useState(token.serverPassword ?? '')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [history, setHistory] = useState<DeployAttemptRecord[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+
+  const isInProgress = token.status === 'pending'
+
+  async function loadHistory() {
+    setHistoryLoading(true)
+    const res = await fetch(`/api/admin/deploy-history?serverTokenId=${token.id}`)
+    if (res.ok) setHistory(await res.json())
+    setHistoryLoading(false)
+  }
+
+  async function handleExpand() {
+    setExpanded(v => !v)
+    if (!expanded && isInProgress) loadHistory()
+  }
 
   async function handleRedeploy() {
     setLoading(true)
-    setError('')
+    setFormError('')
     const res = await fetch('/api/admin/redeploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -88,27 +117,49 @@ function ErrorRow({ token, onRedeployed }: { token: ErrorToken; onRedeployed: ()
       onRedeployed()
     } else {
       const d = await res.json()
-      setError(d.error ?? 'Ошибка')
+      setFormError(d.error ?? 'Ошибка')
     }
     setLoading(false)
   }
+
+  const lastAttemptAgo = token.latestAttempt
+    ? (() => {
+        const ms = Date.now() - new Date(token.latestAttempt.startedAt).getTime()
+        const m = Math.floor(ms / 60000)
+        return m < 1 ? 'только что' : `${m} мин назад`
+      })()
+    : null
 
   return (
     <>
       <tr className="border-b border-white/[0.05] hover:bg-white/[0.02]">
         <td className="px-4 py-3 text-gray-200">{token.email ?? '—'}</td>
         <td className="px-4 py-3 font-mono text-gray-400 text-xs">{token.serverIp ?? '—'}</td>
-        <td className="px-4 py-3 text-red-300/80 text-xs max-w-[280px] truncate" title={token.deployError ?? ''}>
-          {token.deployError ?? '—'}
+        <td className="px-4 py-3">
+          {isInProgress ? (
+            <span className="text-xs px-2 py-0.5 rounded-full border text-blue-400 border-blue-500/30 bg-blue-500/10">
+              🔄 Устраняется
+            </span>
+          ) : (
+            <span className="text-xs px-2 py-0.5 rounded-full border text-red-400 border-red-500/30 bg-red-500/10">
+              Ошибка
+            </span>
+          )}
         </td>
-        <td className="px-4 py-3 text-gray-500 text-xs">{new Date(token.createdAt).toLocaleString('ru-RU')}</td>
+        <td className="px-4 py-3 text-gray-500 text-xs">
+          {lastAttemptAgo ?? new Date(token.createdAt).toLocaleString('ru-RU')}
+        </td>
         <td className="px-4 py-3">
           <button
             type="button"
-            onClick={() => setExpanded(v => !v)}
-            className="text-xs text-white bg-red-700/60 hover:bg-red-700/80 px-3 py-1.5 rounded-lg transition-colors"
+            onClick={handleExpand}
+            className={`text-xs text-white px-3 py-1.5 rounded-lg transition-colors ${
+              isInProgress
+                ? 'bg-blue-700/50 hover:bg-blue-700/70'
+                : 'bg-red-700/60 hover:bg-red-700/80'
+            }`}
           >
-            {expanded ? 'Свернуть' : 'Перезапустить ▾'}
+            {expanded ? 'Свернуть' : isInProgress ? 'История ▾' : 'Перезапустить ▾'}
           </button>
         </td>
       </tr>
@@ -116,40 +167,95 @@ function ErrorRow({ token, onRedeployed }: { token: ErrorToken; onRedeployed: ()
       {expanded && (
         <tr className="border-b border-white/[0.05] bg-white/[0.015]">
           <td colSpan={5} className="px-4 py-4">
-            <div className="flex flex-col gap-3 max-w-xl">
-              <p className="text-xs text-gray-500">
-                Отредактируйте IP и пароль если нужно использовать другой сервер, затем нажмите «Перезапустить деплой».
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-600">IP-адрес сервера</label>
-                  <input
-                    value={ip}
-                    onChange={e => setIp(e.target.value)}
-                    placeholder="1.2.3.4"
-                    className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-600">Пароль root</label>
-                  <input
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="пароль"
-                    className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
-                  />
+            {/* Редеплой в процессе → показываем историю попыток */}
+            {isInProgress ? (
+              <div className="flex flex-col gap-3 max-w-2xl">
+                <p className="text-xs text-gray-500">История попыток деплоя. Текущая в процессе — дождитесь завершения или запустите заново.</p>
+                {historyLoading ? (
+                  <p className="text-xs text-gray-600">Загрузка…</p>
+                ) : (
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-gray-600 border-b border-white/[0.06]">
+                        <th className="text-left py-1.5 font-normal">#</th>
+                        <th className="text-left py-1.5 font-normal">Кто запустил</th>
+                        <th className="text-left py-1.5 font-normal">Старт</th>
+                        <th className="text-left py-1.5 font-normal">Завершение</th>
+                        <th className="text-left py-1.5 font-normal">Статус</th>
+                        <th className="text-left py-1.5 font-normal">Домен / Ошибка</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map((a, i) => (
+                        <tr key={a.id} className="border-b border-white/[0.04]">
+                          <td className="py-2 text-gray-600">{i + 1}</td>
+                          <td className="py-2 text-gray-400">{a.triggeredBy}</td>
+                          <td className="py-2 text-gray-400">{new Date(a.startedAt).toLocaleString('ru-RU')}</td>
+                          <td className="py-2 text-gray-500">{a.completedAt ? new Date(a.completedAt).toLocaleString('ru-RU') : '—'}</td>
+                          <td className="py-2">
+                            <span className={
+                              a.status === 'success' ? 'text-green-400'
+                              : a.status === 'failed' ? 'text-red-400'
+                              : 'text-yellow-400'
+                            }>
+                              {a.status === 'success' ? '✓ success' : a.status === 'failed' ? '✗ failed' : '… running'}
+                            </span>
+                          </td>
+                          <td className="py-2 text-gray-500 max-w-[200px] truncate" title={a.subdomain ?? a.error ?? ''}>
+                            {a.subdomain ?? a.error ?? '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                {/* Форма для перезапуска даже когда в процессе (если хотим прервать и запустить с другими кредами) */}
+                <div className="border-t border-white/[0.06] pt-3 mt-1 flex flex-col gap-2">
+                  <p className="text-xs text-gray-600">Запустить заново с другими кредами:</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input value={ip} onChange={e => setIp(e.target.value)} placeholder="IP-адрес"
+                      className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30" />
+                    <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Пароль"
+                      className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30" />
+                  </div>
+                  {formError && <p className="text-xs text-red-400">{formError}</p>}
+                  <button type="button" onClick={handleRedeploy} disabled={loading}
+                    className="self-start bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-1.5 rounded-xl text-xs transition-colors disabled:opacity-50">
+                    {loading ? 'Запускаю…' : 'Перезапустить с новыми кредами'}
+                  </button>
                 </div>
               </div>
-              {error && <p className="text-xs text-red-400">{error}</p>}
-              <button
-                type="button"
-                onClick={handleRedeploy}
-                disabled={loading}
-                className="self-start bg-white text-black font-semibold px-5 py-2 rounded-xl text-sm transition-opacity disabled:opacity-50"
-              >
-                {loading ? 'Запускаю…' : 'Перезапустить деплой'}
-              </button>
-            </div>
+            ) : (
+              /* Ошибка → форма перезапуска */
+              <div className="flex flex-col gap-3 max-w-xl">
+                {token.deployError && (
+                  <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3">
+                    <p className="text-xs text-gray-500 mb-1">Текст ошибки:</p>
+                    <p className="text-xs text-red-300/80 font-mono break-all whitespace-pre-wrap">{token.deployError}</p>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500">
+                  При необходимости измените IP/пароль (другой сервер), затем нажмите «Перезапустить деплой».
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-gray-600">IP-адрес сервера</label>
+                    <input value={ip} onChange={e => setIp(e.target.value)} placeholder="1.2.3.4"
+                      className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-gray-600">Пароль root</label>
+                    <input value={password} onChange={e => setPassword(e.target.value)} placeholder="пароль"
+                      className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors" />
+                  </div>
+                </div>
+                {formError && <p className="text-xs text-red-400">{formError}</p>}
+                <button type="button" onClick={handleRedeploy} disabled={loading}
+                  className="self-start bg-white text-black font-semibold px-5 py-2 rounded-xl text-sm transition-opacity disabled:opacity-50">
+                  {loading ? 'Запускаю…' : 'Перезапустить деплой'}
+                </button>
+              </div>
+            )}
           </td>
         </tr>
       )}
@@ -165,7 +271,7 @@ export default function AdminPage() {
 
   const [servers, setServers] = useState<VpsReserve[]>([])
   const [queued, setQueued] = useState<QueuedToken[]>([])
-  const [errors, setErrors] = useState<ErrorToken[]>([])
+  const [deploys, setDeploys] = useState<DeployIssueToken[]>([])
   const [searchEmail, setSearchEmail] = useState('')
   const [searchResults, setSearchResults] = useState<SaleRecord[] | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -193,10 +299,10 @@ export default function AdminPage() {
     setQueued(await res.json())
   }
 
-  async function loadErrors() {
-    const res = await fetch('/api/admin/servers?status=error')
+  async function loadDeploys() {
+    const res = await fetch('/api/admin/servers?status=deploy-issues')
     if (!res.ok) return
-    setErrors(await res.json())
+    setDeploys(await res.json())
   }
 
   // ─── Полинг каждые 5 секунд ──────────────────────────────────────────────
@@ -210,12 +316,12 @@ export default function AdminPage() {
 
     loadServers()
     loadQueued()
-    loadErrors()
+    loadDeploys()
 
     const id = setInterval(() => {
       loadServers()
       loadQueued()
-      loadErrors()
+      loadDeploys()
     }, 5000)
 
     return () => clearInterval(id)
@@ -350,14 +456,18 @@ export default function AdminPage() {
 
             <div className="h-px bg-white/[0.06]" />
 
-            {/* Ошибки деплоя */}
+            {/* Ошибки деплоя и аудит попыток */}
             <div className="flex flex-col gap-2">
-              <p className="text-red-400 font-semibold text-xs uppercase tracking-widest">Ошибки деплоя</p>
+              <p className="text-red-400 font-semibold text-xs uppercase tracking-widest">Деплои — ошибки и редеплои</p>
               <p className="text-gray-500 text-xs leading-relaxed">
-                Если bootstrap.sh или SSH-соединение завершилось с ошибкой — <code className="text-gray-400">serverToken.status</code>{' '}
+                Если bootstrap.sh или SSH завершился с ошибкой — <code className="text-gray-400">serverToken.status</code>{' '}
                 переходит в <code className="text-gray-400">error</code>, ошибка сохраняется в БД навсегда.
-                Пользователь получает письмо-извинение, на <strong className="text-gray-400">admin@fractera.ai</strong> приходит алерт с текстом ошибки.
-                В таблице «Ошибки деплоя» ниже можно отредактировать IP/пароль (если нужен другой сервер) и запустить повторный деплой — прямо из этого окна.
+                Пользователь получает письмо-извинение, на <strong className="text-gray-400">admin@fractera.ai</strong> приходит алерт.
+                В таблице «Деплои» раскройте строку чтобы отредактировать IP/пароль и запустить повторный деплой.
+                После нажатия «Перезапустить» строка переходит в режим «🔄 Устраняется» — видна история всех попыток (<code className="text-gray-400">DeployAttempt</code>).
+                Каждая попытка записывает: кто запустил (webhook / admin), время старта и завершения, итог.
+                После успешного деплоя строка автоматически исчезает из таблицы.
+                Пользователь на дашборде видит соответствующий статус на каждом этапе.
               </p>
             </div>
 
@@ -613,22 +723,21 @@ export default function AdminPage() {
           )}
         </section>
 
-        {/* ─── Ошибки деплоя ──────────────────────────────────────────────── */}
-        {/* Платящие пользователи у которых bootstrap.sh или SSH завершился с ошибкой.
-            Пользователю уже отправлено письмо-извинение, admin получил алерт.
-            Нажмите «Перезапустить ▾» чтобы раскрыть форму — при необходимости
-            замените IP/пароль на другой сервер и запустите повторный деплой. */}
+        {/* ─── Деплои ─────────────────────────────────────────────────────── */}
+        {/* status=error: bootstrap.sh/SSH завершился с ошибкой — перезапустить форму.
+            status=pending (редеплой): admin уже нажал «Перезапустить» — показываем историю
+            попыток (DeployAttempt). Таблица обновляется каждые 5 с; после успеха строка исчезает. */}
         <section className="flex flex-col gap-4">
           <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">
-            Ошибки деплоя
-            {errors.length > 0 && (
-              <span className="ml-2 text-red-400 normal-case">— {errors.length}</span>
+            Деплои
+            {deploys.length > 0 && (
+              <span className="ml-2 text-red-400 normal-case">— {deploys.length}</span>
             )}
           </h2>
 
-          {errors.length === 0 ? (
+          {deploys.length === 0 ? (
             <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 text-sm text-gray-600 text-center">
-              Ошибок деплоя нет
+              Нет проблемных деплоев
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-red-500/30">
@@ -637,20 +746,17 @@ export default function AdminPage() {
                   <tr className="border-b border-white/10 text-xs text-gray-600 uppercase tracking-widest">
                     <th className="text-left px-4 py-3 font-normal">Email</th>
                     <th className="text-left px-4 py-3 font-normal">IP</th>
-                    <th className="text-left px-4 py-3 font-normal">Ошибка</th>
-                    <th className="text-left px-4 py-3 font-normal">Дата</th>
+                    <th className="text-left px-4 py-3 font-normal">Статус</th>
+                    <th className="text-left px-4 py-3 font-normal">Последняя попытка</th>
                     <th className="px-4 py-3 font-normal" />
                   </tr>
                 </thead>
                 <tbody>
-                  {errors.map(t => (
-                    <ErrorRow
+                  {deploys.map(t => (
+                    <DeployRow
                       key={t.id}
                       token={t}
-                      onRedeployed={() => {
-                        // После успешного перезапуска убираем из таблицы ошибок немедленно
-                        setErrors(prev => prev.filter(e => e.id !== t.id))
-                      }}
+                      onRedeployed={loadDeploys}
                     />
                   ))}
                 </tbody>

@@ -37,9 +37,13 @@ export async function POST(req: NextRequest) {
     const errMsg = String(error)
     await failProgress(session_id, errMsg)
 
-    const token = await db.serverToken.findFirst({ where: { deploySessionId: session_id }, include: { user: { select: { email: true } } } })
+    const token = await db.serverToken.findFirst({
+      where: { deploySessionId: session_id },
+      include: { user: { select: { email: true } } },
+    })
     if (token) {
       await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
+      await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
       await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
       await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
     }
@@ -55,13 +59,22 @@ export async function POST(req: NextRequest) {
         where: { deploySessionId: session_id, status: { not: 'offline' } },
         data: { subdomain, status: 'active' },
       })
+      // Завершаем аудит-запись успехом
+      await db.deployAttempt.updateMany({
+        where: { deploySessionId: session_id },
+        data: { status: 'success', subdomain, completedAt: new Date() },
+      }).catch(() => {})
     } else {
       const errMsg = 'Domain registration failed'
       await failProgress(session_id, errMsg)
 
-      const token = await db.serverToken.findFirst({ where: { deploySessionId: session_id }, include: { user: { select: { email: true } } } })
+      const token = await db.serverToken.findFirst({
+        where: { deploySessionId: session_id },
+        include: { user: { select: { email: true } } },
+      })
       if (token) {
         await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
+        await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
         await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
         await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
       } else {
@@ -69,6 +82,7 @@ export async function POST(req: NextRequest) {
           where: { deploySessionId: session_id, status: { not: 'offline' } },
           data: { status: 'error', deployError: errMsg },
         })
+        await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
       }
     }
     return NextResponse.json({ ok: true })

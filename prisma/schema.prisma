@@ -83,12 +83,27 @@ model ServerToken {
   statusData        Json?
   deployError       String?       // текст ошибки SSH/bootstrap — хранится в БД, в Redis TTL 1ч
   warningSentAt     DateTime?
+  deployAttempts    DeployAttempt[]
   createdAt         DateTime      @default(now())
   contaboInstanceId String?
   serverIp          String?
   serverPassword    String?
   user              User          @relation(fields: [userId], references: [id])
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
+}
+
+model DeployAttempt {
+  id              String      @id @default(cuid())
+  serverTokenId   String
+  serverToken     ServerToken @relation(fields: [serverTokenId], references: [id])
+  deploySessionId String      // связь с Redis progress и ServerToken.deploySessionId
+  triggeredBy     String      // 'webhook' | 'admin'
+  status          String      @default("running") // running | success | failed
+  error           String?
+  subdomain       String?
+  serverIp        String?
+  startedAt       DateTime    @default(now())
+  completedAt     DateTime?
 }
 
 model VpsReserve {

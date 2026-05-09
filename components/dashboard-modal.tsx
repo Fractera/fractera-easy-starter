@@ -9,6 +9,7 @@ type ServerRecord = {
   subdomain: string | null
   deploySessionId: string | null
   createdAt: string
+  isRedeploy: boolean
   subscription: {
     currentPeriodEnd: string
     status: string
@@ -98,7 +99,7 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
 }
 
 function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: () => void }) {
-  const isStale = server.status === 'pending' && !server.subdomain
+  const isStale = server.status === 'pending' && !server.subdomain && !server.isRedeploy
   const progress = useDeployProgress(
     server.status === 'pending' && !isStale ? server.deploySessionId : null
   )
@@ -128,17 +129,23 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   }
 
   const statusColors: Record<string, string> = {
-    pending: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
-    active:  'text-green-400  bg-green-400/10  border-green-400/20',
-    offline: 'text-gray-500   bg-white/[0.03]  border-white/10',
-    error:   'text-red-400    bg-red-400/10    border-red-400/20',
+    pending:        'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+    pendingRedeploy:'text-blue-400   bg-blue-400/10   border-blue-400/20',
+    active:         'text-green-400  bg-green-400/10  border-green-400/20',
+    offline:        'text-gray-500   bg-white/[0.03]  border-white/10',
+    error:          'text-orange-400 bg-orange-400/10 border-orange-400/20',
   }
   const statusLabel: Record<string, string> = {
-    pending: 'Deploying',
-    active:  'Active',
-    offline: 'Offline',
-    error:   'Error',
+    pending:        'Deploying',
+    pendingRedeploy:'Устраняем',
+    active:         'Active',
+    offline:        'Offline',
+    error:          'Установка не удалась',
   }
+
+  const statusKey =
+    server.status === 'pending' && server.isRedeploy ? 'pendingRedeploy'
+    : server.status
 
   // Stale pending card (no domain — setup never completed)
   if (isStale) {
@@ -161,8 +168,8 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
     )
   }
 
-  const color = statusColors[server.status] ?? statusColors.offline
-  const label = statusLabel[server.status] ?? server.status
+  const color = statusColors[statusKey] ?? statusColors.offline
+  const label = statusLabel[statusKey] ?? server.status
 
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/[0.06] bg-white/[0.01]' : 'border-white/10 bg-white/[0.03]'}`}>
@@ -188,9 +195,21 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
         </span>
       </div>
 
-      {/* Progress bar for pending with known domain */}
-      {server.status === 'pending' && server.subdomain && (
+      {/* Error message */}
+      {server.status === 'error' && (
+        <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3">
+          <p className="text-xs text-orange-300/80 leading-relaxed">
+            Не удалось установить автоматически — наша команда устраняет проблему. Мы свяжемся с вами как только сервер будет готов.
+          </p>
+        </div>
+      )}
+
+      {/* Progress bar for pending deploys */}
+      {server.status === 'pending' && !isStale && (
         <div className="flex flex-col gap-1.5">
+          {server.isRedeploy && (
+            <p className="text-xs text-blue-400/70">Устраняем проблему — установка запущена повторно</p>
+          )}
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full bg-yellow-400 transition-all duration-500"
@@ -252,6 +271,7 @@ export function DashboardModal({ open, onClose }: Props) {
   const { data: session } = useSession()
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [loading, setLoading] = useState(false)
+  const [tab, setTab] = useState<'servers' | 'subscription'>('servers')
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -308,8 +328,21 @@ export function DashboardModal({ open, onClose }: Props) {
       <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-white">Your servers</h2>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1 bg-white/[0.04] rounded-xl p-0.5 self-start">
+              <button
+                onClick={() => setTab('servers')}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'servers' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                Серверы
+              </button>
+              <button
+                onClick={() => setTab('subscription')}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'subscription' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                Подписка
+              </button>
+            </div>
             {session?.user?.email && (
               <p className="text-xs text-gray-600">{session.user.email}</p>
             )}
@@ -327,22 +360,78 @@ export function DashboardModal({ open, onClose }: Props) {
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
               <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
-              Loading…
+              Загрузка…
             </div>
-          ) : servers.length === 0 ? (
-            <p className="text-sm text-gray-600 py-4">No servers yet. Launch your first server from the main page.</p>
+          ) : tab === 'servers' ? (
+            servers.length === 0 ? (
+              <p className="text-sm text-gray-600 py-4">Серверов пока нет. Запустите первый сервер на главной странице.</p>
+            ) : (
+              <>
+                {activeServers.map(s => (
+                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
+                ))}
+                {offlineServers.length > 0 && activeServers.length > 0 && (
+                  <div className="h-px bg-white/[0.06] my-1" />
+                )}
+                {offlineServers.map(s => (
+                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
+                ))}
+              </>
+            )
           ) : (
-            <>
-              {activeServers.map(s => (
-                <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
-              ))}
-              {offlineServers.length > 0 && activeServers.length > 0 && (
-                <div className="h-px bg-white/[0.06] my-1" />
-              )}
-              {offlineServers.map(s => (
-                <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
-              ))}
-            </>
+            /* Subscription tab */
+            servers.filter(s => s.status !== 'offline').length === 0 ? (
+              <p className="text-sm text-gray-600 py-4">Нет активных серверов.</p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {servers.filter(s => s.status !== 'offline').map(server => {
+                  const sub = server.subscription
+                  const periodEnd = sub?.currentPeriodEnd
+                    ? new Date(sub.currentPeriodEnd).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : null
+                  const planLabel = sub?.planId
+                    ? sub.planId.charAt(0).toUpperCase() + sub.planId.slice(1)
+                    : null
+                  const isActive = sub?.status === 'active'
+                  return (
+                    <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                      {server.subdomain && (
+                        <p className="text-xs font-mono text-gray-500">{server.subdomain}</p>
+                      )}
+                      {sub ? (
+                        <div className="flex flex-col gap-2 text-sm">
+                          {planLabel && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-500">Тариф</span>
+                              <span className="text-gray-200">{planLabel}</span>
+                            </div>
+                          )}
+                          {periodEnd && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-500">Текущий период до</span>
+                              <span className="text-gray-200">{periodEnd}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Статус подписки</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full border ${isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-orange-400 border-orange-500/30 bg-orange-500/10'}`}>
+                              {isActive ? 'Активна' : sub.status}
+                            </span>
+                          </div>
+                          {!isActive && (
+                            <p className="text-xs text-orange-300/70 mt-1">
+                              Подписка неактивна — проверьте платёжный метод в Stripe.
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-600">Нет данных о подписке.</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )
           )}
         </div>
       </div>

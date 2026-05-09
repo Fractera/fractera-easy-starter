@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
 
   if (!ip || !password) return NextResponse.json({ error: 'No server credentials available' }, { status: 400 })
 
-  // Если переданы новые креды — сохраняем их
   const deploySessionId = `sess-redeploy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
   await db.serverToken.update({
@@ -42,9 +41,13 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  // Аудит-запись о попытке admin-редеплоя
+  await db.deployAttempt.create({
+    data: { serverTokenId, deploySessionId, triggeredBy: 'admin', serverIp: ip },
+  })
+
   await initProgress(deploySessionId)
 
-  // Запускаем асинхронно — не блокируем ответ
   deployToServer({
     ip,
     login: 'root',
@@ -54,9 +57,14 @@ export async function POST(req: NextRequest) {
     serverToken: token.token,
   }).catch(async (err) => {
     console.error('[redeploy] error:', err)
+    const errMsg = String(err)
     await db.serverToken.update({
       where: { id: serverTokenId },
-      data: { status: 'error', deployError: String(err) },
+      data: { status: 'error', deployError: errMsg },
+    }).catch(() => {})
+    await db.deployAttempt.updateMany({
+      where: { deploySessionId },
+      data: { status: 'failed', error: errMsg, completedAt: new Date() },
     }).catch(() => {})
   })
 
