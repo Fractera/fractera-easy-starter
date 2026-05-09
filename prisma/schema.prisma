@@ -85,6 +85,7 @@ model ServerToken {
   warningSentAt     DateTime?
   deployAttempts    DeployAttempt[]
   createdAt         DateTime      @default(now())
+  stripeCheckoutSessionId String?
   contaboInstanceId String?
   serverIp          String?
   serverPassword    String?

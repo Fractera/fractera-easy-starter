@@ -75,18 +75,29 @@ export function HeroSection() {
       description: "After setup finishes, you'll receive an email that your server is ready to use.",
       duration: 10000,
     })
-    // Poll /api/my-server until deploySessionId appears (webhook may be slightly delayed)
+
+    const stripeSessionId = searchParams.get('stripe_session_id')
+    const apiUrl = stripeSessionId
+      ? `/api/my-server?stripe_session_id=${encodeURIComponent(stripeSessionId)}`
+      : '/api/my-server'
+
     setMyServerLoading(true)
     let attempts = 0
     const maxAttempts = 20
+
     const pollServer = async () => {
       try {
-        const res = await fetch('/api/my-server')
+        const res = await fetch(apiUrl)
         if (res.ok) {
           const data = await res.json()
           if (data.server) {
             setMyServer(data.server)
             setMyServerLoading(false)
+            // Server already active (e.g. user revisiting the success URL) — go to dashboard
+            if (data.server.status === 'active') {
+              openDashboard()
+              router.replace('/')
+            }
             return
           }
         }
@@ -96,7 +107,7 @@ export function HeroSection() {
       else setMyServerLoading(false)
     }
     pollServer()
-  }, [paymentSuccess])
+  }, [paymentSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function triggerCheckout(planId: string) {
     setCheckoutLoading(true)

@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
           subscriptionId: subscription.id,
           status: 'pending',
           deploySessionId,
+          stripeCheckoutSessionId: session.id,
           serverIp: reserve.ip,
           serverPassword: reserve.password,
         },
@@ -106,6 +107,7 @@ export async function POST(req: NextRequest) {
         subscriptionId: subscription.id,
         status: 'queued',
         deploySessionId,
+        stripeCheckoutSessionId: session.id,
       },
     })
 
