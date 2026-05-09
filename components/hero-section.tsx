@@ -93,11 +93,9 @@ export function HeroSection() {
           if (data.server) {
             setMyServer(data.server)
             setMyServerLoading(false)
-            // Server already active (e.g. user revisiting the success URL) — go to dashboard
-            if (data.server.status === 'active') {
-              openDashboard()
-              router.replace('/')
-            }
+            // Server exists for this stripe session (any status) — go to dashboard
+            openDashboard()
+            router.replace('/')
             return
           }
         }
