@@ -49,28 +49,20 @@ export async function POST(req: NextRequest) {
   const sessionId = tempToken?.deploySessionId ?? ''
   const logPath = sessionId ? `/tmp/fractera-install-${sessionId}.log` : ''
 
-  let subdomain: string | null = null
-
-  // Try to read FRACTERA_READY from session log
-  if (logPath) {
-    try {
-      const logOutput = await sshExec(reserve.ip, reserve.password, `grep "FRACTERA_READY" "${logPath}" 2>/dev/null || true`)
-      const match = logOutput.match(/FRACTERA_READY:\s*https?:\/\/(\S+)/)
-      if (match) subdomain = match[1]
-    } catch {
-      // SSH failed — server may be down
-    }
+  if (!sessionId || !logPath) {
+    return NextResponse.json({ ok: false, reason: 'no_session', message: 'No provisioning session found' })
   }
 
-  // Fallback: try the generic install log
-  if (!subdomain) {
-    try {
-      const logOutput = await sshExec(reserve.ip, reserve.password, `grep "FRACTERA_READY" /tmp/fractera-install.log 2>/dev/null || true`)
-      const match = logOutput.match(/FRACTERA_READY:\s*https?:\/\/(\S+)/)
-      if (match) subdomain = match[1]
-    } catch {
-      // ignore
-    }
+  let subdomain: string | null = null
+
+  // Only read the session-specific log — never the generic /tmp/fractera-install.log
+  // (the generic log may contain FRACTERA_READY from previous unrelated bootstrap runs)
+  try {
+    const logOutput = await sshExec(reserve.ip, reserve.password, `grep "FRACTERA_READY" "${logPath}" 2>/dev/null || true`)
+    const match = logOutput.match(/FRACTERA_READY:\s*https?:\/\/(\S+)/)
+    if (match) subdomain = match[1]
+  } catch {
+    return NextResponse.json({ ok: false, reason: 'ssh_failed', message: 'Cannot connect to server via SSH' })
   }
 
   if (!subdomain) {
