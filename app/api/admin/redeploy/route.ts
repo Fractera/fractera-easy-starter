@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { deployToServer, testSSHConnection } from '@/lib/deploy'
 import { initProgress, failProgress } from '@/lib/kv'
+import { sendDeployErrorUserEmail, sendDeployErrorAdminEmail } from '@/lib/email'
 
 async function requireAdmin() {
   const session = await auth()
@@ -20,7 +21,10 @@ export async function POST(req: NextRequest) {
 
   if (!serverTokenId) return NextResponse.json({ error: 'serverTokenId required' }, { status: 400 })
 
-  const token = await db.serverToken.findUnique({ where: { id: serverTokenId } })
+  const token = await db.serverToken.findUnique({
+    where: { id: serverTokenId },
+    include: { user: { select: { email: true } } },
+  })
   if (!token) return NextResponse.json({ error: 'ServerToken not found' }, { status: 404 })
 
   const ip = serverIp || token.serverIp
@@ -78,6 +82,9 @@ export async function POST(req: NextRequest) {
         where: { deploySessionId },
         data: { status: 'failed', error: errMsg, completedAt: new Date() },
       }).catch(() => {})
+      const userEmail = token.user?.email ?? ''
+      await sendDeployErrorUserEmail(userEmail).catch(() => {})
+      await sendDeployErrorAdminEmail(userEmail, serverTokenId, errMsg).catch(() => {})
     }
   })
 
