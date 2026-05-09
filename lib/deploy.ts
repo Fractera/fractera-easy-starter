@@ -12,6 +12,21 @@ interface DeployOptions {
   serverToken?: string
 }
 
+export async function testSSHConnection(ip: string, password: string, timeoutMs = 15000): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const ssh = new Client()
+    ssh.on('ready', () => { ssh.end(); resolve() })
+    ssh.on('error', reject)
+    ssh.connect({
+      host: ip,
+      port: 22,
+      username: 'root',
+      password,
+      readyTimeout: timeoutMs,
+    })
+  })
+}
+
 export async function deployToServer({
   ip,
   login,

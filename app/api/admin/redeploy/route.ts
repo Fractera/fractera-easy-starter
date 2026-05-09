@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { deployToServer } from '@/lib/deploy'
+import { deployToServer, testSSHConnection } from '@/lib/deploy'
 import { initProgress, failProgress } from '@/lib/kv'
 
 async function requireAdmin() {
@@ -27,6 +27,14 @@ export async function POST(req: NextRequest) {
   const password = serverPassword || token.serverPassword
 
   if (!ip || !password) return NextResponse.json({ error: 'No server credentials available' }, { status: 400 })
+
+  // Validate SSH connectivity BEFORE touching the DB
+  try {
+    await testSSHConnection(ip, password)
+  } catch (err) {
+    const msg = String(err).replace(/^Error:\s*/, '')
+    return NextResponse.json({ error: `Cannot connect to server: ${msg}` }, { status: 422 })
+  }
 
   const deploySessionId = `sess-redeploy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
