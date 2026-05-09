@@ -254,7 +254,7 @@ export default function AdminPage() {
                 <li>Оплата → webhook → ServerToken со статусом <code className="text-white font-semibold">queued</code></li>
                 <li>Письмо пользователю «сервер будет готов в течение 60 мин»</li>
                 <li><strong className="text-white">Письмо на admin@fractera.ai</strong> с данными пользователя</li>
-                <li>Администратор добавляет сервер в пул и нажимает «Назначить» → Письмо 1 → деплой → Письмо 2</li>
+                <li>Администратор добавляет сервер в пул, делает Bootstrap, затем нажимает «Назначить» → Письмо 1 → bootstrap.sh запускается в фоне → ServerToken становится <code className="text-white font-semibold">active</code></li>
               </ol>
             </div>
 
@@ -266,7 +266,7 @@ export default function AdminPage() {
               <p className="text-white text-sm font-medium">
                 При открытии Stripe checkout сервер переходит в <code className="text-white">pending_payment</code> на 30 минут.
                 Если пользователь не оплатил — Stripe стреляет <code className="text-white">checkout.session.expired</code>,
-                сервер автоматически возвращается в <code className="text-white">available</code>.
+                сервер автоматически возвращается в <code className="text-white">ready</code>.
                 Обратный отсчёт виден в таблице пула ниже. Таблица обновляется каждые 5 секунд.
               </p>
             </div>
@@ -333,10 +333,10 @@ export default function AdminPage() {
         </section>
 
         {/* ─── Пул серверов ───────────────────────────────────────────────── */}
-        {/* Серверы со статусом available и pending_payment. Таблица обновляется
-            каждые 5 секунд через setInterval без перезагрузки страницы.
-            pending_payment → сервер зарезервирован под активную Stripe-сессию,
-            через 30 мин автоматически вернётся в available если оплата не прошла. */}
+        {/* Статусы: available (не настроен) → provisioning (bootstrap идёт) → ready (готов к продаже)
+            → pending_payment (зарезервирован под Stripe-сессию, 30 мин) → paid (продан).
+            Таблица обновляется каждые 5 секунд. При истечении Stripe-сессии сервер
+            автоматически возвращается в ready. */}
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-sm font-mono font-bold text-white uppercase tracking-widest">Пул серверов</h2>
@@ -496,9 +496,9 @@ export default function AdminPage() {
         </section>
 
         {/* ─── Ожидают сервер (Путь B) ────────────────────────────────────── */}
-        {/* Пользователи оплатили подписку когда пул был пуст. Нужно вручную
-            добавить сервер в пул и нажать «Назначить» — система сама отправит
-            Письмо 1 и запустит bootstrap.sh. */}
+        {/* Пользователи оплатили подписку когда пул был пуст. Нужно добавить сервер
+            в пул, запустить Bootstrap (ждать ~20 мин), затем нажать «Назначить» —
+            система отправит Письмо 1 и запустит bootstrap.sh на выбранном сервере. */}
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-mono font-bold text-white uppercase tracking-widest">
             Ожидают сервер (Путь B)

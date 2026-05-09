@@ -76,7 +76,6 @@ export async function POST(req: NextRequest) {
         userId,
         subscriptionId: subscription.id,
         status: 'queued',
-        deploySessionId,
         stripeCheckoutSessionId: session.id,
       },
     })
