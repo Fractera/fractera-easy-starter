@@ -11,6 +11,7 @@ type VpsReserve = {
   ip: string
   login: string
   password: string
+  subdomain: string | null
   status: string
   activatedAt: string | null
   paidAmount: number | null
@@ -72,17 +73,19 @@ export default function AdminPage() {
   const [addForm, setAddForm] = useState({ ip: '', login: 'root', password: '', activatedAt: '', paidAmount: '', expiresAt: '' })
   const [addLoading, setAddLoading] = useState(false)
   const [addError, setAddError] = useState('')
-  const [counts, setCounts] = useState({ available: 0, pending: 0 })
+  const [counts, setCounts] = useState({ ready: 0, provisioning: 0, pending: 0 })
+  const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
 
   async function loadServers() {
-    const res = await fetch('/api/admin/servers?status=available,pending_payment')
+    const res = await fetch('/api/admin/servers?status=available,provisioning,ready,pending_payment')
     if (!res.ok) return
     const data: VpsReserve[] = await res.json()
     setServers(data)
     setCounts({
-      available: data.filter(s => s.status === 'available').length,
+      ready: data.filter(s => s.status === 'ready').length,
+      provisioning: data.filter(s => s.status === 'provisioning').length,
       pending: data.filter(s => s.status === 'pending_payment').length,
     })
   }
@@ -128,6 +131,21 @@ export default function AdminPage() {
       setAddError(d.error ?? 'Error')
     }
     setAddLoading(false)
+  }
+
+  async function handleBootstrap(id: string) {
+    setBootstrapping(prev => new Set(prev).add(id))
+    const res = await fetch('/api/pool/provision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vpsReserveId: id }),
+    })
+    if (!res.ok) {
+      const d = await res.json()
+      alert(d.error ?? 'Bootstrap failed')
+      setBootstrapping(prev => { const s = new Set(prev); s.delete(id); return s })
+    }
+    // Status changes to 'provisioning' on next poll — button disappears automatically
   }
 
   async function handleRelease(id: string) {
@@ -323,8 +341,9 @@ export default function AdminPage() {
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-sm font-mono font-bold text-white uppercase tracking-widest">Пул серверов</h2>
             <div className="flex gap-3 text-xs text-white">
-              <span>Доступно: <strong className="text-green-400">{counts.available}</strong></span>
-              <span>Зарезервировано: <strong className="text-yellow-400">{counts.pending}</strong></span>
+              <span>Готово: <strong className="text-green-400">{counts.ready}</strong></span>
+              {counts.provisioning > 0 && <span>Настраивается: <strong className="text-blue-400">{counts.provisioning}</strong></span>}
+              {counts.pending > 0 && <span>Зарезервировано: <strong className="text-yellow-400">{counts.pending}</strong></span>}
             </div>
           </div>
 
@@ -341,8 +360,8 @@ export default function AdminPage() {
                     <th className="text-left px-4 py-3 font-normal">Стоимость</th>
                     <th className="text-left px-4 py-3 font-normal">Истекает</th>
                     <th className="text-left px-4 py-3 font-normal">IP</th>
-                    <th className="text-left px-4 py-3 font-normal">Логин</th>
                     <th className="text-left px-4 py-3 font-normal">Пароль</th>
+                    <th className="text-left px-4 py-3 font-normal">Субдомен</th>
                     <th className="text-left px-4 py-3 font-normal">Статус</th>
                     <th className="px-4 py-3 font-normal" />
                   </tr>
@@ -359,16 +378,28 @@ export default function AdminPage() {
                           {expiring && <span className="ml-1 text-xs text-red-500">!</span>}
                         </td>
                         <td className="px-4 py-3 font-mono text-white font-semibold">{s.ip}</td>
-                        <td className="px-4 py-3 font-mono text-white">{s.login}</td>
                         <td className="px-4 py-3 font-mono text-white font-semibold text-xs">{s.password}</td>
+                        <td className="px-4 py-3 font-mono text-white text-xs">
+                          {s.subdomain
+                            ? <a href={`https://${s.subdomain}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">{s.subdomain}</a>
+                            : <span className="text-white/30">—</span>
+                          }
+                        </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs px-2 py-0.5 rounded-full border w-fit ${
-                              s.status === 'available'
+                              s.status === 'ready'
                                 ? 'text-green-400 border-green-500/30 bg-green-500/10'
+                                : s.status === 'provisioning'
+                                ? 'text-blue-400 border-blue-500/30 bg-blue-500/10'
+                                : s.status === 'available'
+                                ? 'text-white/60 border-white/20 bg-white/[0.04]'
                                 : 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10'
                             }`}>
-                              {s.status === 'available' ? 'Доступен' : 'Зарезервирован'}
+                              {s.status === 'ready' ? 'Готов'
+                                : s.status === 'provisioning' ? 'Настраивается…'
+                                : s.status === 'available' ? 'Не настроен'
+                                : 'Зарезервирован'}
                             </span>
                             {s.status === 'pending_payment' && s.reservedUntil && (
                               <Countdown reservedUntil={s.reservedUntil} />
@@ -376,6 +407,16 @@ export default function AdminPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
+                          {s.status === 'available' && (
+                            <button
+                              type="button"
+                              onClick={() => handleBootstrap(s.id)}
+                              disabled={bootstrapping.has(s.id)}
+                              className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                              {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
+                            </button>
+                          )}
                           {s.status === 'pending_payment' && (
                             <button
                               type="button"
