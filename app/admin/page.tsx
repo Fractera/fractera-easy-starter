@@ -213,6 +213,32 @@ export default function AdminPage() {
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Email-алёрт при снижении запаса заранее (при N серверах)</li>
               </ul>
             </div>
+            <div className="h-px bg-white/[0.06]" />
+            <div className="flex flex-col gap-3">
+              <p className="text-xs text-orange-500 uppercase tracking-widest font-mono">⚠ Нерешённый сценарий — требует обсуждения</p>
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex flex-col gap-2 text-sm text-orange-200/70 leading-relaxed">
+                <p className="font-semibold text-orange-300">Что происходит если пользователь не продлил подписку вовремя?</p>
+                <p>
+                  Сценарий не проработан. Stripe может отменить подписку при неудачном списании,
+                  но мы не определили что делать с сервером пользователя в этот момент.
+                </p>
+                <p>
+                  <strong className="text-orange-300">Риски:</strong> автоматическое удаление данных с сервера, потеря
+                  работы пользователя, репутационный ущерб. Пользователь мог просто не успеть —
+                  это не намеренный отказ от сервиса.
+                </p>
+                <p>
+                  <strong className="text-orange-300">Предварительное решение (не реализовано):</strong> в первый месяц
+                  просрочки не трогать сервер. При необходимости — оплатить следующий месяц у
+                  провайдера из собственных средств, чтобы дать пользователю время. Связаться
+                  вручную и предложить продление.
+                </p>
+                <p className="text-xs text-orange-500">
+                  Необходимо обсудить: grace period, автоматические попытки списания Stripe,
+                  политику удаления данных, процесс ручного вмешательства администратора.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
