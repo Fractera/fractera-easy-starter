@@ -150,20 +150,28 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   // Stale pending card (no domain — setup never completed)
   if (isStale) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-sm text-gray-600">Incomplete setup</p>
-          <p className="text-xs text-gray-700">
-            {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </p>
+      <div className="flex flex-col gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-sm text-gray-600">Установка не завершена</p>
+            <p className="text-xs text-gray-700">
+              {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+          </div>
+          <button
+            onClick={handleRemove}
+            disabled={removing}
+            className="text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
+          >
+            {removing ? 'Removing…' : 'Remove'}
+          </button>
         </div>
-        <button
-          onClick={handleRemove}
-          disabled={removing}
-          className="text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-40"
+        <a
+          href="mailto:admin@fractera.ai?subject=Server setup incomplete"
+          className="text-xs text-gray-600 hover:text-gray-400 underline underline-offset-2 transition-colors self-start"
         >
-          {removing ? 'Removing…' : 'Remove'}
-        </button>
+          Написать в поддержку →
+        </a>
       </div>
     )
   }
@@ -197,10 +205,16 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
 
       {/* Error message */}
       {server.status === 'error' && (
-        <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3">
+        <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 flex flex-col gap-2">
           <p className="text-xs text-orange-300/80 leading-relaxed">
-            Не удалось установить автоматически — наша команда устраняет проблему. Мы свяжемся с вами как только сервер будет готов.
+            Установка не завершилась — мы уже работаем над устранением. Вы получите письмо когда сервер будет готов.
           </p>
+          <a
+            href="mailto:admin@fractera.ai?subject=Server installation failed"
+            className="text-xs text-orange-400 hover:text-orange-300 underline underline-offset-2 transition-colors self-start"
+          >
+            Написать в поддержку →
+          </a>
         </div>
       )}
 
