@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
-import { sendDeployErrorUserEmail, sendDeployErrorAdminEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -43,9 +42,6 @@ export async function POST(req: NextRequest) {
     })
     if (token) {
       await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
-      await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
-      await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
-      await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
     }
 
     return NextResponse.json({ ok: true })
@@ -59,11 +55,6 @@ export async function POST(req: NextRequest) {
         where: { deploySessionId: session_id, status: { not: 'offline' } },
         data: { subdomain, status: 'active' },
       })
-      // Завершаем аудит-запись успехом
-      await db.deployAttempt.updateMany({
-        where: { deploySessionId: session_id },
-        data: { status: 'success', subdomain, completedAt: new Date() },
-      }).catch(() => {})
     } else {
       const errMsg = 'Domain registration failed'
       await failProgress(session_id, errMsg)
@@ -74,15 +65,11 @@ export async function POST(req: NextRequest) {
       })
       if (token) {
         await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
-        await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
-        await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
-        await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
       } else {
         await db.serverToken.updateMany({
           where: { deploySessionId: session_id, status: { not: 'offline' } },
           data: { status: 'error', deployError: errMsg },
         })
-        await db.deployAttempt.updateMany({ where: { deploySessionId: session_id }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
       }
     }
     return NextResponse.json({ ok: true })
