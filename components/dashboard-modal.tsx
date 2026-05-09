@@ -75,14 +75,14 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
         value={confirm}
         onChange={e => setConfirm(e.target.value)}
         placeholder='Type DELETE to confirm'
-        className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50"
+        className="w-full bg-white/[0.05] border border-white/40 rounded-lg px-3 py-2 text-base text-white placeholder-gray-400 focus:outline-none focus:border-red-500/70"
       />
       {error && <p className="text-xs text-red-400">{error}</p>}
       <div className="flex gap-2">
         <button
           onClick={onCancel}
           disabled={loading}
-          className="flex-1 text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 rounded-lg py-2 transition-colors"
+          className="flex-1 text-base font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 rounded-lg py-2 transition-colors"
         >
           Cancel
         </button>
@@ -150,25 +150,25 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   // Stale pending card (no domain — setup never completed)
   if (isStale) {
     return (
-      <div className="flex flex-col gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4">
+      <div className="flex flex-col gap-2 rounded-2xl border border-white/30 bg-white/[0.03] px-5 py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-col gap-0.5">
-            <p className="text-sm text-gray-600">Setup incomplete</p>
-            <p className="text-xs text-gray-700">
+            <p className="text-base text-white font-semibold">Setup incomplete</p>
+            <p className="text-sm text-white/60">
               {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
           </div>
           <button
             onClick={handleRemove}
             disabled={removing}
-            className="text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
+            className="text-sm text-white hover:text-red-400 transition-colors disabled:opacity-40 shrink-0 font-medium"
           >
             {removing ? 'Removing…' : 'Remove'}
           </button>
         </div>
         <a
           href="mailto:admin@fractera.ai?subject=Server setup incomplete"
-          className="text-xs text-gray-600 hover:text-gray-400 underline underline-offset-2 transition-colors self-start"
+          className="text-sm text-white font-medium hover:text-white underline underline-offset-2 transition-colors self-start"
         >
           Contact support →
         </a>
@@ -180,38 +180,38 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   const label = statusLabel[statusKey] ?? server.status
 
   return (
-    <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/[0.06] bg-white/[0.01]' : 'border-white/10 bg-white/[0.03]'}`}>
+    <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/20 bg-white/[0.02]' : 'border-white/40 bg-white/[0.04]'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <p className={`text-sm font-mono truncate ${server.status === 'offline' ? 'text-gray-600' : 'text-white'}`}>
+          <p className={`text-base font-bold font-mono truncate ${server.status === 'offline' ? 'text-white/40' : 'text-white'}`}>
             {server.subdomain}
           </p>
           {expiry && server.status !== 'offline' && (
-            <p className="text-xs text-gray-600">
-              {planLabel && <span className="text-gray-500">{planLabel} · </span>}
+            <p className="text-sm text-white font-medium">
+              {planLabel && <span className="text-white font-semibold">{planLabel} · </span>}
               Expires {expiry}
             </p>
           )}
           {server.status === 'offline' && (
-            <p className="text-xs text-gray-700">
+            <p className="text-sm text-white/40">
               Destroyed {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
           )}
         </div>
-        <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full border ${color}`}>
+        <span className={`shrink-0 text-sm font-semibold px-2 py-0.5 rounded-full border ${color}`}>
           {label}
         </span>
       </div>
 
       {/* Error message */}
       {server.status === 'error' && (
-        <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 flex flex-col gap-2">
-          <p className="text-xs text-orange-300/80 leading-relaxed">
+        <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 flex flex-col gap-2">
+          <p className="text-sm text-orange-300 font-medium leading-relaxed">
             Installation did not complete — our team is already working on it. You will receive an email when your server is ready.
           </p>
           <a
             href="mailto:admin@fractera.ai?subject=Server installation failed"
-            className="text-xs text-orange-400 hover:text-orange-300 underline underline-offset-2 transition-colors self-start"
+            className="text-sm text-orange-400 font-semibold hover:text-orange-300 underline underline-offset-2 transition-colors self-start"
           >
             Contact support →
           </a>
@@ -222,15 +222,15 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
       {server.status === 'pending' && !isStale && (
         <div className="flex flex-col gap-1.5">
           {server.isRedeploy && (
-            <p className="text-xs text-blue-400/70">Fixing the issue — installation restarted</p>
+            <p className="text-sm text-blue-400 font-medium">Fixing the issue — installation restarted</p>
           )}
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
             <div
               className="h-full bg-yellow-400 transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xs text-gray-600">{progress}% complete</p>
+          <p className="text-sm text-white font-semibold">{progress}% complete</p>
         </div>
       )}
 
@@ -242,7 +242,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
               href={`https://${server.subdomain}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center text-xs text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg py-2 transition-colors"
+              className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
             >
               Open app ↗
             </a>
@@ -250,7 +250,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
               href={`https://admin.${server.subdomain}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center text-xs text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg py-2 transition-colors"
+              className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
             >
               Open admin ↗
             </a>
@@ -259,7 +259,7 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
           {!showDelete ? (
             <button
               onClick={() => setShowDelete(true)}
-              className="text-xs text-gray-600 hover:text-red-400 transition-colors text-left"
+              className="text-sm text-white hover:text-red-400 transition-colors text-left font-medium"
             >
               Delete server
             </button>
@@ -339,31 +339,31 @@ export function DashboardModal({ open, onClose }: Props) {
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
+      <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-1 bg-white/[0.04] rounded-xl p-0.5 self-start">
               <button
                 onClick={() => setTab('servers')}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'servers' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${tab === 'servers' ? 'bg-white/20 text-white' : 'text-white hover:text-white hover:bg-white/10'}`}
               >
                 Servers
               </button>
               <button
                 onClick={() => setTab('subscription')}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${tab === 'subscription' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${tab === 'subscription' ? 'bg-white/20 text-white' : 'text-white hover:text-white hover:bg-white/10'}`}
               >
                 Subscription
               </button>
             </div>
             {session?.user?.email && (
-              <p className="text-xs text-gray-600">{session.user.email}</p>
+              <p className="text-sm text-white font-medium">{session.user.email}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-white transition-colors text-lg leading-none"
+            className="text-white hover:text-white transition-colors text-lg leading-none font-bold"
           >
             ✕
           </button>
@@ -372,20 +372,20 @@ export function DashboardModal({ open, onClose }: Props) {
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-3">
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
-              <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+            <div className="flex items-center gap-2 text-base text-white font-medium py-4">
+              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Loading…
             </div>
           ) : tab === 'servers' ? (
             servers.length === 0 ? (
-              <p className="text-sm text-gray-600 py-4">No servers yet. Launch your first server from the home page.</p>
+              <p className="text-base text-white font-medium py-4">No servers yet. Launch your first server from the home page.</p>
             ) : (
               <>
                 {activeServers.map(s => (
                   <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
                 ))}
                 {offlineServers.length > 0 && activeServers.length > 0 && (
-                  <div className="h-px bg-white/[0.06] my-1" />
+                  <div className="h-px bg-white/30 my-1" />
                 )}
                 {offlineServers.map(s => (
                   <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
@@ -395,7 +395,7 @@ export function DashboardModal({ open, onClose }: Props) {
           ) : (
             /* Subscription tab */
             servers.filter(s => s.status !== 'offline').length === 0 ? (
-              <p className="text-sm text-gray-600 py-4">No active servers.</p>
+              <p className="text-base text-white font-medium py-4">No active servers.</p>
             ) : (
               <div className="flex flex-col gap-4">
                 {servers.filter(s => s.status !== 'offline').map(server => {
@@ -408,11 +408,11 @@ export function DashboardModal({ open, onClose }: Props) {
                     : null
                   const isActive = sub?.status === 'active'
                   return (
-                    <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                    <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/40 bg-white/[0.04] p-5">
                       {server.subdomain ? (
-                        <p className="text-xs font-mono text-gray-500">{server.subdomain}</p>
+                        <p className="text-base font-bold font-mono text-white">{server.subdomain}</p>
                       ) : (
-                        <p className="text-xs text-gray-600">
+                        <p className="text-sm text-white font-medium">
                           Server:{' '}
                           <span className={
                             server.status === 'error' ? 'text-orange-400' :
@@ -430,18 +430,18 @@ export function DashboardModal({ open, onClose }: Props) {
                         <div className="flex flex-col gap-2 text-sm">
                           {planLabel && (
                             <div className="flex items-center justify-between">
-                              <span className="text-gray-500">Plan</span>
-                              <span className="text-gray-200">{planLabel}</span>
+                              <span className="text-white font-semibold">Plan</span>
+                              <span className="text-white font-bold">{planLabel}</span>
                             </div>
                           )}
                           {periodEnd && (
                             <div className="flex items-center justify-between">
-                              <span className="text-gray-500">Current period until</span>
-                              <span className="text-gray-200">{periodEnd}</span>
+                              <span className="text-white font-semibold">Current period until</span>
+                              <span className="text-white font-bold">{periodEnd}</span>
                             </div>
                           )}
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Subscription status</span>
+                            <span className="text-white font-semibold">Subscription status</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full border ${isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-orange-400 border-orange-500/30 bg-orange-500/10'}`}>
                               {isActive ? 'Active' : sub.status}
                             </span>
@@ -453,7 +453,7 @@ export function DashboardModal({ open, onClose }: Props) {
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-600">No subscription data.</p>
+                        <p className="text-base text-white font-medium">No subscription data.</p>
                       )}
                     </div>
                   )

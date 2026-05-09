@@ -97,7 +97,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-xl">
-      <p className="text-sm text-gray-500 uppercase tracking-widest">Your Domain</p>
+      <p className="text-sm text-white font-bold uppercase tracking-widest">Your Domain</p>
       <div
         className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"
         style={borderStyle}
@@ -108,10 +108,10 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
         <button
           onClick={handleCopy}
           disabled={!isReady}
-          className={`shrink-0 text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+          className={`shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
             isReady
-              ? 'text-gray-400 hover:text-white border-white/10 hover:border-white/30 cursor-pointer'
-              : 'text-gray-700 border-white/5 cursor-not-allowed'
+              ? 'text-white hover:text-white border-white/40 hover:border-white/60 cursor-pointer'
+              : 'text-white/30 border-white/20 cursor-not-allowed'
           }`}
         >
           {copied ? 'Copied!' : 'Copy'}
@@ -119,7 +119,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
       </div>
       {isInstalling && (
         <p
-          className="text-xs text-yellow-600 transition-opacity duration-[1500ms]"
+          className="text-sm text-yellow-400 font-medium transition-opacity duration-[1500ms]"
           style={{ opacity: pulse ? 1 : 0.4 }}
         >
           Installation in progress — please wait...
@@ -135,7 +135,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
           >
             Open ↗
           </a>
-          <p className="text-xs text-gray-600">
+          <p className="text-sm text-white font-medium">
             The first account you create will be the Administrator.
           </p>
         </div>

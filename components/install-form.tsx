@@ -235,7 +235,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
       {/* Form */}
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <div className="text-sm text-gray-500 uppercase tracking-widest flex items-center gap-0">
+          <div className="text-sm text-white font-bold uppercase tracking-widest flex items-center gap-0">
             Install Fractera on your server
             <InfoTooltip text={hostingTooltip} />
           </div>
@@ -246,14 +246,14 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
               placeholder="Server IP address (e.g. 109.199.105.213)"
               value={ip}
               onChange={e => setIp(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+              className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
             <input
               type="text"
               placeholder="Login (usually: root)"
               value={login}
               onChange={e => setLogin(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+              className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
             <div className="flex flex-col gap-1.5">
               <input
@@ -261,9 +261,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                 placeholder="Password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+                className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
               />
-              <div className="text-xs text-gray-600 flex items-center gap-1 px-1">
+              <div className="text-sm text-white flex items-center gap-1 px-1">
                 Forgot your password?
                 <InfoTooltip text={passwordTooltip} />
               </div>
@@ -271,8 +271,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
           </div>
 
           {serverStatus === 'checking' && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+            <div className="flex items-center gap-2 text-base text-white font-medium">
+              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Checking server...
             </div>
           )}
@@ -285,18 +285,18 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
               </div>
               {detectedSubdomain && (
                 <div className="flex flex-col gap-2">
-                  <p className="text-xs text-gray-500 uppercase tracking-widest">Your domains</p>
+                  <p className="text-sm text-white font-bold uppercase tracking-widest">Your domains</p>
                   <a href={`https://${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
-                    ↗ {detectedSubdomain} <span className="text-gray-600 text-xs">site</span>
+                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                    ↗ {detectedSubdomain} <span className="text-white text-sm font-medium">site</span>
                   </a>
                   <a href={`https://auth.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
-                    ↗ auth.{detectedSubdomain} <span className="text-gray-600 text-xs">login / register</span>
+                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                    ↗ auth.{detectedSubdomain} <span className="text-white text-sm font-medium">login / register</span>
                   </a>
                   <a href={`https://admin.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-sm text-green-300 hover:text-green-200 transition-colors">
-                    ↗ admin.{detectedSubdomain} <span className="text-gray-600 text-xs">admin</span>
+                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                    ↗ admin.{detectedSubdomain} <span className="text-white text-sm font-medium">admin</span>
                   </a>
                 </div>
               )}
@@ -364,7 +364,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             <button
               onClick={handleInstall}
               disabled={!ip || !password}
-              className="w-full bg-white/[0.08] hover:bg-white/[0.12] border border-white/20 hover:border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Launch my server →
             </button>
@@ -376,7 +376,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
             </p>
           )}
 
-          <p className="text-xs text-gray-600">
+          <p className="text-sm text-white">
             Your credentials are used only for installation and are never stored on our servers.
           </p>
         </div>
@@ -386,13 +386,13 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
       {installing && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">
+            <p className="text-base text-white font-semibold">
               {installError ? 'Installation failed' : (currentStep?.label ?? 'Preparing...')}
               {!installError && activeStep && (
-                <span className="text-gray-600 ml-2">— {Math.floor((now - stepStartedAt) / 1000)}s</span>
+                <span className="text-white/60 ml-2">— {Math.floor((now - stepStartedAt) / 1000)}s</span>
               )}
             </p>
-            <p className="text-sm text-gray-600">{progress}%</p>
+            <p className="text-base text-white font-bold">{progress}%</p>
           </div>
 
           <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
@@ -440,7 +440,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                   {step.done && step.skipped ? '—' : step.done ? '✓' : step.id === activeStep && installError ? '✗' : step.id === activeStep ? '…' : '○'}
                 </span>
                 <span className={`text-sm transition-colors duration-500 ${
-                  step.done && step.skipped ? 'text-gray-600' : step.done ? 'text-gray-300' : step.id === activeStep ? 'text-white' : 'text-gray-700'
+                  step.done && step.skipped ? 'text-white/30' : step.done ? 'text-white' : step.id === activeStep ? 'text-white font-bold' : 'text-white/40'
                 }`}>
                   {step.label}
                 </span>

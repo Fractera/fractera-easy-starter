@@ -137,11 +137,11 @@ export function HeroSection() {
         <div className="flex items-center gap-1.5 flex-wrap">
           {PLATFORMS.map((name, i) => (
             <span key={name} className="flex items-center gap-1.5">
-              <span className="text-[11px] font-mono text-gray-500 px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.04] tracking-wide whitespace-nowrap">
+              <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
                 {name}
               </span>
               {i < PLATFORMS.length - 1 && (
-                <span className="text-gray-700 text-xs select-none">·</span>
+                <span className="text-gray-400 text-xs select-none">·</span>
               )}
             </span>
           ))}
@@ -153,7 +153,7 @@ export function HeroSection() {
         {/* Description */}
         <div className="flex flex-col gap-3 max-w-xl">
           <div className="flex items-start gap-2">
-            <p className="text-2xl text-gray-300 leading-snug">
+            <p className="text-2xl text-white font-semibold leading-snug">
               Production coding platform —{' '}
               <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
               on a real domain.{' '}
@@ -161,7 +161,7 @@ export function HeroSection() {
             </p>
             <InfoTooltip text="Fractera runs five coding platforms on a server you own — not a SaaS, not a cloud IDE. Each platform reuses a single subscription, so routine tasks cost almost nothing. Premium AI (Claude, Codex) is called only when it matters." />
           </div>
-          <p className="text-base text-gray-500 leading-relaxed flex items-start gap-3">
+          <p className="text-base text-white leading-relaxed flex items-start gap-3">
             Five coding platforms and a global agent RAG memory — your company brain — run entirely
             on a server you own. Not SaaS. Not a CMS. 100% your infrastructure.
             The Fractera Pro architecture is the engine of your coding factory, built for high load
@@ -176,7 +176,7 @@ export function HeroSection() {
       </div>
 
       {/* Product snippet */}
-      <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-white/40 shadow-2xl">
         <Image
           src="/Fractera-start-image.jpg"
           alt="Fractera — Your Code, Your Server, Your Choice"
@@ -203,14 +203,14 @@ export function HeroSection() {
                 <button
                   type="button"
                   onClick={openDashboard}
-                  className="text-sm text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-4 py-2 rounded-lg transition-colors"
+                  className="text-base font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 px-4 py-2 rounded-lg transition-colors"
                 >
                   Open Dashboard →
                 </button>
                 <button
                   type="button"
                   onClick={() => router.replace('/')}
-                  className="text-sm text-orange-400 hover:text-orange-300 border border-orange-500/30 hover:border-orange-400/60 px-4 py-2 rounded-lg transition-colors"
+                  className="text-base font-semibold text-orange-400 hover:text-orange-300 border border-orange-500/50 hover:border-orange-400/70 px-4 py-2 rounded-lg transition-colors"
                 >
                   Deploy another server →
                 </button>
@@ -231,7 +231,7 @@ export function HeroSection() {
 
           {/* Waiting for webhook to fire (first 60s) */}
           {myServerLoading && !myServer && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-base text-white font-medium">
               <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
               Connecting to your server…
             </div>
@@ -239,7 +239,7 @@ export function HeroSection() {
 
           {/* Webhook didn't fire — rare fallback */}
           {!myServerLoading && !myServer && (
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-white">
               Your Fractera environment is being set up. You&apos;ll receive an email at{' '}
               <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready (3–7 min).
             </p>
@@ -255,7 +255,7 @@ export function HeroSection() {
         <div className="w-full max-w-xl flex flex-col gap-4">
 
           {/* One-click START card */}
-          <div className="flex flex-col gap-5 bg-white/[0.03] border border-orange-500/30 rounded-2xl p-6">
+          <div className="flex flex-col gap-5 bg-white/[0.03] border border-orange-500/50 rounded-2xl p-6">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
                 RECOMMENDED
@@ -266,7 +266,7 @@ export function HeroSection() {
             <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
 
             {selectedPlan.id !== 'free' && (
-              <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
+              <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
                 <li className="flex items-center gap-2">
                   <span className="text-orange-400">✓</span>
                   <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
@@ -289,14 +289,14 @@ export function HeroSection() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-orange-400">✓</span>
-                  <span className="text-white font-medium">Fractera Pro</span>
+                  <span className="text-white font-bold">Fractera Pro</span>
                 </li>
               </ul>
             )}
 
             {selectedPlan.id === 'free' && (
-              <p className="text-xs text-gray-500">
-                Use the <span className="text-gray-300">Fractera Light</span> option below — bring your own VPS server.
+              <p className="text-sm text-white">
+                Use the <span className="text-white font-bold">Fractera Light</span> option below — bring your own VPS server.
               </p>
             )}
 
@@ -304,7 +304,7 @@ export function HeroSection() {
               <>
                 {/* Pool loading */}
                 {poolAvailable === null && (
-                  <div className="w-full flex items-center justify-center gap-2 py-3.5 text-sm text-gray-500">
+                  <div className="w-full flex items-center justify-center gap-2 py-3.5 text-sm text-white font-medium">
                     <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
                     Checking availability…
                   </div>
@@ -316,7 +316,7 @@ export function HeroSection() {
                     type="button"
                     onClick={handleOneClick}
                     disabled={checkoutLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} →`}
                   </button>
@@ -327,7 +327,7 @@ export function HeroSection() {
                   <div className="flex flex-col gap-3">
                     <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex flex-col gap-2">
                       <p className="text-sm text-yellow-400 font-semibold">⚠ Instant deployment temporarily unavailable</p>
-                      <p className="text-xs text-yellow-300/70 leading-relaxed">
+                      <p className="text-sm text-yellow-300 font-medium leading-relaxed">
                         You can still subscribe — your server will be ready within <strong>60 minutes</strong>.
                         Or deploy instantly using your own server below.
                       </p>
@@ -336,7 +336,7 @@ export function HeroSection() {
                       type="button"
                       onClick={handleOneClick}
                       disabled={checkoutLoading}
-                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
                     </button>
@@ -349,14 +349,14 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={() => document.getElementById('light-card')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors"
+                className="w-full bg-white/[0.07] hover:bg-white/[0.12] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
               >
                 Use Fractera Light ↓
               </button>
             )}
 
             {!session && (selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
-              <p className="text-xs text-gray-600 text-center -mt-2">
+              <p className="text-sm text-white text-center -mt-2">
                 You&apos;ll be asked to sign in first
               </p>
             )}
@@ -364,47 +364,47 @@ export function HeroSection() {
 
           {/* OR separator */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-white/[0.08]" />
-            <span className="text-xs text-gray-600 uppercase tracking-widest">or</span>
-            <div className="flex-1 h-px bg-white/[0.08]" />
+            <div className="flex-1 h-px bg-white/30" />
+            <span className="text-sm text-white font-medium uppercase tracking-widest">or</span>
+            <div className="flex-1 h-px bg-white/30" />
           </div>
 
           {/* Use your own server card */}
-          <div id="light-card" className="flex flex-col gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+          <div id="light-card" className="flex flex-col gap-4 bg-white/[0.04] border border-white/40 rounded-2xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-mono text-gray-500 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/10 self-start">
+                <span className="text-xs font-mono font-bold text-white bg-white/[0.07] px-2 py-0.5 rounded-full border border-white/40 self-start">
                   YOUR OWN SERVER
                 </span>
-                <h2 className="text-xl font-bold text-white mt-1">Fractera Light</h2>
-                <p className="text-sm text-gray-400">Install on your VPS — you provide the server</p>
+                <h2 className="text-2xl font-bold text-white mt-1">Fractera Light</h2>
+                <p className="text-base text-white font-medium">Install on your VPS — you provide the server</p>
               </div>
             </div>
 
-            <ul className="flex flex-col gap-1.5 text-xs text-gray-400">
+            <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
               <li className="flex items-center gap-2">
-                <span className="text-gray-500">✓</span>
+                <span className="text-white font-bold">✓</span>
                 <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-500">✓</span>
+                <span className="text-white font-bold">✓</span>
                 <span>LightRAG — the company brain</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-500">✓</span>
+                <span className="text-white font-bold">✓</span>
                 <span>PostgreSQL — local project database</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-500">✓</span>
+                <span className="text-white font-bold">✓</span>
                 <span>File storage — images, docs & media</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-500">✓</span>
+                <span className="text-white font-bold">✓</span>
                 <span>Auth service — built-in authentication</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-600">—</span>
-                <span className="text-gray-600">Fractera Pro not included</span>
+                <span className="text-gray-400">—</span>
+                <span className="text-gray-300">Fractera Pro not included</span>
               </li>
             </ul>
 
@@ -417,7 +417,7 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={openModal}
-                className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 font-medium px-6 py-3.5 rounded-xl text-sm transition-colors"
+                className="w-full bg-white/[0.07] hover:bg-white/[0.12] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
               >
                 Sign in to continue
               </button>
@@ -440,8 +440,8 @@ export function HeroSection() {
       {/* Troubleshoot */}
       {showTroubleshoot && (
         <div className="w-full max-w-xl flex flex-col gap-3">
-          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-5">
-            <p className="text-sm text-gray-400">
+          <div className="flex flex-col gap-3 bg-white/[0.05] border border-white/40 rounded-xl p-5">
+            <p className="text-base text-white font-semibold">
               Having trouble? Choose your AI platform to get help:
             </p>
             <PlatformSelector />
@@ -454,8 +454,8 @@ export function HeroSection() {
         <>
           <div className="flex flex-col gap-6 w-full max-w-xl">
             <div className="flex flex-col gap-2">
-              <h2 className="text-xl font-semibold text-gray-300">Connect via Fractera MCP</h2>
-              <p className="text-sm text-gray-500 max-w-xl">
+              <h2 className="text-2xl font-bold text-white">Connect via Fractera MCP</h2>
+              <p className="text-base text-white max-w-xl">
                 Use the Fractera MCP to work with your server and your project directly from the
                 Claude chat — no terminal, no SSH. Full control over your application through
                 the standard Claude chat interface.
@@ -529,72 +529,72 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-3 bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 transition-colors"
+        className="w-full flex items-center justify-between gap-3 bg-white/[0.06] hover:bg-white/[0.10] border border-white/40 hover:border-white/60 rounded-xl px-4 py-3 transition-colors"
       >
         <div className="flex flex-col items-start gap-0.5 min-w-0">
-          <span className="text-[10px] text-gray-600 uppercase tracking-widest">Pricing plan</span>
-          <span className="text-sm text-white font-medium">{selected.name}</span>
+          <span className="text-xs text-white font-semibold uppercase tracking-widest">Pricing plan</span>
+          <span className="text-base text-white font-bold">{selected.name}</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {selected.price && (
             <span className="text-lg font-bold text-white">
               {selected.price}
-              {selected.period && <span className="text-xs text-gray-500 font-normal">{selected.period}</span>}
+              {selected.period && <span className="text-sm text-white font-normal">{selected.period}</span>}
             </span>
           )}
-          {!selected.price && <span className="text-sm text-gray-400">Free</span>}
-          <span className={`text-gray-500 text-xs transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>▾</span>
+          {!selected.price && <span className="text-base text-white font-semibold">Free</span>}
+          <span className={`text-white text-sm transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>▾</span>
         </div>
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-950 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl overflow-hidden z-30">
           {PLANS.map((plan, i) => {
             const isSelected = plan.id === selected.id
             return (
               <div key={plan.id}>
-                {i > 0 && <div className="h-px bg-white/[0.05] mx-4" />}
+                {i > 0 && <div className="h-px bg-white/20 mx-4" />}
                 <button
                   type="button"
                   onClick={() => { onSelect(plan); setOpen(false) }}
                   disabled={plan.comingSoon}
                   className={`w-full flex items-center justify-between gap-3 px-5 py-4 text-left transition-colors
-                    ${plan.comingSoon ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/[0.04] cursor-pointer'}
-                    ${isSelected ? 'bg-orange-500/5' : ''}
+                    ${plan.comingSoon ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/[0.07] cursor-pointer'}
+                    ${isSelected ? 'bg-orange-500/10' : ''}
                   `}
                 >
                   <div className="flex items-start gap-3">
-                    <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-orange-400 bg-orange-500' : 'border-white/20'}`}>
+                    <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-orange-400 bg-orange-500' : 'border-white/50'}`}>
                       {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </span>
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                        <span className={`text-base font-bold ${isSelected ? 'text-white' : 'text-white'}`}>
                           {plan.name}
                         </span>
                         {plan.badge && (
-                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full border ${
+                          <span className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded-full border ${
                             plan.badge === 'BEST VALUE'
-                              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-                              : 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+                              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+                              : 'text-orange-400 bg-orange-500/10 border-orange-500/30'
                           }`}>
                             {plan.badge}
                           </span>
                         )}
                         {plan.comingSoon && (
-                          <span className="text-[10px] font-mono text-gray-600 bg-white/[0.03] px-1.5 py-0.5 rounded-full border border-white/[0.06]">
+                          <span className="text-xs font-mono font-semibold text-white bg-white/[0.08] px-1.5 py-0.5 rounded-full border border-white/30">
                             SOON
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-gray-600">{plan.sublabel}</span>
+                      <span className="text-sm text-white font-medium">{plan.sublabel}</span>
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
                     {plan.price
-                      ? <span className="text-base font-bold text-white">{plan.price}<span className="text-xs text-gray-500 font-normal">{plan.period}</span></span>
-                      : <span className="text-sm text-gray-500">Free</span>
+                      ? <span className="text-base font-bold text-white">{plan.price}<span className="text-sm text-white font-normal">{plan.period}</span></span>
+                      : <span className="text-base text-white font-semibold">Free</span>
                     }
                   </div>
                 </button>
@@ -631,29 +631,29 @@ function UserMenu({ email, onDashboard }: { email: string; onDashboard: () => vo
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+        className="flex items-center gap-2 text-sm text-white font-medium hover:text-white transition-colors"
       >
-        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[11px] font-medium text-gray-300">
+        <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white">
           {initials}
         </span>
         <span className="hidden sm:inline truncate max-w-[160px]">{email}</span>
-        <span className="text-gray-700">▾</span>
+        <span className="text-white">▾</span>
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-44 bg-neutral-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-20">
+        <div className="absolute top-full left-0 mt-1.5 w-44 bg-neutral-900 border border-white/40 rounded-xl shadow-xl overflow-hidden z-20">
           <button
             type="button"
             onClick={() => { close(); onDashboard() }}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/[0.05] transition-colors"
+            className="w-full text-left px-4 py-2.5 text-base text-white font-semibold hover:bg-white/[0.08] transition-colors"
           >
             Dashboard
           </button>
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-white/30" />
           <button
             type="button"
             onClick={() => { close(); signOut() }}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:text-gray-300 hover:bg-white/[0.05] transition-colors"
+            className="w-full text-left px-4 py-2.5 text-base text-white hover:bg-white/[0.08] transition-colors"
           >
             Sign out
           </button>
@@ -670,26 +670,26 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
     { href: `https://admin.${subdomain}`, label: `admin.${subdomain}`, note: 'AI coding workspace' },
   ]
   return (
-    <div className="flex flex-col gap-4 bg-green-500/5 border border-green-500/20 rounded-2xl p-5">
+    <div className="flex flex-col gap-4 bg-green-500/5 border border-green-500/40 rounded-2xl p-5">
       <div className="flex items-center gap-2">
         <span className="text-green-400">✓</span>
-        <p className="text-sm font-semibold text-green-400">Your server is ready!</p>
+        <p className="text-base font-bold text-green-400">Your server is ready!</p>
       </div>
       <div className="flex flex-col gap-2">
         {links.map(({ href, label, note }) => (
           <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between group bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 transition-colors">
+            className="flex items-center justify-between group bg-white/[0.05] hover:bg-white/[0.10] border border-white/40 hover:border-white/60 rounded-xl px-4 py-3 transition-colors">
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm text-white font-mono">{label}</span>
-              <span className="text-xs text-gray-600">{note}</span>
+              <span className="text-base text-white font-bold font-mono">{label}</span>
+              <span className="text-sm text-white font-medium">{note}</span>
             </div>
-            <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">↗</span>
+            <span className="text-white group-hover:text-white transition-colors text-base font-bold">↗</span>
           </a>
         ))}
       </div>
       {email && (
-        <p className="text-xs text-gray-600">
-          A confirmation email with these links was sent to <strong className="text-gray-400">{email}</strong>
+        <p className="text-sm text-white">
+          A confirmation email with these links was sent to <strong className="text-white font-bold">{email}</strong>
         </p>
       )}
     </div>

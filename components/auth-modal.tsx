@@ -44,28 +44,28 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       aria-modal="true"
     >
       <div
-        className="relative w-full max-w-sm bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col gap-5"
+        className="relative w-full max-w-sm bg-neutral-900 border border-white/40 rounded-2xl p-6 shadow-2xl flex flex-col gap-5"
         onClick={e => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-white/10 inline-flex items-center justify-center text-lg leading-none"
+          className="absolute top-3 right-3 w-8 h-8 rounded-full text-white hover:text-white hover:bg-white/20 inline-flex items-center justify-center text-lg leading-none font-bold"
         >
           ×
         </button>
 
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold text-white">Sign in to continue</h2>
-          <p className="text-sm text-gray-500">You need an account to start your server.</p>
+          <p className="text-base text-white font-medium">You need an account to start your server.</p>
         </div>
 
         {emailSent ? (
           <div className="flex flex-col gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-4">
             <p className="text-sm text-green-400 font-medium">Check your email</p>
-            <p className="text-xs text-gray-400">
-              We sent a login link to <strong className="text-white">{email}</strong>. Click it to sign in.
+            <p className="text-sm text-white font-medium">
+              We sent a login link to <strong className="text-white font-bold">{email}</strong>. Click it to sign in.
             </p>
             <p className="text-xs text-yellow-600">
               Don&apos;t see it? Check your <strong>spam or junk folder</strong>.
@@ -89,9 +89,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-xs text-gray-600">or</span>
-              <div className="flex-1 h-px bg-white/10" />
+              <div className="flex-1 h-px bg-white/30" />
+              <span className="text-sm text-white font-medium">or</span>
+              <div className="flex-1 h-px bg-white/30" />
             </div>
 
             {/* Magic link */}
@@ -102,12 +102,12 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+                className="bg-white/5 border border-white/40 rounded-xl px-4 py-3 text-base text-white placeholder-gray-400 outline-none focus:border-white/70 transition-colors"
               />
               <button
                 type="submit"
                 disabled={loading || !email}
-                className="w-full bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-3 rounded-xl transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full bg-white/10 hover:bg-white/25 border border-white/40 hover:border-white/60 text-white font-bold px-5 py-3 rounded-xl transition-colors text-base disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? 'Sending…' : 'Send magic link'}
               </button>
