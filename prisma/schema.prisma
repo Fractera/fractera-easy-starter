@@ -81,9 +81,8 @@ model ServerToken {
   lastPingAt        DateTime?
   status            String        @default("pending") // pending | provisioning | queued | active | offline | error
   statusData        Json?
-  deployError       String?       // текст ошибки SSH/bootstrap — хранится в БД, в Redis TTL 1ч
+  deployError       String?       // текст ошибки SSH/bootstrap
   warningSentAt     DateTime?
-  deployAttempts    DeployAttempt[]
   createdAt         DateTime      @default(now())
   stripeCheckoutSessionId String?
   contaboInstanceId String?
@@ -93,19 +92,6 @@ model ServerToken {
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
 }
 
-model DeployAttempt {
-  id              String      @id @default(cuid())
-  serverTokenId   String
-  serverToken     ServerToken @relation(fields: [serverTokenId], references: [id])
-  deploySessionId String      // связь с Redis progress и ServerToken.deploySessionId
-  triggeredBy     String      // 'webhook' | 'admin'
-  status          String      @default("running") // running | success | failed
-  error           String?
-  subdomain       String?
-  serverIp        String?
-  startedAt       DateTime    @default(now())
-  completedAt     DateTime?
-}
 
 model VpsReserve {
   id                        String    @id @default(cuid())

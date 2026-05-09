@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail, sendExpiryWarningEmail, sendRedeploySuccessAdminEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendExpiryWarningEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     include: {
       subscription: true,
       user: true,
-      deployAttempts: { where: { triggeredBy: 'admin' }, take: 1 },
     },
   })
 
@@ -58,10 +57,6 @@ export async function POST(req: NextRequest) {
   // Welcome email on first successful ping (only for real user tokens)
   if (wasFirstPing && serverToken.user.email && subdomain) {
     sendWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
-    // If this was an admin-triggered redeploy — also notify admin
-    if (serverToken.deployAttempts.length > 0) {
-      sendRedeploySuccessAdminEmail(serverToken.user.email, subdomain).catch(console.error)
-    }
   }
 
   const sub = serverToken.subscription

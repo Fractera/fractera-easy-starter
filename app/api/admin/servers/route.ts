@@ -47,52 +47,6 @@ export async function GET(req: NextRequest) {
     })))
   }
 
-  // Проблемные деплои: status=error ИЛИ pending с admin-редеплоем ИЛИ зависший первый деплой (>30 мин без subdomain)
-  if (status === 'deploy-issues') {
-    const staleThreshold = new Date(Date.now() - 30 * 60 * 1000)
-    const tokens = await db.serverToken.findMany({
-      where: {
-        OR: [
-          { status: 'error' },
-          { status: 'pending', deployAttempts: { some: { triggeredBy: 'admin' } } },
-          { status: 'pending', subdomain: null, createdAt: { lt: staleThreshold } },
-        ],
-      },
-      include: {
-        user: { select: { email: true } },
-        deployAttempts: { orderBy: { startedAt: 'desc' }, take: 1 },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
-    return NextResponse.json(tokens.map(t => ({
-      id: t.id,
-      email: t.user?.email ?? null,
-      status: t.status,
-      serverIp: t.serverIp,
-      serverPassword: t.serverPassword,
-      deployError: t.deployError,
-      createdAt: t.createdAt,
-      latestAttempt: t.deployAttempts[0] ?? null,
-    })))
-  }
-
-  // Старый маршрут — оставляем для обратной совместимости
-  if (status === 'error') {
-    const tokens = await db.serverToken.findMany({
-      where: { status: 'error' },
-      include: { user: { select: { email: true } } },
-      orderBy: { createdAt: 'desc' },
-    })
-    return NextResponse.json(tokens.map(t => ({
-      id: t.id,
-      email: t.user?.email ?? null,
-      serverIp: t.serverIp,
-      serverPassword: t.serverPassword,
-      deployError: t.deployError,
-      createdAt: t.createdAt,
-    })))
-  }
-
   const statuses = status ? status.split(',') : ['available', 'provisioning', 'ready', 'pending_payment']
   const servers = await db.vpsReserve.findMany({
     where: { status: { in: statuses } },

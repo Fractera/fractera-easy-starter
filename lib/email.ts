@@ -104,26 +104,6 @@ export async function sendExpiryWarningEmail(to: string, daysLeft: number, subdo
   })
 }
 
-// DEBUG — remove before launch
-export async function sendInstallLogEmail(to: string, step: string, label: string, percent: number, elapsed: string) {
-  await resend.emails.send({
-    from: FROM,
-    to,
-    subject: `[${percent}%] Fractera install: ${label}`,
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-        <p style="margin:0 0 8px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Debug · Install Log</p>
-        <h2 style="margin:0 0 16px;font-size:18px">${percent}% — ${label}</h2>
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <tr><td style="padding:4px 0;color:#999">Step ID</td><td style="padding:4px 8px;color:#fff">${step}</td></tr>
-          <tr><td style="padding:4px 0;color:#999">Progress</td><td style="padding:4px 8px;color:#fff">${percent}%</td></tr>
-          <tr><td style="padding:4px 0;color:#999">Elapsed</td><td style="padding:4px 8px;color:#fff">${elapsed}</td></tr>
-        </table>
-        <p style="margin:16px 0 0;font-size:11px;color:#555">This is a debug email — will be removed before launch.</p>
-      </div>
-    `,
-  })
-}
 
 export async function sendQueuedEmail(to: string) {
   await resend.emails.send({
@@ -161,69 +141,6 @@ export async function sendAdminAlertEmail(userEmail: string, subscriptionId: str
   })
 }
 
-export async function sendDeployErrorUserEmail(to: string) {
-  await resend.emails.send({
-    from: FROM,
-    to,
-    subject: 'Fractera — server setup encountered an error',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-        <h2 style="margin:0 0 12px">Server setup encountered an error</h2>
-        <p style="margin:0 0 16px">
-          Our team has been notified and is already working to resolve the issue with your server deployment.
-          You will receive another email with your workspace URL as soon as everything is ready.
-        </p>
-        <p style="margin:0 0 16px;color:#666">We apologize for the inconvenience.</p>
-        <p style="margin:0;font-size:12px;color:#999">
-          If you have any questions, reply to this email — we're here to help.
-        </p>
-      </div>
-    `,
-  })
-}
-
-export async function sendDeployErrorAdminEmail(userEmail: string, serverTokenId: string, error: string) {
-  const adminUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
-  await resend.emails.send({
-    from: FROM,
-    to: 'admin@fractera.ai',
-    subject: '🚨 Fractera — ошибка деплоя',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-        <h2 style="margin:0 0 12px;color:#e53e3e">Ошибка при развёртывании сервера</h2>
-        <p style="margin:0 0 16px">Деплой завершился с ошибкой. Пользователю отправлено письмо-извинение.</p>
-        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
-          <tr><td style="padding:6px 0;color:#666;width:140px">Email пользователя</td><td style="padding:6px 8px;font-weight:600">${userEmail}</td></tr>
-          <tr><td style="padding:6px 0;color:#666">ServerToken ID</td><td style="padding:6px 8px;font-family:monospace;font-size:12px">${serverTokenId}</td></tr>
-        </table>
-        <p style="margin:0 0 8px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Текст ошибки</p>
-        <pre style="background:#1a1a1a;color:#ff6b6b;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap;word-break:break-all">${error}</pre>
-        <p style="margin:16px 0 8px">Перезапустите деплой из панели администратора:</p>
-        <a href="${adminUrl}/admin" style="display:inline-block;background:#fff;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Открыть Admin Panel →</a>
-      </div>
-    `,
-  })
-}
-
-export async function sendRedeploySuccessAdminEmail(userEmail: string, subdomain: string) {
-  const adminUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
-  await resend.emails.send({
-    from: FROM,
-    to: 'admin@fractera.ai',
-    subject: '✅ Fractera — redeploy succeeded',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-        <h2 style="margin:0 0 12px;color:#38a169">Redeploy completed successfully</h2>
-        <p style="margin:0 0 16px">The admin-triggered redeploy finished and the server is now live.</p>
-        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
-          <tr><td style="padding:6px 0;color:#666;width:140px">User</td><td style="padding:6px 8px;font-weight:600">${userEmail}</td></tr>
-          <tr><td style="padding:6px 0;color:#666">Domain</td><td style="padding:6px 8px;font-family:monospace"><a href="https://${subdomain}">${subdomain}</a></td></tr>
-        </table>
-        <a href="${adminUrl}/admin" style="display:inline-block;background:#fff;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Open Admin Panel →</a>
-      </div>
-    `,
-  })
-}
 
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({

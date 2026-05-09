@@ -99,9 +99,8 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
 }
 
 function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: () => void }) {
-  const isStale = server.status === 'pending' && !server.subdomain && !server.isRedeploy
   const progress = useDeployProgress(
-    server.status === 'pending' && !isStale ? server.deploySessionId : null
+    server.status === 'pending' ? server.deploySessionId : null
   )
   const [showDelete, setShowDelete] = useState(false)
   const [removing, setRemoving] = useState(false)
@@ -129,55 +128,18 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   }
 
   const statusColors: Record<string, string> = {
-    pending:        'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
-    pendingRedeploy:'text-blue-400   bg-blue-400/10   border-blue-400/20',
-    active:         'text-green-400  bg-green-400/10  border-green-400/20',
-    offline:        'text-gray-500   bg-white/[0.03]  border-white/10',
-    error:          'text-orange-400 bg-orange-400/10 border-orange-400/20',
+    pending: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+    active:  'text-green-400  bg-green-400/10  border-green-400/20',
+    offline: 'text-gray-500   bg-white/[0.03]  border-white/10',
   }
   const statusLabel: Record<string, string> = {
-    pending:        'Deploying',
-    pendingRedeploy:'Fixing',
-    active:         'Active',
-    offline:        'Offline',
-    error:          'Installation failed',
+    pending: 'Deploying',
+    active:  'Active',
+    offline: 'Offline',
   }
 
-  const statusKey =
-    server.status === 'pending' && server.isRedeploy ? 'pendingRedeploy'
-    : server.status
-
-  // Stale pending card (no domain — setup never completed)
-  if (isStale) {
-    return (
-      <div className="flex flex-col gap-2 rounded-2xl border border-white/30 bg-white/[0.03] px-5 py-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex flex-col gap-0.5">
-            <p className="text-base text-white font-semibold">Setup incomplete</p>
-            <p className="text-sm text-white/60">
-              {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </p>
-          </div>
-          <button
-            onClick={handleRemove}
-            disabled={removing}
-            className="text-sm text-white hover:text-red-400 transition-colors disabled:opacity-40 shrink-0 font-medium"
-          >
-            {removing ? 'Removing…' : 'Remove'}
-          </button>
-        </div>
-        <a
-          href="mailto:admin@fractera.ai?subject=Server setup incomplete"
-          className="text-sm text-white font-medium hover:text-white underline underline-offset-2 transition-colors self-start"
-        >
-          Contact support →
-        </a>
-      </div>
-    )
-  }
-
-  const color = statusColors[statusKey] ?? statusColors.offline
-  const label = statusLabel[statusKey] ?? server.status
+  const color = statusColors[server.status] ?? statusColors.offline
+  const label = statusLabel[server.status] ?? server.status
 
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/20 bg-white/[0.02]' : 'border-white/40 bg-white/[0.04]'}`}>
@@ -203,27 +165,9 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
         </span>
       </div>
 
-      {/* Error message */}
-      {server.status === 'error' && (
-        <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 flex flex-col gap-2">
-          <p className="text-sm text-orange-300 font-medium leading-relaxed">
-            Installation did not complete — our team is already working on it. You will receive an email when your server is ready.
-          </p>
-          <a
-            href="mailto:admin@fractera.ai?subject=Server installation failed"
-            className="text-sm text-orange-400 font-semibold hover:text-orange-300 underline underline-offset-2 transition-colors self-start"
-          >
-            Contact support →
-          </a>
-        </div>
-      )}
-
       {/* Progress bar for pending deploys */}
-      {server.status === 'pending' && !isStale && (
+      {server.status === 'pending' && (
         <div className="flex flex-col gap-1.5">
-          {server.isRedeploy && (
-            <p className="text-sm text-blue-400 font-medium">Fixing the issue — installation restarted</p>
-          )}
           <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
             <div
               className="h-full bg-yellow-400 transition-all duration-500"
