@@ -3,8 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { failProgress, initProgress } from '@/lib/kv'
-import { createInstance, pollInstanceReady } from '@/lib/contabo'
-import { sendServerProvisionedEmail } from '@/lib/email'
+import { confirmServerPayment } from '@/lib/pool'
+import { sendServerProvisionedEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     const session = event.data.object
     const userId = session.metadata?.userId
     const planId = session.metadata?.planId ?? 'monthly'
+    const vpsReserveId = session.metadata?.vpsReserveId || null
 
     if (!userId || !session.customer) {
       return NextResponse.json({ ok: true })
@@ -46,67 +47,63 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
     const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    // In mock mode reuse existing test server password; otherwise generate fresh one
-    const rootPassword = process.env.CONTABO_MOCK === 'true'
-      ? (process.env.FRACTERA_DEPLOY_PASSWORD ?? '')
-      : Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
+    // Path A: pool server was reserved
+    if (vpsReserveId) {
+      const reserve = await confirmServerPayment(vpsReserveId)
 
-    let contaboInstanceId: number | null = null
-    try {
-      contaboInstanceId = await createInstance(rootPassword)
-    } catch (err) {
-      console.error('[webhook] Contabo createInstance failed:', err)
-    }
+      const serverToken = await db.serverToken.create({
+        data: {
+          userId,
+          subscriptionId: subscription.id,
+          status: 'pending',
+          deploySessionId,
+          serverIp: reserve.ip,
+          serverPassword: reserve.password,
+        },
+      })
 
-    const serverToken = await db.serverToken.create({
-      data: {
-        userId,
-        subscriptionId: subscription.id,
-        status: contaboInstanceId ? 'provisioning' : 'error',
-        deploySessionId,
-        contaboInstanceId: contaboInstanceId ? String(contaboInstanceId) : null,
-        serverPassword: rootPassword,
-      },
-    })
+      if (user?.email) {
+        await sendServerProvisionedEmail(user.email, reserve.ip, reserve.password)
+      }
 
-    if (!contaboInstanceId) {
-      await initProgress(deploySessionId)
-      await failProgress(deploySessionId, 'Failed to create Contabo VPS')
+      after(async () => {
+        try {
+          await initProgress(deploySessionId)
+          await deployToServer({
+            ip: reserve.ip,
+            login: reserve.login,
+            password: reserve.password,
+            session_id: deploySessionId,
+            platform: 'claude-code',
+            serverToken: serverToken.token,
+          })
+        } catch (err) {
+          console.error('[webhook] Path A deploy error:', err)
+          await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
+        }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
-    const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
-
-    after(async () => {
-      try {
-        await initProgress(deploySessionId)
-        const ip = await pollInstanceReady(contaboInstanceId!)
-
-        await db.serverToken.update({
-          where: { id: serverToken.id },
-          data: { serverIp: ip, status: 'pending' },
-        })
-
-        if (user?.email) {
-          await sendServerProvisionedEmail(user.email, ip, rootPassword)
-        }
-
-        await deployToServer({
-          ip,
-          login: 'root',
-          password: rootPassword,
-          session_id: deploySessionId,
-          platform: 'claude-code',
-          serverToken: serverToken.token,
-        })
-      } catch (err) {
-        console.error('[webhook] provision/deploy error:', err)
-        await failProgress(deploySessionId, `Provision failed: ${String(err)}`)
-        await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
-      }
+    // Path B: pool was empty — queue for manual assignment
+    await db.serverToken.create({
+      data: {
+        userId,
+        subscriptionId: subscription.id,
+        status: 'queued',
+        deploySessionId,
+      },
     })
+
+    if (user?.email) {
+      await sendQueuedEmail(user.email)
+    }
+    await sendAdminAlertEmail(user?.email ?? userId, subscription.id)
   }
 
   if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {

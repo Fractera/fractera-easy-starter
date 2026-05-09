@@ -19,6 +19,7 @@ model User {
   sessions      Session[]
   subscriptions Subscription[]
   serverTokens  ServerToken[]
+  vpsReserves   VpsReserve[]
 }
 
 model Account {
@@ -78,7 +79,7 @@ model ServerToken {
   subdomain         String?
   deploySessionId   String?
   lastPingAt        DateTime?
-  status            String        @default("pending") // pending | provisioning | active | offline
+  status            String        @default("pending") // pending | provisioning | queued | active | offline
   statusData        Json?
   warningSentAt     DateTime?
   createdAt         DateTime      @default(now())
@@ -87,4 +88,20 @@ model ServerToken {
   serverPassword    String?
   user              User          @relation(fields: [userId], references: [id])
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
+}
+
+model VpsReserve {
+  id             String    @id @default(cuid())
+  ip             String
+  login          String    @default("root")
+  password       String
+  status         String    @default("available") // available | pending_payment | paid
+  activatedAt    DateTime?
+  paidAmount     Float?
+  expiresAt      DateTime?
+  assignedUserId String?
+  assignedAt     DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime  @default(now())
+  user           User?     @relation(fields: [assignedUserId], references: [id])
 }

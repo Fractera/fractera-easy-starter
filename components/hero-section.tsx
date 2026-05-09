@@ -45,6 +45,7 @@ export function HeroSection() {
   const [installStarted, setInstallStarted] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(PLANS[1]) // monthly
+  const [poolAvailable, setPoolAvailable] = useState<number | null>(null)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
   // Stripe one-click: server from DB
@@ -59,6 +60,13 @@ export function HeroSection() {
       const stored = JSON.parse(raw)
       setDomainReady(stored.status === 'ready')
     } catch {}
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/pool/status')
+      .then(r => r.json())
+      .then(d => setPoolAvailable(d.available ?? 0))
+      .catch(() => setPoolAvailable(0))
   }, [])
 
   useEffect(() => {
@@ -284,14 +292,48 @@ export function HeroSection() {
             )}
 
             {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
-              <button
-                type="button"
-                onClick={handleOneClick}
-                disabled={checkoutLoading}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} →`}
-              </button>
+              <>
+                {/* Pool loading */}
+                {poolAvailable === null && (
+                  <div className="w-full flex items-center justify-center gap-2 py-3.5 text-sm text-gray-500">
+                    <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+                    Checking availability…
+                  </div>
+                )}
+
+                {/* Pool available — instant deploy */}
+                {poolAvailable !== null && poolAvailable > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleOneClick}
+                    disabled={checkoutLoading}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} →`}
+                  </button>
+                )}
+
+                {/* Pool empty — Path B warning */}
+                {poolAvailable !== null && poolAvailable === 0 && (
+                  <div className="flex flex-col gap-3">
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex flex-col gap-2">
+                      <p className="text-sm text-yellow-400 font-semibold">⚠ Instant deployment temporarily unavailable</p>
+                      <p className="text-xs text-yellow-300/70 leading-relaxed">
+                        You can still subscribe — your server will be ready within <strong>60 minutes</strong>.
+                        Or deploy instantly using your own server below.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOneClick}
+                      disabled={checkoutLoading}
+                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
             {selectedPlan.id === 'free' && (

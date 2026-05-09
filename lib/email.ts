@@ -125,6 +125,42 @@ export async function sendInstallLogEmail(to: string, step: string, label: strin
   })
 }
 
+export async function sendQueuedEmail(to: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Fractera — your workspace is being prepared',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="margin:0 0 12px">Purchase confirmed</h2>
+        <p style="margin:0 0 16px">Thank you! Your Fractera workspace is being prepared. You will receive a second email with your server IP, login, and password within <strong>60 minutes</strong>.</p>
+        <p style="margin:0;font-size:12px;color:#999">If you have any questions, reply to this email.</p>
+      </div>
+    `,
+  })
+}
+
+export async function sendAdminAlertEmail(userEmail: string, subscriptionId: string) {
+  const adminUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
+  await resend.emails.send({
+    from: FROM,
+    to: 'admin@fractera.ai',
+    subject: '🚨 Fractera — user purchased with empty pool',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="margin:0 0 12px;color:#e53e3e">Action required: no servers in pool</h2>
+        <p style="margin:0 0 16px">A user completed payment but no server was available in the reserve pool.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr><td style="padding:6px 0;color:#666;width:140px">User email</td><td style="padding:6px 8px;font-weight:600">${userEmail}</td></tr>
+          <tr><td style="padding:6px 0;color:#666">Subscription ID</td><td style="padding:6px 8px;font-family:monospace;font-size:12px">${subscriptionId}</td></tr>
+        </table>
+        <p style="margin:0 0 16px">Add a server to the pool and assign it to this user:</p>
+        <a href="${adminUrl}/admin" style="display:inline-block;background:#fff;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Open Admin Panel →</a>
+      </div>
+    `,
+  })
+}
+
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({
     from: FROM,
