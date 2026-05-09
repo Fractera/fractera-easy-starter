@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
+// ─── Типы ────────────────────────────────────────────────────────────────────
+
 type VpsReserve = {
   id: string
   ip: string
@@ -24,6 +26,15 @@ type QueuedToken = {
   paidAt: string
 }
 
+type ErrorToken = {
+  id: string
+  email: string | null
+  serverIp: string | null
+  serverPassword: string | null
+  deployError: string | null
+  createdAt: string
+}
+
 type SaleRecord = {
   id: string
   email: string
@@ -32,6 +43,8 @@ type SaleRecord = {
   subdomain: string | null
   status: string
 }
+
+// ─── Компонент обратного отсчёта для pending_payment ─────────────────────────
 
 function Countdown({ reservedUntil }: { reservedUntil: string }) {
   const [remaining, setRemaining] = useState(() => new Date(reservedUntil).getTime() - Date.now())
@@ -54,12 +67,105 @@ function Countdown({ reservedUntil }: { reservedUntil: string }) {
   )
 }
 
+// ─── Компонент строки ошибки с inline-формой перезапуска ─────────────────────
+
+function ErrorRow({ token, onRedeployed }: { token: ErrorToken; onRedeployed: () => void }) {
+  const [expanded, setExpanded] = useState(false)
+  const [ip, setIp] = useState(token.serverIp ?? '')
+  const [password, setPassword] = useState(token.serverPassword ?? '')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleRedeploy() {
+    setLoading(true)
+    setError('')
+    const res = await fetch('/api/admin/redeploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ serverTokenId: token.id, serverIp: ip || undefined, serverPassword: password || undefined }),
+    })
+    if (res.ok) {
+      onRedeployed()
+    } else {
+      const d = await res.json()
+      setError(d.error ?? 'Ошибка')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <>
+      <tr className="border-b border-white/[0.05] hover:bg-white/[0.02]">
+        <td className="px-4 py-3 text-gray-200">{token.email ?? '—'}</td>
+        <td className="px-4 py-3 font-mono text-gray-400 text-xs">{token.serverIp ?? '—'}</td>
+        <td className="px-4 py-3 text-red-300/80 text-xs max-w-[280px] truncate" title={token.deployError ?? ''}>
+          {token.deployError ?? '—'}
+        </td>
+        <td className="px-4 py-3 text-gray-500 text-xs">{new Date(token.createdAt).toLocaleString('ru-RU')}</td>
+        <td className="px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="text-xs text-white bg-red-700/60 hover:bg-red-700/80 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            {expanded ? 'Свернуть' : 'Перезапустить ▾'}
+          </button>
+        </td>
+      </tr>
+
+      {expanded && (
+        <tr className="border-b border-white/[0.05] bg-white/[0.015]">
+          <td colSpan={5} className="px-4 py-4">
+            <div className="flex flex-col gap-3 max-w-xl">
+              <p className="text-xs text-gray-500">
+                Отредактируйте IP и пароль если нужно использовать другой сервер, затем нажмите «Перезапустить деплой».
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-600">IP-адрес сервера</label>
+                  <input
+                    value={ip}
+                    onChange={e => setIp(e.target.value)}
+                    placeholder="1.2.3.4"
+                    className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-600">Пароль root</label>
+                  <input
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="пароль"
+                    className="bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono placeholder-gray-600 outline-none focus:border-white/30 transition-colors"
+                  />
+                </div>
+              </div>
+              {error && <p className="text-xs text-red-400">{error}</p>}
+              <button
+                type="button"
+                onClick={handleRedeploy}
+                disabled={loading}
+                className="self-start bg-white text-black font-semibold px-5 py-2 rounded-xl text-sm transition-opacity disabled:opacity-50"
+              >
+                {loading ? 'Запускаю…' : 'Перезапустить деплой'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  )
+}
+
+// ─── Основная страница ────────────────────────────────────────────────────────
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
   const [servers, setServers] = useState<VpsReserve[]>([])
   const [queued, setQueued] = useState<QueuedToken[]>([])
+  const [errors, setErrors] = useState<ErrorToken[]>([])
   const [searchEmail, setSearchEmail] = useState('')
   const [searchResults, setSearchResults] = useState<SaleRecord[] | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -67,6 +173,8 @@ export default function AdminPage() {
   const [addLoading, setAddLoading] = useState(false)
   const [addError, setAddError] = useState('')
   const [counts, setCounts] = useState({ available: 0, pending: 0 })
+
+  // ─── Загрузка данных ──────────────────────────────────────────────────────
 
   async function loadServers() {
     const res = await fetch('/api/admin/servers?status=available,pending_payment')
@@ -85,6 +193,16 @@ export default function AdminPage() {
     setQueued(await res.json())
   }
 
+  async function loadErrors() {
+    const res = await fetch('/api/admin/servers?status=error')
+    if (!res.ok) return
+    setErrors(await res.json())
+  }
+
+  // ─── Полинг каждые 5 секунд ──────────────────────────────────────────────
+  // Все три таблицы обновляются в фоне без перезагрузки страницы.
+  // React обновляет только строки, данные которых изменились (stable key).
+
   useEffect(() => {
     if (status === 'unauthenticated') { router.replace('/'); return }
     if (status === 'loading') return
@@ -92,14 +210,18 @@ export default function AdminPage() {
 
     loadServers()
     loadQueued()
+    loadErrors()
 
     const id = setInterval(() => {
       loadServers()
       loadQueued()
+      loadErrors()
     }, 5000)
 
     return () => clearInterval(id)
   }, [status, session])
+
+  // ─── Обработчики действий ─────────────────────────────────────────────────
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -164,7 +286,7 @@ export default function AdminPage() {
     <main className="min-h-screen bg-black text-white">
       <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
 
-        {/* Header */}
+        {/* ─── Заголовок ──────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Fractera</h1>
@@ -179,11 +301,12 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* System description */}
+        {/* ─── Как работает система ───────────────────────────────────────── */}
         <section className="flex flex-col gap-4">
           <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">Как работает система</h2>
           <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 flex flex-col gap-5 text-sm text-gray-400 leading-relaxed">
 
+            {/* Путь A */}
             <div className="flex flex-col gap-2">
               <p className="text-white font-semibold text-xs uppercase tracking-widest">Путь A — есть серверы в пуле</p>
               <ol className="list-decimal list-inside flex flex-col gap-1 pl-1">
@@ -199,6 +322,7 @@ export default function AdminPage() {
 
             <div className="h-px bg-white/[0.06]" />
 
+            {/* Путь B */}
             <div className="flex flex-col gap-2">
               <p className="text-yellow-400 font-semibold text-xs uppercase tracking-widest">Путь B — пул пуст</p>
               <ol className="list-decimal list-inside flex flex-col gap-1 pl-1">
@@ -213,13 +337,27 @@ export default function AdminPage() {
 
             <div className="h-px bg-white/[0.06]" />
 
+            {/* Таймаут резерва */}
             <div className="flex flex-col gap-2">
-              <p className="text-gray-500 font-semibold text-xs uppercase tracking-widest">Таймаут резерва</p>
+              <p className="text-gray-500 font-semibold text-xs uppercase tracking-widest">Таймаут резерва (pending_payment)</p>
               <p className="text-gray-500 text-xs">
                 При открытии Stripe checkout сервер переходит в <code className="text-gray-400">pending_payment</code> на 30 минут.
                 Если пользователь не оплатил — Stripe стреляет <code className="text-gray-400">checkout.session.expired</code>,
                 сервер автоматически возвращается в <code className="text-gray-400">available</code>.
-                Таблица пула обновляется каждые 5 секунд.
+                Обратный отсчёт виден в таблице пула ниже. Таблица обновляется каждые 5 секунд.
+              </p>
+            </div>
+
+            <div className="h-px bg-white/[0.06]" />
+
+            {/* Ошибки деплоя */}
+            <div className="flex flex-col gap-2">
+              <p className="text-red-400 font-semibold text-xs uppercase tracking-widest">Ошибки деплоя</p>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                Если bootstrap.sh или SSH-соединение завершилось с ошибкой — <code className="text-gray-400">serverToken.status</code>{' '}
+                переходит в <code className="text-gray-400">error</code>, ошибка сохраняется в БД навсегда.
+                Пользователь получает письмо-извинение, на <strong className="text-gray-400">admin@fractera.ai</strong> приходит алерт с текстом ошибки.
+                В таблице «Ошибки деплоя» ниже можно отредактировать IP/пароль (если нужен другой сервер) и запустить повторный деплой — прямо из этого окна.
               </p>
             </div>
 
@@ -232,7 +370,7 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* Roadmap */}
+        {/* ─── Цели разработки (roadmap) ──────────────────────────────────── */}
         <section className="flex flex-col gap-4">
           <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">Цели разработки</h2>
           <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 flex flex-col gap-4 text-sm">
@@ -250,6 +388,7 @@ export default function AdminPage() {
               <ul className="flex flex-col gap-1 text-gray-500">
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Контроль продления — подсвечивать строки за 7 дней до <code>expiresAt</code></li>
                 <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Таймаут <code>pending_payment</code> — 30 мин резерв, <code>checkout.session.expired</code> освобождает автоматически</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Ошибки деплоя — алерт администратору, письмо-извинение пользователю, перезапуск из панели</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Автоматическое создание VPS через Contabo API</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Автопополнение пула (cron, velocity-based)</li>
                 <li className="flex items-center gap-2"><span className="text-gray-700">○</span> Email-алёрт при снижении запаса заранее (при N серверах)</li>
@@ -284,7 +423,11 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* Pool table */}
+        {/* ─── Пул серверов ───────────────────────────────────────────────── */}
+        {/* Серверы со статусом available и pending_payment. Таблица обновляется
+            каждые 5 секунд через setInterval без перезагрузки страницы.
+            pending_payment → сервер зарезервирован под активную Stripe-сессию,
+            через 30 мин автоматически вернётся в available если оплата не прошла. */}
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">Пул серверов</h2>
@@ -360,7 +503,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Add server form */}
+          {/* Форма добавления нового сервера в пул */}
           <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 flex flex-col gap-4">
             <p className="text-xs text-gray-600 uppercase tracking-widest font-mono">Добавить сервер</p>
             <form onSubmit={handleAdd} className="flex flex-col gap-3">
@@ -420,7 +563,10 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* Queued section (Path B) */}
+        {/* ─── Ожидают сервер (Путь B) ────────────────────────────────────── */}
+        {/* Пользователи оплатили подписку когда пул был пуст. Нужно вручную
+            добавить сервер в пул и нажать «Назначить» — система сама отправит
+            Письмо 1 и запустит bootstrap.sh. */}
         <section className="flex flex-col gap-4">
           <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">
             Ожидают сервер (Путь B)
@@ -467,7 +613,53 @@ export default function AdminPage() {
           )}
         </section>
 
-        {/* Sales search */}
+        {/* ─── Ошибки деплоя ──────────────────────────────────────────────── */}
+        {/* Платящие пользователи у которых bootstrap.sh или SSH завершился с ошибкой.
+            Пользователю уже отправлено письмо-извинение, admin получил алерт.
+            Нажмите «Перезапустить ▾» чтобы раскрыть форму — при необходимости
+            замените IP/пароль на другой сервер и запустите повторный деплой. */}
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">
+            Ошибки деплоя
+            {errors.length > 0 && (
+              <span className="ml-2 text-red-400 normal-case">— {errors.length}</span>
+            )}
+          </h2>
+
+          {errors.length === 0 ? (
+            <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 text-sm text-gray-600 text-center">
+              Ошибок деплоя нет
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-red-500/30">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-xs text-gray-600 uppercase tracking-widest">
+                    <th className="text-left px-4 py-3 font-normal">Email</th>
+                    <th className="text-left px-4 py-3 font-normal">IP</th>
+                    <th className="text-left px-4 py-3 font-normal">Ошибка</th>
+                    <th className="text-left px-4 py-3 font-normal">Дата</th>
+                    <th className="px-4 py-3 font-normal" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {errors.map(t => (
+                    <ErrorRow
+                      key={t.id}
+                      token={t}
+                      onRedeployed={() => {
+                        // После успешного перезапуска убираем из таблицы ошибок немедленно
+                        setErrors(prev => prev.filter(e => e.id !== t.id))
+                      }}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* ─── История продаж (поиск по email) ───────────────────────────── */}
         <section className="flex flex-col gap-4">
           <h2 className="text-xs font-mono text-gray-600 uppercase tracking-widest">История продаж</h2>
           <form onSubmit={handleSearch} className="flex gap-3">

@@ -79,8 +79,9 @@ model ServerToken {
   subdomain         String?
   deploySessionId   String?
   lastPingAt        DateTime?
-  status            String        @default("pending") // pending | provisioning | queued | active | offline
+  status            String        @default("pending") // pending | provisioning | queued | active | offline | error
   statusData        Json?
+  deployError       String?       // текст ошибки SSH/bootstrap — хранится в БД, в Redis TTL 1ч
   warningSentAt     DateTime?
   createdAt         DateTime      @default(now())
   contaboInstanceId String?

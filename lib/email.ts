@@ -161,6 +161,51 @@ export async function sendAdminAlertEmail(userEmail: string, subscriptionId: str
   })
 }
 
+export async function sendDeployErrorUserEmail(to: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Fractera — ошибка при развёртывании сервера',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="margin:0 0 12px">Произошла ошибка при развёртывании</h2>
+        <p style="margin:0 0 16px">
+          Наша команда уже получила информацию об ошибке, связанной с развёртыванием вашего сервиса.
+          В ближайшее время мы вручную устраним её, и вы получите письмо с данными вашего сервера,
+          как только всё будет готово.
+        </p>
+        <p style="margin:0 0 16px;color:#666">Приносим свои извинения за доставленные неудобства.</p>
+        <p style="margin:0;font-size:12px;color:#999">
+          Если у вас есть вопросы — ответьте на это письмо, мы на связи.
+        </p>
+      </div>
+    `,
+  })
+}
+
+export async function sendDeployErrorAdminEmail(userEmail: string, serverTokenId: string, error: string) {
+  const adminUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://fractera.ai'
+  await resend.emails.send({
+    from: FROM,
+    to: 'admin@fractera.ai',
+    subject: '🚨 Fractera — ошибка деплоя',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="margin:0 0 12px;color:#e53e3e">Ошибка при развёртывании сервера</h2>
+        <p style="margin:0 0 16px">Деплой завершился с ошибкой. Пользователю отправлено письмо-извинение.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr><td style="padding:6px 0;color:#666;width:140px">Email пользователя</td><td style="padding:6px 8px;font-weight:600">${userEmail}</td></tr>
+          <tr><td style="padding:6px 0;color:#666">ServerToken ID</td><td style="padding:6px 8px;font-family:monospace;font-size:12px">${serverTokenId}</td></tr>
+        </table>
+        <p style="margin:0 0 8px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Текст ошибки</p>
+        <pre style="background:#1a1a1a;color:#ff6b6b;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap;word-break:break-all">${error}</pre>
+        <p style="margin:16px 0 8px">Перезапустите деплой из панели администратора:</p>
+        <a href="${adminUrl}/admin" style="display:inline-block;background:#fff;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Открыть Admin Panel →</a>
+      </div>
+    `,
+  })
+}
+
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({
     from: FROM,

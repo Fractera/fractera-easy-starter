@@ -129,7 +129,7 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-400">
           {installError
-            ? 'Installation failed'
+            ? 'Deployment error — our team has been notified'
             : currentStep?.label ?? 'Starting installation…'}
           {!installError && activeStep && (
             <span className="text-gray-600 ml-2">— {Math.floor((now - stepStartedAt) / 1000)}s</span>
@@ -152,9 +152,13 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
       )}
 
       {installError && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-          <p className="text-sm text-red-400 font-medium mb-1">Error details:</p>
-          <p className="text-xs text-red-300 break-all whitespace-pre-wrap font-mono">{installError}</p>
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-5 flex flex-col gap-3">
+          <p className="text-sm font-semibold text-orange-300">Произошла ошибка при развёртывании</p>
+          <p className="text-sm text-orange-200/70 leading-relaxed">
+            Наша команда уже получила уведомление и устраняет проблему вручную.
+            Вы получите письмо с данными вашего сервера, как только всё будет готово.
+          </p>
+          <p className="text-xs text-orange-500">Приносим свои извинения за доставленные неудобства.</p>
         </div>
       )}
 

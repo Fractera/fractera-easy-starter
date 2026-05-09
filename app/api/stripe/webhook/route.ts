@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { failProgress, initProgress } from '@/lib/kv'
 import { confirmServerPayment, releaseServer } from '@/lib/pool'
-import { sendServerProvisionedEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
+import { sendServerProvisionedEmail, sendQueuedEmail, sendAdminAlertEmail, sendDeployErrorUserEmail, sendDeployErrorAdminEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -82,8 +82,11 @@ export async function POST(req: NextRequest) {
           })
         } catch (err) {
           console.error('[webhook] Path A deploy error:', err)
-          await failProgress(deploySessionId, `Deploy failed: ${String(err)}`)
-          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error' } }).catch(() => {})
+          const errMsg = String(err)
+          await failProgress(deploySessionId, `Deploy failed: ${errMsg}`)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } }).catch(() => {})
+          await sendDeployErrorUserEmail(user?.email ?? '').catch(() => {})
+          await sendDeployErrorAdminEmail(user?.email ?? userId, serverToken.id, errMsg).catch(() => {})
         }
       })
 

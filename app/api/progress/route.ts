@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
+import { sendDeployErrorUserEmail, sendDeployErrorAdminEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -33,7 +34,16 @@ export async function POST(req: NextRequest) {
   }
 
   if (error) {
-    await failProgress(session_id, String(error))
+    const errMsg = String(error)
+    await failProgress(session_id, errMsg)
+
+    const token = await db.serverToken.findFirst({ where: { deploySessionId: session_id }, include: { user: { select: { email: true } } } })
+    if (token) {
+      await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
+      await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
+      await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
+    }
+
     return NextResponse.json({ ok: true })
   }
 
@@ -41,17 +51,25 @@ export async function POST(req: NextRequest) {
     const subdomain = response?.subdomain ?? null
     if (subdomain) {
       await completeProgress(session_id, subdomain)
-      // Sync subdomain + status to DB so Dashboard shows the real domain immediately
       await db.serverToken.updateMany({
         where: { deploySessionId: session_id, status: { not: 'offline' } },
         data: { subdomain, status: 'active' },
       })
     } else {
-      await failProgress(session_id, 'Domain registration failed')
-      await db.serverToken.updateMany({
-        where: { deploySessionId: session_id, status: { not: 'offline' } },
-        data: { status: 'error' },
-      })
+      const errMsg = 'Domain registration failed'
+      await failProgress(session_id, errMsg)
+
+      const token = await db.serverToken.findFirst({ where: { deploySessionId: session_id }, include: { user: { select: { email: true } } } })
+      if (token) {
+        await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
+        await sendDeployErrorUserEmail(token.user?.email ?? '').catch(() => {})
+        await sendDeployErrorAdminEmail(token.user?.email ?? token.userId, token.id, errMsg).catch(() => {})
+      } else {
+        await db.serverToken.updateMany({
+          where: { deploySessionId: session_id, status: { not: 'offline' } },
+          data: { status: 'error', deployError: errMsg },
+        })
+      }
     }
     return NextResponse.json({ ok: true })
   }

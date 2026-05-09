@@ -47,6 +47,23 @@ export async function GET(req: NextRequest) {
     })))
   }
 
+  // Ошибки деплоя хранятся в ServerToken, а не в VpsReserve
+  if (status === 'error') {
+    const tokens = await db.serverToken.findMany({
+      where: { status: 'error' },
+      include: { user: { select: { email: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
+    return NextResponse.json(tokens.map(t => ({
+      id: t.id,
+      email: t.user?.email ?? null,
+      serverIp: t.serverIp,
+      serverPassword: t.serverPassword,
+      deployError: t.deployError,
+      createdAt: t.createdAt,
+    })))
+  }
+
   const statuses = status ? status.split(',') : ['available', 'pending_payment']
   const servers = await db.vpsReserve.findMany({
     where: { status: { in: statuses } },
