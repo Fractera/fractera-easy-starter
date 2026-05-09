@@ -41,7 +41,21 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  // Welcome email on first successful ping
+  // If this is a pool provisioning token — mark pool server as ready
+  if (wasFirstPing && subdomain) {
+    const poolServer = await db.vpsReserve.findFirst({
+      where: { provisioningServerTokenId: serverToken.id },
+    })
+    if (poolServer) {
+      await db.vpsReserve.update({
+        where: { id: poolServer.id },
+        data: { subdomain, status: 'ready' },
+      })
+      return NextResponse.json({ ok: true })
+    }
+  }
+
+  // Welcome email on first successful ping (only for real user tokens)
   if (wasFirstPing && serverToken.user.email && subdomain) {
     sendWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
     // If this was an admin-triggered redeploy — also notify admin

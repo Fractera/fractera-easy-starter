@@ -108,18 +108,20 @@ model DeployAttempt {
 }
 
 model VpsReserve {
-  id             String    @id @default(cuid())
-  ip             String
-  login          String    @default("root")
-  password       String
-  status         String    @default("available") // available | pending_payment | paid
-  activatedAt    DateTime?
-  paidAmount     Float?
-  expiresAt      DateTime?
-  reservedUntil  DateTime? // when the checkout session expires (auto-released by webhook)
-  assignedUserId String?
-  assignedAt     DateTime?
-  paidAt         DateTime?
-  createdAt      DateTime  @default(now())
-  user           User?     @relation(fields: [assignedUserId], references: [id])
+  id                        String    @id @default(cuid())
+  ip                        String
+  login                     String    @default("root")
+  password                  String
+  subdomain                 String?   // set after bootstrap completes
+  provisioningServerTokenId String?   // temp ServerToken used during pool bootstrap
+  status                    String    @default("available") // available | provisioning | ready | pending_payment | paid
+  activatedAt               DateTime?
+  paidAmount                Float?
+  expiresAt                 DateTime?
+  reservedUntil             DateTime? // when the checkout session expires (auto-released by webhook)
+  assignedUserId            String?
+  assignedAt                DateTime?
+  paidAt                    DateTime?
+  createdAt                 DateTime  @default(now())
+  user                      User?     @relation(fields: [assignedUserId], references: [id])
 }

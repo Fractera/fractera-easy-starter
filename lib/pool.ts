@@ -1,13 +1,13 @@
 import { db } from '@/lib/db'
 
 export async function getPoolStatus(): Promise<{ available: number }> {
-  const available = await db.vpsReserve.count({ where: { status: 'available' } })
+  const available = await db.vpsReserve.count({ where: { status: 'ready' } })
   return { available }
 }
 
 export async function reserveServer(userId: string, reservedUntil: Date) {
   const server = await db.vpsReserve.findFirst({
-    where: { status: 'available' },
+    where: { status: 'ready' },
     orderBy: { createdAt: 'asc' },
   })
   if (!server) throw new Error('NO_SERVERS_AVAILABLE')
@@ -21,7 +21,7 @@ export async function reserveServer(userId: string, reservedUntil: Date) {
 export async function releaseServer(vpsReserveId: string) {
   return db.vpsReserve.update({
     where: { id: vpsReserveId },
-    data: { status: 'available', assignedUserId: null, assignedAt: null, reservedUntil: null },
+    data: { status: 'ready', assignedUserId: null, assignedAt: null, reservedUntil: null },
   })
 }
 
@@ -34,7 +34,7 @@ export async function confirmServerPayment(vpsReserveId: string) {
 
 export async function assignServerToQueued(serverTokenId: string) {
   const server = await db.vpsReserve.findFirst({
-    where: { status: 'available' },
+    where: { status: 'ready' },
     orderBy: { createdAt: 'asc' },
   })
   if (!server) throw new Error('NO_SERVERS_AVAILABLE')

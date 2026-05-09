@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     })))
   }
 
-  const statuses = status ? status.split(',') : ['available', 'pending_payment']
+  const statuses = status ? status.split(',') : ['available', 'provisioning', 'ready', 'pending_payment']
   const servers = await db.vpsReserve.findMany({
     where: { status: { in: statuses } },
     orderBy: { createdAt: 'asc' },

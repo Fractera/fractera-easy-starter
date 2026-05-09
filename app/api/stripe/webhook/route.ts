@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse, after } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
-import { deployToServer } from '@/lib/deploy'
-import { failProgress, initProgress } from '@/lib/kv'
 import { confirmServerPayment, releaseServer } from '@/lib/pool'
-import { sendServerProvisionedEmail, sendQueuedEmail, sendAdminAlertEmail, sendDeployErrorUserEmail, sendDeployErrorAdminEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -48,54 +46,26 @@ export async function POST(req: NextRequest) {
     })
 
     const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
-    const deploySessionId = `sess-stripe-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    // Path A: pool server was reserved
+    // Path A: pool server was reserved — instant assignment (server is pre-provisioned)
     if (vpsReserveId) {
       const reserve = await confirmServerPayment(vpsReserveId)
 
-      const serverToken = await db.serverToken.create({
+      await db.serverToken.create({
         data: {
           userId,
           subscriptionId: subscription.id,
-          status: 'pending',
-          deploySessionId,
+          status: 'active',
           stripeCheckoutSessionId: session.id,
           serverIp: reserve.ip,
           serverPassword: reserve.password,
+          subdomain: reserve.subdomain ?? undefined,
         },
       })
 
-      if (user?.email) {
-        await sendServerProvisionedEmail(user.email, reserve.ip, reserve.password)
+      if (user?.email && reserve.subdomain) {
+        await sendWelcomeEmail(user.email, reserve.subdomain)
       }
-
-      // Аудит-запись о начале деплоя
-      await db.deployAttempt.create({
-        data: { serverTokenId: serverToken.id, deploySessionId, triggeredBy: 'webhook', serverIp: reserve.ip },
-      }).catch(() => {})
-
-      after(async () => {
-        try {
-          await initProgress(deploySessionId)
-          await deployToServer({
-            ip: reserve.ip,
-            login: reserve.login,
-            password: reserve.password,
-            session_id: deploySessionId,
-            platform: 'claude-code',
-            serverToken: serverToken.token,
-          })
-        } catch (err) {
-          console.error('[webhook] Path A deploy error:', err)
-          const errMsg = String(err)
-          await failProgress(deploySessionId, `Deploy failed: ${errMsg}`)
-          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } }).catch(() => {})
-          await db.deployAttempt.updateMany({ where: { deploySessionId }, data: { status: 'failed', error: errMsg, completedAt: new Date() } }).catch(() => {})
-          await sendDeployErrorUserEmail(user?.email ?? '').catch(() => {})
-          await sendDeployErrorAdminEmail(user?.email ?? userId, serverToken.id, errMsg).catch(() => {})
-        }
-      })
 
       return NextResponse.json({ ok: true })
     }
