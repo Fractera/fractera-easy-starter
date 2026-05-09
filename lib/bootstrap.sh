@@ -10,6 +10,7 @@ PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 INSTALL_SECRET="$2"
 PLATFORM="${3:-claude-code}"
 SERVER_TOKEN="${4:-}"
+SUBDOMAIN_OVERRIDE="${5:-}"
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -411,20 +412,25 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 CURRENT_STEP="register"
 CURRENT_LABEL="Registering your domain"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
-if [ -z "$SERVER_IP" ]; then
-  fail "could not detect server IP"
-fi
-RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
-  -H "Content-Type: application/json" \
-  -H "x-install-secret: $INSTALL_SECRET" \
-  -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
-if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
-  fail "domain registration failed: $RESPONSE"
-fi
-SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
-if [ -z "$SUBDOMAIN" ]; then
-  fail "could not parse subdomain from response: $RESPONSE"
+if [ -n "$SUBDOMAIN_OVERRIDE" ]; then
+  SUBDOMAIN="$SUBDOMAIN_OVERRIDE"
+  echo "Using existing subdomain: $SUBDOMAIN" >> "$LOG_FILE"
+else
+  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
+  if [ -z "$SERVER_IP" ]; then
+    fail "could not detect server IP"
+  fi
+  RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
+  if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
+    fail "domain registration failed: $RESPONSE"
+  fi
+  SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
+  if [ -z "$SUBDOMAIN" ]; then
+    fail "could not parse subdomain from response: $RESPONSE"
+  fi
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
@@ -588,12 +594,16 @@ if [ -n "$SERVER_TOKEN" ]; then
   (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
   echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
   log_email "complete" "Server is ready! SSL installed, all services running" 100
-  # Ping immediately so welcome email fires right after install (don't wait up to 15 min for cron)
-  curl -s -X POST "$PING_URL" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $SERVER_TOKEN" \
-    -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
-    >> /var/log/fractera-ping.log 2>&1 || true
+  # Ping immediately (retry up to 5 times in case Vercel is redeploying)
+  for i in 1 2 3 4 5; do
+    PING_RESP=$(curl -s -X POST "$PING_URL" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $SERVER_TOKEN" \
+      -d "{\"subdomain\":\"$SUBDOMAIN\"}")
+    echo "[ping] attempt $i: $PING_RESP" >> /var/log/fractera-ping.log
+    if echo "$PING_RESP" | grep -q '"ok":true'; then break; fi
+    [ $i -lt 5 ] && sleep 30
+  done
 fi
 
 # Signal completion with subdomain

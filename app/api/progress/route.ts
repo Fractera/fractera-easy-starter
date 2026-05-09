@@ -42,6 +42,15 @@ export async function POST(req: NextRequest) {
     })
     if (token) {
       await db.serverToken.update({ where: { id: token.id }, data: { status: 'error', deployError: errMsg } })
+      const poolServer = await db.vpsReserve.findFirst({
+        where: { provisioningServerTokenId: token.id },
+      })
+      if (poolServer) {
+        await db.vpsReserve.update({
+          where: { id: poolServer.id },
+          data: { status: 'available' },
+        })
+      }
     }
 
     return NextResponse.json({ ok: true })

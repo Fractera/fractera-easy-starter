@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     session_id: deploySessionId,
     platform: 'claude-code',
     serverToken: tempToken.token,
+    subdomainOverride: reserve.subdomain ?? undefined,
   }).catch(async (err) => {
     const errMsg = String(err)
     await db.vpsReserve.update({

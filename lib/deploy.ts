@@ -10,6 +10,7 @@ interface DeployOptions {
   session_id: string
   platform?: string
   serverToken?: string
+  subdomainOverride?: string
 }
 
 export async function testSSHConnection(ip: string, password: string, timeoutMs = 15000): Promise<void> {
@@ -34,9 +35,11 @@ export async function deployToServer({
   session_id,
   platform = 'claude-code',
   serverToken = '',
+  subdomainOverride = '',
 }: DeployOptions) {
   const safePlatform = /^[a-z0-9-]+$/.test(platform) ? platform : 'claude-code'
   const safeToken = serverToken.replace(/['"\\`$]/g, '')
+  const safeSubdomain = subdomainOverride.replace(/['"\\`$]/g, '')
   const secret = process.env.INSTALL_SCRIPT_SECRET!
 
   const bootstrapPath = join(process.cwd(), 'lib', 'bootstrap.sh')
@@ -61,7 +64,7 @@ export async function deployToServer({
           const cmd = [
             `chmod +x ${remoteScript}`,
             `&& setsid bash ${remoteScript}`,
-            `"${session_id}" "${secret}" "${safePlatform}" "${safeToken}"`,
+            `"${session_id}" "${secret}" "${safePlatform}" "${safeToken}" "${safeSubdomain}"`,
             `> /tmp/fractera-install.log 2>&1 < /dev/null &`,
           ].join(' ')
 

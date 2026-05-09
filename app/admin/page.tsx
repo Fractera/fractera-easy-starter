@@ -75,6 +75,7 @@ export default function AdminPage() {
   const [addError, setAddError] = useState('')
   const [counts, setCounts] = useState({ ready: 0, provisioning: 0, pending: 0 })
   const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
+  const [recovering, setRecovering] = useState<Set<string>>(new Set())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
 
@@ -146,6 +147,22 @@ export default function AdminPage() {
       setBootstrapping(prev => { const s = new Set(prev); s.delete(id); return s })
     }
     // Status changes to 'provisioning' on next poll — button disappears automatically
+  }
+
+  async function handleRecover(id: string) {
+    setRecovering(prev => new Set(prev).add(id))
+    const res = await fetch('/api/admin/pool/recover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vpsReserveId: id }),
+    })
+    const d = await res.json()
+    if (d.ok) {
+      loadServers()
+    } else {
+      alert(d.message ?? d.error ?? 'Recover failed')
+    }
+    setRecovering(prev => { const s = new Set(prev); s.delete(id); return s })
   }
 
   async function handleRelease(id: string) {
@@ -415,6 +432,16 @@ export default function AdminPage() {
                               className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
                             >
                               {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
+                            </button>
+                          )}
+                          {s.status === 'provisioning' && (
+                            <button
+                              type="button"
+                              onClick={() => handleRecover(s.id)}
+                              disabled={recovering.has(s.id)}
+                              className="text-xs text-white/70 hover:text-white border border-white/30 hover:border-white/50 disabled:opacity-50 px-2 py-1 rounded-lg transition-colors"
+                            >
+                              {recovering.has(s.id) ? 'Проверяю…' : 'Восстановить'}
                             </button>
                           )}
                           {s.status === 'pending_payment' && (
