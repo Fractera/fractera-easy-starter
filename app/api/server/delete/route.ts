@@ -54,12 +54,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Server not found' }, { status: 404 })
   }
 
-  const ip = process.env.FRACTERA_DEPLOY_IP
-  const login = process.env.FRACTERA_DEPLOY_USER
-  const password = process.env.FRACTERA_DEPLOY_PASSWORD
+  const ip = serverToken.serverIp
+  const login = 'root'
+  const password = serverToken.serverPassword
 
   // SSH cleanup — fire-and-forget if server is already gone
-  if (ip && login && password) {
+  if (ip && password) {
     await sshDestroy(ip, login, password).catch(() => {})
   }
 
