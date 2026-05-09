@@ -47,13 +47,15 @@ export async function GET(req: NextRequest) {
     })))
   }
 
-  // Проблемные деплои: status=error ИЛИ status=pending с admin-редеплоем в процессе
+  // Проблемные деплои: status=error ИЛИ pending с admin-редеплоем ИЛИ зависший первый деплой (>30 мин без subdomain)
   if (status === 'deploy-issues') {
+    const staleThreshold = new Date(Date.now() - 30 * 60 * 1000)
     const tokens = await db.serverToken.findMany({
       where: {
         OR: [
           { status: 'error' },
           { status: 'pending', deployAttempts: { some: { triggeredBy: 'admin' } } },
+          { status: 'pending', subdomain: null, createdAt: { lt: staleThreshold } },
         ],
       },
       include: {

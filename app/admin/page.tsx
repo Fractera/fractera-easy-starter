@@ -91,7 +91,8 @@ function DeployRow({ token, onRedeployed }: { token: DeployIssueToken; onRedeplo
   const [history, setHistory] = useState<DeployAttemptRecord[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
 
-  const isInProgress = token.status === 'pending'
+  const isInProgress = token.status === 'pending' && !!token.latestAttempt && token.latestAttempt.triggeredBy === 'admin'
+  const isStale = token.status === 'pending' && !isInProgress
 
   async function loadHistory() {
     setHistoryLoading(true)
@@ -139,6 +140,10 @@ function DeployRow({ token, onRedeployed }: { token: DeployIssueToken; onRedeplo
           {isInProgress ? (
             <span className="text-xs px-2 py-0.5 rounded-full border text-blue-400 border-blue-500/30 bg-blue-500/10">
               🔄 Устраняется
+            </span>
+          ) : isStale ? (
+            <span className="text-xs px-2 py-0.5 rounded-full border text-yellow-400 border-yellow-500/30 bg-yellow-500/10">
+              ⚠ Завис
             </span>
           ) : (
             <span className="text-xs px-2 py-0.5 rounded-full border text-red-400 border-red-500/30 bg-red-500/10">
