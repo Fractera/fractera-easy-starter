@@ -366,6 +366,31 @@ export default function AdminPage() {
             </div>
             <div className="h-px bg-white/[0.06]" />
             <div className="flex flex-col gap-3">
+              <p className="text-xs text-yellow-500 uppercase tracking-widest font-mono">⚠ Известный дефект — требует исправления до масштабирования</p>
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex flex-col gap-2 text-sm text-yellow-100/70 leading-relaxed">
+                <p className="font-semibold text-yellow-300">TempToken пингует сервер вместо пользовательского токена (Путь A)</p>
+                <p>
+                  После bootstrap кронтаб на сервере настроен с <strong className="text-yellow-200">TempToken</strong> (администраторский, создаётся при Bootstrap).
+                  При продаже сервера (Путь A) пользователь получает свой <strong className="text-yellow-200">ServerToken</strong>, но он никогда не устанавливается на сервер —
+                  кронтаб продолжает пинговать с TempToken.
+                </p>
+                <p>
+                  <strong className="text-yellow-300">Последствия:</strong>
+                </p>
+                <ul className="flex flex-col gap-1 pl-3 list-disc">
+                  <li><code className="text-yellow-200">lastPingAt</code> у пользовательского ServerToken навсегда остаётся <code>null</code></li>
+                  <li>Email-предупреждение за 7 дней до истечения подписки никогда не отправляется (проверка привязана к пользовательскому токену)</li>
+                  <li>Любой будущий UI «сервер онлайн/офлайн» покажет офлайн для пользователя</li>
+                </ul>
+                <p>
+                  <strong className="text-yellow-300">Решение (не реализовано):</strong> при продаже сервера в Stripe webhook (Path A) — SSH на сервер
+                  и заменить токен в кронтабе на пользовательский. Либо хранить оба токена в <code>/etc/fractera/secrets.env</code>
+                  и пинговать оба. Либо при первом пинге TempToken — проверять, продан ли сервер, и обновлять кронтаб через API.
+                </p>
+              </div>
+            </div>
+            <div className="h-px bg-white/[0.06]" />
+            <div className="flex flex-col gap-3">
               <p className="text-xs text-orange-500 uppercase tracking-widest font-mono">⚠ Нерешённый сценарий — требует обсуждения</p>
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex flex-col gap-2 text-sm text-orange-200/70 leading-relaxed">
                 <p className="font-semibold text-orange-300">Что происходит если пользователь не продлил подписку вовремя?</p>
