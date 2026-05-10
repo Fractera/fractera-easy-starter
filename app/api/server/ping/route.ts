@@ -56,7 +56,13 @@ export async function POST(req: NextRequest) {
 
   // Welcome email on first successful ping (only for real user tokens)
   if (wasFirstPing && serverToken.user.email && subdomain) {
-    sendWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
+    sendWelcomeEmail(
+      serverToken.user.email,
+      subdomain,
+      serverToken.serverIp && serverToken.serverPassword
+        ? { ip: serverToken.serverIp, password: serverToken.serverPassword }
+        : undefined
+    ).catch(console.error)
   }
 
   const sub = serverToken.subscription

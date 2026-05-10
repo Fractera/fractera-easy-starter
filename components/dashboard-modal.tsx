@@ -10,12 +10,69 @@ type ServerRecord = {
   deploySessionId: string | null
   createdAt: string
   isRedeploy: boolean
+  serverIp: string | null
+  serverPassword: string | null
   subscription: {
     id: string
     currentPeriodEnd: string
     status: string
     planId: string
   } | null
+}
+
+function CredentialRow({ label, value, secret, onCopied }: {
+  label: string
+  value: string
+  secret?: boolean
+  onCopied: (label: string) => void
+}) {
+  const [visible, setVisible] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value)
+      onCopied(label)
+    } catch {}
+  }
+
+  return (
+    <div className="flex items-center gap-2 py-1">
+      <span className="text-xs text-white/40 w-16 shrink-0">{label}</span>
+      <span className="flex-1 text-xs font-mono text-white truncate">
+        {secret && !visible ? '•'.repeat(10) : value}
+      </span>
+      {secret && (
+        <button
+          type="button"
+          onClick={() => setVisible(v => !v)}
+          className="text-white/40 hover:text-white/70 transition-colors p-0.5 shrink-0"
+          aria-label={visible ? 'Hide' : 'Show'}
+        >
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            {visible ? (
+              <>
+                <path d="M1 6.5C2.5 3 11 3 12 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2"/>
+              </>
+            ) : (
+              <>
+                <path d="M1 6.5C2.5 3 11 3 12 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2"/>
+                <path d="M2 2l9 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              </>
+            )}
+          </svg>
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={copy}
+        className="text-xs text-white/40 hover:text-white/70 border border-white/20 hover:border-white/40 rounded px-1.5 py-0.5 transition-colors shrink-0"
+      >
+        Copy
+      </button>
+    </div>
+  )
 }
 
 function useDeployProgress(sessionId: string | null) {
@@ -167,6 +224,12 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
   )
   const [showDelete, setShowDelete] = useState(false)
   const [removing, setRemoving] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  function handleCopied(label: string) {
+    setToast(`${label} copied`)
+    setTimeout(() => setToast(null), 2000)
+  }
 
   const expiry = server.subscription?.currentPeriodEnd
     ? new Date(server.subscription.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -206,6 +269,11 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
 
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border p-5 ${server.status === 'offline' ? 'border-white/20 bg-white/[0.02]' : 'border-white/40 bg-white/[0.04]'}`}>
+      {toast && (
+        <div className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg px-3 py-1.5 text-center">
+          {toast}
+        </div>
+      )}
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1 min-w-0">
           <p className={`text-base font-bold font-mono truncate ${server.status === 'offline' ? 'text-white/40' : 'text-white'}`}>
@@ -276,6 +344,17 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
               onDeleted={() => { setShowDelete(false); onRefresh() }}
               onCancel={() => setShowDelete(false)}
             />
+          )}
+
+          {server.serverIp && (
+            <div className="border-t border-white/10 pt-3 flex flex-col gap-0.5">
+              <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Credentials</p>
+              <CredentialRow label="IP" value={server.serverIp} onCopied={handleCopied} />
+              <CredentialRow label="Login" value="root" onCopied={handleCopied} />
+              {server.serverPassword && (
+                <CredentialRow label="Password" value={server.serverPassword} secret onCopied={handleCopied} />
+              )}
+            </div>
           )}
         </div>
       )}

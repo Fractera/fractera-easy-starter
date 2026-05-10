@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       })
 
       if (user?.email && reserve.subdomain) {
-        await sendWelcomeEmail(user.email, reserve.subdomain)
+        await sendWelcomeEmail(user.email, reserve.subdomain, { ip: reserve.ip, password: reserve.password })
       }
 
       return NextResponse.json({ ok: true })

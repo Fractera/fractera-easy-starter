@@ -49,7 +49,11 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
   })
 }
 
-export async function sendWelcomeEmail(to: string, subdomain: string) {
+export async function sendWelcomeEmail(
+  to: string,
+  subdomain: string,
+  credentials?: { ip: string; password: string }
+) {
   await resend.emails.send({
     from: FROM,
     to,
@@ -76,7 +80,22 @@ export async function sendWelcomeEmail(to: string, subdomain: string) {
           <li><a href="https://admin.${subdomain}">https://admin.${subdomain}</a> — workspace (Admin + Bridge)</li>
         </ul>
 
-        <p style="margin:0;font-size:12px;color:#666">data.${subdomain} — file storage (Data service)</p>
+        <p style="margin:0 0 24px;font-size:12px;color:#666">data.${subdomain} — file storage (Data service)</p>
+
+        ${credentials ? `
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">SSH credentials</p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">
+          <tr><td style="padding:5px 0;color:#666;width:80px">IP</td><td style="font-weight:600;font-family:monospace">${credentials.ip}</td></tr>
+          <tr><td style="padding:5px 0;color:#666">Login</td><td style="font-weight:600;font-family:monospace">root</td></tr>
+          <tr><td style="padding:5px 0;color:#666">Password</td><td style="font-weight:600;font-family:monospace">${credentials.password}</td></tr>
+        </table>
+        <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
+          You have full root access to your VPS. Use these credentials to connect via SSH,
+          install additional software, or integrate third-party services — entirely at your
+          own discretion and responsibility. Fractera manages only its own pipeline services
+          and does not control anything else on the server.
+        </p>
+        ` : ''}
       </div>
     `,
   })

@@ -19,6 +19,8 @@ export async function GET() {
       subdomain: true,
       deploySessionId: true,
       createdAt: true,
+      serverIp: true,
+      serverPassword: true,
       subscription: {
         select: {
           id: true,
@@ -37,6 +39,8 @@ export async function GET() {
       subdomain: s.subdomain,
       deploySessionId: s.deploySessionId,
       createdAt: s.createdAt,
+      serverIp: s.serverIp,
+      serverPassword: s.serverPassword,
       subscription: s.subscription,
     })),
   })

@@ -45,7 +45,7 @@ export async function POST() {
     })
 
     if (user?.email && poolServer.subdomain) {
-      sendWelcomeEmail(user.email, poolServer.subdomain).catch(console.error)
+      sendWelcomeEmail(user.email, poolServer.subdomain, { ip: poolServer.ip, password: poolServer.password }).catch(console.error)
     }
 
     return NextResponse.json({ ok: true, status: 'assigned', subdomain: poolServer.subdomain })

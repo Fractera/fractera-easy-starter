@@ -65,5 +65,5 @@ export async function assignServerToQueued(serverTokenId: string) {
     },
   })
 
-  return { ip: server.ip, subdomain: server.subdomain }
+  return { ip: server.ip, subdomain: server.subdomain, password: server.password }
 }
