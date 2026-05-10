@@ -202,7 +202,7 @@ export function HeroSection() {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={openDashboard}
+                  onClick={openServers}
                   className="text-base font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 px-4 py-2 rounded-lg transition-colors"
                 >
                   Open Dashboard →
