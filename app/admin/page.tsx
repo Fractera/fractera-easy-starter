@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
@@ -34,6 +34,25 @@ type SaleRecord = {
   paidAt: string
   subdomain: string | null
   status: string
+}
+
+// ─── Таймер с момента начала bootstrap ───────────────────────────────────────
+
+function ElapsedTimer({ startedAt }: { startedAt: number }) {
+  const [elapsed, setElapsed] = useState(() => Date.now() - startedAt)
+
+  useEffect(() => {
+    const id = setInterval(() => setElapsed(Date.now() - startedAt), 1000)
+    return () => clearInterval(id)
+  }, [startedAt])
+
+  const m = Math.floor(elapsed / 60000)
+  const s = Math.floor((elapsed % 60000) / 1000)
+  return (
+    <span className="font-mono text-xs text-blue-400/70">
+      {m}:{String(s).padStart(2, '0')}
+    </span>
+  )
 }
 
 // ─── Компонент обратного отсчёта для pending_payment ─────────────────────────
@@ -77,6 +96,7 @@ export default function AdminPage() {
   const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
   const [recovering, setRecovering] = useState<Set<string>>(new Set())
   const [resetting, setResetting] = useState<Set<string>>(new Set())
+  const provisioningStart = useRef<Map<string, number>>(new Map())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
 
@@ -84,6 +104,13 @@ export default function AdminPage() {
     const res = await fetch('/api/admin/servers?status=available,provisioning,ready,pending_payment')
     if (!res.ok) return
     const data: VpsReserve[] = await res.json()
+    data.forEach(s => {
+      if (s.status === 'provisioning' && !provisioningStart.current.has(s.id)) {
+        provisioningStart.current.set(s.id, Date.now())
+      } else if (s.status !== 'provisioning') {
+        provisioningStart.current.delete(s.id)
+      }
+    })
     setServers(data)
     setCounts({
       ready: data.filter(s => s.status === 'ready').length,
@@ -437,6 +464,9 @@ export default function AdminPage() {
                             </span>
                             {s.status === 'pending_payment' && s.reservedUntil && (
                               <Countdown reservedUntil={s.reservedUntil} />
+                            )}
+                            {s.status === 'provisioning' && provisioningStart.current.has(s.id) && (
+                              <ElapsedTimer startedAt={provisioningStart.current.get(s.id)!} />
                             )}
                           </div>
                         </td>
