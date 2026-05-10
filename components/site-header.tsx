@@ -32,7 +32,7 @@ export function SiteHeader() {
           {status === 'unauthenticated' && (
             <button
               type="button"
-              onClick={openModal}
+              onClick={() => openModal()}
               className="text-sm font-semibold text-white hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
             >
               Sign in

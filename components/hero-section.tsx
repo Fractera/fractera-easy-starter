@@ -460,7 +460,7 @@ export function HeroSection() {
             ) : (
               <button
                 type="button"
-                onClick={openModal}
+                onClick={() => openModal()}
                 className="w-full bg-white/[0.07] hover:bg-white/[0.12] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
               >
                 Sign in to continue
