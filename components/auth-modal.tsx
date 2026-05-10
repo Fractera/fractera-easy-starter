@@ -6,9 +6,10 @@ import { signIn } from 'next-auth/react'
 interface AuthModalProps {
   open: boolean
   onClose: () => void
+  pendingPlan?: string
 }
 
-export function AuthModal({ open, onClose }: AuthModalProps) {
+export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
   const [email, setEmail] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -27,11 +28,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   if (!open) return null
 
+  const callbackUrl = pendingPlan ? `/?pending_plan=${pendingPlan}` : '/'
+
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()
     if (!email) return
     setLoading(true)
-    await signIn('resend', { email, redirect: false })
+    await signIn('resend', { email, callbackUrl, redirect: false })
     setEmailSent(true)
     setLoading(false)
   }
@@ -76,7 +79,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             {/* Google */}
             <button
               type="button"
-              onClick={() => signIn('google', { callbackUrl: '/' })}
+              onClick={() => signIn('google', { callbackUrl })}
               className="flex items-center justify-center gap-3 w-full bg-white text-black font-medium px-5 py-3 rounded-xl hover:bg-gray-100 transition-colors text-sm"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

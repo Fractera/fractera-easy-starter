@@ -10,7 +10,7 @@ import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
-import { useAuthModal, useDashboard } from '@/components/providers'
+import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
 
 type MyServer = {
   id: string
@@ -36,12 +36,12 @@ export function HeroSection() {
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
   const { openServers } = useDashboard()
+  const { openCheckout } = useCheckout()
 
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(PLANS[1]) // monthly
   const [poolAvailable, setPoolAvailable] = useState<number | null>(null)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
@@ -105,25 +105,19 @@ export function HeroSection() {
     pollServer()
   }, [paymentSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function triggerCheckout(planId: string) {
-    setCheckoutLoading(true)
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch {
-      setCheckoutLoading(false)
-    }
+  function handleOneClick() {
+    if (!session) { openModal(selectedPlan.id); return }
+    openCheckout(selectedPlan.id)
   }
 
-  function handleOneClick() {
-    if (!session) { openModal(); return }
-    triggerCheckout(selectedPlan.id)
-  }
+  // Auto-trigger checkout after OAuth/magic-link redirect with pending_plan param
+  const pendingPlan = searchParams.get('pending_plan')
+  useEffect(() => {
+    if (session && pendingPlan) {
+      router.replace('/')
+      openCheckout(pendingPlan)
+    }
+  }, [session, pendingPlan]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const showTroubleshoot = installStarted && !domainReady
 
@@ -301,10 +295,9 @@ export function HeroSection() {
                   <button
                     type="button"
                     onClick={handleOneClick}
-                    disabled={checkoutLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
                   >
-                    {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} →`}
+                    {`Subscribe · ${selectedPlan.price} →`}
                   </button>
                 )}
 
@@ -321,10 +314,9 @@ export function HeroSection() {
                     <button
                       type="button"
                       onClick={handleOneClick}
-                      disabled={checkoutLoading}
-                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
                     >
-                      {checkoutLoading ? 'Redirecting to checkout…' : `Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
+                      {`Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
                     </button>
                   </div>
                 )}

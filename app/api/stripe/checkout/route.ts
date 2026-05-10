@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id
   const body = await req.json().catch(() => ({}))
   const planId: string = body.planId ?? 'monthly'
+  const embedded: boolean = body.embedded === true
 
   const priceId = PRICE_IDS[planId]
   if (!priceId) {
@@ -38,6 +39,8 @@ export async function POST(req: NextRequest) {
     // Pool empty — Path B, no reservation
   }
 
+  const returnUrl = `${baseUrl}/?payment=success&stripe_session_id={CHECKOUT_SESSION_ID}`
+
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
@@ -45,9 +48,13 @@ export async function POST(req: NextRequest) {
     metadata: { userId, planId, vpsReserveId: vpsReserveId ?? '' },
     customer_email: session.user.email ?? undefined,
     expires_at: expiresAt,
-    success_url: `${baseUrl}/?payment=success&stripe_session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/`,
+    ...(embedded
+      ? { ui_mode: 'embedded', return_url: returnUrl }
+      : { success_url: returnUrl, cancel_url: `${baseUrl}/` }),
   })
 
+  if (embedded) {
+    return NextResponse.json({ clientSecret: checkoutSession.client_secret })
+  }
   return NextResponse.json({ url: checkoutSession.url })
 }
