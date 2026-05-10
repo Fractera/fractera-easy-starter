@@ -20,6 +20,21 @@ export async function POST() {
     return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
   }
 
+  // Idempotency guard: don't create a second token if one already exists
+  const existingToken = await db.serverToken.findFirst({
+    where: {
+      userId,
+      subscriptionId: subscription.id,
+      status: { not: 'offline' },
+    },
+  })
+  if (existingToken) {
+    return NextResponse.json(
+      { ok: false, error: 'Server already assigned or pending', status: existingToken.status },
+      { status: 409 },
+    )
+  }
+
   const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
 
   const poolServer = await db.vpsReserve.findFirst({

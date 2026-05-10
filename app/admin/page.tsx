@@ -31,6 +31,8 @@ type SaleRecord = {
   paidAt: string
   subdomain: string | null
   status: string
+  stripeSubscriptionId: string | null
+  subscriptionStatus: string | null
 }
 
 // ─── Таймер с момента начала bootstrap ───────────────────────────────────────
@@ -661,9 +663,10 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-white/40 text-sm text-white font-bold uppercase tracking-widest">
                       <th className="text-left px-4 py-3 font-normal">IP</th>
-                      <th className="text-left px-4 py-3 font-normal">Дата оплаты</th>
+                      <th className="text-left px-4 py-3 font-normal">Дата</th>
                       <th className="text-left px-4 py-3 font-normal">Subdomain</th>
                       <th className="text-left px-4 py-3 font-normal">Статус</th>
+                      <th className="text-left px-4 py-3 font-normal">Stripe Sub</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -673,7 +676,18 @@ export default function AdminPage() {
                         <td className="px-4 py-3 text-white font-medium">{fmtDateTime(r.paidAt)}</td>
                         <td className="px-4 py-3 text-white">{r.subdomain ?? '—'}</td>
                         <td className="px-4 py-3">
-                          <span className="text-xs text-white">{r.status}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded border ${
+                            r.status === 'active' ? 'text-green-400 border-green-500/30 bg-green-500/10' :
+                            r.status === 'queued' ? 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10' :
+                            r.status === 'offline' ? 'text-white/30 border-white/10' :
+                            'text-white/70 border-white/20'
+                          }`}>{r.status}</span>
+                          {r.subscriptionStatus && r.subscriptionStatus !== 'active' && (
+                            <span className="ml-1 text-xs text-orange-400">sub:{r.subscriptionStatus}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-white/40 text-xs max-w-[140px] truncate">
+                          {r.stripeSubscriptionId ?? '—'}
                         </td>
                       </tr>
                     ))}

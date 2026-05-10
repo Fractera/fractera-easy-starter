@@ -24,6 +24,7 @@ export async function GET() {
       subscription: {
         select: {
           id: true,
+          stripeSubscriptionId: true,
           currentPeriodEnd: true,
           status: true,
           planId: true,

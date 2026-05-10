@@ -9,11 +9,11 @@ type ServerRecord = {
   subdomain: string | null
   deploySessionId: string | null
   createdAt: string
-  isRedeploy: boolean
   serverIp: string | null
   serverPassword: string | null
   subscription: {
     id: string
+    stripeSubscriptionId: string | null
     currentPeriodEnd: string
     status: string
     planId: string
@@ -394,9 +394,9 @@ export function DashboardModal({ open, view, onClose }: Props) {
     try {
       const res = await fetch('/api/server/reassign', { method: 'POST' })
       const d = await res.json()
-      if (d.ok) {
+      // 409 means server already assigned — still refresh to show current state
+      if (d.ok || res.status === 409) {
         await fetchServers()
-        // view is controlled externally — no tab to switch
       }
     } finally {
       setReassigning(false)
@@ -499,6 +499,11 @@ export function DashboardModal({ open, view, onClose }: Props) {
                     : null
                   const isActive = sub?.status === 'active'
                   const isOffline = server.status === 'offline'
+                  // Don't offer "Get new server" if there's already a non-offline token for this subscription
+                  const hasSiblingServer = servers.some(
+                    s => s.subscription?.id === sub?.id && s.id !== server.id && s.status !== 'offline'
+                  )
+                  const showGetNewServer = isActive && isOffline && !hasSiblingServer
                   return (
                     <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/40 bg-white/[0.04] p-5">
                       {isOffline ? (
@@ -515,7 +520,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
                           }>
                             {server.status === 'pending' ? 'Installing…' :
                              server.status === 'error'   ? 'Installation error' :
-                             server.status === 'queued'  ? 'Queued' :
+                             server.status === 'queued'  ? 'Queued — server will be assigned soon' :
                              server.status}
                           </span>
                         </p>
@@ -540,12 +545,18 @@ export function DashboardModal({ open, view, onClose }: Props) {
                               {isActive ? 'Active' : sub.status}
                             </span>
                           </div>
+                          {sub.stripeSubscriptionId && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-white/40 font-semibold shrink-0">Sub ID</span>
+                              <span className="text-xs font-mono text-white/40 truncate">{sub.stripeSubscriptionId}</span>
+                            </div>
+                          )}
                           {!isActive && (
                             <p className="text-xs text-orange-300/70 mt-1">
                               Subscription inactive — check your payment method in Stripe.
                             </p>
                           )}
-                          {isActive && isOffline && (
+                          {showGetNewServer && (
                             <button
                               onClick={handleReassign}
                               disabled={reassigning}

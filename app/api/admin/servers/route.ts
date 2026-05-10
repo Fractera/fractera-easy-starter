@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
     const user = await db.user.findFirst({ where: { email: search } })
     if (!user) return NextResponse.json([])
     const tokens = await db.serverToken.findMany({
-      where: { userId: user.id, status: { not: 'queued' } },
-      include: { subscription: true },
+      where: { userId: user.id },
+      include: { subscription: { select: { id: true, stripeSubscriptionId: true, status: true } } },
       orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json(tokens.map(t => ({
@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
       paidAt: t.createdAt,
       subdomain: t.subdomain,
       status: t.status,
+      stripeSubscriptionId: t.subscription?.stripeSubscriptionId ?? null,
+      subscriptionStatus: t.subscription?.status ?? null,
     })))
   }
 
