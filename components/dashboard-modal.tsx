@@ -489,7 +489,20 @@ export function DashboardModal({ open, view, onClose }: Props) {
               <p className="text-base text-white font-medium py-4">No active servers.</p>
             ) : (
               <div className="flex flex-col gap-4">
-                {servers.filter(s => s.subscription !== null).map(server => {
+                {(() => {
+                  // One card per Stripe subscription — pick best status token (active > pending > queued > error > offline)
+                  const STATUS_RANK: Record<string, number> = { active: 0, pending: 1, queued: 2, error: 3, offline: 4 }
+                  const bySubKey = new Map<string, ServerRecord>()
+                  for (const s of servers) {
+                    if (!s.subscription) continue
+                    const key = s.subscription.stripeSubscriptionId ?? s.subscription.id
+                    const existing = bySubKey.get(key)
+                    const rank = STATUS_RANK[s.status] ?? 5
+                    const existingRank = existing ? (STATUS_RANK[existing.status] ?? 5) : 999
+                    if (!existing || rank < existingRank) bySubKey.set(key, s)
+                  }
+                  return Array.from(bySubKey.values())
+                })().map(server => {
                   const sub = server.subscription
                   const periodEnd = sub?.currentPeriodEnd
                     ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -499,11 +512,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
                     : null
                   const isActive = sub?.status === 'active'
                   const isOffline = server.status === 'offline'
-                  // Don't offer "Get new server" if there's already a non-offline token for this subscription
-                  const hasSiblingServer = servers.some(
-                    s => s.subscription?.id === sub?.id && s.id !== server.id && s.status !== 'offline'
-                  )
-                  const showGetNewServer = isActive && isOffline && !hasSiblingServer
+                  const showGetNewServer = isActive && isOffline
                   return (
                     <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/40 bg-white/[0.04] p-5">
                       {isOffline ? (
