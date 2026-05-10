@@ -37,7 +37,7 @@ export function HeroSection() {
   const router = useRouter()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
-  const { openDashboard } = useDashboard()
+  const { openServers } = useDashboard()
 
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
@@ -94,7 +94,7 @@ export function HeroSection() {
             setMyServer(data.server)
             setMyServerLoading(false)
             // Server exists for this stripe session (any status) — go to dashboard
-            openDashboard()
+            openServers()
             router.replace('/')
             return
           }
