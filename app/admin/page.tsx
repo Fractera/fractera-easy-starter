@@ -76,6 +76,7 @@ export default function AdminPage() {
   const [counts, setCounts] = useState({ ready: 0, provisioning: 0, pending: 0 })
   const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
   const [recovering, setRecovering] = useState<Set<string>>(new Set())
+  const [resetting, setResetting] = useState<Set<string>>(new Set())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
 
@@ -163,6 +164,22 @@ export default function AdminPage() {
       alert(d.message ?? d.error ?? 'Recover failed')
     }
     setRecovering(prev => { const s = new Set(prev); s.delete(id); return s })
+  }
+
+  async function handleReset(id: string) {
+    setResetting(prev => new Set(prev).add(id))
+    const res = await fetch('/api/admin/pool/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vpsReserveId: id }),
+    })
+    const d = await res.json()
+    if (d.ok) {
+      loadServers()
+    } else {
+      alert(d.error ?? 'Reset failed')
+    }
+    setResetting(prev => { const s = new Set(prev); s.delete(id); return s })
   }
 
   async function handleRelease(id: string) {
@@ -271,7 +288,7 @@ export default function AdminPage() {
                 <li>Оплата → webhook → ServerToken со статусом <code className="text-white font-semibold">queued</code></li>
                 <li>Письмо пользователю «сервер будет готов в течение 60 мин»</li>
                 <li><strong className="text-white">Письмо на admin@fractera.ai</strong> с данными пользователя</li>
-                <li>Администратор добавляет сервер в пул, делает Bootstrap, затем нажимает «Назначить» → Письмо 1 → bootstrap.sh запускается в фоне → ServerToken становится <code className="text-white font-semibold">active</code></li>
+                <li>Администратор добавляет сервер в пул, делает Bootstrap → сервер готов → нажимает «Назначить» → мгновенно: ServerToken <code className="text-white font-semibold">active</code> + письмо пользователю с URL</li>
               </ol>
             </div>
 
@@ -435,14 +452,24 @@ export default function AdminPage() {
                             </button>
                           )}
                           {s.status === 'provisioning' && (
-                            <button
-                              type="button"
-                              onClick={() => handleRecover(s.id)}
-                              disabled={recovering.has(s.id)}
-                              className="text-xs text-white/70 hover:text-white border border-white/30 hover:border-white/50 disabled:opacity-50 px-2 py-1 rounded-lg transition-colors"
-                            >
-                              {recovering.has(s.id) ? 'Проверяю…' : 'Восстановить'}
-                            </button>
+                            <div className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleRecover(s.id)}
+                                disabled={recovering.has(s.id)}
+                                className="text-xs text-white/70 hover:text-white border border-white/30 hover:border-white/50 disabled:opacity-50 px-2 py-1 rounded-lg transition-colors"
+                              >
+                                {recovering.has(s.id) ? 'Проверяю…' : 'Восстановить'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleReset(s.id)}
+                                disabled={resetting.has(s.id)}
+                                className="text-xs text-red-400/70 hover:text-red-400 border border-red-500/20 hover:border-red-500/40 disabled:opacity-50 px-2 py-1 rounded-lg transition-colors"
+                              >
+                                {resetting.has(s.id) ? 'Сброс…' : 'Сбросить'}
+                              </button>
+                            </div>
                           )}
                           {s.status === 'pending_payment' && (
                             <button

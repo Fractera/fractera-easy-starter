@@ -47,15 +47,17 @@ export async function POST(req: NextRequest) {
 
   await initProgress(deploySessionId)
 
-  deployToServer({
-    ip: reserve.ip,
-    login: reserve.login,
-    password: reserve.password,
-    session_id: deploySessionId,
-    platform: 'claude-code',
-    serverToken: tempToken.token,
-    subdomainOverride: reserve.subdomain ?? undefined,
-  }).catch(async (err) => {
+  try {
+    await deployToServer({
+      ip: reserve.ip,
+      login: reserve.login,
+      password: reserve.password,
+      session_id: deploySessionId,
+      platform: 'claude-code',
+      serverToken: tempToken.token,
+      subdomainOverride: reserve.subdomain ?? undefined,
+    })
+  } catch (err) {
     const errMsg = String(err)
     await db.vpsReserve.update({
       where: { id: vpsReserveId },
@@ -65,7 +67,8 @@ export async function POST(req: NextRequest) {
       where: { id: tempToken.id },
       data: { status: 'error', deployError: errMsg },
     }).catch(() => {})
-  })
+    return NextResponse.json({ error: 'SSH failed', detail: errMsg }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true, deploySessionId, serverTokenId: tempToken.id })
 }
