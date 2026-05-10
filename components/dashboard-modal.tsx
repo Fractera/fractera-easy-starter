@@ -396,9 +396,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
       const d = await res.json()
       if (d.ok) {
         await fetchServers()
-        if (d.status === 'queued') {
-          setTab('servers')
-        }
+        // view is controlled externally — no tab to switch
       }
     } finally {
       setReassigning(false)
