@@ -93,7 +93,21 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json()
   const { id, status } = body
 
-  if (!id || status !== 'available') return NextResponse.json({ error: 'id and status=available required' }, { status: 400 })
+  if (!id || !['available', 'ready'].includes(status)) {
+    return NextResponse.json({ error: 'id and status=available|ready required' }, { status: 400 })
+  }
+
+  if (status === 'ready') {
+    const reserve = await db.vpsReserve.findUnique({ where: { id } })
+    if (!reserve?.subdomain) {
+      return NextResponse.json({ error: 'Cannot mark ready: server has no subdomain' }, { status: 409 })
+    }
+    const server = await db.vpsReserve.update({
+      where: { id },
+      data: { status: 'ready' },
+    })
+    return NextResponse.json(server)
+  }
 
   const server = await db.vpsReserve.update({
     where: { id },

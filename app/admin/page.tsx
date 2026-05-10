@@ -96,6 +96,7 @@ export default function AdminPage() {
   const [recovering, setRecovering] = useState<Set<string>>(new Set())
   const [resetting, setResetting] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [confirming, setConfirming] = useState<Set<string>>(new Set())
   const provisioningStart = useRef<Map<string, number>>(new Map())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
@@ -219,6 +220,21 @@ export default function AdminPage() {
     })
     loadServers()
     setDeleting(prev => { const s = new Set(prev); s.delete(id); return s })
+  }
+
+  async function handleConfirmReady(id: string) {
+    setConfirming(prev => new Set(prev).add(id))
+    const res = await fetch('/api/admin/servers', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: 'ready' }),
+    })
+    if (!res.ok) {
+      const d = await res.json()
+      alert(d.error ?? 'Error')
+    }
+    loadServers()
+    setConfirming(prev => { const s = new Set(prev); s.delete(id); return s })
   }
 
   async function handleRelease(id: string) {
@@ -490,14 +506,26 @@ export default function AdminPage() {
                         <td className="px-4 py-3">
                           {s.status === 'available' && (
                             <div className="flex flex-col gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleBootstrap(s.id)}
-                                disabled={bootstrapping.has(s.id)}
-                                className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
-                              >
-                                {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
-                              </button>
+                              {s.subdomain ? (
+                                // Corrupted state: has subdomain but wrong status — let admin confirm
+                                <button
+                                  type="button"
+                                  onClick={() => handleConfirmReady(s.id)}
+                                  disabled={confirming.has(s.id)}
+                                  className="text-xs text-white bg-green-700 hover:bg-green-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  {confirming.has(s.id) ? 'Подтверждаю…' : '✓ Подтвердить готовность'}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleBootstrap(s.id)}
+                                  disabled={bootstrapping.has(s.id)}
+                                  className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => handleDelete(s.id)}

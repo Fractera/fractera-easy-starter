@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   await db.vpsReserve.update({
     where: { id: reserve.id },
-    data: { status: 'available', provisioningServerTokenId: null },
+    data: { status: 'available', subdomain: null, provisioningServerTokenId: null },
   })
 
   return NextResponse.json({ ok: true })
