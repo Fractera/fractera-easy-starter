@@ -506,8 +506,8 @@ export default function AdminPage() {
                         <td className="px-4 py-3">
                           {s.status === 'available' && (
                             <div className="flex flex-col gap-1">
-                              {s.subdomain ? (
-                                // Corrupted state: has subdomain but wrong status — let admin confirm
+                              {s.subdomain && (
+                                // URL already registered — offer to confirm if server is working
                                 <button
                                   type="button"
                                   onClick={() => handleConfirmReady(s.id)}
@@ -516,16 +516,15 @@ export default function AdminPage() {
                                 >
                                   {confirming.has(s.id) ? 'Подтверждаю…' : '✓ Подтвердить готовность'}
                                 </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleBootstrap(s.id)}
-                                  disabled={bootstrapping.has(s.id)}
-                                  className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
-                                >
-                                  {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
-                                </button>
                               )}
+                              <button
+                                type="button"
+                                onClick={() => handleBootstrap(s.id)}
+                                disabled={bootstrapping.has(s.id)}
+                                className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                {bootstrapping.has(s.id) ? 'Запускаю…' : s.subdomain ? 'Bootstrap (повтор)' : 'Bootstrap'}
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleDelete(s.id)}
