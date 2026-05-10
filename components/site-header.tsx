@@ -10,6 +10,7 @@ export function SiteHeader() {
   const { openModal } = useAuthModal()
   const { openServers, openSubscription } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
+  const isAdmin = session?.user?.email === 'admin@fractera.ai'
 
   const initials = session?.user?.name
     ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -63,31 +64,35 @@ export function SiteHeader() {
                         <p className="text-xs font-bold text-white truncate">{session.user.name}</p>
                         <p className="text-xs font-medium text-white truncate">{session.user.email}</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => { setMenuOpen(false); openSubscription() }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                          <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-                          <path d="M1 6h12" stroke="currentColor" strokeWidth="1.3"/>
-                        </svg>
-                        Subscription
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setMenuOpen(false); openServers() }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                          <rect x="1" y="2" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
-                          <rect x="1" y="8" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
-                          <circle cx="11" cy="4" r="0.8" fill="currentColor"/>
-                          <circle cx="11" cy="10" r="0.8" fill="currentColor"/>
-                        </svg>
-                        Servers
-                      </button>
-                      <div className="h-px bg-white/20 my-1" />
+                      {!isAdmin && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => { setMenuOpen(false); openSubscription() }}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                              <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                              <path d="M1 6h12" stroke="currentColor" strokeWidth="1.3"/>
+                            </svg>
+                            Subscription
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setMenuOpen(false); openServers() }}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                              <rect x="1" y="2" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                              <rect x="1" y="8" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                              <circle cx="11" cy="4" r="0.8" fill="currentColor"/>
+                              <circle cx="11" cy="10" r="0.8" fill="currentColor"/>
+                            </svg>
+                            Servers
+                          </button>
+                          <div className="h-px bg-white/20 my-1" />
+                        </>
+                      )}
                       <button
                         type="button"
                         onClick={() => { setMenuOpen(false); signOut({ callbackUrl: '/' }) }}
