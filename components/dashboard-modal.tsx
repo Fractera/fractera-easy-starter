@@ -294,6 +294,7 @@ export function DashboardModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [tab, setTab] = useState<'servers' | 'subscription'>('servers')
   const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
+  const [reassigning, setReassigning] = useState(false)
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -308,6 +309,22 @@ export function DashboardModal({ open, onClose }: Props) {
       if (!silent) setLoading(false)
     }
   }, [])
+
+  async function handleReassign() {
+    setReassigning(true)
+    try {
+      const res = await fetch('/api/server/reassign', { method: 'POST' })
+      const d = await res.json()
+      if (d.ok) {
+        await fetchServers()
+        if (d.status === 'queued') {
+          setTab('servers')
+        }
+      }
+    } finally {
+      setReassigning(false)
+    }
+  }
 
   // Initial fetch
   useEffect(() => {
@@ -402,11 +419,11 @@ export function DashboardModal({ open, onClose }: Props) {
             )
           ) : (
             /* Subscription tab */
-            servers.filter(s => s.status !== 'offline').length === 0 ? (
+            servers.filter(s => s.subscription !== null).length === 0 ? (
               <p className="text-base text-white font-medium py-4">No active servers.</p>
             ) : (
               <div className="flex flex-col gap-4">
-                {servers.filter(s => s.status !== 'offline').map(server => {
+                {servers.filter(s => s.subscription !== null).map(server => {
                   const sub = server.subscription
                   const periodEnd = sub?.currentPeriodEnd
                     ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -415,9 +432,12 @@ export function DashboardModal({ open, onClose }: Props) {
                     ? sub.planId.charAt(0).toUpperCase() + sub.planId.slice(1)
                     : null
                   const isActive = sub?.status === 'active'
+                  const isOffline = server.status === 'offline'
                   return (
                     <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/40 bg-white/[0.04] p-5">
-                      {server.subdomain ? (
+                      {isOffline ? (
+                        <p className="text-base font-bold font-mono text-white/40">No server connected</p>
+                      ) : server.subdomain ? (
                         <p className="text-base font-bold font-mono text-white">{server.subdomain}</p>
                       ) : (
                         <p className="text-sm text-white font-medium">
@@ -459,7 +479,16 @@ export function DashboardModal({ open, onClose }: Props) {
                               Subscription inactive — check your payment method in Stripe.
                             </p>
                           )}
-                          {isActive && (
+                          {isActive && isOffline && (
+                            <button
+                              onClick={handleReassign}
+                              disabled={reassigning}
+                              className="mt-1 w-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg py-2 transition-colors"
+                            >
+                              {reassigning ? 'Getting server…' : 'Get a new server →'}
+                            </button>
+                          )}
+                          {isActive && !isOffline && (
                             cancellingSubId === sub.id ? (
                               <CancelSubscriptionConfirm
                                 subscriptionId={sub.id}
