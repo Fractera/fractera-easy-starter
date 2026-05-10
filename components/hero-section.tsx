@@ -1,13 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
-import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
-import { InfoTooltip } from '@/components/info-tooltip'
 import { InstallForm } from '@/components/install-form'
 import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
@@ -152,39 +150,23 @@ export function HeroSection() {
 
         {/* Description */}
         <div className="flex flex-col gap-3 max-w-xl">
-          <div className="flex items-start gap-2">
-            <p className="text-2xl text-white font-semibold leading-snug">
-              Production coding platform —{' '}
-              <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
-              on a real domain.{' '}
-              <span className="text-white font-semibold">5× cheaper & 10× faster</span> than vibe coding.
-            </p>
-            <InfoTooltip text="Fractera runs five coding platforms on a server you own — not a SaaS, not a cloud IDE. Each platform reuses a single subscription, so routine tasks cost almost nothing. Premium AI (Claude, Codex) is called only when it matters." />
-          </div>
-          <p className="text-base text-white leading-relaxed flex items-start gap-3">
+          <p className="text-2xl text-white font-semibold leading-snug">
+            Production coding platform —{' '}
+            <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
+            on a real domain.{' '}
+            <span className="text-white font-semibold">5× cheaper & 10× faster</span> than vibe coding.
+          </p>
+          <p className="text-base text-white leading-relaxed">
             Five coding platforms and a global agent RAG memory — your company brain — run entirely
             on a server you own. Not SaaS. Not a CMS. 100% your infrastructure.
             The Fractera Pro architecture is the engine of your coding factory, built for high load
             and real project scale. Deployment takes ~10 minutes with zero setup on your end.
             In 10 minutes, your partners can open your project live.
-            <InfoTooltip text="We automate the full server setup from this page — you don't touch a terminal. In about 10 minutes you get five AI coding platforms, a RAG memory layer, and your project running on your own domain. Nothing is shared. Everything is yours." />
           </p>
           <p className="text-xs text-orange-400">
             ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
           </p>
         </div>
-      </div>
-
-      {/* Product snippet */}
-      <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-white/40 shadow-2xl">
-        <Image
-          src="/Fractera-start-image.jpg"
-          alt="Fractera — Your Code, Your Server, Your Choice"
-          width={1200}
-          height={628}
-          className="w-full h-auto"
-          priority
-        />
       </div>
 
       {/* Payment success: pipeline or server links */}

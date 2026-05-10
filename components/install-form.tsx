@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
-import { InfoTooltip } from '@/components/info-tooltip'
 
 type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
@@ -211,33 +210,14 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
   const progress = Math.round((doneCount / steps.length) * 100)
   const currentStep = steps.find(s => s.id === activeStep)
 
-  const hostingTooltip = (
-    <>
-      Fractera requires a VPS with Ubuntu 24.04, a public IP, and root SSH access.
-      <br /><br />
-      Minimum specs: 4 vCPU, 8 GB RAM, 75 GB disk.
-      <br /><br />
-      Note: set your root password during server setup, then paste it into the Password field below.
-    </>
-  )
-
-  const passwordTooltip = (
-    <>
-      Use the root password you set when creating the server.
-      <br /><br />
-      If you forgot it, use your hosting provider&apos;s control panel to reset the root password — the option is usually under Manage or Control.
-    </>
-  )
-
   return (
     <div className="w-full max-w-xl flex flex-col gap-6">
 
       {/* Form */}
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <div className="text-sm text-white font-bold uppercase tracking-widest flex items-center gap-0">
+          <div className="text-sm text-white font-bold uppercase tracking-widest">
             Install Fractera on your server
-            <InfoTooltip text={hostingTooltip} />
           </div>
 
           <div className="flex flex-col gap-3">
@@ -263,9 +243,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                 onChange={e => setPassword(e.target.value)}
                 className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
               />
-              <div className="text-sm text-white flex items-center gap-1 px-1">
+              <div className="text-sm text-white px-1">
                 Forgot your password?
-                <InfoTooltip text={passwordTooltip} />
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 // ─── Типы ────────────────────────────────────────────────────────────────────
@@ -263,18 +263,9 @@ export default function AdminPage() {
       <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
 
         {/* ─── Заголовок ──────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Fractera</h1>
-            <p className="text-base text-white font-medium mt-1">Панель администратора · {session?.user?.email}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="text-sm font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Выйти
-          </button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Fractera</h1>
+          <p className="text-base text-white font-medium mt-1">Панель администратора · {session?.user?.email}</p>
         </div>
 
         {/* ─── Контекст панели ────────────────────────────────────────────── */}
