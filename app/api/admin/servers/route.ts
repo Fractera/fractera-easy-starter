@@ -76,6 +76,22 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(server, { status: 201 })
 }
 
+export async function DELETE(req: NextRequest) {
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  const server = await db.vpsReserve.findUnique({ where: { id } })
+  if (!server) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (server.status !== 'available') {
+    return NextResponse.json({ error: `Cannot delete server with status '${server.status}'` }, { status: 409 })
+  }
+
+  await db.vpsReserve.delete({ where: { id } })
+  return NextResponse.json({ ok: true })
+}
+
 export async function PATCH(req: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

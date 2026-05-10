@@ -96,6 +96,7 @@ export default function AdminPage() {
   const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
   const [recovering, setRecovering] = useState<Set<string>>(new Set())
   const [resetting, setResetting] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState<Set<string>>(new Set())
   const provisioningStart = useRef<Map<string, number>>(new Map())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
@@ -207,6 +208,18 @@ export default function AdminPage() {
       alert(d.error ?? 'Reset failed')
     }
     setResetting(prev => { const s = new Set(prev); s.delete(id); return s })
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Удалить сервер из пула? Это действие необратимо.')) return
+    setDeleting(prev => new Set(prev).add(id))
+    await fetch('/api/admin/servers', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    loadServers()
+    setDeleting(prev => { const s = new Set(prev); s.delete(id); return s })
   }
 
   async function handleRelease(id: string) {
@@ -497,14 +510,24 @@ export default function AdminPage() {
                         </td>
                         <td className="px-4 py-3">
                           {s.status === 'available' && (
-                            <button
-                              type="button"
-                              onClick={() => handleBootstrap(s.id)}
-                              disabled={bootstrapping.has(s.id)}
-                              className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
-                            >
-                              {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
-                            </button>
+                            <div className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleBootstrap(s.id)}
+                                disabled={bootstrapping.has(s.id)}
+                                className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                {bootstrapping.has(s.id) ? 'Запускаю…' : 'Bootstrap'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(s.id)}
+                                disabled={deleting.has(s.id)}
+                                className="text-xs text-red-400/70 hover:text-red-400 border border-red-500/20 hover:border-red-500/40 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                {deleting.has(s.id) ? 'Удаляю…' : 'Удалить'}
+                              </button>
+                            </div>
                           )}
                           {s.status === 'provisioning' && (
                             <div className="flex flex-col gap-1">
