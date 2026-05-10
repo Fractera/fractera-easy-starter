@@ -59,19 +59,12 @@ export async function POST(req: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
-  const { ip, login = 'root', password, activatedAt, paidAmount, expiresAt } = body
+  const { ip, login = 'root', password } = body
 
   if (!ip || !password) return NextResponse.json({ error: 'ip and password required' }, { status: 400 })
 
   const server = await db.vpsReserve.create({
-    data: {
-      ip,
-      login,
-      password,
-      activatedAt: activatedAt ? new Date(activatedAt) : new Date(),
-      paidAmount: paidAmount ? parseFloat(paidAmount) : null,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-    },
+    data: { ip, login, password },
   })
   return NextResponse.json(server, { status: 201 })
 }

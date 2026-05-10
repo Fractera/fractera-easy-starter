@@ -13,9 +13,6 @@ type VpsReserve = {
   password: string
   subdomain: string | null
   status: string
-  activatedAt: string | null
-  paidAmount: number | null
-  expiresAt: string | null
   reservedUntil: string | null
   createdAt: string
 }
@@ -89,7 +86,7 @@ export default function AdminPage() {
   const [searchEmail, setSearchEmail] = useState('')
   const [searchResults, setSearchResults] = useState<SaleRecord[] | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
-  const [addForm, setAddForm] = useState({ ip: '', login: 'root', password: '', activatedAt: '', paidAmount: '', expiresAt: '' })
+  const [addForm, setAddForm] = useState({ ip: '', login: 'root', password: '' })
   const [addLoading, setAddLoading] = useState(false)
   const [addError, setAddError] = useState('')
   const [counts, setCounts] = useState({ ready: 0, provisioning: 0, pending: 0 })
@@ -154,7 +151,7 @@ export default function AdminPage() {
       body: JSON.stringify(addForm),
     })
     if (res.ok) {
-      setAddForm({ ip: '', login: 'root', password: '', activatedAt: '', paidAmount: '', expiresAt: '' })
+      setAddForm({ ip: '', login: 'root', password: '' })
       loadServers()
     } else {
       const d = await res.json()
@@ -255,7 +252,6 @@ export default function AdminPage() {
     setSearchLoading(false)
   }
 
-  const fmtDate = (s: string | null) => s ? new Date(s).toLocaleDateString('ru-RU') : '—'
   const fmtDateTime = (s: string | null) => s ? new Date(s).toLocaleString('ru-RU') : '—'
 
   if (status === 'loading') {
@@ -370,7 +366,7 @@ export default function AdminPage() {
             <div className="flex flex-col gap-2">
               <p className="text-sm text-white font-bold uppercase tracking-widest font-mono">Следующие этапы (запуск возможен без них)</p>
               <ul className="flex flex-col gap-1 text-white">
-                <li className="flex items-center gap-2"><span className="text-white/50">○</span> Контроль продления — подсвечивать строки за 7 дней до <code>expiresAt</code></li>
+                <li className="flex items-center gap-2"><span className="text-white/50">○</span> Контроль продления подписки</li>
                 <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Таймаут <code>pending_payment</code> — 30 мин резерв, <code>checkout.session.expired</code> освобождает автоматически</li>
                 <li className="flex items-center gap-2"><span className="text-white/50">○</span> Автоматическое создание VPS через Contabo API</li>
                 <li className="flex items-center gap-2"><span className="text-white/50">○</span> Автопополнение пула (cron, velocity-based)</li>
@@ -455,9 +451,6 @@ export default function AdminPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/40 text-sm text-white font-bold uppercase tracking-widest">
-                    <th className="text-left px-4 py-3 font-normal">Добавлен</th>
-                    <th className="text-left px-4 py-3 font-normal">Стоимость</th>
-                    <th className="text-left px-4 py-3 font-normal">Истекает</th>
                     <th className="text-left px-4 py-3 font-normal">IP</th>
                     <th className="text-left px-4 py-3 font-normal">Пароль</th>
                     <th className="text-left px-4 py-3 font-normal">Субдомен</th>
@@ -467,15 +460,8 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {servers.map(s => {
-                    const expiring = s.expiresAt && (new Date(s.expiresAt).getTime() - Date.now()) < 7 * 86400_000
                     return (
                       <tr key={s.id} className="border-b border-white/25 last:border-0 hover:bg-white/[0.02]">
-                        <td className="px-4 py-3 text-white font-medium">{fmtDate(s.activatedAt ?? s.createdAt)}</td>
-                        <td className="px-4 py-3 text-white">{s.paidAmount != null ? `€${s.paidAmount}` : '—'}</td>
-                        <td className={`px-4 py-3 font-medium ${expiring ? 'text-red-400' : 'text-white'}`}>
-                          {fmtDate(s.expiresAt)}
-                          {expiring && <span className="ml-1 text-xs text-red-500">!</span>}
-                        </td>
                         <td className="px-4 py-3 font-mono text-white font-semibold">{s.ip}</td>
                         <td className="px-4 py-3 font-mono text-white font-semibold text-xs">{s.password}</td>
                         <td className="px-4 py-3 font-mono text-white text-xs">
@@ -590,28 +576,6 @@ export default function AdminPage() {
                   placeholder="Пароль"
                   value={addForm.password}
                   onChange={e => setAddForm(f => ({ ...f, password: e.target.value }))}
-                  className="bg-white/[0.06] border border-white/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 outline-none focus:border-white/70 transition-colors"
-                />
-                <input
-                  type="date"
-                  placeholder="Дата активации"
-                  value={addForm.activatedAt}
-                  onChange={e => setAddForm(f => ({ ...f, activatedAt: e.target.value }))}
-                  className="bg-white/[0.06] border border-white/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 outline-none focus:border-white/70 transition-colors"
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Стоимость (€)"
-                  value={addForm.paidAmount}
-                  onChange={e => setAddForm(f => ({ ...f, paidAmount: e.target.value }))}
-                  className="bg-white/[0.06] border border-white/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 outline-none focus:border-white/70 transition-colors"
-                />
-                <input
-                  type="date"
-                  placeholder="Истекает"
-                  value={addForm.expiresAt}
-                  onChange={e => setAddForm(f => ({ ...f, expiresAt: e.target.value }))}
                   className="bg-white/[0.06] border border-white/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 outline-none focus:border-white/70 transition-colors"
                 />
               </div>

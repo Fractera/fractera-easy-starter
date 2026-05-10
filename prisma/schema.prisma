@@ -101,9 +101,6 @@ model VpsReserve {
   subdomain                 String?   // set after bootstrap completes
   provisioningServerTokenId String?   // temp ServerToken used during pool bootstrap
   status                    String    @default("available") // available | provisioning | ready | pending_payment | paid
-  activatedAt               DateTime?
-  paidAmount                Float?
-  expiresAt                 DateTime?
   reservedUntil             DateTime? // when the checkout session expires (auto-released by webhook)
   assignedUserId            String?
   assignedAt                DateTime?
