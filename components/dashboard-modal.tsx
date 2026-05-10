@@ -11,6 +11,7 @@ type ServerRecord = {
   createdAt: string
   isRedeploy: boolean
   subscription: {
+    id: string
     currentPeriodEnd: string
     status: string
     planId: string
@@ -68,7 +69,8 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
   return (
     <div className="mt-3 flex flex-col gap-3 bg-red-500/5 border border-red-500/20 rounded-xl p-4">
       <p className="text-xs text-red-300">
-        This will <strong>destroy the server</strong> and <strong>cancel your subscription</strong>. No further charges.
+        This will <strong>permanently destroy this server</strong> and all its data.
+        Your subscription stays active — you can get a new server from the home page.
       </p>
       <input
         type="text"
@@ -92,6 +94,67 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
           className="flex-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? 'Deleting…' : 'Confirm delete'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CancelSubscriptionConfirm({ subscriptionId, onDone, onCancel }: { subscriptionId: string; onDone: () => void; onCancel: () => void }) {
+  const [confirm, setConfirm] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleCancel() {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/subscription/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriptionId }),
+      })
+      if (res.ok) {
+        onDone()
+      } else {
+        const d = await res.json()
+        setError(d.error ?? 'Cancel failed')
+      }
+    } catch {
+      setError('Network error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 flex flex-col gap-3 bg-red-500/5 border border-red-500/20 rounded-xl p-4">
+      <p className="text-xs text-red-300">
+        This will <strong>cancel your subscription</strong> and <strong>permanently destroy your server</strong>.
+        No further charges after today.
+      </p>
+      <input
+        type="text"
+        value={confirm}
+        onChange={e => setConfirm(e.target.value)}
+        placeholder='Type CANCEL to confirm'
+        className="w-full bg-white/[0.05] border border-white/40 rounded-lg px-3 py-2 text-base text-white placeholder-gray-400 focus:outline-none focus:border-red-500/70"
+      />
+      {error && <p className="text-xs text-red-400">{error}</p>}
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          disabled={loading}
+          className="flex-1 text-base font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 rounded-lg py-2 transition-colors"
+        >
+          Keep subscription
+        </button>
+        <button
+          onClick={handleCancel}
+          disabled={confirm !== 'CANCEL' || loading}
+          className="flex-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Cancelling…' : 'Confirm cancel'}
         </button>
       </div>
     </div>
@@ -230,6 +293,7 @@ export function DashboardModal({ open, onClose }: Props) {
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [loading, setLoading] = useState(false)
   const [tab, setTab] = useState<'servers' | 'subscription'>('servers')
+  const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -394,6 +458,22 @@ export function DashboardModal({ open, onClose }: Props) {
                             <p className="text-xs text-orange-300/70 mt-1">
                               Subscription inactive — check your payment method in Stripe.
                             </p>
+                          )}
+                          {isActive && (
+                            cancellingSubId === sub.id ? (
+                              <CancelSubscriptionConfirm
+                                subscriptionId={sub.id}
+                                onDone={() => { setCancellingSubId(null); fetchServers() }}
+                                onCancel={() => setCancellingSubId(null)}
+                              />
+                            ) : (
+                              <button
+                                onClick={() => setCancellingSubId(sub.id)}
+                                className="mt-1 text-xs text-white/50 hover:text-red-400 transition-colors text-left font-medium"
+                              >
+                                Cancel subscription
+                              </button>
+                            )
                           )}
                         </div>
                       ) : (

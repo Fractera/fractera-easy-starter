@@ -21,6 +21,7 @@ export async function GET() {
       createdAt: true,
       subscription: {
         select: {
+          id: true,
           currentPeriodEnd: true,
           status: true,
           planId: true,

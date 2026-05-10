@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client } from 'ssh2'
 import { auth } from '@/lib/auth'
-import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { deleteDnsRecord } from '@/lib/cloudflare'
 
@@ -47,7 +46,6 @@ export async function POST(req: NextRequest) {
 
   const serverToken = await db.serverToken.findFirst({
     where: { id: serverId, userId: session.user.id },
-    include: { subscription: true },
   })
 
   if (!serverToken) {
@@ -72,15 +70,6 @@ export async function POST(req: NextRequest) {
       deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
       deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
     ])
-  }
-
-  // Cancel Stripe subscription
-  if (serverToken.subscription?.stripeSubscriptionId) {
-    await stripe.subscriptions.cancel(serverToken.subscription.stripeSubscriptionId).catch(() => {})
-    await db.subscription.update({
-      where: { id: serverToken.subscription.id },
-      data: { status: 'cancelled' },
-    })
   }
 
   // Mark server as offline
