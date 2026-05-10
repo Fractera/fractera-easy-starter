@@ -362,6 +362,72 @@ export function HeroSection() {
             )}
           </div>
 
+          {/* Trial card — only when pool has servers */}
+          {poolAvailable !== null && poolAvailable > 0 && (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-white/30" />
+                <span className="text-sm text-white font-medium uppercase tracking-widest">or</span>
+                <div className="flex-1 h-px bg-white/30" />
+              </div>
+
+              <div className="flex flex-col gap-5 bg-white/[0.03] border border-emerald-500/50 rounded-2xl p-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    10-MIN TRIAL
+                  </span>
+                </div>
+                <div className="flex items-center justify-between -mt-1">
+                  <h2 className="text-xl font-bold text-white">Try Fractera</h2>
+                  <span className="text-2xl font-bold text-white">$0</span>
+                </div>
+
+                <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span>LightRAG — the company brain</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span>PostgreSQL — local project database</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span>File storage — images, docs & media</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span>Auth service — built-in authentication</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span className="text-white font-bold">Fractera Pro</span>
+                  </li>
+                </ul>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!session) { openModal(); return }
+                    alert('Сервис скоро появится')
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
+                >
+                  Start exploring →
+                </button>
+
+                <p className="text-xs text-white/50 -mt-2">
+                  * Regardless of any settings, in exactly 10 minutes the project will cease to exist.
+                  This is a special promo for getting acquainted with the project.
+                </p>
+              </div>
+            </>
+          )}
+
           {/* OR separator */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-white/30" />
