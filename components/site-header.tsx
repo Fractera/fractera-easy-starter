@@ -8,7 +8,7 @@ import { useAuthModal, useDashboard } from '@/components/providers'
 export function SiteHeader() {
   const { data: session, status } = useSession()
   const { openModal } = useAuthModal()
-  const { openDashboard } = useDashboard()
+  const { openServers, openSubscription } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const initials = session?.user?.name
@@ -65,8 +65,33 @@ export function SiteHeader() {
                       </div>
                       <button
                         type="button"
+                        onClick={() => { setMenuOpen(false); openSubscription() }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                          <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                          <path d="M1 6h12" stroke="currentColor" strokeWidth="1.3"/>
+                        </svg>
+                        Subscription
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setMenuOpen(false); openServers() }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                          <rect x="1" y="2" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                          <rect x="1" y="8" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                          <circle cx="11" cy="4" r="0.8" fill="currentColor"/>
+                          <circle cx="11" cy="10" r="0.8" fill="currentColor"/>
+                        </svg>
+                        Servers
+                      </button>
+                      <div className="h-px bg-white/20 my-1" />
+                      <button
+                        type="button"
                         onClick={() => { setMenuOpen(false); signOut({ callbackUrl: '/' }) }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
                       >
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                           <path d="M5 2H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2M9 10l3-3-3-3M12 7H5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -78,14 +103,6 @@ export function SiteHeader() {
                 )}
               </div>
 
-              {/* Dashboard button — separate, rightmost */}
-              <button
-                type="button"
-                onClick={openDashboard}
-                className="text-base font-bold text-white bg-white/[0.06] hover:bg-white/[0.10] border border-white/40 hover:border-white/60 px-4 py-1.5 rounded-lg transition-colors"
-              >
-                Dashboard
-              </button>
             </div>
           )}
         </div>

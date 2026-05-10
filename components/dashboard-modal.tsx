@@ -285,14 +285,14 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
 
 interface Props {
   open: boolean
+  view: 'servers' | 'subscription'
   onClose: () => void
 }
 
-export function DashboardModal({ open, onClose }: Props) {
+export function DashboardModal({ open, view, onClose }: Props) {
   const { data: session } = useSession()
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [loading, setLoading] = useState(false)
-  const [tab, setTab] = useState<'servers' | 'subscription'>('servers')
   const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
   const [reassigning, setReassigning] = useState(false)
   const fetchedRef = useRef(false)
@@ -368,20 +368,9 @@ export function DashboardModal({ open, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-1 bg-white/[0.04] rounded-xl p-0.5 self-start">
-              <button
-                onClick={() => setTab('servers')}
-                className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${tab === 'servers' ? 'bg-white/20 text-white' : 'text-white hover:text-white hover:bg-white/10'}`}
-              >
-                Servers
-              </button>
-              <button
-                onClick={() => setTab('subscription')}
-                className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${tab === 'subscription' ? 'bg-white/20 text-white' : 'text-white hover:text-white hover:bg-white/10'}`}
-              >
-                Subscription
-              </button>
-            </div>
+            <h2 className="text-base font-bold text-white">
+              {view === 'servers' ? 'Servers' : 'Subscription'}
+            </h2>
             {session?.user?.email && (
               <p className="text-sm text-white font-medium">{session.user.email}</p>
             )}
@@ -401,7 +390,7 @@ export function DashboardModal({ open, onClose }: Props) {
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Loading…
             </div>
-          ) : tab === 'servers' ? (
+          ) : view === 'servers' ? (
             servers.length === 0 ? (
               <p className="text-base text-white font-medium py-4">No servers yet. Launch your first server from the home page.</p>
             ) : (
