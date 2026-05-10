@@ -269,6 +269,10 @@ export function HeroSection() {
               <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
                 <li className="flex items-center gap-2">
                   <span className="text-orange-400">✓</span>
+                  <span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">✓</span>
                   <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
                 </li>
                 <li className="flex items-center gap-2">
