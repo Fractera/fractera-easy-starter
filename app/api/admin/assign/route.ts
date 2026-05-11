@@ -20,7 +20,16 @@ export async function POST(req: NextRequest) {
   if (!serverToken) return NextResponse.json({ error: 'ServerToken not found' }, { status: 404 })
   if (serverToken.status !== 'queued') return NextResponse.json({ error: 'ServerToken is not queued' }, { status: 400 })
 
-  const { ip, subdomain, password } = await assignServerToQueued(serverTokenId)
+  let ip: string, subdomain: string, password: string
+  try {
+    ;({ ip, subdomain, password } = await assignServerToQueued(serverTokenId))
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : ''
+    if (msg === 'NO_SERVERS_AVAILABLE') {
+      return NextResponse.json({ error: 'NO_SERVERS_AVAILABLE' }, { status: 400 })
+    }
+    throw err
+  }
 
   if (serverToken.user.email && subdomain) {
     await sendWelcomeEmail(serverToken.user.email, subdomain, { ip, password }).catch(console.error)

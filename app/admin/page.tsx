@@ -97,6 +97,7 @@ export default function AdminPage() {
   const [resetting, setResetting] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
   const [confirming, setConfirming] = useState<Set<string>>(new Set())
+  const [assigning, setAssigning] = useState<Set<string>>(new Set())
   const provisioningStart = useRef<Map<string, number>>(new Map())
 
   // ─── Загрузка данных ──────────────────────────────────────────────────────
@@ -247,17 +248,26 @@ export default function AdminPage() {
   }
 
   async function handleAssign(serverTokenId: string) {
-    const res = await fetch('/api/admin/assign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serverTokenId }),
-    })
-    if (res.ok) {
-      loadServers()
-      loadQueued()
-    } else {
-      const d = await res.json()
-      alert(d.error ?? 'Error assigning server')
+    setAssigning(prev => new Set(prev).add(serverTokenId))
+    try {
+      const res = await fetch('/api/admin/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverTokenId }),
+      })
+      if (res.ok) {
+        loadServers()
+        loadQueued()
+      } else {
+        const d = await res.json().catch(() => ({}))
+        if (d.error === 'NO_SERVERS_AVAILABLE') {
+          alert('Невозможно назначить сервер: нет ни одного свободного и доступного сервера.\nСначала добавьте и активируйте хотя бы один сервер, чтобы продолжить.')
+        } else {
+          alert(d.error ?? 'Ошибка при назначении сервера')
+        }
+      }
+    } finally {
+      setAssigning(prev => { const s = new Set(prev); s.delete(serverTokenId); return s })
     }
   }
 
@@ -648,9 +658,13 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() => handleAssign(q.id)}
-                          className="text-xs text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg transition-colors"
+                          disabled={assigning.has(q.id)}
+                          className="flex items-center gap-1.5 text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
                         >
-                          Назначить сервер
+                          {assigning.has(q.id) && (
+                            <span className="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          )}
+                          {assigning.has(q.id) ? 'Назначаю…' : 'Назначить сервер'}
                         </button>
                       </td>
                     </tr>
