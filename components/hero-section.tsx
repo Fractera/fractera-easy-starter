@@ -125,39 +125,49 @@ export function HeroSection() {
     <section className="flex flex-col gap-8 items-start sm:items-center">
 
       <div className="flex flex-col gap-5">
-        {/* Platform chips */}
-        <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
-          {PLATFORMS.map((name, i) => (
-            <span key={name} className="flex items-center gap-1.5">
-              <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
-                {name}
+        {/* Category label + platform chips */}
+        <div className="flex flex-col gap-2 sm:items-center">
+          <span className="text-xs font-mono font-bold text-white uppercase tracking-[0.18em]">
+            Production Development AI Workspace
+          </span>
+          <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
+            {PLATFORMS.map((name, i) => (
+              <span key={name} className="flex items-center gap-1.5">
+                <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
+                  {name}
+                </span>
+                {i < PLATFORMS.length - 1 && (
+                  <span className="text-white text-xs select-none">·</span>
+                )}
               </span>
-              {i < PLATFORMS.length - 1 && (
-                <span className="text-gray-400 text-xs select-none">·</span>
-              )}
-            </span>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Title */}
-        <h1 className="text-6xl font-bold tracking-tight sm:text-center">Fractera</h1>
+        <div className="flex flex-col gap-1 sm:items-center">
+          <h1 className="text-6xl font-bold tracking-tight font-serif sm:text-center">Fractera</h1>
+          <span className="text-sm font-mono font-semibold text-white uppercase tracking-widest sm:text-center">Open Source</span>
+        </div>
 
         {/* Description */}
-        <div className="flex flex-col gap-3 max-w-xl sm:text-center">
-          <p className="text-2xl text-white font-semibold leading-snug">
-            Production coding platform —{' '}
-            <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
-            on a real domain.{' '}
-            <span className="text-white font-semibold">5× cheaper & 10× faster</span> than vibe coding.
+        <div className="flex flex-col gap-3 max-w-2xl sm:text-center">
+          <p className="text-xl text-white font-semibold leading-snug">
+            In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser.
           </p>
           <p className="text-base text-white leading-relaxed">
-            Five coding platforms and a global agent RAG memory — your company brain — run entirely
-            on a server you own. Not SaaS. Not a CMS. 100% your infrastructure.
-            The Fractera Pro architecture is the engine of your coding factory, built for high load
-            and real project scale. Deployment takes ~10 minutes with zero setup on your end.
-            In 10 minutes, your partners can open your project live.
+            Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.
           </p>
-          <p className="text-xs text-orange-400">
+          <p className="text-base text-white leading-relaxed">
+            If you&apos;re a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster.
+          </p>
+          <p className="text-base text-white leading-relaxed">
+            If you&apos;re a developer who wants to build products, not just write code — you&apos;ll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities.
+          </p>
+          <p className="text-base text-white leading-relaxed">
+            All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand.
+          </p>
+          <p className="text-sm text-orange-400">
             ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
           </p>
         </div>
@@ -165,7 +175,7 @@ export function HeroSection() {
 
       {/* Payment success: pipeline or server links */}
       {paymentSuccess && (
-        <div className="w-full max-w-xl flex flex-col gap-4">
+        <div className="w-full max-w-2xl flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-lg">✓</span>
             <p className="text-sm font-semibold text-green-400">Payment confirmed</p>
@@ -221,14 +231,14 @@ export function HeroSection() {
             </p>
           )}
 
-          <p className="text-xs text-yellow-600">
+          <p className="text-xs text-yellow-400">
             Emails from us may land in <strong>spam or junk</strong> — please check there if you don&apos;t see them.
           </p>
         </div>
       )}
 
       {!paymentSuccess && (
-        <div className="w-full max-w-xl flex flex-col gap-4">
+        <div className="w-full max-w-2xl flex flex-col gap-4">
 
           {/* One-click START card */}
           <div className="flex flex-col gap-5 bg-white/[0.03] border border-orange-500/50 rounded-2xl p-6">
@@ -489,7 +499,7 @@ export function HeroSection() {
 
       {/* Troubleshoot */}
       {showTroubleshoot && (
-        <div className="w-full max-w-xl flex flex-col gap-3">
+        <div className="w-full max-w-2xl flex flex-col gap-3">
           <div className="flex flex-col gap-3 bg-white/[0.05] border border-white/40 rounded-xl p-5">
             <p className="text-base text-white font-semibold">
               Having trouble? Choose your AI platform to get help:
@@ -502,7 +512,7 @@ export function HeroSection() {
       {/* Success state */}
       {domainReady && (
         <>
-          <div className="flex flex-col gap-6 w-full max-w-xl">
+          <div className="flex flex-col gap-6 w-full max-w-2xl">
             <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-bold text-white">Connect via Fractera MCP</h2>
               <p className="text-base text-white max-w-xl">
@@ -810,15 +820,34 @@ const FAQ_ITEMS: FaqItem[] = [
       'When that happens, Fractera\'s self-hosted option gives you predictable monthly costs regardless of traffic volume. Migrating back is straightforward — your code is already on GitHub.',
     ],
   },
+  {
+    q: 'Pricing and plans — details',
+    a: [
+      'Fractera is open-source — you can self-host and run it entirely on your own infrastructure at no cost.',
+      'Deploying with our tools gives you Fractera Lite, which covers roughly 90% of everything you need to build and ship a professional application.',
+      'Want more? Fractera Pro adds advanced capabilities on top of your own server for $20/month or $149/year.',
+      'Need the fastest path to a live environment? Our hosted plan includes the server, full Fractera Pro, and everything pre-configured — $25/month or $199/year.',
+    ],
+  },
+  {
+    q: 'Do you have a referral program?',
+    a: [
+      'Yes — we offer a referral program for content creators, bloggers, and anyone interested in building their own branded version of Fractera.',
+      'Partners receive a complete white-label deployment of Fractera, including the landing page and the deployment infrastructure. All payments go directly to the partner. Partners set their own pricing within our recommended range and are free to offer their own discounts.',
+      'Partners are required to retain attribution to the Fractera brand. In exchange, Fractera will recommend your platform to specific audiences or localization markets from our own pages.',
+      'To apply, send an email to admin@fractera.ai. Before reaching out, publish a public post or article about Fractera and include the link in your email. The link will be reviewed by AI — if verified, you\'ll receive a personal offer and your platform will be deployed.',
+      'Deployment is a one-time $500 fee. No recurring payments. Availability is limited.',
+    ],
+  },
 ]
 
 function FaqSection() {
   const [open, setOpen] = useState<number | null>(null)
 
   return (
-    <div className="w-full max-w-xl flex flex-col gap-4">
+    <div className="w-full max-w-2xl flex flex-col gap-4">
       <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
-      <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/[0.07]">
+      <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/20">
         {FAQ_ITEMS.map((item, i) => (
           <div key={i} className="bg-white/[0.02]">
             <button
@@ -826,9 +855,9 @@ function FaqSection() {
               onClick={() => setOpen(open === i ? null : i)}
               className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.04] transition-colors"
             >
-              <span className="text-sm font-semibold text-white leading-snug">{item.q}</span>
+              <span className="text-base font-semibold text-white leading-snug">{item.q}</span>
               <span
-                className={`shrink-0 text-white/40 mt-0.5 transition-transform duration-200 select-none ${open === i ? 'rotate-180' : ''}`}
+                className={`shrink-0 text-white mt-0.5 transition-transform duration-200 select-none ${open === i ? 'rotate-180' : ''}`}
               >
                 ▾
               </span>
@@ -836,13 +865,13 @@ function FaqSection() {
             {open === i && (
               <div className="px-5 pb-5 flex flex-col gap-3">
                 {item.a.map((para, pi) => (
-                  <p key={pi} className="text-sm text-white/70 leading-relaxed">{para}</p>
+                  <p key={pi} className="text-base text-white leading-relaxed">{para}</p>
                 ))}
                 {item.steps && (
                   <ol className="flex flex-col gap-2 mt-1">
                     {item.steps.map((step, si) => (
-                      <li key={si} className="flex items-start gap-3 text-sm text-white/70 leading-relaxed">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-white/[0.08] border border-white/20 flex items-center justify-center text-[10px] font-bold text-white/50 mt-0.5">
+                      <li key={si} className="flex items-start gap-3 text-base text-white leading-relaxed">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-white/[0.08] border border-white/40 flex items-center justify-center text-xs font-bold text-white mt-0.5">
                           {si + 1}
                         </span>
                         {step}
@@ -853,15 +882,15 @@ function FaqSection() {
                 {item.bullets && (
                   <ul className="flex flex-col gap-2.5 mt-1">
                     {item.bullets.map((b, bi) => (
-                      <li key={bi} className="flex items-start gap-3 text-sm leading-relaxed">
+                      <li key={bi} className="flex items-start gap-3 text-base leading-relaxed">
                         <span className="shrink-0 text-orange-400 mt-0.5 font-bold">✓</span>
-                        <span className="text-white/80">{b}</span>
+                        <span className="text-white">{b}</span>
                       </li>
                     ))}
                   </ul>
                 )}
                 {item.trail && item.trail.map((para, pi) => (
-                  <p key={pi} className={`text-sm leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white/70'}`}>{para}</p>
+                  <p key={pi} className={`text-base leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white'}`}>{para}</p>
                 ))}
               </div>
             )}

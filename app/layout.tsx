@@ -18,17 +18,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fractera — Production-Coding AI Server",
+  title: "Fractera — Production AI Development Workspace",
   description:
-    "Ship features faster with fewer tokens. Pre-built auth, database and routing. LightRAG keeps your full codebase in AI memory. Five coding platforms on your own server.",
+    "Ship features faster with fewer tokens. Pre-built auth, database and routing. LightRAG keeps your full codebase in AI memory. Five development platforms on your own server.",
   metadataBase: new URL("https://fractera.ai"),
   openGraph: {
     type: "website",
     url: "https://fractera.ai",
     siteName: "Fractera",
-    title: "Fractera — Production-Coding AI Server",
+    title: "Fractera — Production AI Development Workspace",
     description:
-      "Same AI platforms as everyone — but a fraction of the token waste. Production starters, LightRAG codebase memory, and component highlighting mean the AI skips straight to your feature. Five coding platforms. Your own server. Live in 10 minutes.",
+      "Same AI platforms as everyone — but a fraction of the token waste. Production starters, LightRAG codebase memory, and component highlighting mean the AI skips straight to your feature. Five development platforms. Your own server. Live in 10 minutes.",
     images: [
       {
         url: "/Fractera-start-image.jpg",
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fractera — Production-Coding AI Server",
+    title: "Fractera — Production AI Development Workspace",
     description:
-      "Same AI platforms — but far fewer tokens wasted. Production starters, LightRAG codebase memory, and component highlighting built in. Five platforms. Your server.",
+      "Same AI platforms — but far fewer tokens wasted. Production starters, LightRAG codebase memory, and component highlighting built in. Five development platforms. Your server.",
     images: ["/Fractera-start-image.jpg"],
   },
   icons: {
