@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Layers, Lightbulb, Code2, Rocket } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -27,6 +28,13 @@ const PLATFORMS = [
   'Qwen Code',
   'Kimi Code',
   'LightRAG',
+]
+
+const FEATURE_ITEMS = [
+  { icon: Layers,    text: "Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain." },
+  { icon: Lightbulb, text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
+  { icon: Code2,     text: "If you're a developer who wants to build products, not just write code — you'll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities." },
+  { icon: Rocket,    text: "All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand." },
 ]
 
 const DESCRIPTION_ITEMS = [
@@ -140,96 +148,98 @@ export function HeroSection() {
   return (
     <section className="flex flex-col gap-8 items-start sm:items-center">
 
-      {/* Hero: single column on mobile/tablet, two columns on xl+ */}
-      <div className="w-full flex flex-col xl:flex-row xl:items-start xl:justify-center gap-8 xl:gap-16">
+      {/* Hero: single column */}
+      <div className="flex flex-col gap-8 items-start sm:items-center w-full max-w-2xl">
 
-        {/* Left column: text content */}
-        <div className="flex flex-col gap-8 items-start sm:items-center xl:items-start xl:max-w-xl">
+        {/* Open Source badge */}
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
+          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+          <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
+        </div>
 
-          {/* Open Source badge */}
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-            <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
-          </div>
+        {/* Title + subtitle */}
+        <div className="flex flex-col gap-3 sm:items-center">
+          <h1 className="text-7xl font-bold tracking-tight font-serif sm:text-center leading-[0.95]">
+            Fractera
+          </h1>
+          <p className="text-2xl font-bold text-white sm:text-center leading-tight">
+            Production AI Development Workspace
+          </p>
+        </div>
 
-          {/* Title + subtitle */}
-          <div className="flex flex-col gap-3 sm:items-center xl:items-start">
-            <h1 className="text-7xl font-bold tracking-tight font-serif sm:text-center xl:text-left leading-[0.95]">
-              Fractera
-            </h1>
-            <p className="text-2xl font-bold text-white sm:text-center xl:text-left leading-tight">
-              Production AI Development Workspace
-            </p>
-          </div>
+        {/* Orange accent divider */}
+        <div className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-500/0" />
 
-          {/* Orange accent divider */}
-          <div className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-500/0" />
+        {/* Lead paragraph */}
+        <p className="text-lg font-semibold text-white leading-relaxed sm:text-center">
+          {DESCRIPTION_ITEMS[0]}
+        </p>
 
-          {/* Description */}
-          <div className="flex flex-col gap-3 max-w-2xl sm:text-center xl:text-left">
-            {DESCRIPTION_ITEMS.map((text, i) => (
-              <p key={i} className={`text-white leading-relaxed ${i === 0 ? 'text-lg font-semibold' : 'text-base'}`}>
-                {text}
-              </p>
-            ))}
-            <p className="text-sm text-orange-400 mt-1">
-              ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
-            </p>
-          </div>
+        {/* Illustration */}
+        <div
+          className="w-full rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12] cursor-zoom-in"
+          onClick={() => setImageFullscreen(true)}
+          title="Click to enlarge"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Admin-Fractera.png" alt="Fractera Admin Panel" className="w-full h-auto block" />
+        </div>
 
-          {/* Supported platforms */}
-          <div className="flex flex-col gap-2 sm:items-center xl:items-start">
-            <span className="text-xs font-semibold text-white uppercase tracking-widest">Supported platforms</span>
-            <div className="flex items-center gap-1.5 flex-wrap sm:justify-center xl:justify-start">
-              {PLATFORMS.map((name, i) => (
-                <span key={name} className="flex items-center gap-1.5">
-                  <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
-                    {name}
-                  </span>
-                  {i < PLATFORMS.length - 1 && (
-                    <span className="text-white text-xs select-none">·</span>
-                  )}
-                </span>
-              ))}
+        {/* 2×2 feature grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+          {FEATURE_ITEMS.map(({ icon: Icon, text }, i) => (
+            <div key={i} className="flex flex-col gap-3 bg-white/[0.03] border border-white/20 rounded-2xl p-5">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5 text-orange-400" />
+              </div>
+              <p className="text-base text-white leading-relaxed">{text}</p>
             </div>
-          </div>
-
+          ))}
         </div>
 
-        {/* Right column: illustration — xl+ only */}
-        <div className="hidden xl:block xl:w-[500px] xl:shrink-0 self-start sticky top-8">
-          <div
-            className="rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12] cursor-zoom-in"
-            onClick={() => setImageFullscreen(true)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/Admin-Fractera.png"
-              alt="Fractera Admin Panel"
-              className="w-full h-auto block"
-            />
+        {/* Star subscription line */}
+        <p className="text-sm text-orange-400 sm:text-center">
+          ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
+        </p>
+
+        {/* Supported platforms */}
+        <div className="flex flex-col gap-2 sm:items-center">
+          <span className="text-xs font-semibold text-white uppercase tracking-widest">Supported platforms</span>
+          <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
+            {PLATFORMS.map((name, i) => (
+              <span key={name} className="flex items-center gap-1.5">
+                <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
+                  {name}
+                </span>
+                {i < PLATFORMS.length - 1 && (
+                  <span className="text-white text-xs select-none">·</span>
+                )}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Fullscreen lightbox */}
-        {imageFullscreen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+      </div>
+
+      {/* Fullscreen lightbox */}
+      {imageFullscreen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setImageFullscreen(false)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors text-3xl leading-none font-light"
             onClick={() => setImageFullscreen(false)}
           >
-            <button
-              type="button"
-              className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors text-3xl leading-none font-light"
-              onClick={() => setImageFullscreen(false)}
-            >
-              ×
-            </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/Admin-Fractera.png"
-              alt="Fractera Admin Panel"
-              className="max-w-full max-h-[90vh] rounded-2xl border-2 border-orange-500/60 shadow-2xl"
-              onClick={e => e.stopPropagation()}
+            ×
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/Admin-Fractera.png"
+            alt="Fractera Admin Panel"
+            className="max-w-full max-h-[90vh] rounded-2xl border-2 border-orange-500/60 shadow-2xl"
+            onClick={e => e.stopPropagation()}
             />
           </div>
         )}
