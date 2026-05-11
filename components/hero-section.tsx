@@ -910,6 +910,9 @@ const FAQ_ITEMS: FaqItem[] = [
       'To apply, send an email to admin@fractera.ai. Before reaching out, publish a public post or article about Fractera and include the link in your email. The link will be reviewed by AI — if verified, you\'ll receive a personal offer and your platform will be deployed.',
       'Deployment is a one-time $500 fee. No recurring payments. Availability is limited.',
     ],
+    trail: [
+      'We are also looking for regional distributors — partners who will drive growth and engagement of the referral program in their region or business niche. For participation inquiries, contact: admin@fractera.ai',
+    ],
   },
 ]
 
