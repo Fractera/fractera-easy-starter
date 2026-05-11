@@ -756,9 +756,29 @@ type FaqItem = {
   q: string
   a: string[]
   steps?: string[]
+  bullets?: string[]
+  trail?: string[]
 }
 
 const FAQ_ITEMS: FaqItem[] = [
+  {
+    q: 'The same AI platforms — yet Fractera ships faster with fewer tokens. Why?',
+    a: [
+      'Regular vibe coding puts all the heavy lifting on the AI: design the architecture, write boilerplate, locate the right component, recall what was decided last session. Every token spent on that overhead is a token not spent on your actual feature.',
+      'Fractera eliminates that overhead at every layer:',
+    ],
+    bullets: [
+      'Production-ready starters — Auth, database, file storage, and advanced routing (parallel routes, protected layouts, nested segments) ship fully pre-configured. The AI skips months of scaffolding and goes straight to your feature from day one.',
+      'Component highlighting in the editor — Click any element on your live site to jump directly to its source. No tokens wasted asking "where is the navbar?" or hunting through hundreds of files.',
+      'LightRAG, your company brain — A persistent vector store that remembers your entire codebase, every architectural decision, and your project\'s domain knowledge. Every AI message arrives with full context — not starting from scratch.',
+      'AI-optimized skills & instructions — Pre-built prompts and workflows specifically designed for non-professional developers. The right approach on the first try, not after five failed attempts.',
+      'Cross-platform orchestration — LightRAG coordinates all five coding platforms so they share context. Switching from Claude Code to Gemini CLI doesn\'t mean losing the thread of your project.',
+    ],
+    trail: [
+      'The result: tasks that take 10–20 back-and-forth messages in a vanilla AI chat typically resolve in 2–3 focused exchanges inside Fractera — because the AI already knows your codebase, already has the patterns, and already understands your intent.',
+      'This is Fractera Pro. And once you\'ve tried it, there\'s no going back to plain vibe coding.',
+    ],
+  },
   {
     q: 'What server specs do I need?',
     a: [
@@ -830,6 +850,19 @@ function FaqSection() {
                     ))}
                   </ol>
                 )}
+                {item.bullets && (
+                  <ul className="flex flex-col gap-2.5 mt-1">
+                    {item.bullets.map((b, bi) => (
+                      <li key={bi} className="flex items-start gap-3 text-sm leading-relaxed">
+                        <span className="shrink-0 text-orange-400 mt-0.5 font-bold">✓</span>
+                        <span className="text-white/80">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {item.trail && item.trail.map((para, pi) => (
+                  <p key={pi} className={`text-sm leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white/70'}`}>{para}</p>
+                ))}
               </div>
             )}
           </div>
