@@ -18,32 +18,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fractera — AI Coding Platform on Your Own Server",
+  title: "Fractera — Production-Coding AI Server",
   description:
-    "Run Claude Code, Codex, Gemini CLI, Qwen Code and Kimi Code on a server you own. No API keys — use your own subscription. Live in 10 minutes.",
+    "Ship features faster with fewer tokens. Pre-built auth, database and routing. LightRAG keeps your full codebase in AI memory. Five coding platforms on your own server.",
   metadataBase: new URL("https://fractera.ai"),
   openGraph: {
     type: "website",
     url: "https://fractera.ai",
     siteName: "Fractera",
-    title: "Fractera — AI Coding Platform on Your Own Server",
+    title: "Fractera — Production-Coding AI Server",
     description:
-      "Five AI coding platforms on a server you own. No API keys. Your own subscription. Your own domain. Live in 10 minutes.",
+      "Same AI platforms as everyone — but a fraction of the token waste. Production starters, LightRAG codebase memory, and component highlighting mean the AI skips straight to your feature. Five coding platforms. Your own server. Live in 10 minutes.",
     images: [
       {
-        url: "/fractera-logo.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Fractera — AI Coding Platform",
+        url: "/Fractera-start-image.jpg",
+        width: 1920,
+        height: 1080,
+        alt: "Fractera — Production-Coding AI Server",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fractera — AI Coding Platform on Your Own Server",
+    title: "Fractera — Production-Coding AI Server",
     description:
-      "Five AI coding platforms on a server you own. No API keys. Your own subscription. Live in 10 minutes.",
-    images: ["/fractera-logo.jpg"],
+      "Same AI platforms — but far fewer tokens wasted. Production starters, LightRAG codebase memory, and component highlighting built in. Five platforms. Your server.",
+    images: ["/Fractera-start-image.jpg"],
   },
   icons: {
     icon: [
@@ -57,15 +57,15 @@ export const metadata: Metadata = {
     ],
   },
   keywords: [
+    "production coding AI",
+    "Claude Code server",
+    "Codex self-hosted",
+    "Gemini CLI server",
+    "LightRAG",
     "AI coding platform",
-    "Claude Code",
-    "Codex",
-    "Gemini CLI",
-    "Qwen Code",
-    "Kimi Code",
     "own server",
     "no API key",
-    "coding subscription",
+    "fewer tokens",
     "self-hosted AI",
   ],
   robots: {
