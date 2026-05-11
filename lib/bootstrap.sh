@@ -11,6 +11,7 @@ INSTALL_SECRET="$2"
 PLATFORM="${3:-claude-code}"
 SERVER_TOKEN="${4:-}"
 SUBDOMAIN_OVERRIDE="${5:-}"
+GITHUB_TOKEN="${6:-}"
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -89,10 +90,20 @@ rm -rf \
   2>/dev/null || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+if [ -n "$GITHUB_TOKEN" ]; then
+  CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
+else
+  CLONE_URL="https://github.com/Fractera/ai-workspace.git"
+fi
 step "clone" "Downloading Fractera" \
-  "rm -rf /opt/fractera && git clone https://github.com/Fractera/ai-workspace.git /opt/fractera"
+  "rm -rf /opt/fractera && git clone $CLONE_URL /opt/fractera"
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
+
+# Update remote so future git pull also works with the same token
+if [ -n "$GITHUB_TOKEN" ]; then
+  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
+fi
 
 # Record deployed commit and branch for verification
 DEPLOYED_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")

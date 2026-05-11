@@ -40,6 +40,7 @@ export async function deployToServer({
   const safePlatform = /^[a-z0-9-]+$/.test(platform) ? platform : 'claude-code'
   const safeToken = serverToken.replace(/['"\\`$]/g, '')
   const safeSubdomain = subdomainOverride.replace(/['"\\`$]/g, '')
+  const safeGithubToken = (process.env.GITHUB_DEPLOY_TOKEN ?? '').replace(/['"\\`$]/g, '')
   const secret = process.env.INSTALL_SCRIPT_SECRET!
 
   const bootstrapPath = join(process.cwd(), 'lib', 'bootstrap.sh')
@@ -64,7 +65,7 @@ export async function deployToServer({
           const cmd = [
             `chmod +x ${remoteScript}`,
             `&& setsid bash ${remoteScript}`,
-            `"${session_id}" "${secret}" "${safePlatform}" "${safeToken}" "${safeSubdomain}"`,
+            `"${session_id}" "${secret}" "${safePlatform}" "${safeToken}" "${safeSubdomain}" "${safeGithubToken}"`,
             `> /tmp/fractera-install.log 2>&1 < /dev/null &`,
           ].join(' ')
 
