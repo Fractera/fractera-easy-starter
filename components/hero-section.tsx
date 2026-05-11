@@ -452,9 +452,9 @@ export function HeroSection() {
                 <span className="text-white font-bold">✓</span>
                 <span>Auth service — built-in authentication</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-400">—</span>
-                <span className="text-gray-300">Fractera Pro not included</span>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-400 shrink-0 mt-0.5">◈</span>
+                <span className="text-white">Fractera Pro — <span className="text-orange-400 font-semibold">14-day free trial available</span></span>
               </li>
             </ul>
 
@@ -517,6 +517,10 @@ export function HeroSection() {
           <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); domainResetRef.current?.() }} />
         </>
       )}
+
+      {/* FAQ */}
+      <FaqSection />
+
     </section>
   )
 }
@@ -742,6 +746,95 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
           A confirmation email with these links was sent to <strong className="text-white font-bold">{email}</strong>
         </p>
       )}
+    </div>
+  )
+}
+
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+
+type FaqItem = {
+  q: string
+  a: string[]
+  steps?: string[]
+}
+
+const FAQ_ITEMS: FaqItem[] = [
+  {
+    q: 'What server specs do I need?',
+    a: [
+      'For full AI-coding workloads, the recommended minimum is 6 cores and 8 GB RAM. Storage depends on your project — 75 GB is a solid baseline, though go larger if you plan to host video or media files.',
+      'Once active AI development wraps up and you just need the app running, you can downgrade to 2 cores / 4 GB RAM. Servers at that tier typically rent for €1–2 per month.',
+    ],
+  },
+  {
+    q: 'Can I switch from the paid plan to free self-hosting later?',
+    a: ['Yes — at any time. Here\'s the recommended migration path:'],
+    steps: [
+      'Keep your code continuously synced to GitHub throughout your subscription.',
+      'Export your database and file storage to an external drive.',
+      'Provision a new server and deploy a mirror of your project.',
+      'Import your database and file storage, then verify the app works end-to-end.',
+      'Point your custom domain to the new server, then cancel your subscription.',
+    ],
+  },
+  {
+    q: 'Can I bring my existing project into Fractera and continue AI-assisted development?',
+    a: [
+      'Yes. Connect your existing GitHub repository to your Fractera workspace and start coding with AI immediately. Depending on your project\'s complexity, some initial migration steps may be needed — Fractera\'s built-in AI assistants can guide you through the process.',
+    ],
+  },
+  {
+    q: 'Can I use Vercel and cloud storage to run everything for free?',
+    a: [
+      'You can. Connect cloud databases and object storage, push your project to GitHub, and deploy it on Vercel. Just keep in mind that Vercel and cloud storage pricing can escalate quickly under real-world traffic.',
+      'When that happens, Fractera\'s self-hosted option gives you predictable monthly costs regardless of traffic volume. Migrating back is straightforward — your code is already on GitHub.',
+    ],
+  },
+]
+
+function FaqSection() {
+  const [open, setOpen] = useState<number | null>(null)
+
+  return (
+    <div className="w-full max-w-xl flex flex-col gap-4">
+      <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
+      <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/[0.07]">
+        {FAQ_ITEMS.map((item, i) => (
+          <div key={i} className="bg-white/[0.02]">
+            <button
+              type="button"
+              onClick={() => setOpen(open === i ? null : i)}
+              className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.04] transition-colors"
+            >
+              <span className="text-sm font-semibold text-white leading-snug">{item.q}</span>
+              <span
+                className={`shrink-0 text-white/40 mt-0.5 transition-transform duration-200 select-none ${open === i ? 'rotate-180' : ''}`}
+              >
+                ▾
+              </span>
+            </button>
+            {open === i && (
+              <div className="px-5 pb-5 flex flex-col gap-3">
+                {item.a.map((para, pi) => (
+                  <p key={pi} className="text-sm text-white/70 leading-relaxed">{para}</p>
+                ))}
+                {item.steps && (
+                  <ol className="flex flex-col gap-2 mt-1">
+                    {item.steps.map((step, si) => (
+                      <li key={si} className="flex items-start gap-3 text-sm text-white/70 leading-relaxed">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-white/[0.08] border border-white/20 flex items-center justify-center text-[10px] font-bold text-white/50 mt-0.5">
+                          {si + 1}
+                        </span>
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
