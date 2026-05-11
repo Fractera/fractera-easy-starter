@@ -132,53 +132,71 @@ export function HeroSection() {
   return (
     <section className="flex flex-col gap-8 items-start sm:items-center">
 
-      <div className="flex flex-col gap-8 items-start sm:items-center">
+      {/* Hero: single column on mobile/tablet, two columns on xl+ */}
+      <div className="w-full flex flex-col xl:flex-row xl:items-start xl:justify-center gap-8 xl:gap-16">
 
-        {/* Open Source badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-          <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
-        </div>
+        {/* Left column: text content */}
+        <div className="flex flex-col gap-8 items-start sm:items-center xl:items-start xl:max-w-xl">
 
-        {/* Title + subtitle */}
-        <div className="flex flex-col gap-3 sm:items-center">
-          <h1 className="text-7xl font-bold tracking-tight font-serif sm:text-center leading-[0.95]">
-            Fractera
-          </h1>
-          <p className="text-2xl font-bold text-white sm:text-center leading-tight">
-            Production AI Development Workspace
-          </p>
-        </div>
+          {/* Open Source badge */}
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+            <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
+          </div>
 
-        {/* Orange accent divider */}
-        <div className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-500/0" />
-
-        {/* Description */}
-        <div className="flex flex-col gap-3 max-w-2xl sm:text-center">
-          {DESCRIPTION_ITEMS.map((text, i) => (
-            <p key={i} className={`text-white leading-relaxed ${i === 0 ? 'text-lg font-semibold' : 'text-base'}`}>
-              {text}
+          {/* Title + subtitle */}
+          <div className="flex flex-col gap-3 sm:items-center xl:items-start">
+            <h1 className="text-7xl font-bold tracking-tight font-serif sm:text-center xl:text-left leading-[0.95]">
+              Fractera
+            </h1>
+            <p className="text-2xl font-bold text-white sm:text-center xl:text-left leading-tight">
+              Production AI Development Workspace
             </p>
-          ))}
-          <p className="text-sm text-orange-400 mt-1">
-            ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
-          </p>
+          </div>
+
+          {/* Orange accent divider */}
+          <div className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-500/0" />
+
+          {/* Description */}
+          <div className="flex flex-col gap-3 max-w-2xl sm:text-center xl:text-left">
+            {DESCRIPTION_ITEMS.map((text, i) => (
+              <p key={i} className={`text-white leading-relaxed ${i === 0 ? 'text-lg font-semibold' : 'text-base'}`}>
+                {text}
+              </p>
+            ))}
+            <p className="text-sm text-orange-400 mt-1">
+              ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
+            </p>
+          </div>
+
+          {/* Supported platforms */}
+          <div className="flex flex-col gap-2 sm:items-center xl:items-start">
+            <span className="text-xs font-semibold text-white uppercase tracking-widest">Supported platforms</span>
+            <div className="flex items-center gap-1.5 flex-wrap sm:justify-center xl:justify-start">
+              {PLATFORMS.map((name, i) => (
+                <span key={name} className="flex items-center gap-1.5">
+                  <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
+                    {name}
+                  </span>
+                  {i < PLATFORMS.length - 1 && (
+                    <span className="text-white text-xs select-none">·</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+
         </div>
 
-        {/* Supported platforms */}
-        <div className="flex flex-col gap-2 sm:items-center">
-          <span className="text-xs font-semibold text-white uppercase tracking-widest">Supported platforms</span>
-          <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
-            {PLATFORMS.map((name, i) => (
-              <span key={name} className="flex items-center gap-1.5">
-                <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
-                  {name}
-                </span>
-                {i < PLATFORMS.length - 1 && (
-                  <span className="text-white text-xs select-none">·</span>
-                )}
-              </span>
-            ))}
+        {/* Right column: illustration — xl+ only */}
+        <div className="hidden xl:block xl:w-[500px] xl:shrink-0 self-start sticky top-8">
+          <div className="rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/Admin-Fractera.png"
+              alt="Fractera Admin Panel"
+              className="w-full h-auto block"
+            />
           </div>
         </div>
 
