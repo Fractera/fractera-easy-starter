@@ -74,6 +74,25 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Fractera',
+  url: 'https://fractera.ai',
+  logo: 'https://fractera.ai/fractera-logo.jpg',
+  description:
+    'Production AI Development Workspace. Ship features faster with fewer tokens using Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code on your own server.',
+  email: 'admin@fractera.ai',
+  sameAs: ['https://fractera.ai'],
+}
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Fractera',
+  url: 'https://fractera.ai',
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -84,6 +103,16 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           <SiteHeader />

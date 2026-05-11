@@ -244,8 +244,6 @@ export function HeroSection() {
           </div>
         )}
 
-      </div>
-
       {/* Payment success: pipeline or server links */}
       {paymentSuccess && (
         <div className="w-full max-w-2xl flex flex-col gap-4">
