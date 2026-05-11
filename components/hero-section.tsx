@@ -885,10 +885,11 @@ const FAQ_ITEMS: FaqItem[] = [
     ],
   },
   {
-    q: 'Can I use Vercel and cloud storage to run everything for free?',
+    q: 'Can I deploy a finished project to Vercel instead of keeping it on my own server?',
     a: [
-      'You can. Connect cloud databases and object storage, push your project to GitHub, and deploy it on Vercel. Just keep in mind that Vercel and cloud storage pricing can escalate quickly under real-world traffic.',
-      'When that happens, Fractera\'s self-hosted option gives you predictable monthly costs regardless of traffic volume. Migrating back is straightforward — your code is already on GitHub.',
+      'Yes — once a project is complete and no longer needs active AI-assisted development, you can export it to Vercel. Connect cloud databases and object storage, push to GitHub, and deploy.',
+      'Important: moving to Vercel means leaving the Fractera environment behind. The AI coding workspace, terminal access, LightRAG memory, and all five development platforms only run on your own server. A restaurant menu or a simple landing page is a good candidate for this move — a product you\'re still actively building is not.',
+      'Also keep in mind that Vercel and cloud storage pricing can escalate quickly under real-world traffic. When that happens, migrating back to a self-hosted Fractera server is straightforward — your code is already on GitHub.',
     ],
   },
   {
