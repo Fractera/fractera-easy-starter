@@ -122,11 +122,11 @@ export function HeroSection() {
   const showTroubleshoot = installStarted && !domainReady
 
   return (
-    <section className="flex flex-col gap-8 items-start">
+    <section className="flex flex-col gap-8 items-start sm:items-center">
 
       <div className="flex flex-col gap-5">
         {/* Platform chips */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
           {PLATFORMS.map((name, i) => (
             <span key={name} className="flex items-center gap-1.5">
               <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
@@ -140,10 +140,10 @@ export function HeroSection() {
         </div>
 
         {/* Title */}
-        <h1 className="text-6xl font-bold tracking-tight">Fractera</h1>
+        <h1 className="text-6xl font-bold tracking-tight sm:text-center">Fractera</h1>
 
         {/* Description */}
-        <div className="flex flex-col gap-3 max-w-xl">
+        <div className="flex flex-col gap-3 max-w-xl sm:text-center">
           <p className="text-2xl text-white font-semibold leading-snug">
             Production coding platform —{' '}
             <span className="text-white font-semibold">your own server, writing code live in the browser</span>,
@@ -275,9 +275,15 @@ export function HeroSection() {
             )}
 
             {selectedPlan.id === 'free' && (
-              <p className="text-sm text-white">
-                Use the <span className="text-white font-bold">Fractera Light</span> option below — bring your own VPS server.
-              </p>
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg font-bold text-white">Free Forever</span>
+                  <span className="text-xs text-white/50 font-medium">· no credit card · no expiry</span>
+                </div>
+                <p className="text-sm text-white">
+                  Use the <span className="text-white font-bold">Fractera Light</span> option below — bring your own VPS server.
+                </p>
+              </>
             )}
 
             {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
@@ -530,7 +536,7 @@ type Plan = {
 const PLANS: Plan[] = [
   {
     id: 'free',
-    name: 'Free',
+    name: 'Free Forever',
     sublabel: 'Your own server · Fractera Light',
     price: null,
     period: null,
@@ -586,7 +592,7 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
               {selected.period && <span className="text-sm text-white font-normal">{selected.period}</span>}
             </span>
           )}
-          {!selected.price && <span className="text-base text-white font-semibold">Free</span>}
+          {!selected.price && <span className="text-base text-white font-semibold">Free forever</span>}
           <span className={`text-white text-sm transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>▾</span>
         </div>
       </button>
@@ -638,7 +644,7 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
                   <div className="shrink-0 text-right">
                     {plan.price
                       ? <span className="text-base font-bold text-white">{plan.price}<span className="text-sm text-white font-normal">{plan.period}</span></span>
-                      : <span className="text-base text-white font-semibold">Free</span>
+                      : <span className="text-base text-white font-semibold">Free forever</span>
                     }
                   </div>
                 </button>
