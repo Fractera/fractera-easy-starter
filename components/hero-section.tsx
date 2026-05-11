@@ -46,6 +46,7 @@ export function HeroSection() {
   const { openServers } = useDashboard()
   const { openCheckout } = useCheckout()
 
+  const [imageFullscreen, setImageFullscreen] = useState(false)
   const [domainReady, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
@@ -127,6 +128,13 @@ export function HeroSection() {
     }
   }, [session, pendingPlan]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!imageFullscreen) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setImageFullscreen(false) }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [imageFullscreen])
+
   const showTroubleshoot = installStarted && !domainReady
 
   return (
@@ -190,7 +198,10 @@ export function HeroSection() {
 
         {/* Right column: illustration — xl+ only */}
         <div className="hidden xl:block xl:w-[500px] xl:shrink-0 self-start sticky top-8">
-          <div className="rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12]">
+          <div
+            className="rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12] cursor-zoom-in"
+            onClick={() => setImageFullscreen(true)}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Admin-Fractera.png"
@@ -199,6 +210,29 @@ export function HeroSection() {
             />
           </div>
         </div>
+
+        {/* Fullscreen lightbox */}
+        {imageFullscreen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={() => setImageFullscreen(false)}
+          >
+            <button
+              type="button"
+              className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors text-3xl leading-none font-light"
+              onClick={() => setImageFullscreen(false)}
+            >
+              ×
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/Admin-Fractera.png"
+              alt="Fractera Admin Panel"
+              className="max-w-full max-h-[90vh] rounded-2xl border-2 border-orange-500/60 shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+        )}
 
       </div>
 
