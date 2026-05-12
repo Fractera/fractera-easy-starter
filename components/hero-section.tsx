@@ -31,10 +31,10 @@ const PLATFORMS = [
 ]
 
 const FEATURE_ITEMS = [
-  { icon: Layers,    text: "Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain." },
-  { icon: Lightbulb, text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
-  { icon: Code2,     text: "If you're a developer who wants to build products, not just write code — you'll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities." },
-  { icon: Rocket,    text: "All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand." },
+  { icon: Layers,    title: "Zero to Production",  text: "Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain." },
+  { icon: Lightbulb, title: "Build the Product",   text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
+  { icon: Code2,     title: "Beyond the Code",     text: "If you're a developer who wants to build products, not just write code — you'll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities." },
+  { icon: Rocket,    title: "Ship 10× Faster",     text: "All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand." },
 ]
 
 const DESCRIPTION_ITEMS = [
@@ -187,12 +187,13 @@ export function HeroSection() {
 
         {/* 2×2 feature grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-          {FEATURE_ITEMS.map(({ icon: Icon, text }, i) => (
+          {FEATURE_ITEMS.map(({ icon: Icon, title, text }, i) => (
             <div key={i} className="flex flex-col gap-3 bg-white/[0.03] border border-white/20 rounded-2xl p-5">
               <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5 text-orange-400" />
               </div>
-              <p className="text-base text-white leading-relaxed">{text}</p>
+              <p className="text-base font-bold text-white">{title}</p>
+              <p className="text-sm text-white/70 leading-relaxed">{text}</p>
             </div>
           ))}
         </div>
