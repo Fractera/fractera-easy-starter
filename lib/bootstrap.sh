@@ -170,6 +170,9 @@ fi
 if ! grep -q "DEPLOY_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DEPLOY_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
+if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -217,6 +220,7 @@ cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
+DATA_SECRET=$DATA_SECRET
 ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -515,6 +519,7 @@ cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=/opt/fractera/app/data/app.db
+DATA_SECRET=$DATA_SECRET
 ENVEOF
 
 # === Validate critical env vars are not empty or localhost ===
