@@ -192,8 +192,8 @@ export function HeroSection() {
               <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5 text-orange-400" />
               </div>
-              <p className="text-base font-bold text-white">{title}</p>
-              <p className="text-sm text-white/70 leading-relaxed">{text}</p>
+              <p className="text-lg font-bold text-white">{title}</p>
+              <p className="text-[15px] text-white/70 leading-relaxed">{text}</p>
             </div>
           ))}
         </div>
@@ -324,7 +324,7 @@ export function HeroSection() {
             <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
 
             {selectedPlan.id !== 'free' && (
-              <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
+              <ul className="flex flex-col gap-1.5 text-base text-white font-medium">
                 <li className="flex items-center gap-2">
                   <span className="text-orange-400">✓</span>
                   <span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span>
@@ -448,7 +448,7 @@ export function HeroSection() {
                   <span className="text-2xl font-bold text-white">$0</span>
                 </div>
 
-                <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
+                <ul className="flex flex-col gap-1.5 text-base text-white font-medium">
                   <li className="flex items-center gap-2">
                     <span className="text-emerald-400">✓</span>
                     <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
@@ -966,7 +966,7 @@ function FaqSection() {
               onClick={() => setOpen(open === i ? null : i)}
               className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.04] transition-colors"
             >
-              <span className="text-base font-semibold text-white leading-snug">{item.q}</span>
+              <span className="text-lg font-semibold text-white leading-snug">{item.q}</span>
               <span
                 className={`shrink-0 text-white mt-0.5 transition-transform duration-200 select-none ${open === i ? 'rotate-180' : ''}`}
               >
@@ -976,12 +976,12 @@ function FaqSection() {
             {open === i && (
               <div className="px-5 pb-5 flex flex-col gap-3">
                 {item.a.map((para, pi) => (
-                  <p key={pi} className="text-base text-white leading-relaxed">{para}</p>
+                  <p key={pi} className="text-[15px] text-white leading-relaxed">{para}</p>
                 ))}
                 {item.steps && (
                   <ol className="flex flex-col gap-2 mt-1">
                     {item.steps.map((step, si) => (
-                      <li key={si} className="flex items-start gap-3 text-base text-white leading-relaxed">
+                      <li key={si} className="flex items-start gap-3 text-[15px] text-white leading-relaxed">
                         <span className="shrink-0 w-5 h-5 rounded-full bg-white/[0.08] border border-white/40 flex items-center justify-center text-xs font-bold text-white mt-0.5">
                           {si + 1}
                         </span>
@@ -995,13 +995,13 @@ function FaqSection() {
                     {item.bullets.map((b, bi) => (
                       <li key={bi} className="flex items-start gap-3 text-base leading-relaxed">
                         <span className="shrink-0 text-orange-400 mt-0.5 font-bold">✓</span>
-                        <span className="text-white">{b}</span>
+                        <span className="text-[15px] text-white">{b}</span>
                       </li>
                     ))}
                   </ul>
                 )}
                 {item.trail && item.trail.map((para, pi) => (
-                  <p key={pi} className={`text-base leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white'}`}>{para}</p>
+                  <p key={pi} className={`text-[15px] leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white'}`}>{para}</p>
                 ))}
               </div>
             )}
