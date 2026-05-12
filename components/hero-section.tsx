@@ -915,6 +915,7 @@ const FAQ_ITEMS: FaqItem[] = [
     ],
     trail: [
       'Your changes go live in production in minutes — no CI pipeline to configure, no hosting provider to manage. In effect, your own server becomes a self-hosted alternative to Vercel: GitHub is the bridge between your local environment and production.',
+      'Your local development environment will continue to use the database and file storage that live on your server — no cloud database or cloud storage subscription required. If you later decide to migrate to a fully cloud-based setup, that is also possible: use the corresponding Skills available in your Fractera workspace to handle the migration.',
     ],
   },
   {
