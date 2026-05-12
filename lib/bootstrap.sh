@@ -185,6 +185,7 @@ AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -193,7 +194,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
-DATABASE_URL=file:./data/auth.db
+DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
 
@@ -209,11 +210,13 @@ NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
 NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 DEPLOY_SECRET=$DEPLOY_SECRET
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -480,6 +483,7 @@ AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
 NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -488,7 +492,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=.$SUBDOMAIN
 COOKIE_SECURE=true
 NEXTAUTH_URL=https://auth.$SUBDOMAIN
-DATABASE_URL=file:./data/auth.db
+DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
 ENVEOF
 
@@ -504,11 +508,13 @@ NEXT_PUBLIC_GEMINI_URL=wss://admin.$SUBDOMAIN/gemini-bridge/
 NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 DEPLOY_SECRET=$DEPLOY_SECRET
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=https://data.$SUBDOMAIN
+APP_DB_PATH=/opt/fractera/app/data/app.db
 ENVEOF
 
 # === Validate critical env vars are not empty or localhost ===
