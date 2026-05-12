@@ -902,6 +902,22 @@ const FAQ_ITEMS: FaqItem[] = [
     ],
   },
   {
+    q: 'Can I combine local development with the Fractera production platform?',
+    a: [
+      'Yes — and for developers with an existing local setup, this is often the most natural workflow.',
+      'If you prefer working with hot reload in your IDE, you don\'t have to change your habits. Use Fractera as your production environment and your local machine as the development workspace:',
+    ],
+    steps: [
+      'After setting up your Fractera project, connect it to a GitHub repository and push the initial codebase.',
+      'Pull the code to your local machine. Develop the way you always have — your IDE, your preferred AI tools, hot reload.',
+      'When ready to ship, push your changes to GitHub.',
+      'Return to your Fractera workspace, pull from GitHub, and hit Deploy.',
+    ],
+    trail: [
+      'Your changes go live in production in minutes — no CI pipeline to configure, no hosting provider to manage. In effect, your own server becomes a self-hosted alternative to Vercel: GitHub is the bridge between your local environment and production.',
+    ],
+  },
+  {
     q: 'Do you have a referral program?',
     a: [
       'Yes — we offer a referral program for content creators, bloggers, and anyone interested in building their own branded version of Fractera.',

@@ -57,6 +57,14 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
+      name: 'Can I combine local development with the Fractera production platform?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — and for developers with an existing local setup, this is often the most natural workflow. After setting up your Fractera project, connect it to a GitHub repository and push the initial codebase. Pull the code to your local machine and develop as usual — your IDE, your preferred AI tools, hot reload. When ready to ship, push to GitHub, then return to your Fractera workspace, pull, and deploy. Your changes go live in production in minutes. In effect, your own server becomes a self-hosted alternative to Vercel: GitHub is the bridge between your local environment and production.',
+      },
+    },
+    {
+      '@type': 'Question',
       name: 'Do you have a referral program?',
       acceptedAnswer: {
         '@type': 'Answer',
