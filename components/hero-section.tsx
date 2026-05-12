@@ -861,6 +861,24 @@ const FAQ_ITEMS: FaqItem[] = [
     ],
   },
   {
+    q: 'How does Fractera keep your business stable?',
+    a: [
+      'Modern web development has a tempting formula: combine a handful of "free" services around platforms like Vercel or Netlify — plug in Clerk for auth, Supabase for your database, and a dozen other cloud APIs. It looks great on day one.',
+      'The problems surface when your prototype becomes a real business. Each service quietly updates its pricing. What starts as free becomes a paid tier — and that paid tier is not a flat $20/month. It scales with your traffic, your users, and the load they put on the network. Multiply that across five or ten services and the math gets unpredictable fast.',
+      'Worse: you now have ten billing cycles to track. Miss one payment and your project goes dark. No warning, no grace period — just a white screen where your business used to be. Partners who switched to Fractera often share exactly this story: a live project lost because one service expired, and it was not even clear which one had caused it. By the time they figured it out, the reputation damage was done. Running multiple projects only multiplies that risk.',
+      'Fractera is built around a different principle: everything your business actually needs — authentication, databases, media storage, document storage, a company knowledge base — lives on your server, not spread across a dozen cloud dashboards.',
+    ],
+    bullets: [
+      'One subscription, one server — cost does not scale with your users.',
+      'If you pause your business, your data does not disappear. Back it up, store it on a drive, and restore it to a new project when you are ready.',
+      'Your application code lives on GitHub — recovery is always possible, even if dependencies have aged.',
+      'Built-in AI systems can help rebuild the project even when some packages are outdated.',
+    ],
+    trail: [
+      'One server. One bill. Maximum resilience — whether you are running one project or ten.',
+    ],
+  },
+  {
     q: 'What server specs do I need?',
     a: [
       'For full AI-coding workloads, the recommended minimum is 6 cores and 8 GB RAM. Storage depends on your project — 75 GB is a solid baseline, though go larger if you plan to host video or media files.',
