@@ -153,12 +153,12 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
 
       {installError && (
         <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-5 flex flex-col gap-3">
-          <p className="text-sm font-semibold text-orange-300">Произошла ошибка при развёртывании</p>
+          <p className="text-sm font-semibold text-orange-300">Deployment error</p>
           <p className="text-sm text-orange-200/70 leading-relaxed">
-            Наша команда уже получила уведомление и устраняет проблему вручную.
-            Вы получите письмо с данными вашего сервера, как только всё будет готово.
+            Our team has been notified and is fixing the issue manually.
+            You will receive an email with your server details as soon as everything is ready.
           </p>
-          <p className="text-xs text-orange-500">Приносим свои извинения за доставленные неудобства.</p>
+          <p className="text-xs text-orange-500">We apologize for the inconvenience.</p>
         </div>
       )}
 
