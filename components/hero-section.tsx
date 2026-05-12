@@ -193,7 +193,7 @@ export function HeroSection() {
                 <Icon className="w-5 h-5 text-orange-400" />
               </div>
               <p className="text-lg font-bold text-white">{title}</p>
-              <p className="text-[15px] text-white/70 leading-relaxed">{text}</p>
+              <p className="text-[15px] text-white leading-relaxed">{text}</p>
             </div>
           ))}
         </div>
