@@ -146,7 +146,7 @@ export function HeroSection() {
   const showTroubleshoot = installStarted && !domainReady
 
   return (
-    <section className="flex flex-col gap-8 items-start sm:items-center">
+    <section className="flex flex-col gap-8 items-start">
 
       {/* ── AIFA-style full-screen hero with video background ── */}
       <div className="relative min-h-screen w-full overflow-hidden flex flex-col -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
@@ -200,7 +200,7 @@ export function HeroSection() {
       </div>
 
       {/* ── Below fold ── */}
-      <div className="flex flex-col gap-8 items-start sm:items-center w-full max-w-4xl">
+      <div className="flex flex-col gap-8 items-start w-full max-w-4xl">
 
         {/* Illustration */}
         <div
