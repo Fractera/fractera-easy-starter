@@ -200,7 +200,7 @@ export function HeroSection() {
       </div>
 
       {/* ── Below fold ── */}
-      <div className="flex flex-col gap-8 items-start sm:items-center w-full max-w-2xl">
+      <div className="flex flex-col gap-8 items-start sm:items-center w-full max-w-4xl">
 
         {/* Illustration */}
         <div
@@ -265,7 +265,7 @@ export function HeroSection() {
 
       {/* Payment success: pipeline or server links */}
       {paymentSuccess && (
-        <div className="w-full max-w-2xl flex flex-col gap-4">
+        <div className="w-full max-w-4xl flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-lg">✓</span>
             <p className="text-sm font-semibold text-green-400">Payment confirmed</p>
@@ -328,7 +328,7 @@ export function HeroSection() {
       )}
 
       {!paymentSuccess && (
-        <div className="w-full max-w-2xl flex flex-col gap-4">
+        <div className="w-full max-w-4xl flex flex-col gap-4">
 
           {/* One-click START card */}
           <div className="flex flex-col gap-5 bg-white/[0.03] border border-violet-500/50 rounded-2xl p-6">
@@ -589,7 +589,7 @@ export function HeroSection() {
 
       {/* Troubleshoot */}
       {showTroubleshoot && (
-        <div className="w-full max-w-2xl flex flex-col gap-3">
+        <div className="w-full max-w-4xl flex flex-col gap-3">
           <div className="flex flex-col gap-3 bg-white/[0.05] border border-white/40 rounded-xl p-5">
             <p className="text-base text-white font-semibold">
               Having trouble? Choose your AI platform to get help:
@@ -602,7 +602,7 @@ export function HeroSection() {
       {/* Success state */}
       {domainReady && (
         <>
-          <div className="flex flex-col gap-6 w-full max-w-2xl">
+          <div className="flex flex-col gap-6 w-full max-w-4xl">
             <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-bold text-white">Connect via Fractera MCP</h2>
               <p className="text-base text-white max-w-xl">
@@ -895,7 +895,7 @@ function ProblemSection() {
   const active = FRACTERA_HELPS_ITEMS[activeIndex]
 
   return (
-    <div className="w-full max-w-2xl flex flex-col gap-6">
+    <div className="w-full max-w-4xl flex flex-col gap-6">
 
       {/* Section header */}
       <div className="flex flex-col gap-2">
@@ -1099,7 +1099,7 @@ function FaqSection() {
   const [open, setOpen] = useState<number | null>(null)
 
   return (
-    <div className="w-full max-w-2xl flex flex-col gap-4">
+    <div className="w-full max-w-4xl flex flex-col gap-4">
       <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
       <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/20">
         {FAQ_ITEMS.map((item, i) => (
