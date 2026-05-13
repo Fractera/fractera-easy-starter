@@ -215,10 +215,6 @@ export function HeroSection() {
         {/* Platforms grid */}
         <PlatformsGrid />
 
-        {/* Star subscription line */}
-        <p className="text-sm text-violet-400">
-          ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
-        </p>
 
       </div>
 
@@ -899,10 +895,6 @@ function PlatformsGrid() {
         ))}
       </div>
 
-      <p className="flex items-center gap-1.5 text-xs text-white/40">
-        <Smartphone className="w-3 h-3 shrink-0" />
-        Works on any device — laptop, tablet, or phone. No powerful hardware required.
-      </p>
     </div>
   )
 }
@@ -933,6 +925,12 @@ const FRACTERA_HELPS_ITEMS = [
     title: "Too Many Single Points of Failure",
     problem: "Ten services means ten billing cycles, ten dashboards, ten places something can go wrong. When one service quietly expires, you often don't know which one caused the white screen. By the time you figure it out, the reputation damage is done. Running multiple projects multiplies every one of these risks.",
     solution: "Everything your application needs lives on your server, not spread across a dozen cloud dashboards. Your code stays on GitHub — recovery is always possible, even if dependencies have aged. Built-in AI systems can help rebuild the project even when some packages are outdated.",
+  },
+  {
+    id: "hardware",
+    title: "Your Hardware Shouldn't Be the Limit",
+    problem: "Active AI development — global memory, autonomous agents, five coding platforms running in parallel — can push your machine hard. If you're doing anything else at the same time, performance drops fast. Not everyone can afford a dedicated high-spec computer just for AI workflows.",
+    solution: "With Fractera, your device carries zero load. All computation runs on your server. You can scale it up whenever your project demands — more cores, more RAM, more throughput. Works on a laptop, tablet, or phone. No reason to upgrade your hardware until you actually need to.",
   },
 ]
 
