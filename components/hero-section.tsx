@@ -472,7 +472,9 @@ export function HeroSection() {
       <FaqSection />
 
       {/* Testimonial */}
-      <FractеraTestimonial />
+      <div className="mb-32 w-full flex justify-center">
+        <FractеraTestimonial />
+      </div>
 
     </section>
   )
@@ -1098,21 +1100,36 @@ function FractеraTestimonial() {
           </p>
         </blockquote>
 
-        <figcaption className="mt-5 flex items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/roma_armstrong.jpg"
-            alt="Roma Armstrong photo"
-            width={30}
-            height={30}
-            className="mr-2.5 rounded-full"
-          />
-          <span className="text-lg font-light leading-tight tracking-tight text-gray-400 lg:text-base md:text-sm">
-            Roma Armstrong
-            <cite className="ml-1.5 not-italic text-gray-500 before:mr-1.5 before:inline-flex before:h-px before:w-4 before:bg-gray-500 before:align-middle">
-              Founder at Fractera.ai
-            </cite>
-          </span>
+        <figcaption className="mt-5 flex flex-col items-center gap-6">
+          <div className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/roma_armstrong.jpg"
+              alt="Roma Armstrong photo"
+              width={30}
+              height={30}
+              className="mr-2.5 rounded-full"
+            />
+            <span className="text-lg font-light leading-tight tracking-tight text-gray-400 lg:text-base md:text-sm">
+              Roma Armstrong
+              <cite className="ml-1.5 not-italic text-gray-500 before:mr-1.5 before:inline-flex before:h-px before:w-4 before:bg-gray-500 before:align-middle">
+                Founder at Fractera.ai
+              </cite>
+            </span>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
+              Blog
+            </a>
+            <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
+              Student Cases
+            </a>
+            <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-violet-500/40 bg-violet-500/[0.06] text-sm font-medium text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/60 transition-colors">
+              Fractera Marketplace
+            </a>
+          </div>
         </figcaption>
       </figure>
     </div>
