@@ -11,6 +11,7 @@ type ServerRecord = {
   createdAt: string
   serverIp: string | null
   serverPassword: string | null
+  whiteLabelActive: boolean
   subscription: {
     id: string
     stripeSubscriptionId: string | null
@@ -18,6 +19,16 @@ type ServerRecord = {
     status: string
     planId: string
   } | null
+}
+
+type PurchaseRecord = {
+  id: string
+  productType: string
+  stripePaymentId: string
+  serverIp: string | null
+  serverSubdomain: string | null
+  createdAt: string
+  serverToken: { subdomain: string | null; status: string } | null
 }
 
 function CredentialRow({ label, value, secret, onCopied }: {
@@ -218,7 +229,7 @@ function CancelSubscriptionConfirm({ subscriptionId, onDone, onCancel }: { subsc
   )
 }
 
-function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: () => void }) {
+function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord; onRefresh: () => void; onWhiteLabel: (id: string) => void }) {
   const progress = useDeployProgress(
     server.status === 'pending' ? server.deploySessionId : null
   )
@@ -331,6 +342,19 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
             </a>
           </div>
 
+          {server.whiteLabelActive ? (
+            <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2.5 py-0.5 w-fit">
+              White Label ✓
+            </span>
+          ) : (
+            <button
+              onClick={() => onWhiteLabel(server.id)}
+              className="text-xs text-white/50 hover:text-white transition-colors text-left font-medium"
+            >
+              Remove Fractera branding — $100
+            </button>
+          )}
+
           {!showDelete ? (
             <button
               onClick={() => setShowDelete(true)}
@@ -364,16 +388,21 @@ function ServerCard({ server, onRefresh }: { server: ServerRecord; onRefresh: ()
 
 interface Props {
   open: boolean
-  view: 'servers' | 'subscription'
+  view: 'servers' | 'subscription' | 'purchases'
   onClose: () => void
 }
 
 export function DashboardModal({ open, view, onClose }: Props) {
   const { data: session } = useSession()
+  const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases'>(view)
   const [servers, setServers] = useState<ServerRecord[]>([])
+  const [purchases, setPurchases] = useState<PurchaseRecord[]>([])
   const [loading, setLoading] = useState(false)
   const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
   const [reassigning, setReassigning] = useState(false)
+  const [wlCheckoutId, setWlCheckoutId] = useState<string | null>(null)
+  const [wlClientSecret, setWlClientSecret] = useState<string | null>(null)
+  const [wlLoading, setWlLoading] = useState(false)
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -389,6 +418,30 @@ export function DashboardModal({ open, view, onClose }: Props) {
     }
   }, [])
 
+  const fetchPurchases = useCallback(async () => {
+    const res = await fetch('/api/purchases')
+    if (res.ok) {
+      const data = await res.json()
+      setPurchases(data.purchases ?? [])
+    }
+  }, [])
+
+  async function openWhiteLabelCheckout(serverTokenId: string) {
+    setWlLoading(true)
+    setWlCheckoutId(serverTokenId)
+    try {
+      const res = await fetch('/api/stripe/checkout/white-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverTokenId }),
+      })
+      const data = await res.json()
+      if (data.clientSecret) setWlClientSecret(data.clientSecret)
+    } finally {
+      setWlLoading(false)
+    }
+  }
+
   async function handleReassign() {
     setReassigning(true)
     try {
@@ -403,14 +456,18 @@ export function DashboardModal({ open, view, onClose }: Props) {
     }
   }
 
+  // Sync activeView when prop changes
+  useEffect(() => { setActiveView(view) }, [view])
+
   // Initial fetch
   useEffect(() => {
     if (open && !fetchedRef.current) {
       fetchedRef.current = true
       fetchServers()
+      fetchPurchases()
     }
     if (!open) fetchedRef.current = false
-  }, [open, fetchServers])
+  }, [open, fetchServers, fetchPurchases])
 
   // Poll while any server is pending — stop when all are settled
   useEffect(() => {
@@ -444,13 +501,25 @@ export function DashboardModal({ open, view, onClose }: Props) {
       <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
-          <div className="flex flex-col gap-1.5">
-            <h2 className="text-base font-bold text-white">
-              {view === 'servers' ? 'Servers' : 'Subscription'}
-            </h2>
+          <div className="flex flex-col gap-2">
             {session?.user?.email && (
               <p className="text-sm text-white font-medium">{session.user.email}</p>
             )}
+            <div className="flex gap-1">
+              {(['servers', 'subscription', 'purchases'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveView(tab)}
+                  className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
+                    activeView === tab
+                      ? 'bg-white/20 text-white'
+                      : 'text-white/50 hover:text-white/80'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -467,21 +536,84 @@ export function DashboardModal({ open, view, onClose }: Props) {
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Loading…
             </div>
-          ) : view === 'servers' ? (
+          ) : activeView === 'servers' ? (
             servers.length === 0 ? (
               <p className="text-base text-white font-medium py-4">No servers yet. Launch your first server from the home page.</p>
             ) : (
               <>
                 {activeServers.map(s => (
-                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
+                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} onWhiteLabel={openWhiteLabelCheckout} />
                 ))}
                 {offlineServers.length > 0 && activeServers.length > 0 && (
                   <div className="h-px bg-white/30 my-1" />
                 )}
                 {offlineServers.map(s => (
-                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} />
+                  <ServerCard key={s.id} server={s} onRefresh={fetchServers} onWhiteLabel={openWhiteLabelCheckout} />
                 ))}
+                {wlClientSecret && (
+                  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <div className="relative bg-neutral-950 border border-white/30 rounded-2xl p-6 w-full max-w-md">
+                      <button
+                        onClick={() => { setWlClientSecret(null); setWlCheckoutId(null) }}
+                        className="absolute top-4 right-4 text-white/50 hover:text-white text-lg font-bold"
+                      >✕</button>
+                      <p className="text-sm font-semibold text-white mb-4">Remove Fractera branding — $100</p>
+                      <p className="text-xs text-white/50 mb-4">
+                        One-time payment. Branding is removed from your server automatically and permanently.
+                      </p>
+                      <iframe
+                        src={`https://checkout.stripe.com/c/pay/${wlClientSecret}`}
+                        className="w-full rounded-xl"
+                        style={{ height: 500, border: 'none' }}
+                        title="Stripe Checkout"
+                      />
+                    </div>
+                  </div>
+                )}
+                {wlLoading && (
+                  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
+                    <span className="inline-block w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
               </>
+            )
+          ) : activeView === 'purchases' ? (
+            purchases.length === 0 ? (
+              <div className="flex flex-col gap-2 py-4">
+                <p className="text-base text-white font-medium">No purchases yet.</p>
+                <p className="text-xs text-white/40">One-time add-ons (like White Label) will appear here.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {purchases.map(p => (
+                  <div key={p.id} className="flex flex-col gap-1.5 rounded-xl border border-white/20 bg-white/[0.03] p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-white">
+                        {p.productType === 'white_label' ? 'White Label' : p.productType}
+                      </span>
+                      <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2 py-0.5">
+                        Paid
+                      </span>
+                    </div>
+                    {(p.serverToken?.subdomain ?? p.serverSubdomain) && (
+                      <p className="text-xs font-mono text-white/60">
+                        {p.serverToken?.subdomain ?? p.serverSubdomain}
+                        {p.serverToken?.status === 'offline' && (
+                          <span className="ml-2 text-white/30">(server deleted)</span>
+                        )}
+                      </p>
+                    )}
+                    <p className="text-xs text-white/30">
+                      {new Date(p.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                    {p.serverToken?.status === 'offline' && (
+                      <p className="text-xs text-yellow-400/70 mt-1">
+                        Server deleted — contact support to apply white label on a new server.
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             )
           ) : (
             /* Subscription tab */

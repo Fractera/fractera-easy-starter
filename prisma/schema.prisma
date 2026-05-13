@@ -20,6 +20,7 @@ model User {
   subscriptions Subscription[]
   serverTokens  ServerToken[]
   vpsReserves   VpsReserve[]
+  purchases     Purchase[]
 }
 
 model Account {
@@ -88,8 +89,23 @@ model ServerToken {
   contaboInstanceId String?
   serverIp          String?
   serverPassword    String?
+  whiteLabelActive  Boolean       @default(false)
   user              User          @relation(fields: [userId], references: [id])
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
+  purchases         Purchase[]
+}
+
+model Purchase {
+  id              String       @id @default(cuid())
+  userId          String
+  serverTokenId   String?
+  productType     String       // "white_label"
+  stripePaymentId String       @unique
+  serverIp        String?
+  serverSubdomain String?
+  createdAt       DateTime     @default(now())
+  user            User         @relation(fields: [userId], references: [id])
+  serverToken     ServerToken? @relation(fields: [serverTokenId], references: [id])
 }
 
 

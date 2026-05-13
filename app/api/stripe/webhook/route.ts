@@ -26,10 +26,45 @@ export async function POST(req: NextRequest) {
     const userId = session.metadata?.userId
     const planId = session.metadata?.planId ?? 'monthly'
     const vpsReserveId = session.metadata?.vpsReserveId || null
+    const productType = session.metadata?.productType
 
-    if (!userId || !session.customer) {
+    if (!userId) return NextResponse.json({ ok: true })
+
+    // White label one-time purchase
+    if (productType === 'white_label') {
+      const serverTokenId = session.metadata?.serverTokenId
+      if (!serverTokenId) return NextResponse.json({ ok: true })
+
+      const server = await db.serverToken.findUnique({ where: { id: serverTokenId } })
+      if (!server) return NextResponse.json({ ok: true })
+
+      await db.purchase.create({
+        data: {
+          userId,
+          serverTokenId,
+          productType: 'white_label',
+          stripePaymentId: (session.payment_intent as string) ?? session.id,
+          serverIp: server.serverIp,
+          serverSubdomain: server.subdomain,
+        },
+      })
+
+      await db.serverToken.update({
+        where: { id: serverTokenId },
+        data: { whiteLabelActive: true },
+      })
+
+      if (server.subdomain) {
+        fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
+          method: 'POST',
+          headers: { 'x-fractera-secret': process.env.INSTALL_SCRIPT_SECRET ?? '' },
+        }).catch(() => {})
+      }
+
       return NextResponse.json({ ok: true })
     }
+
+    if (!session.customer) return NextResponse.json({ ok: true })
 
     if (!session.subscription) return NextResponse.json({ ok: true })
 

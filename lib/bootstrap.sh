@@ -516,6 +516,7 @@ NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
+FRACTERA_INSTALL_SECRET=$INSTALL_SECRET
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -633,6 +634,28 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
   fail "HTTPS not responding on $SUBDOMAIN (got $CODE)"
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+# === White label check — remove footer if user has paid for it ===
+if [ -n "$SERVER_TOKEN" ]; then
+  WL=$(curl -s --max-time 5 \
+    -H "Authorization: Bearer $SERVER_TOKEN" \
+    "https://fractera-easy-starter.vercel.app/api/server/white-label" 2>/dev/null || echo "")
+  if echo "$WL" | grep -q '"white_label":true'; then
+    echo "White label active — removing footer from nginx" >> "$LOG_FILE"
+    python3 - << 'WLEOF' >> "$LOG_FILE" 2>&1
+import os
+MARKERS = ['proxy_set_header Accept-Encoding ""', 'sub_filter_once on', "sub_filter '</body>'"]
+for path in ['/etc/nginx/sites-available/fractera', '/etc/nginx/sites-enabled/fractera-custom']:
+    try:
+        lines = open(path).readlines()
+        filtered = [l for l in lines if all(m not in l for m in MARKERS)]
+        open(path, 'w').writelines(filtered)
+        print(f'white label: cleaned {path}')
+    except: pass
+WLEOF
+    nginx -t >> "$LOG_FILE" 2>&1 && systemctl reload nginx >> "$LOG_FILE" 2>&1
+  fi
+fi
 
 # === Install ping agent cron (if SERVER_TOKEN provided) ===
 if [ -n "$SERVER_TOKEN" ]; then

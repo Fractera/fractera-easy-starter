@@ -65,6 +65,14 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
+      name: 'Can I remove the "Powered by Fractera" branding from my site?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — White Label is a one-time $100 purchase per server. After payment, the Fractera branding is removed automatically and permanently. If you rebuild your server, white label status is remembered and reapplied. Purchase it from your Dashboard by clicking "Remove Fractera branding" on your active server card.',
+      },
+    },
+    {
+      '@type': 'Question',
       name: 'Do you have a referral program?',
       acceptedAnswer: {
         '@type': 'Answer',
