@@ -92,9 +92,7 @@ export default async function Home() {
             <HeroSection />
           </Suspense>
 
-          <p className="text-sm text-white text-center">
-            Fractera is open source. fractera.ai handles subdomain registration only.
-          </p>
+
         </div>
       </main>
     </>
