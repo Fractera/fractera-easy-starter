@@ -35,7 +35,10 @@ export async function POST(req: NextRequest) {
       const serverTokenId = session.metadata?.serverTokenId
       if (!serverTokenId) return NextResponse.json({ ok: true })
 
-      const server = await db.serverToken.findUnique({ where: { id: serverTokenId } })
+      const server = await db.serverToken.findUnique({
+        where: { id: serverTokenId },
+        select: { token: true, subdomain: true, serverIp: true },
+      })
       if (!server) return NextResponse.json({ ok: true })
 
       await db.purchase.create({
@@ -54,10 +57,10 @@ export async function POST(req: NextRequest) {
         data: { whiteLabelActive: true },
       })
 
-      if (server.subdomain) {
+      if (server.subdomain && server.token) {
         fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
           method: 'POST',
-          headers: { 'x-fractera-secret': process.env.INSTALL_SCRIPT_SECRET ?? '' },
+          headers: { 'Authorization': `Bearer ${server.token}` },
         }).catch(() => {})
       }
 

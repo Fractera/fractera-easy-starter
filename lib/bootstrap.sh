@@ -516,7 +516,6 @@ NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
-FRACTERA_INSTALL_SECRET=$INSTALL_SECRET
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
