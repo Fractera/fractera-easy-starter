@@ -59,7 +59,7 @@ export function HeroSection() {
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
   const [installStarted, setInstallStarted] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[1]) // monthly
+  const [selectedPlan, setSelectedPlan] = useState(PLANS[0]) // monthly
   const [poolAvailable, setPoolAvailable] = useState<number | null>(null)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
 
@@ -317,254 +317,103 @@ export function HeroSection() {
               Choose How You Want to Build
             </h2>
             <p className="max-w-xl text-base text-white/60">
-              One-click deployment with a server included, or install on your own VPS — both options give you the full Fractera environment.
+              One-click deployment with a server included, or install on your own VPS — both give you the full Fractera environment.
             </p>
           </div>
 
-          {/* One-click START card */}
-          <div className="flex flex-col gap-5 bg-white/[0.03] border border-violet-500/50 rounded-2xl p-6">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
-                RECOMMENDED
-              </span>
-            </div>
-            <h2 className="text-xl font-bold text-white -mt-1">One-click START</h2>
+          {/* Two cards — row on md+, stacked on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 
-            <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
+            {/* ── Paid card (violet glow + shimmer border) ── */}
+            <div
+              className="flex flex-col gap-5 rounded-2xl p-6 bg-gradient-to-br from-violet-950/70 via-violet-900/30 to-black/60"
+              style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(139,92,246,0.7)' }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
+                  RECOMMENDED
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between -mt-1">
+                <h2 className="text-xl font-bold text-white">Fractera Pro + Server</h2>
+              </div>
 
-            {selectedPlan.id !== 'free' && (
-              <ul className="flex flex-col gap-1.5 text-base text-white font-medium">
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span>LightRAG — the company brain</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span>PostgreSQL — local project database</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span>File storage — images, docs & media</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span>Auth service — built-in authentication</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-violet-400">✓</span>
-                  <span className="text-white font-bold">Fractera Pro</span>
-                </li>
+              <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
+
+              <ul className="flex flex-col gap-1.5 text-base text-white font-medium flex-1">
+                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span></li>
+                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span></li>
+                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>LightRAG — the company brain</span></li>
+                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>Database, file storage & auth — built in</span></li>
+                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className="font-bold">Fractera Pro included</span></li>
               </ul>
-            )}
 
-            {selectedPlan.id === 'free' && (
-              <>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-lg font-bold text-white">Free Forever</span>
-                  <span className="text-xs text-white/50 font-medium">· no credit card · no expiry</span>
+              {poolAvailable === null && (
+                <div className="w-full flex items-center justify-center gap-2 py-3.5 text-sm text-white font-medium">
+                  <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+                  Checking availability…
                 </div>
-                <p className="text-sm text-white">
-                  Use the <span className="text-white font-bold">Fractera Light</span> option below — bring your own VPS server.
-                </p>
-              </>
-            )}
-
-            {(selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
-              <>
-                {/* Pool loading */}
-                {poolAvailable === null && (
-                  <div className="w-full flex items-center justify-center gap-2 py-3.5 text-sm text-white font-medium">
-                    <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
-                    Checking availability…
-                  </div>
-                )}
-
-                {/* Pool available — instant deploy */}
-                {poolAvailable !== null && poolAvailable > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleOneClick}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
-                  >
-                    {`Subscribe · ${selectedPlan.price} →`}
-                  </button>
-                )}
-
-                {/* Pool empty — Path B warning */}
-                {poolAvailable !== null && poolAvailable === 0 && (
-                  <div className="flex flex-col gap-3">
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex flex-col gap-2">
-                      <p className="text-sm text-yellow-400 font-semibold">⚠ Instant deployment temporarily unavailable</p>
-                      <p className="text-sm text-yellow-300 font-medium leading-relaxed">
-                        You can still subscribe — your server will be ready within <strong>60 minutes</strong>.
-                        Or deploy instantly using your own server below.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleOneClick}
-                      className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
-                    >
-                      {`Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-
-            {selectedPlan.id === 'free' && (
-              <button
-                type="button"
-                onClick={() => document.getElementById('light-card')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full bg-white/[0.07] hover:bg-white/[0.12] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
-              >
-                Use Fractera Light ↓
-              </button>
-            )}
-
-            {!session && (selectedPlan.id === 'monthly' || selectedPlan.id === 'annual') && (
-              <p className="text-sm text-white text-center -mt-2">
-                You&apos;ll be asked to sign in first
-              </p>
-            )}
-          </div>
-
-          {/* Trial card — only when pool has servers */}
-          {poolAvailable !== null && poolAvailable > 0 && (
-            <>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/30" />
-                <span className="text-sm text-white font-medium uppercase tracking-widest">or</span>
-                <div className="flex-1 h-px bg-white/30" />
-              </div>
-
-              <div className="flex flex-col gap-5 bg-white/[0.03] border border-emerald-500/50 rounded-2xl p-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    10-MIN TRIAL
-                  </span>
-                </div>
-                <div className="flex items-center justify-between -mt-1">
-                  <h2 className="text-xl font-bold text-white">Try Fractera</h2>
-                  <span className="text-2xl font-bold text-white">$0</span>
-                </div>
-
-                <ul className="flex flex-col gap-1.5 text-base text-white font-medium">
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span>LightRAG — the company brain</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span>PostgreSQL — local project database</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span>File storage — images, docs & media</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span>Auth service — built-in authentication</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    <span className="text-white font-bold">Fractera Pro</span>
-                  </li>
-                </ul>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!session) { openModal(); return }
-                    alert('Сервис скоро появится')
-                  }}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
-                >
-                  Start exploring →
+              )}
+              {poolAvailable !== null && poolAvailable > 0 && (
+                <button type="button" onClick={handleOneClick}
+                  className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30">
+                  {`Subscribe · ${selectedPlan.price} →`}
                 </button>
+              )}
+              {poolAvailable !== null && poolAvailable === 0 && (
+                <div className="flex flex-col gap-3">
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex flex-col gap-2">
+                    <p className="text-sm text-yellow-400 font-semibold">⚠ Instant deployment temporarily unavailable</p>
+                    <p className="text-sm text-yellow-300 font-medium leading-relaxed">
+                      You can still subscribe — server ready within <strong>60 minutes</strong>.
+                    </p>
+                  </div>
+                  <button type="button" onClick={handleOneClick}
+                    className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors">
+                    {`Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
+                  </button>
+                </div>
+              )}
+              {!session && (
+                <p className="text-sm text-white/50 text-center -mt-2">You&apos;ll be asked to sign in first</p>
+              )}
+            </div>
 
-                <p className="text-xs text-white/50 -mt-2">
-                  * Regardless of any settings, in exactly 10 minutes the project will cease to exist.
-                  This is a special promo for getting acquainted with the project.
-                </p>
-              </div>
-            </>
-          )}
-
-          {/* OR separator */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-white/30" />
-            <span className="text-sm text-white font-medium uppercase tracking-widest">or</span>
-            <div className="flex-1 h-px bg-white/30" />
-          </div>
-
-          {/* Use your own server card */}
-          <div id="light-card" className="flex flex-col gap-4 bg-white/[0.04] border border-white/40 rounded-2xl p-6">
-            <div className="flex items-start justify-between gap-4">
+            {/* ── Free card (muted gray) ── */}
+            <div id="light-card" className="flex flex-col gap-4 bg-white/[0.02] border border-white/15 rounded-2xl p-6">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-mono font-bold text-white bg-white/[0.07] px-2 py-0.5 rounded-full border border-white/40 self-start">
+                <span className="text-xs font-mono font-bold text-white/40 bg-white/[0.05] px-2 py-0.5 rounded-full border border-white/20 self-start">
                   YOUR OWN SERVER
                 </span>
-                <h2 className="text-2xl font-bold text-white mt-1">Fractera Light</h2>
-                <p className="text-base text-white font-medium">Install on your VPS — you provide the server</p>
+                <h2 className="text-xl font-bold text-white/80 mt-1">Fractera Light</h2>
+                <p className="text-sm text-white/40 font-medium">Free — install on your VPS</p>
               </div>
+
+              <ul className="flex flex-col gap-1.5 text-sm text-white/50 font-medium flex-1">
+                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>5 coding platforms</span></li>
+                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>LightRAG — the company brain</span></li>
+                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>Database, file storage & auth — built in</span></li>
+                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>Open source — self-hosted forever</span></li>
+                <li className="flex items-start gap-2">
+                  <span className="text-white/30 shrink-0 mt-0.5">◈</span>
+                  <span className="text-white/50">Fractera Pro — <span className="text-white/60 font-semibold">14-day free trial</span></span>
+                </li>
+              </ul>
+
+              {session ? (
+                <InstallForm
+                  onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
+                  onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
+                />
+              ) : (
+                <button type="button" onClick={() => openModal()}
+                  className="w-full bg-white/[0.05] hover:bg-white/[0.09] border border-white/20 hover:border-white/30 text-white/60 hover:text-white/80 font-bold px-6 py-3.5 rounded-xl text-base transition-colors">
+                  Sign in to continue
+                </button>
+              )}
             </div>
 
-            <ul className="flex flex-col gap-1.5 text-sm text-white font-medium">
-              <li className="flex items-center gap-2">
-                <span className="text-white font-bold">✓</span>
-                <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-white font-bold">✓</span>
-                <span>LightRAG — the company brain</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-white font-bold">✓</span>
-                <span>PostgreSQL — local project database</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-white font-bold">✓</span>
-                <span>File storage — images, docs & media</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-white font-bold">✓</span>
-                <span>Auth service — built-in authentication</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-violet-400 shrink-0 mt-0.5">◈</span>
-                <span className="text-white">Fractera Pro — <span className="text-violet-400 font-semibold">14-day free trial available</span></span>
-              </li>
-            </ul>
-
-            {session ? (
-              <InstallForm
-                onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
-                onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => openModal()}
-                className="w-full bg-white/[0.07] hover:bg-white/[0.12] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors"
-              >
-                Sign in to continue
-              </button>
-            )}
           </div>
-
         </div>
       )}
 
@@ -638,14 +487,6 @@ type Plan = {
 }
 
 const PLANS: Plan[] = [
-  {
-    id: 'free',
-    name: 'Free Forever',
-    sublabel: 'Your own server · Fractera Light',
-    price: null,
-    period: null,
-    badge: null,
-  },
   {
     id: 'monthly',
     name: 'Fractera Pro + Server',
