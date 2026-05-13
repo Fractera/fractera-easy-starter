@@ -67,6 +67,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
+    // White label — self-hosted (Fractera Lite, no ServerToken)
+    if (productType === 'white_label_selfhosted') {
+      const serverSubdomain = session.metadata?.serverSubdomain
+      const serverIp = session.metadata?.serverIp ?? null
+      if (!serverSubdomain) return NextResponse.json({ ok: true })
+
+      await db.purchase.create({
+        data: {
+          userId,
+          serverTokenId: null,
+          productType: 'white_label',
+          stripePaymentId: (session.payment_intent as string) ?? session.id,
+          serverIp,
+          serverSubdomain,
+        },
+      })
+
+      fetch(`https://admin.${serverSubdomain}/api/config/white-label`, {
+        method: 'POST',
+        headers: { 'x-fractera-secret': process.env.INSTALL_SCRIPT_SECRET ?? '' },
+      }).catch(() => {})
+
+      return NextResponse.json({ ok: true })
+    }
+
     if (!session.customer) return NextResponse.json({ ok: true })
 
     if (!session.subscription) return NextResponse.json({ ok: true })

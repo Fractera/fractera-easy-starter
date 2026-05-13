@@ -54,7 +54,11 @@ const ALL_STEPS: Step[] = [
 ]
 
 
-export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdomainReady?: (subdomain: string) => void; onInstallingChange?: (installing: boolean) => void } = {}) {
+export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel }: {
+  onSubdomainReady?: (subdomain: string) => void
+  onInstallingChange?: (installing: boolean) => void
+  onWhiteLabel?: (serverSubdomain: string, serverIp: string) => void
+} = {}) {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
@@ -279,6 +283,15 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                   </a>
                 </div>
               )}
+              {onWhiteLabel && detectedSubdomain && (
+                <button
+                  onClick={() => onWhiteLabel(detectedSubdomain, ip.trim())}
+                  className="text-xs text-white bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 transition-colors px-3 py-1.5 rounded-lg font-medium"
+                >
+                  Remove Fractera branding — $100
+                </button>
+              )}
+
               <div className="flex flex-wrap gap-2 mt-1">
                 <button
                   onClick={async () => {

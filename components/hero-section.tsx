@@ -51,7 +51,7 @@ export function HeroSection() {
   const router = useRouter()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
-  const { openServers } = useDashboard()
+  const { openServers, openWhiteLabelSelfHosted } = useDashboard()
   const { openCheckout } = useCheckout()
 
   const [imageFullscreen, setImageFullscreen] = useState(false)
@@ -408,6 +408,7 @@ export function HeroSection() {
                 <InstallForm
                   onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
                   onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
+                  onWhiteLabel={openWhiteLabelSelfHosted}
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}

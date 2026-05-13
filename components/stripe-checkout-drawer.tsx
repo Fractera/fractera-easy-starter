@@ -6,10 +6,12 @@ import { useCallback, useEffect, useState } from 'react'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-export function CheckoutDrawer({ open, planId, serverTokenId, onClose }: {
+export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, serverIp, onClose }: {
   open: boolean
   planId?: string
   serverTokenId?: string
+  serverSubdomain?: string
+  serverIp?: string
   onClose: () => void
 }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
@@ -19,11 +21,15 @@ export function CheckoutDrawer({ open, planId, serverTokenId, onClose }: {
     setError(false)
     try {
       let res: Response
-      if (serverTokenId) {
+      if (serverTokenId || serverSubdomain) {
         res = await fetch('/api/stripe/checkout/white-label', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ serverTokenId }),
+          body: JSON.stringify(
+            serverTokenId
+              ? { serverTokenId }
+              : { serverSubdomain, serverIp }
+          ),
         })
       } else {
         res = await fetch('/api/stripe/checkout', {
@@ -38,7 +44,7 @@ export function CheckoutDrawer({ open, planId, serverTokenId, onClose }: {
     } catch {
       setError(true)
     }
-  }, [planId, serverTokenId])
+  }, [planId, serverTokenId, serverSubdomain, serverIp])
 
   useEffect(() => {
     if (open) {
