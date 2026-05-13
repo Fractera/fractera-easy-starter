@@ -18,8 +18,9 @@ export const useCheckout = () => useContext(CheckoutCtx)
 export function Providers({ children }: { children: React.ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [pendingPlan, setPendingPlan] = useState<string | undefined>()
-  const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' }>({ open: false, view: 'servers' })
+  const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' | 'purchases' }>({ open: false, view: 'servers' })
   const [checkoutState, setCheckoutState] = useState<{ open: boolean; planId: string }>({ open: false, planId: 'monthly' })
+  const [wlState, setWlState] = useState<{ open: boolean; serverTokenId: string | null }>({ open: false, serverTokenId: null })
 
   const openModal = useCallback((plan?: string) => {
     setPendingPlan(plan)
@@ -40,8 +41,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <CheckoutCtx.Provider value={{ openCheckout }}>
             {children}
             <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} pendingPlan={pendingPlan} />
-            <DashboardModal open={dashboardState.open} view={dashboardState.view} onClose={() => setDashboardState(s => ({ ...s, open: false }))} />
+            <DashboardModal
+              open={dashboardState.open}
+              view={dashboardState.view}
+              onClose={() => setDashboardState(s => ({ ...s, open: false }))}
+              onWhiteLabel={(id) => setWlState({ open: true, serverTokenId: id })}
+            />
             <CheckoutDrawer open={checkoutState.open} planId={checkoutState.planId} onClose={() => setCheckoutState(s => ({ ...s, open: false }))} />
+            <CheckoutDrawer open={wlState.open} serverTokenId={wlState.serverTokenId ?? undefined} onClose={() => setWlState({ open: false, serverTokenId: null })} />
           </CheckoutCtx.Provider>
         </DashboardCtx.Provider>
       </AuthModalCtx.Provider>

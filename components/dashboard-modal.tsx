@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { CheckoutDrawer } from './stripe-checkout-drawer'
 
 type ServerRecord = {
   id: string
@@ -391,9 +390,10 @@ interface Props {
   open: boolean
   view: 'servers' | 'subscription' | 'purchases'
   onClose: () => void
+  onWhiteLabel?: (serverTokenId: string) => void
 }
 
-export function DashboardModal({ open, view, onClose }: Props) {
+export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
   const { data: session } = useSession()
   const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases'>(view)
   const [servers, setServers] = useState<ServerRecord[]>([])
@@ -401,7 +401,6 @@ export function DashboardModal({ open, view, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
   const [reassigning, setReassigning] = useState(false)
-  const [wlCheckoutId, setWlCheckoutId] = useState<string | null>(null)
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -426,7 +425,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
   }, [])
 
   function openWhiteLabelCheckout(serverTokenId: string) {
-    setWlCheckoutId(serverTokenId)
+    onWhiteLabel?.(serverTokenId)
   }
 
   async function handleReassign() {
@@ -698,10 +697,5 @@ export function DashboardModal({ open, view, onClose }: Props) {
       </div>
     </div>
 
-    <CheckoutDrawer
-      open={!!wlCheckoutId}
-      serverTokenId={wlCheckoutId ?? undefined}
-      onClose={() => { setWlCheckoutId(null); fetchServers() }}
-    />
   )
 }
