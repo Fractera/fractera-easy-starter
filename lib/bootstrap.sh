@@ -189,8 +189,6 @@ NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
-GIT_REPO_URL=https://github.com/Fractera/ai-workspace.git
-GIT_TOKEN=${GITHUB_TOKEN}
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -490,8 +488,6 @@ NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
 NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=/opt/fractera/app/data/app.db
-GIT_REPO_URL=https://github.com/Fractera/ai-workspace.git
-GIT_TOKEN=${GITHUB_TOKEN}
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
