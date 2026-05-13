@@ -146,7 +146,7 @@ export function HeroSection() {
   const showTroubleshoot = installStarted && !domainReady
 
   return (
-    <section className="flex flex-col gap-8 items-start">
+    <section className="flex flex-col gap-32 items-start">
 
       {/* ── AIFA-style full-screen hero with video background ── */}
       <div className="relative min-h-screen w-full overflow-hidden flex flex-col -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
@@ -305,11 +305,22 @@ export function HeroSection() {
         </div>
       )}
 
-      {!paymentSuccess && (
-        <div className="w-full max-w-4xl flex flex-col gap-8">
+      {/* Problem section */}
+      <ProblemSection />
 
-          {/* Problem section — above pricing */}
-          <ProblemSection />
+      {!paymentSuccess && (
+        <div className="w-full max-w-4xl flex flex-col gap-6">
+
+          {/* Pricing header */}
+          <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+            <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Get Started</p>
+            <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+              Choose How You Want to Build
+            </h2>
+            <p className="max-w-xl text-base text-white/60">
+              One-click deployment with a server included, or install on your own VPS — both options give you the full Fractera environment.
+            </p>
+          </div>
 
           {/* One-click START card */}
           <div className="flex flex-col gap-5 bg-white/[0.03] border border-violet-500/50 rounded-2xl p-6">
@@ -858,8 +869,9 @@ function PlatformsGrid() {
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col gap-3">
-        <h2 className="mb-0 max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">AI Platforms</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           Five AI Platforms. One Environment.
         </h2>
         <p className="max-w-xl text-base text-white/60">
@@ -950,7 +962,7 @@ function ProblemSection() {
     <div className="w-full max-w-4xl flex flex-col gap-6">
 
       {/* Section header */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
         <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           The problems Fractera was built to solve
@@ -1151,8 +1163,16 @@ function FaqSection() {
   const [open, setOpen] = useState<number | null>(null)
 
   return (
-    <div className="w-full max-w-4xl flex flex-col gap-4">
-      <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
+    <div className="w-full max-w-4xl flex flex-col gap-6">
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+          Common Questions
+        </h2>
+        <p className="max-w-xl text-base text-white/60">
+          Everything you need to know before getting started.
+        </p>
+      </div>
       <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/20">
         {FAQ_ITEMS.map((item, i) => (
           <div key={i} className="bg-white/[0.02]">
