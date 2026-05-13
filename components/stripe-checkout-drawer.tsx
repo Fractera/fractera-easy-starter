@@ -6,9 +6,10 @@ import { useCallback, useEffect, useState } from 'react'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-export function CheckoutDrawer({ open, planId, onClose }: {
+export function CheckoutDrawer({ open, planId, serverTokenId, onClose }: {
   open: boolean
-  planId: string
+  planId?: string
+  serverTokenId?: string
   onClose: () => void
 }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
@@ -17,18 +18,27 @@ export function CheckoutDrawer({ open, planId, onClose }: {
   const fetchClientSecret = useCallback(async () => {
     setError(false)
     try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, embedded: true }),
-      })
+      let res: Response
+      if (serverTokenId) {
+        res = await fetch('/api/stripe/checkout/white-label', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ serverTokenId }),
+        })
+      } else {
+        res = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId, embedded: true }),
+        })
+      }
       const data = await res.json()
       if (data.clientSecret) setClientSecret(data.clientSecret)
       else setError(true)
     } catch {
       setError(true)
     }
-  }, [planId])
+  }, [planId, serverTokenId])
 
   useEffect(() => {
     if (open) {

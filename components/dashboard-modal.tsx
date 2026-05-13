@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { CheckoutDrawer } from './stripe-checkout-drawer'
 
 type ServerRecord = {
   id: string
@@ -401,8 +402,6 @@ export function DashboardModal({ open, view, onClose }: Props) {
   const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
   const [reassigning, setReassigning] = useState(false)
   const [wlCheckoutId, setWlCheckoutId] = useState<string | null>(null)
-  const [wlClientSecret, setWlClientSecret] = useState<string | null>(null)
-  const [wlLoading, setWlLoading] = useState(false)
   const fetchedRef = useRef(false)
 
   const fetchServers = useCallback(async (silent = false) => {
@@ -426,20 +425,8 @@ export function DashboardModal({ open, view, onClose }: Props) {
     }
   }, [])
 
-  async function openWhiteLabelCheckout(serverTokenId: string) {
-    setWlLoading(true)
+  function openWhiteLabelCheckout(serverTokenId: string) {
     setWlCheckoutId(serverTokenId)
-    try {
-      const res = await fetch('/api/stripe/checkout/white-label', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ serverTokenId }),
-      })
-      const data = await res.json()
-      if (data.clientSecret) setWlClientSecret(data.clientSecret)
-    } finally {
-      setWlLoading(false)
-    }
   }
 
   async function handleReassign() {
@@ -550,31 +537,6 @@ export function DashboardModal({ open, view, onClose }: Props) {
                 {offlineServers.map(s => (
                   <ServerCard key={s.id} server={s} onRefresh={fetchServers} onWhiteLabel={openWhiteLabelCheckout} />
                 ))}
-                {wlClientSecret && (
-                  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                    <div className="relative bg-neutral-950 border border-white/30 rounded-2xl p-6 w-full max-w-md">
-                      <button
-                        onClick={() => { setWlClientSecret(null); setWlCheckoutId(null) }}
-                        className="absolute top-4 right-4 text-white/50 hover:text-white text-lg font-bold"
-                      >✕</button>
-                      <p className="text-sm font-semibold text-white mb-4">Remove Fractera branding — $100</p>
-                      <p className="text-xs text-white/50 mb-4">
-                        One-time payment. Branding is removed from your server automatically and permanently.
-                      </p>
-                      <iframe
-                        src={`https://checkout.stripe.com/c/pay/${wlClientSecret}`}
-                        className="w-full rounded-xl"
-                        style={{ height: 500, border: 'none' }}
-                        title="Stripe Checkout"
-                      />
-                    </div>
-                  </div>
-                )}
-                {wlLoading && (
-                  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
-                    <span className="inline-block w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  </div>
-                )}
               </>
             )
           ) : activeView === 'purchases' ? (
@@ -735,5 +697,11 @@ export function DashboardModal({ open, view, onClose }: Props) {
         </div>
       </div>
     </div>
+
+    <CheckoutDrawer
+      open={!!wlCheckoutId}
+      serverTokenId={wlCheckoutId ?? undefined}
+      onClose={() => { setWlCheckoutId(null); fetchServers() }}
+    />
   )
 }
