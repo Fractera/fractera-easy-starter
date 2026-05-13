@@ -991,8 +991,11 @@ function DoublePresentation() {
       <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
         Ship From Your Browser. Live in Seconds.
       </h2>
-      <p className="max-w-xl text-base text-white/60">
-        Launch your server in seconds and start coding immediately — no IDE, no local database, no configuration needed.
+      <p className="max-w-2xl text-base text-white/60 leading-relaxed">
+        Production AI Development is the next era of vibe coding — and it runs entirely in your browser from the very first second.
+        No Visual Studio Code. No local environment to configure. No database to spin up. No domain to wire. No deployment pipeline to debug.
+        You open a tab, your server is already live, your domain is already registered, your database is already running — and five AI coding platforms are waiting for your first voice command.
+        This is not a tool for developers. This is the moment when anyone with an idea can build, ship, and scale a real product without ever leaving their browser.
       </p>
     </div>
   )
