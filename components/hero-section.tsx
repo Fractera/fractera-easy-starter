@@ -937,7 +937,7 @@ function PlatformsGrid() {
         style={{ background: "radial-gradient(circle at center, hsl(263.4,70%,50.4%) 0%, rgba(0,0,0,0) 99%)" }}
       >
         {PLATFORM_CARDS.map((card, i) => (
-          <div key={i} className="group relative size-full p-6 sm:p-8 bg-gray-950 flex flex-col justify-between overflow-hidden">
+          <div key={i} className="group relative size-full p-6 sm:p-8 bg-black flex flex-col justify-between overflow-hidden">
             <div className="relative z-10 flex h-full flex-col justify-between">
               <div>
                 <p className="text-xl font-bold text-white mb-2">{card.title}</p>
