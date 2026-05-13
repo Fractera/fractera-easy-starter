@@ -148,32 +148,59 @@ export function HeroSection() {
   return (
     <section className="flex flex-col gap-8 items-start sm:items-center">
 
-      {/* Hero: single column */}
+      {/* ── AIFA-style full-screen hero with video background ── */}
+      <div className="relative min-h-screen w-full overflow-hidden flex flex-col -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+
+        {/* Video background */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
+          src="/video/ai-loop.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+
+        {/* Overlay content */}
+        <div className="relative z-10 flex flex-col flex-1 min-h-screen">
+
+          {/* Top: badge + title + description */}
+          <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-3xl mx-auto">
+
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+              <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
+            </div>
+
+            <h1 className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl">
+              Fractera
+            </h1>
+
+            <p className="text-2xl font-bold text-white leading-tight">
+              Production AI Development Workspace
+            </p>
+
+            <p className="text-lg text-white/80 leading-relaxed max-w-xl">
+              {DESCRIPTION_ITEMS[0]}
+            </p>
+          </div>
+
+          {/* Bottom: 3 feature blocks (AIFA pattern) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 pb-12 pt-8 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
+            {FEATURE_ITEMS.slice(0, 3).map(({ title, text }, i) => (
+              <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
+                <h3 className="text-2xl font-bold text-white">{title}</h3>
+                <p className="mb-4 text-base text-white/50 min-h-[1.5rem]" />
+                <div className="mb-4 h-px w-16 bg-orange-500" />
+                <p className="text-[15px] text-white/80 leading-relaxed">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Below fold ── */}
       <div className="flex flex-col gap-8 items-start sm:items-center w-full max-w-2xl">
-
-        {/* Open Source badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-          <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
-        </div>
-
-        {/* Title + subtitle */}
-        <div className="flex flex-col gap-3 sm:items-center">
-          <h1 className="text-7xl font-bold tracking-tight font-serif sm:text-center leading-[0.95]">
-            Fractera
-          </h1>
-          <p className="text-2xl font-bold text-white sm:text-center leading-tight">
-            Production AI Development Workspace
-          </p>
-        </div>
-
-        {/* Orange accent divider */}
-        <div className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-500/0" />
-
-        {/* Lead paragraph */}
-        <p className="text-lg font-semibold text-white leading-relaxed sm:text-center">
-          {DESCRIPTION_ITEMS[0]}
-        </p>
 
         {/* Illustration */}
         <div
@@ -183,19 +210,6 @@ export function HeroSection() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Admin-Fractera.png" alt="Fractera Admin Panel" className="w-full h-auto block" />
-        </div>
-
-        {/* 2×2 feature grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-          {FEATURE_ITEMS.map(({ icon: Icon, title, text }, i) => (
-            <div key={i} className="flex flex-col gap-3 bg-white/[0.03] border border-white/20 rounded-2xl p-5">
-              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
-                <Icon className="w-5 h-5 text-orange-400" />
-              </div>
-              <p className="text-lg font-bold text-white">{title}</p>
-              <p className="text-[15px] text-white leading-relaxed">{text}</p>
-            </div>
-          ))}
         </div>
 
         {/* Star subscription line */}
