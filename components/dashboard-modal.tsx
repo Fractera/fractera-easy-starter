@@ -648,15 +648,16 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                   return Array.from(bySubKey.values())
                 })().map(server => {
                   const sub = server.subscription
-                  const periodEnd = sub?.currentPeriodEnd
+                  const isFree = sub?.planId === 'free'
+                  const periodEnd = !isFree && sub?.currentPeriodEnd
                     ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
                     : null
-                  const planLabel = sub?.planId
+                  const planLabel = isFree ? 'Fractera Lite' : sub?.planId
                     ? sub.planId.charAt(0).toUpperCase() + sub.planId.slice(1)
                     : null
                   const isActive = sub?.status === 'active'
                   const isOffline = server.status === 'offline'
-                  const showGetNewServer = isActive && isOffline
+                  const showGetNewServer = !isFree && isActive && isOffline
                   return (
                     <div key={server.id} className="flex flex-col gap-3 rounded-2xl border border-white/40 bg-white/[0.04] p-5">
                       {isOffline ? (
@@ -718,7 +719,15 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                               {reassigning ? 'Getting server…' : 'Get a new server →'}
                             </button>
                           )}
-                          {isActive && !isOffline && (
+                          {isFree && (
+                            <button
+                              onClick={() => { onClose(); }}
+                              className="mt-1 w-full text-sm font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-lg py-2 transition-colors"
+                            >
+                              Upgrade to Fractera Pro →
+                            </button>
+                          )}
+                          {!isFree && isActive && !isOffline && (
                             cancellingSubId === sub.id ? (
                               <CancelSubscriptionConfirm
                                 subscriptionId={sub.id}

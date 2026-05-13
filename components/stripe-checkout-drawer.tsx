@@ -6,12 +6,10 @@ import { useCallback, useEffect, useState } from 'react'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, serverIp, onClose }: {
+export function CheckoutDrawer({ open, planId, serverTokenId, onClose }: {
   open: boolean
   planId?: string
   serverTokenId?: string
-  serverSubdomain?: string
-  serverIp?: string
   onClose: () => void
 }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
@@ -21,15 +19,11 @@ export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, s
     setError(false)
     try {
       let res: Response
-      if (serverTokenId || serverSubdomain) {
+      if (serverTokenId) {
         res = await fetch('/api/stripe/checkout/white-label', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(
-            serverTokenId
-              ? { serverTokenId }
-              : { serverSubdomain, serverIp }
-          ),
+          body: JSON.stringify({ serverTokenId }),
         })
       } else {
         res = await fetch('/api/stripe/checkout', {
@@ -44,7 +38,7 @@ export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, s
     } catch {
       setError(true)
     }
-  }, [planId, serverTokenId, serverSubdomain, serverIp])
+  }, [planId, serverTokenId])
 
   useEffect(() => {
     if (open) {
@@ -67,12 +61,8 @@ export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, s
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[45vw] bg-white shadow-2xl overflow-y-auto translate-x-0 transition-transform duration-300">
+      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[45vw] bg-white shadow-2xl overflow-y-auto">
         <button
           type="button"
           onClick={onClose}
@@ -85,11 +75,8 @@ export function CheckoutDrawer({ open, planId, serverTokenId, serverSubdomain, s
         {error ? (
           <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
             <p className="text-gray-600 text-sm">Failed to load checkout. Please try again.</p>
-            <button
-              type="button"
-              onClick={fetchClientSecret}
-              className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800"
-            >
+            <button type="button" onClick={fetchClientSecret}
+              className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800">
               Retry
             </button>
           </div>

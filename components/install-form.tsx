@@ -57,7 +57,7 @@ const ALL_STEPS: Step[] = [
 export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel }: {
   onSubdomainReady?: (subdomain: string) => void
   onInstallingChange?: (installing: boolean) => void
-  onWhiteLabel?: (serverSubdomain: string, serverIp: string) => void
+  onWhiteLabel?: (serverTokenId: string) => void
 } = {}) {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
@@ -73,6 +73,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const eventSourceRef = useRef<(() => void) | null>(null)
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
+  const [freeServerTokenId, setFreeServerTokenId] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
   const [destroying, setDestroying] = useState(false)
   const [renewingSsl, setRenewingSsl] = useState(false)
@@ -112,6 +113,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           setDetectedSubdomain(data.subdomain ?? null)
           setServerStatus('installed')
           if (data.subdomain) onSubdomainReady?.(data.subdomain)
+          // Register as free user to get a ServerToken
+          if (data.subdomain) {
+            fetch('/api/server/register-free', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subdomain: data.subdomain, serverIp: ip.trim() }),
+            }).then(r => r.json()).then(d => {
+              if (d.serverTokenId) setFreeServerTokenId(d.serverTokenId)
+            }).catch(() => {})
+          }
         } else {
           setStatusError(data.sshError ?? null)
           setServerStatus('fresh')
@@ -283,9 +294,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                   </a>
                 </div>
               )}
-              {onWhiteLabel && detectedSubdomain && (
+              {onWhiteLabel && freeServerTokenId && (
                 <button
-                  onClick={() => onWhiteLabel(detectedSubdomain, ip.trim())}
+                  onClick={() => onWhiteLabel(freeServerTokenId)}
                   className="text-xs text-white bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 transition-colors px-3 py-1.5 rounded-lg font-medium"
                 >
                   Remove Fractera branding — $100

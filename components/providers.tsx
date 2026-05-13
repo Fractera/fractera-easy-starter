@@ -13,24 +13,19 @@ const DashboardCtx = createContext({
   openServers: () => {},
   openSubscription: () => {},
   openPurchases: () => {},
-  openWhiteLabelSelfHosted: (_subdomain: string, _ip: string) => {},
+  openWhiteLabel: (_serverTokenId: string) => {},
 })
 export const useDashboard = () => useContext(DashboardCtx)
 
 const CheckoutCtx = createContext({ openCheckout: (_plan: string) => {} })
 export const useCheckout = () => useContext(CheckoutCtx)
 
-type WlState =
-  | { open: false }
-  | { open: true; serverTokenId: string; serverSubdomain?: undefined; serverIp?: undefined }
-  | { open: true; serverSubdomain: string; serverIp: string; serverTokenId?: undefined }
-
 export function Providers({ children }: { children: React.ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [pendingPlan, setPendingPlan] = useState<string | undefined>()
   const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' | 'purchases' }>({ open: false, view: 'servers' })
   const [checkoutState, setCheckoutState] = useState<{ open: boolean; planId: string }>({ open: false, planId: 'monthly' })
-  const [wlState, setWlState] = useState<WlState>({ open: false })
+  const [wlState, setWlState] = useState<{ open: boolean; serverTokenId: string | null }>({ open: false, serverTokenId: null })
 
   const openModal = useCallback((plan?: string) => {
     setPendingPlan(plan)
@@ -40,20 +35,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const openServers = useCallback(() => setDashboardState({ open: true, view: 'servers' }), [])
   const openSubscription = useCallback(() => setDashboardState({ open: true, view: 'subscription' }), [])
   const openPurchases = useCallback(() => setDashboardState({ open: true, view: 'purchases' }), [])
-  const openWhiteLabelSelfHosted = useCallback((subdomain: string, ip: string) => {
-    setWlState({ open: true, serverSubdomain: subdomain, serverIp: ip })
-  }, [])
-
-  const openCheckout = useCallback((plan: string) => {
-    setCheckoutState({ open: true, planId: plan })
-  }, [])
-
-  const closeWl = useCallback(() => setWlState({ open: false }), [])
+  const openWhiteLabel = useCallback((id: string) => setWlState({ open: true, serverTokenId: id }), [])
+  const openCheckout = useCallback((plan: string) => setCheckoutState({ open: true, planId: plan }), [])
 
   return (
     <SessionProvider>
       <AuthModalCtx.Provider value={{ openModal }}>
-        <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases, openWhiteLabelSelfHosted }}>
+        <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases, openWhiteLabel }}>
           <CheckoutCtx.Provider value={{ openCheckout }}>
             {children}
             <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} pendingPlan={pendingPlan} />
@@ -66,10 +54,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <CheckoutDrawer open={checkoutState.open} planId={checkoutState.planId} onClose={() => setCheckoutState(s => ({ ...s, open: false }))} />
             <CheckoutDrawer
               open={wlState.open}
-              serverTokenId={wlState.open ? wlState.serverTokenId : undefined}
-              serverSubdomain={wlState.open ? wlState.serverSubdomain : undefined}
-              serverIp={wlState.open ? wlState.serverIp : undefined}
-              onClose={closeWl}
+              serverTokenId={wlState.serverTokenId ?? undefined}
+              onClose={() => setWlState({ open: false, serverTokenId: null })}
             />
           </CheckoutCtx.Provider>
         </DashboardCtx.Provider>
