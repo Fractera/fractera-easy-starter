@@ -19,31 +19,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fractera — Production AI Development Workspace",
+  title: "Fractera — Open-Source Production AI Development Workspace",
   description:
-    "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
+    "Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.",
   metadataBase: new URL("https://www.fractera.ai"),
   openGraph: {
     type: "website",
     url: "https://www.fractera.ai",
     siteName: "Fractera",
-    title: "Fractera — Production AI Development Workspace",
+    title: "Fractera — Open-Source Production AI Development Workspace",
     description:
-      "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
+      "Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.",
     images: [
       {
         url: "/fractera-snipet.png",
         width: 1200,
         height: 630,
-        alt: "Fractera — Production AI Development Workspace",
+        alt: "Fractera — Open-Source Production AI Development Workspace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fractera — Production AI Development Workspace",
+    title: "Fractera — Open-Source Production AI Development Workspace",
     description:
-      "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
+      "Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.",
     images: ["/fractera-snipet.png"],
   },
   icons: {
