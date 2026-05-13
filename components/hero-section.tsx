@@ -612,6 +612,9 @@ export function HeroSection() {
       {/* Features grid */}
       <FeaturesGrid />
 
+      {/* Promo */}
+      <FractеraPromo />
+
       {/* FAQ */}
       <FaqSection />
 
@@ -1203,6 +1206,42 @@ function ProblemSection() {
           <span className="pointer-events-none absolute -bottom-14 -left-32 h-[83px] w-[155px] rounded-full bg-violet-400/20 blur-2xl" />
           <span className="pointer-events-none absolute -bottom-40 -left-20 h-[293px] w-[175px] -rotate-45 rounded-full bg-gradient-to-b from-violet-400/30 to-transparent opacity-40 blur-2xl" />
           <span className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/10" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Promo (port of AIFA aifa-promo) ─────────────────────────────────────────
+
+function FractеraPromo() {
+  return (
+    <div className="w-full -mx-6 px-6 bg-black border-y-4 border-violet-500 py-8">
+      <div className="max-w-4xl mx-auto flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
+          <h2 className="mb-6 max-w-3xl font-serif font-bold leading-tight text-white text-xl md:text-2xl lg:text-4xl">
+            Want to try Fractera?
+          </h2>
+          <p className="mb-12 max-w-xl text-base text-white/60 md:text-lg">
+            Launch your server, code in the browser, and ship your product — in minutes. Free for self-hosted setups.
+          </p>
+          <a
+            href="#"
+            onClick={e => { e.preventDefault(); document.querySelector('[data-pricing]')?.scrollIntoView({ behavior: 'smooth' }) }}
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 transition-colors"
+          >
+            Get started free
+          </a>
+        </div>
+        <div className="relative shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/git.png"
+            width={300}
+            height={300}
+            alt="Fractera"
+            className="h-auto max-w-xs sm:max-w-sm md:max-w-md"
+          />
         </div>
       </div>
     </div>
