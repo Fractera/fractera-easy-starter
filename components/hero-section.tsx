@@ -212,31 +212,13 @@ export function HeroSection() {
           <img src="/Admin-Fractera.png" alt="Fractera Admin Panel" className="w-full h-auto block" />
         </div>
 
+        {/* Platforms grid */}
+        <PlatformsGrid />
+
         {/* Star subscription line */}
-        <p className="text-sm text-violet-400 sm:text-center">
+        <p className="text-sm text-violet-400">
           ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
         </p>
-
-        {/* Supported platforms */}
-        <div className="flex flex-col gap-2 sm:items-center">
-          <span className="text-xs font-semibold text-white uppercase tracking-widest">Supported platforms</span>
-          <div className="flex items-center gap-1.5 flex-wrap sm:justify-center">
-            {PLATFORMS.map((name, i) => (
-              <span key={name} className="flex items-center gap-1.5">
-                <span className="text-xs font-mono font-semibold text-white px-2 py-0.5 rounded-full border border-white/40 bg-white/[0.07] tracking-wide whitespace-nowrap">
-                  {name}
-                </span>
-                {i < PLATFORMS.length - 1 && (
-                  <span className="text-white text-xs select-none">·</span>
-                )}
-              </span>
-            ))}
-          </div>
-          <p className="flex items-center gap-1.5 text-xs text-white/50 sm:text-center mt-1">
-            <Smartphone className="w-3 h-3 shrink-0" />
-            Works on any device — laptop, tablet, or phone. No powerful hardware required.
-          </p>
-        </div>
 
       </div>
 
@@ -328,7 +310,10 @@ export function HeroSection() {
       )}
 
       {!paymentSuccess && (
-        <div className="w-full max-w-4xl flex flex-col gap-4">
+        <div className="w-full max-w-4xl flex flex-col gap-8">
+
+          {/* Problem section — above pricing */}
+          <ProblemSection />
 
           {/* One-click START card */}
           <div className="flex flex-col gap-5 bg-white/[0.03] border border-violet-500/50 rounded-2xl p-6">
@@ -618,9 +603,6 @@ export function HeroSection() {
         </>
       )}
 
-      {/* Problem cards */}
-      <ProblemSection />
-
       {/* FAQ */}
       <FaqSection />
 
@@ -853,6 +835,59 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
   )
 }
 
+// ─── Platforms grid (AIFA Impacts pattern) ───────────────────────────────────
+
+const PLATFORM_CARDS = [
+  { title: "Claude Code",  subtitle: "Writes, runs, and fixes code in your terminal. The gold standard for AI-assisted development.",          company: "Anthropic",  gradient: "from-amber-500/20"   },
+  { title: "Codex",        subtitle: "Browser-native coding agent. Full project context, no terminal required.",                               company: "OpenAI",     gradient: "from-green-500/20"   },
+  { title: "Gemini CLI",   subtitle: "Long-context AI coding. Understands your entire project structure at once.",                             company: "Google",     gradient: "from-blue-500/20"    },
+  { title: "Qwen Code",    subtitle: "Open-source coding agent. No subscription lock-in, powerful and free.",                                 company: "Alibaba",    gradient: "from-violet-500/20"  },
+  { title: "Kimi Code",    subtitle: "Context-first AI for large codebases. Excellent for refactoring and architecture.",                      company: "Moonshot",   gradient: "from-cyan-500/20"    },
+  { title: "LightRAG",     subtitle: "Your company brain. Persistent vector memory shared across all five AI platforms.",                      company: "Fractera",   gradient: "from-violet-600/30"  },
+]
+
+function PlatformsGrid() {
+  return (
+    <div className="w-full flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3">
+        <h2 className="mb-0 max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+          Five AI Platforms. One Environment.
+        </h2>
+        <p className="max-w-xl text-base text-white/60">
+          No API keys. No local setup. All five coding platforms run on your server with full terminal access and persistent memory.
+        </p>
+      </div>
+
+      {/* Grid */}
+      <div
+        className="grid grid-cols-2 md:grid-cols-3 gap-[2px]"
+        style={{ background: "radial-gradient(circle at center, hsl(263.4,70%,50.4%) 0%, rgba(0,0,0,0) 99%)" }}
+      >
+        {PLATFORM_CARDS.map((card, i) => (
+          <div key={i} className="group relative size-full p-6 sm:p-8 bg-gray-950 flex flex-col justify-between overflow-hidden">
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              <div>
+                <p className="text-xl font-bold text-white mb-2">{card.title}</p>
+                <p className="text-sm text-white/50 leading-snug">{card.subtitle}</p>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <span className="text-xs font-mono text-white/40 font-medium">{card.company}</span>
+              </div>
+            </div>
+            <span className={`pointer-events-none absolute inset-px opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 bg-gradient-to-br ${card.gradient} to-transparent`} />
+          </div>
+        ))}
+      </div>
+
+      <p className="flex items-center gap-1.5 text-xs text-white/40">
+        <Smartphone className="w-3 h-3 shrink-0" />
+        Works on any device — laptop, tablet, or phone. No powerful hardware required.
+      </p>
+    </div>
+  )
+}
+
 // ─── Problems (AIFA-style interactive switcher) ───────────────────────────────
 
 const FRACTERA_HELPS_ITEMS = [
@@ -900,10 +935,10 @@ function ProblemSection() {
       {/* Section header */}
       <div className="flex flex-col gap-2">
         <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
-        <h2 className="text-2xl font-bold font-serif text-white leading-tight">
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           The problems Fractera was built to solve
         </h2>
-        <p className="text-[15px] text-white/60 leading-relaxed">
+        <p className="max-w-xl text-base text-white/60 leading-relaxed">
           Modern development stacks are fragile, expensive, and forgetful. Here is what that costs you in practice.
         </p>
       </div>
