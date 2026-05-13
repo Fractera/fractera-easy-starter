@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fractera — Production AI Development Workspace",
   description:
-    "In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser. Everything pre-configured: architecture, database, agents, and LightRAG memory.",
+    "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
   metadataBase: new URL("https://www.fractera.ai"),
   openGraph: {
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "Fractera",
     title: "Fractera — Production AI Development Workspace",
     description:
-      "In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser. Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.",
+      "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
     images: [
       {
         url: "/fractera-snipet.png",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fractera — Production AI Development Workspace",
     description:
-      "In seconds, you get a server with a live domain — ready to start building with AI. Zero to production: architecture, database, development agents, and global memory included.",
+      "Your own server with a live domain in seconds. Build with 5 AI platforms — architecture, database, agents, and LightRAG memory pre-configured.",
     images: ["/fractera-snipet.png"],
   },
   icons: {
