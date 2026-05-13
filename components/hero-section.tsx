@@ -305,9 +305,6 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* Features grid */}
-      <FeaturesGrid />
-
       {/* Problem section */}
       <ProblemSection />
 
@@ -612,6 +609,9 @@ export function HeroSection() {
           <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); domainResetRef.current?.() }} />
         </>
       )}
+
+      {/* Features grid */}
+      <FeaturesGrid />
 
       {/* FAQ */}
       <FaqSection />
