@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone, AlertCircle } from 'lucide-react'
+import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone, AlertCircle, Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -200,7 +200,7 @@ export function HeroSection() {
       </div>
 
       {/* ── Below fold ── */}
-      <div className="flex flex-col gap-8 items-start w-full max-w-4xl">
+      <div className="flex flex-col gap-8 items-start w-full max-w-4xl pt-32">
 
         {/* Illustration */}
         <div
@@ -304,6 +304,9 @@ export function HeroSection() {
           </p>
         </div>
       )}
+
+      {/* Features grid */}
+      <FeaturesGrid />
 
       {/* Problem section */}
       <ProblemSection />
@@ -838,6 +841,55 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
           A confirmation email with these links was sent to <strong className="text-white font-bold">{email}</strong>
         </p>
       )}
+    </div>
+  )
+}
+
+// ─── Features grid (AIFA FeaturesGrid pattern) ───────────────────────────────
+
+const FEATURE_LIST = [
+  { icon: Mic,          title: "Voice AI Commands",       description: "Issue coding commands and navigate content hands-free via microphone. AI agents respond to natural voice input in real time.",             badge: "Lite" },
+  { icon: ShieldCheck,  title: "Auth Stack Built-in",     description: "Google OAuth, magic-link via Resend, and Credentials — all pre-configured with role management and enterprise sessions.",                  badge: "Lite" },
+  { icon: Database,     title: "Database & Storage",      description: "SQLite with WAL mode, object file storage, and media service included. Scales with your project without extra subscriptions.",              badge: "Lite" },
+  { icon: GitBranch,    title: "GitHub & Dev Workflow",   description: "GitHub sync, production coding and local development unified. Push, pull, and deploy directly from the admin panel in one click.",          badge: "Lite" },
+  { icon: Zap,          title: "Platforms in 50ms",       description: "All five coding platforms pre-configured and ready to use. LightRAG global memory initialised on first start. Zero setup time.",            badge: "Lite" },
+  { icon: ShoppingBag,  title: "Skills Marketplace",      description: "Discover, buy, and sell AI workflows in the community library. Share free skills or monetise your own automation recipes.",                 badge: "Lite" },
+  { icon: Globe,        title: "SEO, PWA & i18n",         description: "Production-grade SEO, Progressive Web App support, and multi-language routing — all configured before your first user arrives.",            badge: "Pro"  },
+  { icon: Crosshair,    title: "Element Highlighting",    description: "Click any UI element to capture its exact identifier. Communicate precise changes to the AI — fewer tokens, faster iterations.",             badge: "Pro"  },
+  { icon: Bot,          title: "Hermes AI Agents",        description: "Fully configured agents with self-learning memory. The most powerful AI technology available in seconds — not hours of setup.",             badge: "Pro"  },
+]
+
+function FeaturesGrid() {
+  return (
+    <div className="w-full max-w-4xl flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">What's included</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+          Everything You Need to Ship
+        </h2>
+        <p className="max-w-xl text-base text-white/60">
+          Fractera Lite covers 90% of what a professional application needs. Fractera Pro unlocks the rest.
+        </p>
+      </div>
+
+      {/* Grid */}
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-x-8 md:gap-y-11">
+        {FEATURE_LIST.map(({ icon: Icon, title, description, badge }, i) => (
+          <li key={i} className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Icon className="w-[22px] h-[22px] shrink-0 text-violet-400" />
+              <h3 className="text-lg font-medium leading-tight tracking-tight text-white">{title}</h3>
+            </div>
+            <p className="text-sm leading-snug text-white/50">{description}</p>
+            <span className={`mt-1 self-start text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+              badge === 'Pro'
+                ? 'text-violet-300 bg-violet-500/10 border-violet-500/30'
+                : 'text-white/50 bg-white/[0.05] border-white/20'
+            }`}>{badge}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
