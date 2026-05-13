@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone } from 'lucide-react'
+import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone, AlertCircle } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -853,42 +853,123 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
   )
 }
 
-// ─── Problems ────────────────────────────────────────────────────────────────
+// ─── Problems (AIFA-style interactive switcher) ───────────────────────────────
 
-const PROBLEM_ITEMS = [
+const FRACTERA_HELPS_ITEMS = [
   {
-    icon: TrendingUp,
-    title: "Your Cloud Bill Grows With You",
-    description: "Auth, storage, database, email — each service bills separately and scales with traffic. One missed payment and your live product goes dark. Partners who switched to Fractera share this story more often than you'd expect.",
+    id: "cloud-costs",
+    title: "Unpredictable Cloud Costs",
+    problem: "Auth, storage, database, email — each service bills separately and scales with traffic. What starts as free becomes a paid tier, and that tier isn't a flat $20/month — it scales with your users and their load. Miss one payment and your live product goes dark. Partners who switched to Fractera share this exact story more often than you'd expect.",
+    solution: "Fractera runs everything your business needs — authentication, databases, media storage — on one server. One subscription, one bill. Cost does not scale with your users. If you pause your business, your data does not disappear. Back it up, store it, and restore when you're ready.",
   },
   {
-    icon: Brain,
-    title: "AI Forgets Your Codebase",
-    description: "Without persistent context, every AI session starts from scratch. Tokens spent on 'where is the navbar?' are tokens not spent on your actual feature. Most vibe-coding setups waste 60–80% of every prompt on overhead.",
+    id: "ai-context",
+    title: "AI Loses Context Every Session",
+    problem: "Without persistent memory, every AI session starts from scratch. Tokens spent on 'where is the navbar?', 'what was the architecture decision?', or 'remind me how auth works here' are tokens not spent on your actual feature. Tasks that should take 2 focused messages take 15 back-and-forth exchanges.",
+    solution: "Fractera includes LightRAG — a persistent vector store that remembers your entire codebase, every architectural decision, and your project's domain knowledge. Every AI message arrives with full context. Switching between Claude Code, Gemini CLI, or Codex doesn't mean losing the thread of your project.",
   },
   {
-    icon: Target,
-    title: "The Idea–Code Gap Kills Products",
-    description: "Product managers stop before the code. Developers stop at the code. SEO, routing, multi-language, auth flows — the gap between idea and shipped product stays wide unless the environment bridges it by default.",
+    id: "product-gap",
+    title: "Products Need More Than Code",
+    problem: "SEO, routing, multi-language support, auth flows, media handling — these aren't optional extras. They're what separates a toy project from a shipped product. Most developers stop at the code. Most product managers stop before it. The gap between idea and live product stays wide, and every week it stays wide costs real money.",
+    solution: "Fractera ships with production-ready starters that include auth, database, file storage, and advanced routing pre-configured. The AI skips months of scaffolding and goes straight to your feature from day one. Community skill libraries help non-technical founders discover new approaches and ship faster.",
+  },
+  {
+    id: "failure-points",
+    title: "Too Many Single Points of Failure",
+    problem: "Ten services means ten billing cycles, ten dashboards, ten places something can go wrong. When one service quietly expires, you often don't know which one caused the white screen. By the time you figure it out, the reputation damage is done. Running multiple projects multiplies every one of these risks.",
+    solution: "Everything your application needs lives on your server, not spread across a dozen cloud dashboards. Your code stays on GitHub — recovery is always possible, even if dependencies have aged. Built-in AI systems can help rebuild the project even when some packages are outdated.",
   },
 ]
 
 function ProblemSection() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  function handleSelect(index: number) {
+    if (index === activeIndex || isAnimating) return
+    setIsAnimating(true)
+    setTimeout(() => { setActiveIndex(index); setIsAnimating(false) }, 400)
+  }
+
+  const active = FRACTERA_HELPS_ITEMS[activeIndex]
+
   return (
-    <div className="w-full max-w-2xl flex flex-col gap-4">
-      <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
-      <div className="grid grid-cols-1 gap-4">
-        {PROBLEM_ITEMS.map(({ icon: Icon, title, description }, i) => (
-          <div key={i} className="flex gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-5">
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
-              <Icon className="w-5 h-5 text-red-400" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <p className="text-base font-bold text-white">{title}</p>
-              <p className="text-[15px] text-white leading-relaxed">{description}</p>
-            </div>
+    <div className="w-full max-w-2xl flex flex-col gap-6">
+
+      {/* Section header */}
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
+        <h2 className="text-2xl font-bold font-serif text-white leading-tight">
+          The problems Fractera was built to solve
+        </h2>
+        <p className="text-[15px] text-white/60 leading-relaxed">
+          Modern development stacks are fragile, expensive, and forgetful. Here is what that costs you in practice.
+        </p>
+      </div>
+
+      {/* Interactive block */}
+      <div className="flex flex-col gap-4 md:flex-row md:gap-6 items-start">
+
+        {/* Left: nav list */}
+        <ul className="flex w-full flex-col gap-y-1 md:w-[220px] md:shrink-0">
+          {FRACTERA_HELPS_ITEMS.map((item, index) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => handleSelect(index)}
+                className={[
+                  "w-full border-l-[3px] py-2.5 pl-3.5 text-left text-base font-medium leading-snug transition-all duration-200",
+                  index === activeIndex
+                    ? "border-violet-500 text-white cursor-default"
+                    : "border-transparent text-white/40 hover:text-white/80"
+                ].join(" ")}
+              >
+                {item.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Right: content panel */}
+        <div className="relative w-full grow overflow-hidden rounded-[14px] bg-gray-900 p-6 border border-white/10">
+
+          {/* Problem */}
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="w-5 h-5 text-violet-400 shrink-0" />
+            <h3 className="text-base font-semibold text-white">The problem</h3>
           </div>
-        ))}
+          <div className="relative overflow-hidden min-h-[72px]">
+            <p className={[
+              "text-[15px] leading-relaxed text-white/80 transition-all duration-[400ms] ease-in-out",
+              isAnimating ? "translate-y-3 opacity-0" : "translate-y-0 opacity-100"
+            ].join(" ")}>
+              {active.problem}
+            </p>
+          </div>
+
+          {/* Divider */}
+          <span className="my-4 block h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          {/* Solution */}
+          <div className="flex items-center gap-2 mb-3">
+            <Lightbulb className="w-5 h-5 text-violet-400 shrink-0" />
+            <h3 className="text-base font-semibold text-white">How Fractera solves it</h3>
+          </div>
+          <div className="relative overflow-hidden min-h-[72px]">
+            <p className={[
+              "text-[15px] leading-relaxed text-white/80 transition-all duration-[400ms] ease-in-out",
+              isAnimating ? "translate-y-3 opacity-0" : "translate-y-0 opacity-100"
+            ].join(" ")}>
+              {active.solution}
+            </p>
+          </div>
+
+          {/* Decorative blur */}
+          <span className="pointer-events-none absolute -bottom-14 -left-32 h-[83px] w-[155px] rounded-full bg-violet-400/20 blur-2xl" />
+          <span className="pointer-events-none absolute -bottom-40 -left-20 h-[293px] w-[175px] -rotate-45 rounded-full bg-gradient-to-b from-violet-400/30 to-transparent opacity-40 blur-2xl" />
+          <span className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/10" />
+        </div>
       </div>
     </div>
   )
