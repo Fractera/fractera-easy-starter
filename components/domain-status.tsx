@@ -92,7 +92,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
   const textColor = isReady
     ? 'text-green-400'
     : isInstalling
-    ? pulse ? 'text-orange-400' : 'text-yellow-500'
+    ? pulse ? 'text-violet-400' : 'text-yellow-500'
     : 'text-gray-600'
 
   return (

@@ -167,9 +167,9 @@ export function HeroSection() {
           {/* Top: badge + title + description */}
           <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-3xl mx-auto">
 
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/50 bg-orange-500/[0.06]">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-              <span className="text-xs font-semibold text-orange-400 uppercase tracking-[0.15em]">Open Source</span>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+              <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">Open Source</span>
             </div>
 
             <h1 className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl">
@@ -191,7 +191,7 @@ export function HeroSection() {
               <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
                 <h3 className="text-2xl font-bold text-white">{title}</h3>
                 <p className="mb-4 text-base text-white/50 min-h-[1.5rem]" />
-                <div className="mb-4 h-px w-16 bg-orange-500" />
+                <div className="mb-4 h-px w-16 bg-violet-500" />
                 <p className="text-[15px] text-white/80 leading-relaxed">{text}</p>
               </div>
             ))}
@@ -204,7 +204,7 @@ export function HeroSection() {
 
         {/* Illustration */}
         <div
-          className="w-full rounded-2xl border-2 border-orange-500/60 overflow-hidden shadow-2xl shadow-orange-500/[0.12] cursor-zoom-in"
+          className="w-full rounded-2xl border-2 border-violet-500/60 overflow-hidden shadow-2xl shadow-violet-500/[0.12] cursor-zoom-in"
           onClick={() => setImageFullscreen(true)}
           title="Click to enlarge"
         >
@@ -213,7 +213,7 @@ export function HeroSection() {
         </div>
 
         {/* Star subscription line */}
-        <p className="text-sm text-orange-400 sm:text-center">
+        <p className="text-sm text-violet-400 sm:text-center">
           ★ Runs on your own Claude Code subscription — or any other platform subscription. No API keys required.
         </p>
 
@@ -248,7 +248,7 @@ export function HeroSection() {
         >
           <button
             type="button"
-            className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors text-3xl leading-none font-light"
+            className="absolute top-4 right-4 text-white hover:text-violet-400 transition-colors text-3xl leading-none font-light"
             onClick={() => setImageFullscreen(false)}
           >
             ×
@@ -257,7 +257,7 @@ export function HeroSection() {
           <img
             src="/Admin-Fractera.png"
             alt="Fractera Admin Panel"
-            className="max-w-full max-h-[90vh] rounded-2xl border-2 border-orange-500/60 shadow-2xl"
+            className="max-w-full max-h-[90vh] rounded-2xl border-2 border-violet-500/60 shadow-2xl"
             onClick={e => e.stopPropagation()}
             />
           </div>
@@ -286,7 +286,7 @@ export function HeroSection() {
                 <button
                   type="button"
                   onClick={() => router.replace('/')}
-                  className="text-base font-semibold text-orange-400 hover:text-orange-300 border border-orange-500/50 hover:border-orange-400/70 px-4 py-2 rounded-lg transition-colors"
+                  className="text-base font-semibold text-violet-400 hover:text-violet-300 border border-violet-500/50 hover:border-violet-400/70 px-4 py-2 rounded-lg transition-colors"
                 >
                   Deploy another server →
                 </button>
@@ -331,9 +331,9 @@ export function HeroSection() {
         <div className="w-full max-w-2xl flex flex-col gap-4">
 
           {/* One-click START card */}
-          <div className="flex flex-col gap-5 bg-white/[0.03] border border-orange-500/50 rounded-2xl p-6">
+          <div className="flex flex-col gap-5 bg-white/[0.03] border border-violet-500/50 rounded-2xl p-6">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
+              <span className="text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
                 RECOMMENDED
               </span>
             </div>
@@ -344,31 +344,31 @@ export function HeroSection() {
             {selectedPlan.id !== 'free' && (
               <ul className="flex flex-col gap-1.5 text-base text-white font-medium">
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span>LightRAG — the company brain</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span>PostgreSQL — local project database</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span>File storage — images, docs & media</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span>Auth service — built-in authentication</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-400">✓</span>
+                  <span className="text-violet-400">✓</span>
                   <span className="text-white font-bold">Fractera Pro</span>
                 </li>
               </ul>
@@ -553,8 +553,8 @@ export function HeroSection() {
                 <span>Auth service — built-in authentication</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-orange-400 shrink-0 mt-0.5">◈</span>
-                <span className="text-white">Fractera Pro — <span className="text-orange-400 font-semibold">14-day free trial available</span></span>
+                <span className="text-violet-400 shrink-0 mt-0.5">◈</span>
+                <span className="text-white">Fractera Pro — <span className="text-violet-400 font-semibold">14-day free trial available</span></span>
               </li>
             </ul>
 
@@ -718,11 +718,11 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
                   disabled={plan.comingSoon}
                   className={`w-full flex items-center justify-between gap-3 px-5 py-4 text-left transition-colors
                     ${plan.comingSoon ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/[0.07] cursor-pointer'}
-                    ${isSelected ? 'bg-orange-500/10' : ''}
+                    ${isSelected ? 'bg-violet-500/10' : ''}
                   `}
                 >
                   <div className="flex items-start gap-3">
-                    <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-orange-400 bg-orange-500' : 'border-white/50'}`}>
+                    <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-violet-400 bg-violet-500' : 'border-white/50'}`}>
                       {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </span>
                     <div className="flex flex-col gap-0.5">
@@ -734,7 +734,7 @@ function PlanSelector({ selected, onSelect }: { selected: Plan; onSelect: (p: Pl
                           <span className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded-full border ${
                             plan.badge === 'BEST VALUE'
                               ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
-                              : 'text-orange-400 bg-orange-500/10 border-orange-500/30'
+                              : 'text-violet-400 bg-violet-500/10 border-violet-500/30'
                           }`}>
                             {plan.badge}
                           </span>
@@ -1056,14 +1056,14 @@ function FaqSection() {
                   <ul className="flex flex-col gap-2.5 mt-1">
                     {item.bullets.map((b, bi) => (
                       <li key={bi} className="flex items-start gap-3 text-base leading-relaxed">
-                        <span className="shrink-0 text-orange-400 mt-0.5 font-bold">✓</span>
+                        <span className="shrink-0 text-violet-400 mt-0.5 font-bold">✓</span>
                         <span className="text-[15px] text-white">{b}</span>
                       </li>
                     ))}
                   </ul>
                 )}
                 {item.trail && item.trail.map((para, pi) => (
-                  <p key={pi} className={`text-[15px] leading-relaxed ${pi === item.trail!.length - 1 ? 'text-orange-400 font-semibold' : 'text-white'}`}>{para}</p>
+                  <p key={pi} className={`text-[15px] leading-relaxed ${pi === item.trail!.length - 1 ? 'text-violet-400 font-semibold' : 'text-white'}`}>{para}</p>
                 ))}
               </div>
             )}

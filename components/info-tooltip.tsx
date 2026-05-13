@@ -20,7 +20,7 @@ export function InfoTooltip({ text }: { text: React.ReactNode }) {
           <TooltipTrigger
             onClick={() => setOpen(true)}
             aria-label="Show details"
-            className="w-5 h-5 rounded-full border border-orange-500/60 text-orange-400 hover:text-orange-300 hover:border-orange-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2 mt-1.5 cursor-pointer touch-manipulation"
+            className="w-5 h-5 rounded-full border border-violet-500/60 text-violet-400 hover:text-violet-300 hover:border-violet-400 transition-colors text-xs font-bold inline-flex items-center justify-center shrink-0 ml-2 mt-1.5 cursor-pointer touch-manipulation"
           >
             ?
           </TooltipTrigger>
@@ -38,7 +38,7 @@ export function InfoTooltip({ text }: { text: React.ReactNode }) {
           aria-modal="true"
         >
           <div
-            className="relative max-w-sm w-full bg-neutral-900 border border-orange-500/40 rounded-xl p-5 text-sm leading-relaxed text-gray-200 shadow-xl"
+            className="relative max-w-sm w-full bg-neutral-900 border border-violet-500/40 rounded-xl p-5 text-sm leading-relaxed text-gray-200 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button

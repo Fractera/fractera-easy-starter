@@ -36,7 +36,7 @@ export function PlatformSelector() {
                   onClick={() => setSelected(s => s === platform.id ? null : platform.id)}
                   className={`bg-white/5 border rounded-lg p-4 text-left flex flex-col gap-1 min-h-[88px] items-start transition-colors ${
                     isSelected
-                      ? 'border-orange-500/60 bg-orange-500/10'
+                      ? 'border-violet-500/60 bg-violet-500/10'
                       : 'border-white/10 hover:border-white/30'
                   }`}
                 >

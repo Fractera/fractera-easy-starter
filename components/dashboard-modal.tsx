@@ -523,7 +523,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
                         <p className="text-sm text-white font-medium">
                           Server:{' '}
                           <span className={
-                            server.status === 'error' ? 'text-orange-400' :
+                            server.status === 'error' ? 'text-violet-400' :
                             server.status === 'queued' ? 'text-yellow-500' :
                             'text-gray-500'
                           }>
@@ -550,7 +550,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
                           )}
                           <div className="flex items-center justify-between">
                             <span className="text-white font-semibold">Subscription status</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full border ${isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-orange-400 border-orange-500/30 bg-orange-500/10'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-full border ${isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-violet-400 border-violet-500/30 bg-violet-500/10'}`}>
                               {isActive ? 'Active' : sub.status}
                             </span>
                           </div>
@@ -561,7 +561,7 @@ export function DashboardModal({ open, view, onClose }: Props) {
                             </div>
                           )}
                           {!isActive && (
-                            <p className="text-xs text-orange-300/70 mt-1">
+                            <p className="text-xs text-violet-300/70 mt-1">
                               Subscription inactive — check your payment method in Stripe.
                             </p>
                           )}

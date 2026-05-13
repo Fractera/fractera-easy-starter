@@ -48,7 +48,7 @@ export function SiteHeader() {
                   onClick={() => setMenuOpen(v => !v)}
                   className="flex items-center gap-2 rounded-full hover:bg-white/[0.06] pl-1 pr-3 py-1 transition-colors"
                 >
-                  <div className="w-7 h-7 rounded-full bg-orange-500/20 ring-1 ring-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400 shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-violet-500/20 ring-1 ring-violet-500/30 flex items-center justify-center text-xs font-bold text-violet-400 shrink-0">
                     {initials}
                   </div>
                   <span className="text-sm font-medium text-white max-w-[140px] truncate hidden sm:block">

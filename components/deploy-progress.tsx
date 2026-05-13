@@ -146,19 +146,19 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
       </div>
 
       {!installError && now - lastUpdateAt > 60000 && (
-        <p className="text-xs text-orange-400 bg-orange-500/10 border border-orange-500/30 rounded-lg px-3 py-2">
+        <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
           Server has been silent for {Math.floor((now - lastUpdateAt) / 1000)}s — installation may still be running.
         </p>
       )}
 
       {installError && (
-        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-5 flex flex-col gap-3">
-          <p className="text-sm font-semibold text-orange-300">Deployment error</p>
-          <p className="text-sm text-orange-200/70 leading-relaxed">
+        <div className="bg-violet-500/10 border border-violet-500/30 rounded-xl p-5 flex flex-col gap-3">
+          <p className="text-sm font-semibold text-violet-300">Deployment error</p>
+          <p className="text-sm text-violet-200/70 leading-relaxed">
             Our team has been notified and is fixing the issue manually.
             You will receive an email with your server details as soon as everything is ready.
           </p>
-          <p className="text-xs text-orange-500">We apologize for the inconvenience.</p>
+          <p className="text-xs text-violet-500">We apologize for the inconvenience.</p>
         </div>
       )}
 

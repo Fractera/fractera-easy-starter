@@ -308,8 +308,8 @@ export default function AdminPage() {
           <p className="text-base text-white font-medium leading-relaxed">
             По достижении определённого объёма продаж потребуется переход на <strong className="text-white font-bold">автоматизированную закупку</strong> серверов и автозаполнение данных в таблицу пула — это задача следующего этапа масштабирования.
           </p>
-          <p className="text-base text-white font-medium leading-relaxed border-l border-orange-500/50 pl-3">
-            <span className="text-orange-400 font-medium">Нерешённый сценарий:</span> отслеживание авторенньюала серверов у провайдера в случаях, когда пользователь задержал оплату, планирует оплатить или решил отказаться от сервиса. Политика работы с такими случаями не разработана.
+          <p className="text-base text-white font-medium leading-relaxed border-l border-violet-500/50 pl-3">
+            <span className="text-violet-400 font-medium">Нерешённый сценарий:</span> отслеживание авторенньюала серверов у провайдера в случаях, когда пользователь задержал оплату, планирует оплатить или решил отказаться от сервиса. Политика работы с такими случаями не разработана.
           </p>
         </section>
 
@@ -419,25 +419,25 @@ export default function AdminPage() {
             </div>
             <div className="h-px bg-white/[0.06]" />
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-orange-500 uppercase tracking-widest font-mono">⚠ Нерешённый сценарий — требует обсуждения</p>
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex flex-col gap-2 text-sm text-orange-200/70 leading-relaxed">
-                <p className="font-semibold text-orange-300">Что происходит если пользователь не продлил подписку вовремя?</p>
+              <p className="text-xs text-violet-500 uppercase tracking-widest font-mono">⚠ Нерешённый сценарий — требует обсуждения</p>
+              <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-4 flex flex-col gap-2 text-sm text-violet-200/70 leading-relaxed">
+                <p className="font-semibold text-violet-300">Что происходит если пользователь не продлил подписку вовремя?</p>
                 <p>
                   Сценарий не проработан. Stripe может отменить подписку при неудачном списании,
                   но мы не определили что делать с сервером пользователя в этот момент.
                 </p>
                 <p>
-                  <strong className="text-orange-300">Риски:</strong> автоматическое удаление данных с сервера, потеря
+                  <strong className="text-violet-300">Риски:</strong> автоматическое удаление данных с сервера, потеря
                   работы пользователя, репутационный ущерб. Пользователь мог просто не успеть —
                   это не намеренный отказ от сервиса.
                 </p>
                 <p>
-                  <strong className="text-orange-300">Предварительное решение (не реализовано):</strong> в первый месяц
+                  <strong className="text-violet-300">Предварительное решение (не реализовано):</strong> в первый месяц
                   просрочки не трогать сервер. При необходимости — оплатить следующий месяц у
                   провайдера из собственных средств, чтобы дать пользователю время. Связаться
                   вручную и предложить продление.
                 </p>
-                <p className="text-xs text-orange-500">
+                <p className="text-xs text-violet-500">
                   Необходимо обсудить: grace period, автоматические попытки списания Stripe,
                   политику удаления данных, процесс ручного вмешательства администратора.
                 </p>
@@ -724,7 +724,7 @@ export default function AdminPage() {
                             'text-white/70 border-white/20'
                           }`}>{r.status}</span>
                           {r.subscriptionStatus && r.subscriptionStatus !== 'active' && (
-                            <span className="ml-1 text-xs text-orange-400">sub:{r.subscriptionStatus}</span>
+                            <span className="ml-1 text-xs text-violet-400">sub:{r.subscriptionStatus}</span>
                           )}
                         </td>
                         <td className="px-4 py-3 font-mono text-white/40 text-xs max-w-[140px] truncate">

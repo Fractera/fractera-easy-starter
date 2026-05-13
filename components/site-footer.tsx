@@ -17,13 +17,13 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">
-          <a href="/privacy" className="hover:text-orange-400 transition-colors">Privacy Policy</a>
-          <a href="/terms" className="hover:text-orange-400 transition-colors">Terms of Service</a>
-          <a href="/cookies" className="hover:text-orange-400 transition-colors">Cookie Policy</a>
+          <a href="/privacy" className="hover:text-violet-400 transition-colors">Privacy Policy</a>
+          <a href="/terms" className="hover:text-violet-400 transition-colors">Terms of Service</a>
+          <a href="/cookies" className="hover:text-violet-400 transition-colors">Cookie Policy</a>
           <button
             type="button"
             onClick={openCookieSettings}
-            className="hover:text-orange-400 transition-colors text-left"
+            className="hover:text-violet-400 transition-colors text-left"
           >
             Cookie Settings
           </button>

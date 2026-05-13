@@ -300,7 +300,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
                     }
                   }}
                   disabled={renewingSsl}
-                  className="text-xs text-orange-400 hover:text-orange-300 border border-orange-500/30 hover:border-orange-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
+                  className="text-xs text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
                 >
                   {renewingSsl ? 'Renewing SSL…' : 'Renew SSL certificates'}
                 </button>
@@ -383,7 +383,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange }: { onSubdom
 
           {/* Silence warning */}
           {!installError && installing && now - lastUpdateAt > 60000 && (
-            <p className="text-xs text-orange-400 bg-orange-500/10 border border-orange-500/30 rounded-lg px-3 py-2">
+            <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
               Server has been silent for {Math.floor((now - lastUpdateAt) / 1000)}s. The installation may still be running, or the server may be unreachable.
             </p>
           )}
