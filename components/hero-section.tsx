@@ -322,7 +322,7 @@ export function HeroSection() {
           </div>
 
           {/* Two cards — row on md+, stacked on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+          <div id="pricing" className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 
             {/* ── Paid card (violet glow + shimmer border) ── */}
             <div
@@ -379,24 +379,28 @@ export function HeroSection() {
               )}
             </div>
 
-            {/* ── Free card (muted gray) ── */}
-            <div id="light-card" className="flex flex-col gap-4 bg-white/[0.02] border border-white/15 rounded-2xl p-6">
+            {/* ── Free card (green glow + shimmer border) ── */}
+            <div
+              id="light-card"
+              className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60"
+              style={{ animation: 'shimmerBorderGreen 3s ease-in-out infinite', border: '1px solid rgba(52,211,153,0.7)' }}
+            >
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-mono font-bold text-white/40 bg-white/[0.05] px-2 py-0.5 rounded-full border border-white/20 self-start">
+                <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
                   YOUR OWN SERVER
                 </span>
-                <h2 className="text-xl font-bold text-white/80 mt-1">Fractera Light</h2>
-                <p className="text-sm text-white/40 font-medium">Free — install on your VPS</p>
+                <h2 className="text-xl font-bold text-white mt-1">Fractera Light</h2>
+                <p className="text-sm text-emerald-300/70 font-medium">Free — install on your VPS</p>
               </div>
 
-              <ul className="flex flex-col gap-1.5 text-sm text-white/50 font-medium flex-1">
-                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>5 coding platforms</span></li>
-                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>LightRAG — the company brain</span></li>
-                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>Database, file storage & auth — built in</span></li>
-                <li className="flex items-center gap-2"><span className="text-white/30">✓</span><span>Open source — self-hosted forever</span></li>
+              <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>5 coding platforms</span></li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>LightRAG — the company brain</span></li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>Database, file storage & auth — built in</span></li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>Open source — self-hosted forever</span></li>
                 <li className="flex items-start gap-2">
-                  <span className="text-white/30 shrink-0 mt-0.5">◈</span>
-                  <span className="text-white/50">Fractera Pro — <span className="text-white/60 font-semibold">14-day free trial</span></span>
+                  <span className="text-emerald-400 shrink-0 mt-0.5">◈</span>
+                  <span className="text-white">Fractera Pro — <span className="text-emerald-300 font-semibold">14-day free trial</span></span>
                 </li>
               </ul>
 
@@ -407,7 +411,7 @@ export function HeroSection() {
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}
-                  className="w-full bg-white/[0.05] hover:bg-white/[0.09] border border-white/20 hover:border-white/30 text-white/60 hover:text-white/80 font-bold px-6 py-3.5 rounded-xl text-base transition-colors">
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30">
                   Sign in to continue
                 </button>
               )}
@@ -1130,7 +1134,7 @@ function FractеraPromo() {
           </p>
           <a
             href="#"
-            onClick={e => { e.preventDefault(); document.querySelector('[data-pricing]')?.scrollIntoView({ behavior: 'smooth' }) }}
+            onClick={e => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) }}
             className="mt-8 inline-flex items-center justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 transition-colors"
           >
             Get started free
