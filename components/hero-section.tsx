@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Layers, Lightbulb, Code2, Rocket } from 'lucide-react'
+import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -218,6 +218,10 @@ export function HeroSection() {
               </span>
             ))}
           </div>
+          <p className="flex items-center gap-1.5 text-xs text-white/50 sm:text-center mt-1">
+            <Smartphone className="w-3 h-3 shrink-0" />
+            Works on any device — laptop, tablet, or phone. No powerful hardware required.
+          </p>
         </div>
 
       </div>
@@ -600,6 +604,9 @@ export function HeroSection() {
         </>
       )}
 
+      {/* Problem cards */}
+      <ProblemSection />
+
       {/* FAQ */}
       <FaqSection />
 
@@ -828,6 +835,47 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
           A confirmation email with these links was sent to <strong className="text-white font-bold">{email}</strong>
         </p>
       )}
+    </div>
+  )
+}
+
+// ─── Problems ────────────────────────────────────────────────────────────────
+
+const PROBLEM_ITEMS = [
+  {
+    icon: TrendingUp,
+    title: "Your Cloud Bill Grows With You",
+    description: "Auth, storage, database, email — each service bills separately and scales with traffic. One missed payment and your live product goes dark. Partners who switched to Fractera share this story more often than you'd expect.",
+  },
+  {
+    icon: Brain,
+    title: "AI Forgets Your Codebase",
+    description: "Without persistent context, every AI session starts from scratch. Tokens spent on 'where is the navbar?' are tokens not spent on your actual feature. Most vibe-coding setups waste 60–80% of every prompt on overhead.",
+  },
+  {
+    icon: Target,
+    title: "The Idea–Code Gap Kills Products",
+    description: "Product managers stop before the code. Developers stop at the code. SEO, routing, multi-language, auth flows — the gap between idea and shipped product stays wide unless the environment bridges it by default.",
+  },
+]
+
+function ProblemSection() {
+  return (
+    <div className="w-full max-w-2xl flex flex-col gap-4">
+      <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
+      <div className="grid grid-cols-1 gap-4">
+        {PROBLEM_ITEMS.map(({ icon: Icon, title, description }, i) => (
+          <div key={i} className="flex gap-4 bg-white/[0.02] border border-white/10 rounded-2xl p-5">
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <Icon className="w-5 h-5 text-red-400" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-base font-bold text-white">{title}</p>
+              <p className="text-[15px] text-white leading-relaxed">{description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
