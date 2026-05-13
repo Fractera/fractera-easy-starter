@@ -200,7 +200,7 @@ export function HeroSection() {
       </div>
 
       {/* ── Below fold ── */}
-      <div className="flex flex-col gap-8 items-start w-full max-w-4xl pt-32">
+      <div className="flex flex-col gap-8 items-start w-full max-w-4xl">
 
         {/* Illustration */}
         <div
@@ -313,7 +313,7 @@ export function HeroSection() {
 
           {/* Pricing header */}
           <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-            <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Get Started</p>
+            <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Get Started</p>
             <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
               Choose How You Want to Build
             </h2>
@@ -864,7 +864,7 @@ function FeaturesGrid() {
     <div className="w-full max-w-4xl flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">What's included</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">What's included</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           Everything You Need to Ship
         </h2>
@@ -922,7 +922,7 @@ function PlatformsGrid() {
     <div className="w-full flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">AI Platforms</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">AI Platforms</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           Five AI Platforms. One Environment.
         </h2>
@@ -1015,7 +1015,7 @@ function ProblemSection() {
 
       {/* Section header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">Why it matters</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Why it matters</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           The problems Fractera was built to solve
         </h2>
@@ -1217,7 +1217,7 @@ function FaqSection() {
   return (
     <div className="w-full max-w-4xl flex flex-col gap-6">
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-white uppercase tracking-widest">FAQ</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">FAQ</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
           Common Questions
         </h2>
