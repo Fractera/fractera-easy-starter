@@ -899,12 +899,12 @@ function FeaturesGrid() {
 // ─── S3: Double Presentation (port of AIFA custom-double-prsentation) ────────
 
 const DP_LEFT = {
-  imageSrc: '/Admin-Fractera.png',
+  imageSrc: '/ai-chat.png',
   title: 'AI Coding in Your Browser',
   description: 'Open a tab, speak your intent, watch code appear. No IDE, no local setup. Five AI platforms work directly in your browser — terminals included.',
 }
 const DP_RIGHT = {
-  imageSrc: '/Admin-Fractera.png',
+  imageSrc: '/ai-web.png',
   title: 'Live in Production. Instantly.',
   description: 'Your server launches in seconds. One click deploys your changes live. No CI pipeline, no hosting configuration — just ship.',
 }
