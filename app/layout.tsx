@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fractera — Production AI Development Workspace",
   description:
-    "Ship features faster with fewer tokens. Pre-built auth, database and routing. LightRAG keeps your full codebase in AI memory. Five development platforms on your own server.",
+    "In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser. Everything pre-configured: architecture, database, agents, and LightRAG memory.",
   metadataBase: new URL("https://fractera.ai"),
   openGraph: {
     type: "website",
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     siteName: "Fractera",
     title: "Fractera — Production AI Development Workspace",
     description:
-      "Same AI platforms as everyone — but a fraction of the token waste. Production starters, LightRAG codebase memory, and component highlighting mean the AI skips straight to your feature. Five development platforms. Your own server. Live in 10 minutes.",
+      "In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser. Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.",
     images: [
       {
-        url: "/Fractera-start-image.jpg",
-        width: 1920,
-        height: 1080,
-        alt: "Fractera — Production-Coding AI Server",
+        url: "/fractera-snipet.png",
+        width: 1200,
+        height: 630,
+        alt: "Fractera — Production AI Development Workspace",
       },
     ],
   },
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fractera — Production AI Development Workspace",
     description:
-      "Same AI platforms — but far fewer tokens wasted. Production starters, LightRAG codebase memory, and component highlighting built in. Five development platforms. Your server.",
-    images: ["/Fractera-start-image.jpg"],
+      "In seconds, you get a server with a live domain — ready to start building with AI. Zero to production: architecture, database, development agents, and global memory included.",
+    images: ["/fractera-snipet.png"],
   },
   icons: {
     icon: [
