@@ -22,10 +22,10 @@ export const metadata: Metadata = {
   title: "Fractera — Production AI Development Workspace",
   description:
     "In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser. Everything pre-configured: architecture, database, agents, and LightRAG memory.",
-  metadataBase: new URL("https://fractera.ai"),
+  metadataBase: new URL("https://www.fractera.ai"),
   openGraph: {
     type: "website",
-    url: "https://fractera.ai",
+    url: "https://www.fractera.ai",
     siteName: "Fractera",
     title: "Fractera — Production AI Development Workspace",
     description:
@@ -79,19 +79,19 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Fractera',
-  url: 'https://fractera.ai',
-  logo: 'https://fractera.ai/fractera-logo.jpg',
+  url: 'https://www.fractera.ai',
+  logo: 'https://www.fractera.ai/fractera-logo.jpg',
   description:
     'Production AI Development Workspace. Ship features faster with fewer tokens using Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code on your own server.',
   email: 'admin@fractera.ai',
-  sameAs: ['https://fractera.ai'],
+  sameAs: ['https://www.fractera.ai'],
 }
 
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Fractera',
-  url: 'https://fractera.ai',
+  url: 'https://www.fractera.ai',
 }
 
 export default function RootLayout({
