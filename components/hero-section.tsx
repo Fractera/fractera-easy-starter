@@ -149,7 +149,7 @@ export function HeroSection() {
     <section className="flex flex-col gap-32 items-start">
 
       {/* ── AIFA-style full-screen hero with video background ── */}
-      <div className="relative min-h-screen w-full overflow-hidden flex flex-col -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
 
         {/* Video background */}
         <video
