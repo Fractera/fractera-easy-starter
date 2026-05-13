@@ -199,10 +199,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* ── Below fold ── */}
-      <div className="flex flex-col gap-8 items-start w-full max-w-4xl">
-
-        {/* Illustration */}
+      {/* ── S2: Illustration ── */}
+      <div className="w-full max-w-4xl">
         <div
           className="w-full rounded-2xl border-2 border-violet-500/60 overflow-hidden shadow-2xl shadow-violet-500/[0.12] cursor-zoom-in"
           onClick={() => setImageFullscreen(true)}
@@ -211,12 +209,13 @@ export function HeroSection() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Admin-Fractera.png" alt="Fractera Admin Panel" className="w-full h-auto block" />
         </div>
-
-        {/* Platforms grid */}
-        <PlatformsGrid />
-
-
       </div>
+
+      {/* ── S3: Fractera intro ── */}
+      <FractеraIntro />
+
+      {/* ── S4: Platforms grid ── */}
+      <PlatformsGrid />
 
       {/* Fullscreen lightbox */}
       {imageFullscreen && (
@@ -890,6 +889,47 @@ function FeaturesGrid() {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+// ─── S3: Fractera intro ──────────────────────────────────────────────────────
+
+function FractеraIntro() {
+  return (
+    <div className="w-full max-w-4xl flex flex-col gap-8">
+      {/* Header */}
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Production AI Development</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+          Ship From Your Browser. Live in Seconds.
+        </h2>
+        <p className="max-w-xl text-base text-white/60 leading-relaxed">
+          Launch your server in seconds and start coding immediately — no IDE, no local database, no configuration. Five AI platforms, global memory, and a skill library work together from day one.
+        </p>
+      </div>
+
+      {/* Two feature items */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Mic className="w-[22px] h-[22px] shrink-0 text-violet-400" />
+            <h3 className="text-lg font-medium leading-tight tracking-tight text-white">Voice to Code</h3>
+          </div>
+          <p className="text-sm leading-snug text-white/50">
+            Speak your intent via microphone. The AI agent writes, runs, and fixes code in real time. No commands to memorize.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="w-[22px] h-[22px] shrink-0 text-violet-400" />
+            <h3 className="text-lg font-medium leading-tight tracking-tight text-white">Instant Skill Library</h3>
+          </div>
+          <p className="text-sm leading-snug text-white/50">
+            Connect pre-built community workflows instantly. Browse free skills, buy specialized ones, or sell your own automation recipes.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
