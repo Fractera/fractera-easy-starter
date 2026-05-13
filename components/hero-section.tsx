@@ -837,13 +837,25 @@ function ServerLinks({ subdomain, email }: { subdomain: string; email: string })
 
 // ─── Platforms grid (AIFA Impacts pattern) ───────────────────────────────────
 
+// Radial gradient positions: each card's highlight is at the corner facing the grid center
+// Row 0: highlight toward bottom; Row 1: highlight toward top
+// Col 0: highlight toward right; Col 1: highlight center; Col 2: highlight toward left
+const CARD_GRADIENT_POSITIONS = [
+  "100% 100%", // top-left     → bottom-right
+  "50% 100%",  // top-center   → bottom
+  "0% 100%",   // top-right    → bottom-left
+  "100% 0%",   // bottom-left  → top-right
+  "50% 0%",    // bottom-center → top
+  "0% 0%",     // bottom-right  → top-left
+]
+
 const PLATFORM_CARDS = [
-  { title: "Claude Code",  subtitle: "Writes, runs, and fixes code in your terminal. The gold standard for AI-assisted development.",          company: "Anthropic",  gradient: "from-amber-500/20"   },
-  { title: "Codex",        subtitle: "Browser-native coding agent. Full project context, no terminal required.",                               company: "OpenAI",     gradient: "from-green-500/20"   },
-  { title: "Gemini CLI",   subtitle: "Long-context AI coding. Understands your entire project structure at once.",                             company: "Google",     gradient: "from-blue-500/20"    },
-  { title: "Qwen Code",    subtitle: "Open-source coding agent. No subscription lock-in, powerful and free.",                                 company: "Alibaba",    gradient: "from-violet-500/20"  },
-  { title: "Kimi Code",    subtitle: "Context-first AI for large codebases. Excellent for refactoring and architecture.",                      company: "Moonshot",   gradient: "from-cyan-500/20"    },
-  { title: "LightRAG",     subtitle: "Your company brain. Persistent vector memory shared across all five AI platforms.",                      company: "Fractera",   gradient: "from-violet-600/30"  },
+  { title: "Claude Code", subtitle: "Writes, runs, and fixes code in your terminal. The gold standard for AI-assisted development.",     company: "Anthropic" },
+  { title: "Codex",       subtitle: "Browser-native coding agent. Full project context, no terminal required.",                         company: "OpenAI"    },
+  { title: "Gemini CLI",  subtitle: "Long-context AI coding. Understands your entire project structure at once.",                       company: "Google"    },
+  { title: "Qwen Code",   subtitle: "Open-source coding agent. No subscription lock-in, powerful and free.",                           company: "Alibaba"   },
+  { title: "Kimi Code",   subtitle: "Context-first AI for large codebases. Excellent for refactoring and architecture.",                company: "Moonshot"  },
+  { title: "LightRAG",    subtitle: "Your company brain. Persistent vector memory shared across all five AI platforms.",                company: "Fractera"  },
 ]
 
 function PlatformsGrid() {
@@ -875,7 +887,14 @@ function PlatformsGrid() {
                 <span className="text-xs font-mono text-white/40 font-medium">{card.company}</span>
               </div>
             </div>
-            <span className={`pointer-events-none absolute inset-px opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 bg-gradient-to-br ${card.gradient} to-transparent`} />
+            {/* Hover glow — radial from the corner facing grid center */}
+            <span
+              className="pointer-events-none absolute inset-px opacity-0 transition-opacity duration-300 md:group-hover:opacity-100"
+              style={{
+                background: `radial-gradient(circle at ${CARD_GRADIENT_POSITIONS[i]}, hsl(263.4,70%,50.4%,0.45) 0%, transparent 70%)`,
+              }}
+              aria-hidden="true"
+            />
           </div>
         ))}
       </div>
