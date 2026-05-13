@@ -9,7 +9,7 @@ import { CheckoutDrawer } from '@/components/stripe-checkout-drawer'
 const AuthModalCtx = createContext({ openModal: (_plan?: string) => {} })
 export const useAuthModal = () => useContext(AuthModalCtx)
 
-const DashboardCtx = createContext({ openServers: () => {}, openSubscription: () => {} })
+const DashboardCtx = createContext({ openServers: () => {}, openSubscription: () => {}, openPurchases: () => {} })
 export const useDashboard = () => useContext(DashboardCtx)
 
 const CheckoutCtx = createContext({ openCheckout: (_plan: string) => {} })
@@ -29,6 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   const openServers = useCallback(() => setDashboardState({ open: true, view: 'servers' }), [])
   const openSubscription = useCallback(() => setDashboardState({ open: true, view: 'subscription' }), [])
+  const openPurchases = useCallback(() => setDashboardState({ open: true, view: 'purchases' }), [])
 
   const openCheckout = useCallback((plan: string) => {
     setCheckoutState({ open: true, planId: plan })
@@ -37,7 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <AuthModalCtx.Provider value={{ openModal }}>
-        <DashboardCtx.Provider value={{ openServers, openSubscription }}>
+        <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases }}>
           <CheckoutCtx.Provider value={{ openCheckout }}>
             {children}
             <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} pendingPlan={pendingPlan} />

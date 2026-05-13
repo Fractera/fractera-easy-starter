@@ -8,7 +8,7 @@ import { useAuthModal, useDashboard } from '@/components/providers'
 export function SiteHeader() {
   const { data: session, status } = useSession()
   const { openModal } = useAuthModal()
-  const { openServers, openSubscription } = useDashboard()
+  const { openServers, openSubscription, openPurchases } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
 
@@ -89,6 +89,18 @@ export function SiteHeader() {
                               <circle cx="11" cy="10" r="0.8" fill="currentColor"/>
                             </svg>
                             Servers
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setMenuOpen(false); openPurchases() }}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                              <path d="M2 2h1.5l1.5 6h5l1-4H5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                              <circle cx="7" cy="11.5" r="0.8" fill="currentColor"/>
+                              <circle cx="10" cy="11.5" r="0.8" fill="currentColor"/>
+                            </svg>
+                            Purchases
                           </button>
                           <div className="h-px bg-white/20 my-1" />
                         </>

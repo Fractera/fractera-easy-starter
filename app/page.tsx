@@ -76,7 +76,7 @@ const faqSchema = {
       name: 'Do you have a referral program?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes — we offer a referral program for content creators, bloggers, and anyone interested in building their own branded version of Fractera. Partners receive a complete white-label deployment including the landing page and deployment infrastructure. Deployment is a one-time $500 fee. We are also looking for regional distributors — partners who will drive growth and engagement of the referral program in their region or business niche. For participation inquiries, contact: admin@fractera.ai',
+        text: 'Yes — partners receive a complete white-label deployment of Fractera. All subscription payments and all White Label purchases go 100% to the partner. Partners set their own pricing for both. Deployment is a one-time $500 fee. To apply, publish an article about Fractera and email admin@fractera.ai with the link.',
       },
     },
   ],

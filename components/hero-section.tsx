@@ -1295,13 +1295,17 @@ const FAQ_ITEMS: FaqItem[] = [
     q: 'Do you have a referral program?',
     a: [
       'Yes — we offer a referral program for content creators, bloggers, and anyone interested in building their own branded version of Fractera.',
-      'Partners receive a complete white-label deployment of Fractera, including the landing page and the deployment infrastructure. All payments go directly to the partner. Partners set their own pricing within our recommended range and are free to offer their own discounts.',
-      'Partners are required to retain attribution to the Fractera brand. In exchange, Fractera will recommend your platform to specific audiences or localization markets from our own pages.',
-      'To apply, send an email to admin@fractera.ai. Before reaching out, publish a public post or article about Fractera and include the link in your email. The link will be reviewed by AI — if verified, you\'ll receive a personal offer and your platform will be deployed.',
-      'Deployment is a one-time $500 fee. No recurring payments. Availability is limited.',
+      'Partners receive a complete white-label deployment of Fractera, including the landing page and the deployment infrastructure. Partners set their own pricing within our recommended range and are free to offer their own discounts.',
+    ],
+    bullets: [
+      'All subscription payments go directly to the partner — 100%.',
+      'All White Label purchases (removing Fractera branding) also go entirely to the partner.',
+      'Partners define their own pricing for both subscriptions and White Label.',
+      'Partners are required to retain attribution to the Fractera brand on their landing page. In exchange, Fractera recommends the partner\'s platform to specific audiences or localization markets.',
     ],
     trail: [
-      'We are also looking for regional distributors — partners who will drive growth and engagement of the referral program in their region or business niche. For participation inquiries, contact: admin@fractera.ai',
+      'To apply: publish a public post or article about Fractera, then email admin@fractera.ai with the link. The link is reviewed by AI — if verified, you\'ll receive a personal offer. Deployment is a one-time $500 fee. No recurring payments. Availability is limited.',
+      'We are also looking for regional distributors. For inquiries, contact: admin@fractera.ai',
     ],
   },
 ]

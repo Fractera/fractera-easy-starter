@@ -229,6 +229,37 @@ function CancelSubscriptionConfirm({ subscriptionId, onDone, onCancel }: { subsc
   )
 }
 
+function ApplyWhiteLabel({ purchaseId }: { purchaseId: string }) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
+
+  async function apply() {
+    setStatus('loading')
+    try {
+      const res = await fetch('/api/purchases/apply-white-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purchaseId }),
+      })
+      setStatus(res.ok ? 'ok' : 'error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'ok') return <p className="text-xs text-green-400 mt-1">Branding removed ✓</p>
+  if (status === 'error') return <p className="text-xs text-red-400 mt-1">Failed — try again or contact support.</p>
+
+  return (
+    <button
+      onClick={apply}
+      disabled={status === 'loading'}
+      className="text-xs text-white/50 hover:text-white border border-white/20 hover:border-white/40 rounded px-2 py-0.5 transition-colors mt-1 disabled:opacity-40"
+    >
+      {status === 'loading' ? 'Applying…' : 'Apply to server'}
+    </button>
+  )
+}
+
 function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord; onRefresh: () => void; onWhiteLabel: (id: string) => void }) {
   const progress = useDeployProgress(
     server.status === 'pending' ? server.deploySessionId : null
@@ -487,25 +518,13 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
       <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-base font-bold text-white">
+              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : 'Purchases'}
+            </h2>
             {session?.user?.email && (
-              <p className="text-sm text-white font-medium">{session.user.email}</p>
+              <p className="text-sm text-white/60 font-medium">{session.user.email}</p>
             )}
-            <div className="flex gap-1">
-              {(['servers', 'subscription', 'purchases'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveView(tab)}
-                  className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
-                    activeView === tab
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/50 hover:text-white/80'
-                  }`}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </div>
           </div>
           <button
             onClick={onClose}
@@ -567,10 +586,12 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                     <p className="text-xs text-white/30">
                       {new Date(p.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
-                    {p.serverToken?.status === 'offline' && (
+                    {p.serverToken?.status === 'offline' ? (
                       <p className="text-xs text-yellow-400/70 mt-1">
                         Server deleted — contact support to apply white label on a new server.
                       </p>
+                    ) : p.productType === 'white_label' && p.serverToken?.status === 'active' && (
+                      <ApplyWhiteLabel purchaseId={p.id} />
                     )}
                   </div>
                 ))}
