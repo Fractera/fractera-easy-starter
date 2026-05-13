@@ -28,7 +28,7 @@ type PurchaseRecord = {
   serverIp: string | null
   serverSubdomain: string | null
   createdAt: string
-  serverToken: { subdomain: string | null; status: string } | null
+  serverToken: { subdomain: string | null; status: string; whiteLabelActive: boolean } | null
 }
 
 function CredentialRow({ label, value, secret, onCopied }: {
@@ -229,25 +229,52 @@ function CancelSubscriptionConfirm({ subscriptionId, onDone, onCancel }: { subsc
   )
 }
 
-function ApplyWhiteLabel({ purchaseId }: { purchaseId: string }) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
+function ApplyWhiteLabel({ purchaseId, alreadyApplied }: { purchaseId: string; alreadyApplied: boolean }) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>(alreadyApplied ? 'ok' : 'idle')
+  const [errorMsg, setErrorMsg] = useState('')
 
   async function apply() {
     setStatus('loading')
+    setErrorMsg('')
     try {
       const res = await fetch('/api/purchases/apply-white-label', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ purchaseId }),
       })
-      setStatus(res.ok ? 'ok' : 'error')
+      if (res.ok) {
+        setStatus('ok')
+      } else {
+        const d = await res.json().catch(() => ({}))
+        setErrorMsg(d.error ?? 'Unknown error')
+        setStatus('error')
+      }
     } catch {
       setStatus('error')
     }
   }
 
-  if (status === 'ok') return <p className="text-xs text-green-400 mt-1">Branding removed ✓</p>
-  if (status === 'error') return <p className="text-xs text-red-400 mt-1">Failed — try again or contact support.</p>
+  if (status === 'ok') return (
+    <div className="flex items-center gap-2 mt-1">
+      <span className="text-xs text-green-400">Branding removed ✓</span>
+      <button onClick={apply} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+        Reapply
+      </button>
+    </div>
+  )
+
+  if (status === 'error') return (
+    <div className="flex flex-col gap-1 mt-1">
+      <p className="text-xs text-red-400">Could not reach server automatically.</p>
+      {errorMsg && <p className="text-xs text-white/30 font-mono truncate">{errorMsg}</p>}
+      <p className="text-xs text-white/40">
+        The branding may already be removed. Contact <span className="text-white/60">support@fractera.ai</span> if it&apos;s still visible.
+      </p>
+      <button onClick={apply} className="text-xs text-white/50 hover:text-white transition-colors text-left">
+        Try again
+      </button>
+    </div>
+  )
 
   return (
     <button
@@ -591,7 +618,10 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                         Server deleted — contact support to apply white label on a new server.
                       </p>
                     ) : p.productType === 'white_label' && p.serverToken?.status === 'active' && (
-                      <ApplyWhiteLabel purchaseId={p.id} />
+                      <ApplyWhiteLabel
+                        purchaseId={p.id}
+                        alreadyApplied={p.serverToken?.whiteLabelActive ?? false}
+                      />
                     )}
                   </div>
                 ))}

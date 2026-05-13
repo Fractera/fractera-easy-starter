@@ -13,7 +13,7 @@ export async function GET() {
   const purchases = await db.purchase.findMany({
     where: { userId: session.user.id },
     include: {
-      serverToken: { select: { subdomain: true, status: true } },
+      serverToken: { select: { subdomain: true, status: true, whiteLabelActive: true } },
     },
     orderBy: { createdAt: 'desc' },
   })
