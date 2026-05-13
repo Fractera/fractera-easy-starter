@@ -11,9 +11,6 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-1.5">
           <span className="text-lg font-bold tracking-tight">Fractera</span>
-          <p className="text-sm text-white">
-            Production AI development workspace — open source, your own server.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">

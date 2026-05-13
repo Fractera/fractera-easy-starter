@@ -615,11 +615,11 @@ export function HeroSection() {
       {/* Promo */}
       <FractеraPromo />
 
-      {/* Testimonial */}
-      <FractеraTestimonial />
-
       {/* FAQ */}
       <FaqSection />
+
+      {/* Testimonial */}
+      <FractеraTestimonial />
 
     </section>
   )
