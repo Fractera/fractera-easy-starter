@@ -442,6 +442,33 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
+
+# lightrag — Company Brain WebUI
+server {
+    listen 80;
+    server_name lightrag.SUBDOMAIN_PLACEHOLDER;
+
+    location ~ ^/(docs|redoc|openapi\.json|health)$ {
+        return 404;
+    }
+
+    location = /favicon.png {
+        return 204;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],[class*="login"]{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+    }
+}
 NGINXEOF
 
 rm -f /etc/nginx/sites-enabled/default
@@ -498,7 +525,7 @@ CURRENT_LABEL="Registering service subdomains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 # SUBDOMAIN = "happy-wolf-86.fractera.ai", BASE = "happy-wolf-86"
 BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth admin data; do
+for PREFIX in auth admin data lightrag; do
   curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
@@ -608,7 +635,7 @@ log_email "install_certbot" "Waiting for DNS + getting SSL certificates" 85
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN"; do
+for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN"; do
   RESOLVED=""
   for i in $(seq 1 60); do
     RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
@@ -635,6 +662,8 @@ certbot --nginx -d "admin.$SUBDOMAIN" --non-interactive --agree-tos --email nore
   >> "$LOG_FILE" 2>&1 || fail "certbot failed for admin.$SUBDOMAIN"
 certbot --nginx -d "data.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
   >> "$LOG_FILE" 2>&1 || fail "certbot failed for data.$SUBDOMAIN"
+certbot --nginx -d "lightrag.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || true
 
 systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
 systemctl start certbot.timer >> "$LOG_FILE" 2>&1 || true
