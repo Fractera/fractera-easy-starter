@@ -705,9 +705,14 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                               <span className="text-xs font-mono text-white/40 truncate">{sub.stripeSubscriptionId}</span>
                             </div>
                           )}
-                          {!isActive && (
+                          {!isActive && !isFree && (
                             <p className="text-xs text-violet-300/70 mt-1">
                               Subscription inactive — check your payment method in Stripe.
+                            </p>
+                          )}
+                          {!isActive && isFree && (
+                            <p className="text-xs text-violet-300/70 mt-1">
+                              Your free plan was cancelled. Go to the main page to install Fractera on a new server.
                             </p>
                           )}
                           {showGetNewServer && (
@@ -719,7 +724,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                               {reassigning ? 'Getting server…' : 'Get a new server →'}
                             </button>
                           )}
-                          {isFree && (
+                          {isFree && isActive && (
                             <button
                               onClick={() => { onClose(); }}
                               className="mt-1 w-full text-sm font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-lg py-2 transition-colors"
