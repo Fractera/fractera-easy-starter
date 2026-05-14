@@ -665,7 +665,7 @@ fi
 
 # === Install ping agent cron (if SERVER_TOKEN provided) ===
 if [ -n "$SERVER_TOKEN" ]; then
-  echo "SERVER_TOKEN=$SERVER_TOKEN" >> /etc/fractera/secrets.env
+  sed -i "/^SERVER_TOKEN=/d" /etc/fractera/secrets.env 2>/dev/null; echo "SERVER_TOKEN=$SERVER_TOKEN" >> /etc/fractera/secrets.env
   # Cron: ping platform every 15 min, send subdomain on first ping
   CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
   (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -

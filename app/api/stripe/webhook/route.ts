@@ -60,7 +60,10 @@ export async function POST(req: NextRequest) {
       if (server.subdomain && server.token) {
         fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${server.token}` },
+          headers: {
+            'Authorization': `Bearer ${server.token}`,
+            'x-fractera-secret': process.env.INSTALL_SCRIPT_SECRET ?? '',
+          },
         }).catch(() => {})
       }
 

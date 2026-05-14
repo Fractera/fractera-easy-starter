@@ -32,7 +32,10 @@ export async function POST(req: NextRequest) {
   try {
     const res = await fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${server.token}` },
+      headers: {
+        'Authorization': `Bearer ${server.token}`,
+        'x-fractera-secret': process.env.INSTALL_SCRIPT_SECRET ?? '',
+      },
       signal: AbortSignal.timeout(15000),
     })
     if (!res.ok) {
