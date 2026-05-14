@@ -1,0 +1,112 @@
+import { Suspense } from 'react'
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { HeroSection } from '@/components/hero-section'
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'The same AI platforms — yet Fractera ships faster with fewer tokens. Why?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Regular vibe coding puts all the heavy lifting on the AI: design the architecture, write boilerplate, locate the right component, recall what was decided last session. Fractera eliminates that overhead: production-ready starters ship pre-configured, component highlighting jumps to source with one click, LightRAG keeps your full codebase in AI memory, and cross-platform orchestration means all five coding platforms share context.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What server specs do I need?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'For full AI-coding workloads, the recommended minimum is 6 cores and 8 GB RAM. Storage depends on your project — 75 GB is a solid baseline. Once active AI development wraps up, you can downgrade to 2 cores / 4 GB RAM, typically costing €1–2 per month.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I switch from the paid plan to free self-hosting later?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — at any time. Keep your code synced to GitHub, export your database and file storage, provision a new server, import your data, point your custom domain to the new server, then cancel your subscription.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I bring my existing project into Fractera and continue AI-assisted development?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes. Connect your existing GitHub repository to your Fractera workspace and start coding with AI immediately. Depending on your project complexity, some initial migration steps may be needed — Fractera's built-in AI assistants can guide you through the process.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I deploy a finished project to Vercel instead of keeping it on my own server?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes — once a project is complete and no longer needs active AI-assisted development, you can export it to Vercel. Important: moving to Vercel means leaving the Fractera environment behind. The AI coding workspace, terminal, LightRAG memory, and all five development platforms only run on your own server. A simple finished product is a good candidate; a product you're still actively building is not.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Pricing and plans — details',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Fractera is open-source — you can self-host at no cost. Fractera Pro adds advanced capabilities on your own server for $20/month or $149/year. The hosted plan includes the server, full Fractera Pro, and everything pre-configured for $25/month or $199/year.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I combine local development with the Fractera production platform?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — and for developers with an existing local setup, this is often the most natural workflow. After setting up your Fractera project, connect it to a GitHub repository and push the initial codebase. Pull the code to your local machine and develop as usual — your IDE, your preferred AI tools, hot reload. When ready to ship, push to GitHub, then return to your Fractera workspace, pull, and deploy. Your changes go live in production in minutes. In effect, your own server becomes a self-hosted alternative to Vercel: GitHub is the bridge between your local environment and production. Your local development environment will continue to use the database and file storage that live on your server — no cloud database or cloud storage subscription required. If you later decide to migrate to a fully cloud-based setup, that is also possible: use the corresponding Skills available in your Fractera workspace to handle the migration.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I remove the "Powered by Fractera" branding from my site?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — White Label is a one-time $100 purchase per server. After payment, the Fractera branding is removed automatically and permanently. If you rebuild your server, white label status is remembered and reapplied. Purchase it from your Dashboard by clicking "Remove Fractera branding" on your active server card.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you have a referral program?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes — partners receive a complete white-label deployment of Fractera. All subscription payments and all White Label purchases go 100% to the partner. Partners set their own pricing for both. Deployment is a one-time $500 fee. To apply, publish an article about Fractera and email admin@fractera.ai with the link.',
+      },
+    },
+  ],
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: _lang } = await params
+
+  const session = await auth()
+  if (session?.user?.email === 'admin@fractera.ai') {
+    redirect('/admin')
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <main className="min-h-screen bg-black text-white">
+        <div className="max-w-5xl mx-auto px-6 pb-20 flex flex-col gap-20">
+          <Suspense fallback={null}>
+            <HeroSection />
+          </Suspense>
+        </div>
+      </main>
+    </>
+  )
+}

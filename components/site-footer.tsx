@@ -1,6 +1,11 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
+
 export function SiteFooter() {
+  const pathname = usePathname()
+  const lang = pathname?.split('/')[1] || 'en'
+
   function openCookieSettings() {
     window.dispatchEvent(new Event('open-cookie-settings'))
   }
@@ -14,9 +19,10 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">
-          <a href="/privacy" className="hover:text-violet-400 transition-colors">Privacy Policy</a>
-          <a href="/terms" className="hover:text-violet-400 transition-colors">Terms of Service</a>
-          <a href="/cookies" className="hover:text-violet-400 transition-colors">Cookie Policy</a>
+          <a href={`/${lang}/privacy`} className="hover:text-violet-400 transition-colors">Privacy Policy</a>
+          <a href={`/${lang}/terms`} className="hover:text-violet-400 transition-colors">Terms of Service</a>
+          <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">Cookie Policy</a>
+          <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">Partner Program</a>
           <button
             type="button"
             onClick={openCookieSettings}
