@@ -164,13 +164,21 @@ export function HeroSection() {
               <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">Open Source</span>
             </div>
 
-            <h1 className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl">
+            <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">
               Fractera
-            </h1>
-
-            <p className="text-2xl font-bold text-white leading-tight">
-              Production AI Development Workspace
             </p>
+
+            <h1
+              className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl"
+              style={{
+                color: 'white',
+                WebkitTextStroke: '1px rgba(139,92,246,0.8)',
+                paintOrder: 'stroke fill',
+                textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)',
+              } as React.CSSProperties}
+            >
+              Production AI Development Workspace
+            </h1>
 
             <p className="text-lg text-white/80 leading-relaxed max-w-xl">
               {DESCRIPTION_ITEMS[0]}
@@ -327,7 +335,7 @@ export function HeroSection() {
                 </span>
               </div>
               <div className="flex items-baseline justify-between -mt-1">
-                <h2 className="text-xl font-bold text-white">Fractera Pro + Server</h2>
+                <h3 className="text-xl font-bold text-white">Fractera Pro + Server</h3>
               </div>
 
               <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
@@ -381,7 +389,7 @@ export function HeroSection() {
                 <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
                   YOUR OWN SERVER
                 </span>
-                <h2 className="text-xl font-bold text-white mt-1">Fractera Light</h2>
+                <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
                 <p className="text-sm text-emerald-300/70 font-medium">Free — install on your VPS</p>
               </div>
 
@@ -1113,17 +1121,19 @@ function FractеraPromo() {
       <div className="max-w-4xl mx-auto flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <h2 className="mb-6 max-w-3xl font-serif font-bold leading-tight text-white text-xl md:text-2xl lg:text-4xl">
-            Want to try Fractera?
+            Open Source — Fork It, Build Your Own Platform
           </h2>
           <p className="mb-12 max-w-xl text-base text-white/60 md:text-lg">
-            Launch your server, code in the browser, and ship your product — in minutes. Free for self-hosted setups.
+            Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.
           </p>
           <a
-            href="#"
-            onClick={e => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) }}
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 transition-colors"
+            href="https://github.com/Fractera/ai-workspace"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex items-center gap-2 justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 transition-colors"
           >
-            Get started free
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
           </a>
         </div>
         <div className="relative shrink-0">
