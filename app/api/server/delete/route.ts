@@ -78,5 +78,17 @@ export async function POST(req: NextRequest) {
     data: { status: 'offline' },
   })
 
+  // Cancel free (self-hosted) subscription when its server is deleted.
+  // Paid subscriptions (monthly, annual, trial) are kept — the user paid for them
+  // and may redeploy. Only the free plan has no value without an active server.
+  await db.subscription.updateMany({
+    where: {
+      userId: session.user.id,
+      planId: 'free',
+      status: { not: 'cancelled' },
+    },
+    data: { status: 'cancelled' },
+  })
+
   return NextResponse.json({ ok: true })
 }
