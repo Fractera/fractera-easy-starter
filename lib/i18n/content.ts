@@ -35,6 +35,34 @@ export type HeroContent = {
     bestValueBadge: string
     planFeatures: string[]
     freeFeatures: string[]
+    subscribeButton: string
+    subscribeButtonWait: string
+  }
+  mcpSection: { label: string; h2: string; description: string }
+  installForm: {
+    title: string
+    ipPlaceholder: string
+    loginPlaceholder: string
+    passwordPlaceholder: string
+    checking: string
+    alreadyInstalled: string
+    yourDomains: string
+    removeWhiteLabel: string
+    renewingSsl: string
+    renewSsl: string
+    removing: string
+    deleteReinstall: string
+    cantReach: string
+    updatesTo: string
+    emailConfirmCheck: string
+    emailConfirmNote: string
+    launchButton: string
+    credentials: string
+    installFailed: string
+    preparing: string
+    tryAgain: string
+    silentWarning: string
+    errorDetails: string
   }
   featuresHeader: { label: string; h2: string; description: string }
   featureList: { title: string; description: string; badge: string }[]
@@ -170,6 +198,41 @@ const en: HeroContent = {
       'Open source — self-hosted forever',
       'Fractera Pro — 14-day free trial',
     ],
+    subscribeButton: 'Subscribe · {price} →',
+    subscribeButtonWait: 'Subscribe · {price} (ready in ~60 min) →',
+  },
+
+  mcpSection: {
+    label: 'MCP · AI Agents',
+    h2: 'Deploy and Manage Your Server with an AI Agent via MCP',
+    description:
+      'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation.',
+  },
+
+  installForm: {
+    title: 'Install Fractera on your server',
+    ipPlaceholder: 'Server IP address (e.g. 109.199.105.213)',
+    loginPlaceholder: 'Login (usually: root)',
+    passwordPlaceholder: 'Password',
+    checking: 'Checking server...',
+    alreadyInstalled: 'Fractera is already installed on this server',
+    yourDomains: 'Your domains',
+    removeWhiteLabel: 'Remove Fractera branding — $100',
+    renewingSsl: 'Renewing SSL…',
+    renewSsl: 'Renew SSL certificates',
+    removing: 'Removing…',
+    deleteReinstall: 'Delete and reinstall fresh',
+    cantReach: "Could not reach server. You can still try installing.",
+    updatesTo: 'Installation updates will be sent to',
+    emailConfirmCheck: 'I understand and have access to this email address',
+    emailConfirmNote: "If you don't have access to this email, sign out and sign in with an account you can access, then try again.",
+    launchButton: 'Launch my server →',
+    credentials: 'Your credentials are used only for installation and are never stored on our servers.',
+    installFailed: 'Installation failed',
+    preparing: 'Preparing...',
+    tryAgain: 'Try again',
+    silentWarning: 'Server has been silent for {secs}s. The installation may still be running, or the server may be unreachable.',
+    errorDetails: 'Error details:',
   },
 
   featuresHeader: {
@@ -466,6 +529,41 @@ const ru: HeroContent = {
       'Open source — навсегда на своём сервере',
       'Fractera Pro — 14 дней бесплатно',
     ],
+    subscribeButton: 'Подписаться · {price} →',
+    subscribeButtonWait: 'Подписаться · {price} (~60 мин) →',
+  },
+
+  mcpSection: {
+    label: 'MCP · AI Агенты',
+    h2: 'Управляйте сервером через AI Agent по MCP',
+    description:
+      'Деплой и управление продакшн-сервером через AI-агент в вашем чате — теперь это просто. Подключите Claude, Codex или Gemini к Fractera MCP — деплойте инфраструктуру, следите за установкой и запускайте среды, не выходя из чата.',
+  },
+
+  installForm: {
+    title: 'Установить Fractera на сервер',
+    ipPlaceholder: 'IP-адрес сервера (например, 109.199.105.213)',
+    loginPlaceholder: 'Логин (обычно: root)',
+    passwordPlaceholder: 'Пароль',
+    checking: 'Проверка сервера...',
+    alreadyInstalled: 'Fractera уже установлена на этом сервере',
+    yourDomains: 'Ваши домены',
+    removeWhiteLabel: 'Убрать брендинг Fractera — $100',
+    renewingSsl: 'Обновление SSL…',
+    renewSsl: 'Обновить SSL-сертификаты',
+    removing: 'Удаление…',
+    deleteReinstall: 'Удалить и переустановить',
+    cantReach: 'Сервер не отвечает. Можно попробовать установить.',
+    updatesTo: 'Обновления об установке придут на',
+    emailConfirmCheck: 'Я понимаю и имею доступ к этому адресу',
+    emailConfirmNote: 'Если нет доступа к этому email — выйдите и войдите с другой учётной записью.',
+    launchButton: 'Запустить сервер →',
+    credentials: 'Данные используются только для установки и не сохраняются на наших серверах.',
+    installFailed: 'Установка не удалась',
+    preparing: 'Подготовка...',
+    tryAgain: 'Повторить',
+    silentWarning: 'Сервер не отвечает {secs}с. Установка может продолжаться.',
+    errorDetails: 'Подробности ошибки:',
   },
 
   featuresHeader: {

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
-import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone, AlertCircle, Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -11,10 +11,8 @@ import { InstallForm } from '@/components/install-form'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
-import { getContent, type HeroContent } from '@/lib/i18n/content'
-
-const HeroContentCtx = createContext<HeroContent>(getContent('en'))
-const useHeroContent = () => useContext(HeroContentCtx)
+import { getContent } from '@/lib/i18n/content'
+import { HeroContentCtx, useHeroContent } from '@/lib/i18n/context'
 
 type MyServer = {
   id: string
@@ -361,7 +359,7 @@ export function HeroSection({ lang }: { lang?: string }) {
               {poolAvailable !== null && poolAvailable > 0 && (
                 <button type="button" onClick={handleOneClick}
                   className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30">
-                  {`Subscribe · ${selectedPlan.price} →`}
+                  {content.planLabels.subscribeButton.replace('{price}', selectedPlan.price ?? '')}
                 </button>
               )}
               {poolAvailable !== null && poolAvailable === 0 && (
@@ -372,7 +370,7 @@ export function HeroSection({ lang }: { lang?: string }) {
                   </div>
                   <button type="button" onClick={handleOneClick}
                     className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors">
-                    {`Subscribe · ${selectedPlan.price} (ready in ~60 min) →`}
+                    {content.planLabels.subscribeButtonWait.replace('{price}', selectedPlan.price ?? '')}
                   </button>
                 </div>
               )}

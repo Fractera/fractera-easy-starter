@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
+import { useHeroContent } from '@/lib/i18n/context'
 
 type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
@@ -235,6 +236,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const doneCount = steps.filter(s => s.done).length
   const progress = Math.round((doneCount / steps.length) * 100)
   const currentStep = steps.find(s => s.id === activeStep)
+  const content = useHeroContent()
+  const t = content.installForm
 
   return (
     <div className="w-full max-w-xl flex flex-col gap-6">
@@ -243,27 +246,27 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
           <div className="text-sm text-white font-bold uppercase tracking-widest">
-            Install Fractera on your server
+            {t.title}
           </div>
 
           <div className="flex flex-col gap-3">
             <input
               type="text"
-              placeholder="Server IP address (e.g. 109.199.105.213)"
+              placeholder={t.ipPlaceholder}
               value={ip}
               onChange={e => setIp(e.target.value)}
               className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
             <input
               type="text"
-              placeholder="Login (usually: root)"
+              placeholder={t.loginPlaceholder}
               value={login}
               onChange={e => setLogin(e.target.value)}
               className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t.passwordPlaceholder}
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
@@ -273,7 +276,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           {serverStatus === 'checking' && (
             <div className="flex items-center gap-2 text-base text-white font-medium">
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Checking server...
+              {t.checking}
             </div>
           )}
 
@@ -281,11 +284,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             <div className="flex flex-col gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-5">
               <div className="flex items-center gap-2">
                 <span className="text-green-400">&#10003;</span>
-                <p className="text-sm font-semibold text-green-400">Fractera is already installed on this server</p>
+                <p className="text-sm font-semibold text-green-400">{t.alreadyInstalled}</p>
               </div>
               {detectedSubdomain && (
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm text-white font-bold uppercase tracking-widest">Your domains</p>
+                  <p className="text-sm text-white font-bold uppercase tracking-widest">{t.yourDomains}</p>
                   <a href={`https://${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
                     className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
                     ↗ {detectedSubdomain} <span className="text-white text-sm font-medium">site</span>
@@ -305,7 +308,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                   onClick={() => onWhiteLabel(freeServerTokenId)}
                   className="text-xs text-white bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 transition-colors px-3 py-1.5 rounded-lg font-medium"
                 >
-                  Remove Fractera branding — $100
+                  {t.removeWhiteLabel}
                 </button>
               )}
 
@@ -332,7 +335,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                   disabled={renewingSsl}
                   className="text-xs text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
                 >
-                  {renewingSsl ? 'Renewing SSL…' : 'Renew SSL certificates'}
+                  {renewingSsl ? t.renewingSsl : t.renewSsl}
                 </button>
                 <button
                   onClick={async () => {
@@ -358,7 +361,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                   disabled={destroying}
                   className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
                 >
-                  {destroying ? 'Removing…' : 'Delete and reinstall fresh'}
+                  {destroying ? t.removing : t.deleteReinstall}
                 </button>
               </div>
               {sslRenewResult && (
@@ -371,7 +374,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
 
           {serverStatus === 'fresh' && statusError && (
             <p className="text-xs text-yellow-600 px-1">
-              Could not reach server. You can still try installing.
+              {t.cantReach}
             </p>
           )}
 
@@ -385,7 +388,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             ) : session?.user?.email ? (
               <div className="flex flex-col gap-3 bg-white/[0.04] border border-white/20 rounded-xl p-4">
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs text-white/50 uppercase tracking-widest">Installation updates will be sent to</p>
+                  <p className="text-xs text-white/50 uppercase tracking-widest">{t.updatesTo}</p>
                   <p className="text-sm font-semibold text-white">{session.user.email}</p>
                 </div>
                 <label className="flex items-start gap-3 cursor-pointer select-none">
@@ -396,11 +399,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                     className="mt-0.5 w-4 h-4 accent-white cursor-pointer shrink-0"
                   />
                   <span className="text-sm text-white leading-snug">
-                    I understand and have access to this email address
+                    {t.emailConfirmCheck}
                   </span>
                 </label>
                 <p className="text-xs text-white/35 leading-relaxed">
-                  If you don't have access to this email, sign out and sign in with an account you can access, then try again.
+                  {t.emailConfirmNote}
                 </p>
               </div>
             ) : null
@@ -412,12 +415,12 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               disabled={!ip || !password || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
               className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Launch my server →
+              {t.launchButton}
             </button>
           )}
 
           <p className="text-sm text-white">
-            Your credentials are used only for installation and are never stored on our servers.
+            {t.credentials}
           </p>
         </div>
       )}
@@ -427,7 +430,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <p className="text-base text-white font-semibold">
-              {installError ? 'Installation failed' : (currentStep?.label ?? 'Preparing...')}
+              {installError ? t.installFailed : (currentStep?.label ?? t.preparing)}
               {!installError && activeStep && (
                 <span className="text-white/60 ml-2">— {Math.floor((now - stepStartedAt) / 1000)}s</span>
               )}
@@ -445,20 +448,20 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           {/* Silence warning */}
           {!installError && installing && now - lastUpdateAt > 60000 && (
             <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
-              Server has been silent for {Math.floor((now - lastUpdateAt) / 1000)}s. The installation may still be running, or the server may be unreachable.
+              {t.silentWarning.replace('{secs}', String(Math.floor((now - lastUpdateAt) / 1000)))}
             </p>
           )}
 
           {/* Error message */}
           {installError && (
             <div className="flex flex-col gap-3 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-              <p className="text-sm text-red-400 font-medium">Error details:</p>
+              <p className="text-sm text-red-400 font-medium">{t.errorDetails}</p>
               <p className="text-xs text-red-300 break-all whitespace-pre-wrap font-mono">{installError}</p>
               <button
                 onClick={reset}
                 className="self-start text-xs text-white bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-lg"
               >
-                Try again
+                {t.tryAgain}
               </button>
             </div>
           )}

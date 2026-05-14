@@ -1,5 +1,7 @@
 'use client'
 
+import { useHeroContent } from '@/lib/i18n/context'
+
 type Platform = {
   id: string
   name: string
@@ -20,17 +22,16 @@ const CARD_STYLE: React.CSSProperties = {
 }
 
 export function PlatformSelector() {
+  const content = useHeroContent()
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">MCP · AI Agents</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.mcpSection.label}</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-          Deploy and Manage Your Server with an AI Agent via MCP
+          {content.mcpSection.h2}
         </h2>
         <p className="max-w-xl text-base text-white/60">
-          Building and managing a production server through an AI agent inside your chat has never been this seamless.
-          Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation,
-          and launch new environments without leaving your conversation.
+          {content.mcpSection.description}
         </p>
       </div>
 
