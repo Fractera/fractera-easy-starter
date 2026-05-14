@@ -448,8 +448,13 @@ server {
     listen 80;
     server_name lightrag.SUBDOMAIN_PLACEHOLDER;
 
-    location ~ ^/(docs|redoc|openapi\.json|health)$ {
+    location ~ ^/(docs|redoc|openapi\.json)$ {
         return 404;
+    }
+
+    location = /health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
     }
 
     location = /favicon.png {
@@ -466,7 +471,7 @@ server {
         proxy_set_header Accept-Encoding "";
         sub_filter_once off;
         sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],[class*="login"]{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
     }
 }
 NGINXEOF
