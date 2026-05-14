@@ -427,12 +427,10 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* MCP block — only when server verified (installing or ready) */}
-      {(showTroubleshoot || domainReady) && (
-        <div className="w-full max-w-4xl">
-          <PlatformSelector />
-        </div>
-      )}
+      {/* MCP block — always visible for SEO */}
+      <div className="w-full max-w-4xl">
+        <PlatformSelector />
+      </div>
 
       {/* Features grid */}
       <FeaturesGrid />
