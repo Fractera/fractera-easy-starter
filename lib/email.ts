@@ -61,12 +61,7 @@ export async function sendWelcomeEmail(
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="margin:0 0 12px">Your server is live!</h2>
-        <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All pipeline services are running:</p>
-
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Infrastructure (5 services)</p>
-        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8">
-          ${serviceListHtml(PIPELINE_SERVICES)}
-        </ul>
+        <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All 6 services are running.</p>
 
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">AI Platforms (5 tools)</p>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8">
@@ -74,13 +69,17 @@ export async function sendWelcomeEmail(
         </ul>
 
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your URLs</p>
-        <ul style="margin:0 0 24px;padding-left:20px;line-height:1.8">
-          <li><a href="https://${subdomain}">https://${subdomain}</a> — app (Shell)</li>
-          <li><a href="https://auth.${subdomain}">https://auth.${subdomain}</a> — login (Auth)</li>
-          <li><a href="https://admin.${subdomain}">https://admin.${subdomain}</a> — workspace (Admin + Bridge)</li>
-        </ul>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:8px">
+          <tr><td style="padding:5px 0;color:#666;width:120px">App</td><td><a href="https://${subdomain}" style="color:#6c47ff;font-weight:600">https://${subdomain}</a></td></tr>
+          <tr><td style="padding:5px 0;color:#666">Workspace</td><td><a href="https://admin.${subdomain}" style="color:#6c47ff;font-weight:600">https://admin.${subdomain}</a></td></tr>
+          <tr><td style="padding:5px 0;color:#666">File storage</td><td style="font-size:13px;color:#555;font-family:monospace">data.${subdomain}</td></tr>
+        </table>
 
-        <p style="margin:0 0 24px;font-size:12px;color:#666">data.${subdomain} — file storage (Data service)</p>
+        <div style="background:#f7f4ff;border:1px solid #e0d5ff;border-radius:10px;padding:16px;margin:20px 0">
+          <p style="margin:0 0 6px;font-size:11px;color:#7c5cd1;text-transform:uppercase;letter-spacing:1px;font-weight:600">Company Brain</p>
+          <p style="margin:0 0 10px;font-size:13px;color:#444;line-height:1.5">Your AI knowledge base is running. Feed it documentation, query it from the workspace.</p>
+          <a href="https://lightrag.${subdomain}/webui/" style="color:#6c47ff;font-weight:600;font-size:13px">https://lightrag.${subdomain}/webui/</a>
+        </div>
 
         ${credentials ? `
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">SSH credentials</p>
