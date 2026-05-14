@@ -255,11 +255,16 @@ function ApplyWhiteLabel({ purchaseId, alreadyApplied }: { purchaseId: string; a
   }
 
   if (status === 'ok') return (
-    <div className="flex items-center gap-2 mt-1">
-      <span className="text-xs text-green-400">Branding removed ✓</span>
-      <button onClick={apply} className="text-xs text-white/30 hover:text-white/60 transition-colors">
-        Reapply
-      </button>
+    <div className="flex flex-col gap-1.5 mt-1">
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-green-400">Branding removed ✓</span>
+        <button onClick={apply} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+          Reapply
+        </button>
+      </div>
+      <p className="text-xs text-white/35 leading-relaxed">
+        To confirm the footer is gone, open your site in an <strong className="text-white/50">incognito / private window</strong> — the main browser tab may show a cached version.
+      </p>
     </div>
   )
 

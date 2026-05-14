@@ -1292,6 +1292,7 @@ const FAQ_ITEMS: FaqItem[] = [
     ],
     trail: [
       'To purchase, open your Dashboard, select the server, and click "Remove Fractera branding". Your purchase history is saved in the Purchases tab for support purposes.',
+      'Tip: after removal, open your site in an incognito / private browsing window to confirm the footer is gone — your main browser tab may show a cached version of the page.',
     ],
   },
   {
