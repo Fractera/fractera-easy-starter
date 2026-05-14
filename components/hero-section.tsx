@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
 import { Layers, Lightbulb, Code2, Rocket, TrendingUp, Brain, Target, Smartphone, AlertCircle, Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -11,6 +11,10 @@ import { InstallForm } from '@/components/install-form'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
+import { getContent, type HeroContent } from '@/lib/i18n/content'
+
+const HeroContentCtx = createContext<HeroContent>(getContent('en'))
+const useHeroContent = () => useContext(HeroContentCtx)
 
 type MyServer = {
   id: string
@@ -44,7 +48,8 @@ const DESCRIPTION_ITEMS = [
   "All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand.",
 ]
 
-export function HeroSection() {
+export function HeroSection({ lang }: { lang?: string }) {
+  const content = getContent(lang ?? 'en')
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -138,6 +143,7 @@ export function HeroSection() {
   const showTroubleshoot = installStarted && !domainReady
 
   return (
+    <HeroContentCtx.Provider value={content}>
     <section className="flex flex-col gap-32 items-start">
 
       {/* ── AIFA-style full-screen hero with video background ── */}
@@ -181,13 +187,13 @@ export function HeroSection() {
             </h1>
 
             <p className="text-lg text-white/80 leading-relaxed max-w-xl">
-              {DESCRIPTION_ITEMS[0]}
+              {content.description}
             </p>
           </div>
 
           {/* Bottom: 3 feature blocks (AIFA pattern) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 pb-12 pt-8 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
-            {FEATURE_ITEMS.slice(0, 3).map(({ title, text }, i) => (
+            {content.featureItems.slice(0, 3).map(({ title, text }, i) => (
               <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
                 <h3 className="text-2xl font-bold text-white">{title}</h3>
                 <p className="mb-4 text-base text-white/50 min-h-[1.5rem]" />
@@ -312,12 +318,12 @@ export function HeroSection() {
 
           {/* Pricing header */}
           <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-            <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Get Started</p>
+            <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
             <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-              Choose How You Want to Build
+              {content.pricingHeader.h2}
             </h2>
             <p className="max-w-xl text-base text-white/60">
-              One-click deployment with a server included, or install on your own VPS — both give you the full Fractera environment.
+              {content.pricingHeader.description}
             </p>
           </div>
 
@@ -331,7 +337,7 @@ export function HeroSection() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
-                  RECOMMENDED
+                  {content.planLabels.recommended}
                 </span>
               </div>
               <div className="flex items-baseline justify-between -mt-1">
@@ -341,11 +347,9 @@ export function HeroSection() {
               <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
 
               <ul className="flex flex-col gap-1.5 text-base text-white font-medium flex-1">
-                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className="font-bold">4 cores · 6 GB RAM · 150 GB disk</span></li>
-                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code</span></li>
-                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>LightRAG — the company brain</span></li>
-                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span>Database, file storage & auth — built in</span></li>
-                <li className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className="font-bold">Fractera Pro included</span></li>
+                {content.planLabels.planFeatures.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className={i === 0 || i === 4 ? 'font-bold' : ''}>{f}</span></li>
+                ))}
               </ul>
 
               {poolAvailable === null && (
@@ -363,10 +367,8 @@ export function HeroSection() {
               {poolAvailable !== null && poolAvailable === 0 && (
                 <div className="flex flex-col gap-3">
                   <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex flex-col gap-2">
-                    <p className="text-sm text-yellow-400 font-semibold">⚠ Instant deployment temporarily unavailable</p>
-                    <p className="text-sm text-yellow-300 font-medium leading-relaxed">
-                      You can still subscribe — server ready within <strong>60 minutes</strong>.
-                    </p>
+                    <p className="text-sm text-yellow-400 font-semibold">{content.planLabels.unavailableTitle}</p>
+                    <p className="text-sm text-yellow-300 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: content.planLabels.unavailableDesc }} />
                   </div>
                   <button type="button" onClick={handleOneClick}
                     className="w-full bg-yellow-600/80 hover:bg-yellow-600 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors">
@@ -375,7 +377,7 @@ export function HeroSection() {
                 </div>
               )}
               {!session && (
-                <p className="text-sm text-white/50 text-center -mt-2">You&apos;ll be asked to sign in first</p>
+                <p className="text-sm text-white/50 text-center -mt-2">{content.planLabels.signInPrompt}</p>
               )}
             </div>
 
@@ -387,20 +389,19 @@ export function HeroSection() {
             >
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
-                  YOUR OWN SERVER
+                  {content.planLabels.ownServer}
                 </span>
                 <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
-                <p className="text-sm text-emerald-300/70 font-medium">Free — install on your VPS</p>
+                <p className="text-sm text-emerald-300/70 font-medium">{content.planLabels.freeInstall}</p>
               </div>
 
               <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>5 coding platforms</span></li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>LightRAG — the company brain</span></li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>Database, file storage & auth — built in</span></li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>Open source — self-hosted forever</span></li>
+                {content.planLabels.freeFeatures.slice(0, 4).map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>{f}</span></li>
+                ))}
                 <li className="flex items-start gap-2">
                   <span className="text-emerald-400 shrink-0 mt-0.5">◈</span>
-                  <span className="text-white">Fractera Pro — <span className="text-emerald-300 font-semibold">14-day free trial</span></span>
+                  <span className="text-white">{content.planLabels.freeFeatures[4]}</span>
                 </li>
               </ul>
 
@@ -413,7 +414,7 @@ export function HeroSection() {
               ) : (
                 <button type="button" onClick={() => openModal()}
                   className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30">
-                  Sign in to continue
+                  {content.planLabels.signInButton}
                 </button>
               )}
             </div>
@@ -454,6 +455,7 @@ export function HeroSection() {
       </div>
 
     </section>
+    </HeroContentCtx.Provider>
   )
 }
 
@@ -689,22 +691,26 @@ const FEATURE_LIST = [
 ]
 
 function FeaturesGrid() {
+  const content = useHeroContent()
+  const ICONS = [Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot]
   return (
     <div className="w-full max-w-4xl flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">What's included</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.featuresHeader.label}</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-          Everything You Need to Ship
+          {content.featuresHeader.h2}
         </h2>
         <p className="max-w-xl text-base text-white/60">
-          Fractera Lite covers 90% of what a professional application needs. Fractera Pro unlocks the rest.
+          {content.featuresHeader.description}
         </p>
       </div>
 
       {/* Grid */}
       <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-x-8 md:gap-y-11">
-        {FEATURE_LIST.map(({ icon: Icon, title, description, badge }, i) => (
+        {content.featureList.map(({ title, description, badge }, i) => {
+          const Icon = ICONS[i]
+          return (
           <li key={i} className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Icon className="w-[22px] h-[22px] shrink-0 text-violet-400" />
@@ -717,7 +723,8 @@ function FeaturesGrid() {
                 : 'text-white/50 bg-white/[0.05] border-white/20'
             }`}>{badge}</span>
           </li>
-        ))}
+          )
+        })}
       </ul>
     </div>
   )
@@ -737,6 +744,7 @@ const DP_RIGHT = {
 }
 
 function DoublePresentation() {
+  const content = useHeroContent()
   const [isMobile, setIsMobile] = useState<boolean | null>(null)
   const [activeContainer, setActiveContainer] = useState<'left' | 'right'>('left')
   const [sliderKey, setSliderKey] = useState(0)
@@ -811,15 +819,12 @@ function DoublePresentation() {
 
   const header = (
     <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-      <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Production AI Development</p>
+      <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.dpHeader.label}</p>
       <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-        Ship From Your Browser. Live in Seconds.
+        {content.dpHeader.h2}
       </h2>
       <p className="max-w-2xl text-base text-white/60 leading-relaxed">
-        Production AI Development is the next era of vibe coding — and it runs entirely in your browser from the very first second.
-        No Visual Studio Code. No local environment to configure. No database to spin up. No domain to wire. No deployment pipeline to debug.
-        You open a tab, your server is already live, your domain is already registered, your database is already running — and five AI coding platforms are waiting for your first voice command.
-        This is not a tool for developers. This is the moment when anyone with an idea can build, ship, and scale a real product without ever leaving their browser.
+        {content.dpHeader.description}
       </p>
     </div>
   )
@@ -828,8 +833,8 @@ function DoublePresentation() {
     return (
       <div className="w-full max-w-4xl flex flex-col gap-6">
         {header}
-        {renderMobileCard(DP_LEFT)}
-        {renderMobileCard(DP_RIGHT)}
+        {renderMobileCard(content.dpLeft)}
+        {renderMobileCard(content.dpRight)}
       </div>
     )
   }
@@ -838,8 +843,8 @@ function DoublePresentation() {
     <div className="w-full max-w-4xl flex flex-col items-center gap-12">
       {header}
       <div className="flex gap-6 w-full">
-        {renderDesktopCard(DP_LEFT, 'left')}
-        {renderDesktopCard(DP_RIGHT, 'right')}
+        {renderDesktopCard(content.dpLeft, 'left')}
+        {renderDesktopCard(content.dpRight, 'right')}
       </div>
     </div>
   )
@@ -869,16 +874,17 @@ const PLATFORM_CARDS = [
 ]
 
 function PlatformsGrid() {
+  const content = useHeroContent()
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">AI Platforms</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.platformsHeader.label}</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-          Five AI Platforms. One Environment.
+          {content.platformsHeader.h2}
         </h2>
         <p className="max-w-xl text-base text-white/60">
-          No API keys. No local setup. All five coding platforms run on your server with full terminal access and persistent memory.
+          {content.platformsHeader.description}
         </p>
       </div>
 
@@ -887,7 +893,7 @@ function PlatformsGrid() {
         className="grid grid-cols-2 md:grid-cols-3 gap-[2px]"
         style={{ background: "radial-gradient(circle at center, hsl(263.4,70%,50.4%) 0%, rgba(0,0,0,0) 99%)" }}
       >
-        {PLATFORM_CARDS.map((card, i) => (
+        {content.platformCards.map((card, i) => (
           <div key={i} className="group relative size-full p-6 sm:p-8 bg-black flex flex-col justify-between overflow-hidden">
             <div className="relative z-10 flex h-full flex-col justify-between">
               <div>
@@ -950,6 +956,7 @@ const FRACTERA_HELPS_ITEMS = [
 ]
 
 function ProblemSection() {
+  const content = useHeroContent()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -959,19 +966,19 @@ function ProblemSection() {
     setTimeout(() => { setActiveIndex(index); setIsAnimating(false) }, 400)
   }
 
-  const active = FRACTERA_HELPS_ITEMS[activeIndex]
+  const active = content.problemItems[activeIndex]
 
   return (
     <div className="w-full max-w-4xl flex flex-col gap-6">
 
       {/* Section header */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">Why it matters</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.problemHeader.label}</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-          The problems Fractera was built to solve
+          {content.problemHeader.h2}
         </h2>
         <p className="max-w-xl text-base text-white/60 leading-relaxed">
-          Modern development stacks are fragile, expensive, and forgetful. Here is what that costs you in practice.
+          {content.problemHeader.description}
         </p>
       </div>
 
@@ -980,7 +987,7 @@ function ProblemSection() {
 
         {/* Left: nav list */}
         <ul className="flex w-full flex-col gap-y-1 md:w-[220px] md:shrink-0">
-          {FRACTERA_HELPS_ITEMS.map((item, index) => (
+          {content.problemItems.map((item, index) => (
             <li key={item.id}>
               <button
                 type="button"
@@ -1004,7 +1011,7 @@ function ProblemSection() {
           {/* Problem */}
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-5 h-5 text-violet-400 shrink-0" />
-            <h3 className="text-base font-semibold text-white">The problem</h3>
+            <h3 className="text-base font-semibold text-white">{content.problemLabel}</h3>
           </div>
           <div className="relative overflow-hidden min-h-[72px]">
             <p className={[
@@ -1021,7 +1028,7 @@ function ProblemSection() {
           {/* Solution */}
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="w-5 h-5 text-violet-400 shrink-0" />
-            <h3 className="text-base font-semibold text-white">How Fractera solves it</h3>
+            <h3 className="text-base font-semibold text-white">{content.solutionLabel}</h3>
           </div>
           <div className="relative overflow-hidden min-h-[72px]">
             <p className={[
@@ -1045,6 +1052,7 @@ function ProblemSection() {
 // ─── Testimonial (port of AIFA testimonial) ──────────────────────────────────
 
 function FractеraTestimonial() {
+  const content = useHeroContent()
   return (
     <div className="w-full max-w-4xl flex flex-col items-center">
       {/* Quote icon */}
@@ -1098,13 +1106,13 @@ function FractеraTestimonial() {
           {/* Action buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
-              Blog
+              {content.testimonial.blogButton}
             </a>
             <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
-              Student Cases
+              {content.testimonial.casesButton}
             </a>
             <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-violet-500/40 bg-violet-500/[0.06] text-sm font-medium text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/60 transition-colors">
-              Fractera Marketplace
+              {content.testimonial.marketplaceButton}
             </a>
           </div>
         </figcaption>
@@ -1116,15 +1124,16 @@ function FractеraTestimonial() {
 // ─── Promo (port of AIFA aifa-promo) ─────────────────────────────────────────
 
 function FractеraPromo() {
+  const content = useHeroContent()
   return (
     <div className="w-full self-stretch -mx-6 px-6 bg-black border-y-4 border-violet-500 py-8">
       <div className="max-w-4xl mx-auto flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <h2 className="mb-6 max-w-3xl font-serif font-bold leading-tight text-white text-xl md:text-2xl lg:text-4xl">
-            Open Source — Fork It, Build Your Own Platform
+            {content.promoSection.h2}
           </h2>
           <p className="mb-12 max-w-xl text-base text-white/60 md:text-lg">
-            Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.
+            {content.promoSection.description}
           </p>
           <a
             href="https://github.com/Fractera/ai-workspace"
@@ -1133,7 +1142,7 @@ function FractеraPromo() {
             className="mt-8 inline-flex items-center gap-2 justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            View on GitHub
+            {content.promoSection.githubButton}
           </a>
         </div>
         <div className="relative shrink-0">
@@ -1305,21 +1314,22 @@ const FAQ_ITEMS: FaqItem[] = [
 ]
 
 function FaqSection() {
+  const content = useHeroContent()
   const [open, setOpen] = useState<number | null>(null)
 
   return (
     <div className="w-full max-w-4xl flex flex-col gap-6">
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">FAQ</p>
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.faqHeader.label}</p>
         <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-          Common Questions
+          {content.faqHeader.h2}
         </h2>
         <p className="max-w-xl text-base text-white/60">
-          Everything you need to know before getting started.
+          {content.faqHeader.description}
         </p>
       </div>
       <div className="flex flex-col rounded-2xl border border-white/40 overflow-hidden divide-y divide-white/20">
-        {FAQ_ITEMS.map((item, i) => (
+        {content.faqItems.map((item, i) => (
           <div key={i} className="bg-white/[0.02]">
             <button
               type="button"

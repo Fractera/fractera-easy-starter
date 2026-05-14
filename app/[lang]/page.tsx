@@ -87,7 +87,7 @@ export default async function HomePage({
 }: {
   params: Promise<{ lang: string }>
 }) {
-  const { lang: _lang } = await params
+  const { lang } = await params
 
   const session = await auth()
   if (session?.user?.email === 'admin@fractera.ai') {
@@ -103,7 +103,7 @@ export default async function HomePage({
       <main className="min-h-screen bg-black text-white">
         <div className="max-w-5xl mx-auto px-6 pb-20 flex flex-col gap-20">
           <Suspense fallback={null}>
-            <HeroSection />
+            <HeroSection lang={lang} />
           </Suspense>
         </div>
       </main>
