@@ -22,7 +22,7 @@ function getStored(): StoredDomain | null {
 export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef }: { onStatusChange?: (ready: boolean) => void; subdomain?: string; installing?: boolean; onResetRef?: (resetFn: () => void) => void } = {}) {
   const [state, setState] = useState<DomainState>('empty')
   const [domain, setDomain] = useState('')
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<'admin' | 'site' | null>(null)
   const [pulse, setPulse] = useState(false)
 
   function updateState(next: DomainState, d?: string) {
@@ -72,11 +72,12 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
     return () => clearInterval(interval)
   }, [state])
 
-  function handleCopy() {
+  function handleCopy(type: 'admin' | 'site') {
     if (state !== 'ready') return
-    navigator.clipboard.writeText(`https://${domain}`)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    const url = type === 'admin' ? `https://admin.${domain}` : `https://${domain}`
+    navigator.clipboard.writeText(url)
+    setCopied(type)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   const isEmpty = state === 'empty'
@@ -96,27 +97,79 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
     : 'text-gray-600'
 
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <p className="text-sm text-white font-bold uppercase tracking-widest">Your Domain</p>
-      <div
-        className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"
-        style={borderStyle}
-      >
-        <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${textColor}`}>
-          {isEmpty ? 'your domain will appear here' : domain}
-        </code>
-        <button
-          onClick={handleCopy}
-          disabled={!isReady}
-          className={`shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
-            isReady
-              ? 'text-white hover:text-white border-white/40 hover:border-white/60 cursor-pointer'
-              : 'text-white/30 border-white/20 cursor-not-allowed'
-          }`}
+    <div className="flex flex-col gap-3 w-full">
+
+      {/* Admin panel — first */}
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Admin Panel</p>
+        <div
+          className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"
+          style={isReady ? { borderColor: 'rgba(74,222,128,0.4)' } : { borderColor: 'rgba(255,255,255,0.1)' }}
         >
-          {copied ? 'Copied!' : 'Copy'}
-        </button>
+          <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${isReady ? 'text-green-400' : 'text-gray-600'}`}>
+            {isEmpty ? 'admin panel will appear here' : `admin.${domain}`}
+          </code>
+          {isReady && (
+            <a
+              href={`https://admin.${domain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border text-white hover:text-white border-white/40 hover:border-white/60 transition-colors"
+            >
+              Open ↗
+            </a>
+          )}
+          <button
+            onClick={() => handleCopy('admin')}
+            disabled={!isReady}
+            className={`shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+              isReady
+                ? 'text-white hover:text-white border-white/40 hover:border-white/60 cursor-pointer'
+                : 'text-white/30 border-white/20 cursor-not-allowed'
+            }`}
+          >
+            {copied === 'admin' ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+        {isReady && (
+          <p className="text-xs text-white/40 px-1">The first account you create will be the Administrator.</p>
+        )}
       </div>
+
+      {/* Site — second */}
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Site</p>
+        <div
+          className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"
+          style={borderStyle}
+        >
+          <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${textColor}`}>
+            {isEmpty ? 'your site will appear here' : domain}
+          </code>
+          {isReady && (
+            <a
+              href={`https://${domain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border text-white hover:text-white border-white/40 hover:border-white/60 transition-colors"
+            >
+              Open ↗
+            </a>
+          )}
+          <button
+            onClick={() => handleCopy('site')}
+            disabled={!isReady}
+            className={`shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+              isReady
+                ? 'text-white hover:text-white border-white/40 hover:border-white/60 cursor-pointer'
+                : 'text-white/30 border-white/20 cursor-not-allowed'
+            }`}
+          >
+            {copied === 'site' ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      </div>
+
       {isInstalling && (
         <p
           className="text-sm text-yellow-400 font-medium transition-opacity duration-[1500ms]"
@@ -124,21 +177,6 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
         >
           Installation in progress — please wait...
         </p>
-      )}
-      {isReady && (
-        <div className="flex flex-col gap-1">
-          <a
-            href={`https://${domain}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-green-500 hover:text-green-400 transition-colors"
-          >
-            Open ↗
-          </a>
-          <p className="text-sm text-white font-medium">
-            The first account you create will be the Administrator.
-          </p>
-        </div>
       )}
 
     </div>
