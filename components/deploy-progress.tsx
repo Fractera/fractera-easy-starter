@@ -20,7 +20,10 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   async function handleCancel() {
-    if (!confirm('Cancel this deployment? You can start a new one immediately afterwards.')) return
+    const msg = installError
+      ? 'Dismiss this failed deployment and reload? The broken server will be cleaned up.'
+      : 'Cancel this deployment? You can start a new one immediately afterwards.'
+    if (!confirm(msg)) return
     setCancelling(true)
     try {
       await fetch('/api/progress/cancel', {
@@ -29,8 +32,9 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
         body: JSON.stringify({ session_id: sessionId }),
       })
     } catch {
-      // ignore — polling will still pick up the error state
+      // idempotent — reload either way
     }
+    window.location.reload()
   }
 
   useEffect(() => {
@@ -102,16 +106,14 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
           )}
         </p>
         <div className="flex items-center gap-3">
-          {!installError && (
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={cancelling}
-              className="text-xs text-gray-500 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              {cancelling ? 'Cancelling…' : 'Cancel'}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={cancelling}
+            className="text-xs text-gray-500 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {cancelling ? '…' : installError ? 'Dismiss' : 'Cancel'}
+          </button>
           <p className="text-sm text-gray-600">{progress}%</p>
         </div>
       </div>
@@ -137,6 +139,14 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
             You will receive an email with your server details as soon as everything is ready.
           </p>
           <p className="text-xs text-violet-500">We apologize for the inconvenience.</p>
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={cancelling}
+            className="self-start text-xs font-semibold text-violet-200 bg-violet-500/20 hover:bg-violet-500/30 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg px-3 py-1.5 transition-colors"
+          >
+            {cancelling ? 'Dismissing…' : 'Dismiss and try again'}
+          </button>
         </div>
       )}
 
