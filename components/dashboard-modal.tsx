@@ -299,6 +299,23 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
   const [showDelete, setShowDelete] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState(false)
+
+  async function handleCancelDeploy() {
+    if (!server.deploySessionId) return
+    if (!confirm('Cancel this deployment? You can start a new one immediately afterwards.')) return
+    setCancelling(true)
+    try {
+      await fetch('/api/progress/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: server.deploySessionId }),
+      })
+      onRefresh()
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   function handleCopied(label: string) {
     setToast(`${label} copied`)
@@ -379,7 +396,16 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-sm text-white font-semibold">{progress}% complete</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-white font-semibold">{progress}% complete</p>
+            <button
+              onClick={handleCancelDeploy}
+              disabled={cancelling}
+              className="text-xs text-white/50 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {cancelling ? 'Cancelling…' : 'Cancel'}
+            </button>
+          </div>
         </div>
       )}
 

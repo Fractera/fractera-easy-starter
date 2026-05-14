@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { failProgress, getProgress } from '@/lib/kv'
+import { db } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   const { session_id } = await req.json().catch(() => ({}))
@@ -14,10 +15,27 @@ export async function POST(req: NextRequest) {
   if (progress.status === 'done') {
     return NextResponse.json({ error: 'Already completed' }, { status: 409 })
   }
-  if (progress.status === 'error') {
-    return NextResponse.json({ ok: true, status: 'already-cancelled' })
+
+  const errMsg = 'Cancelled by user'
+  await failProgress(session_id, errMsg)
+
+  // Mirror the install error handler: mark token as error, return pool VPS to 'available'.
+  const token = await db.serverToken.findFirst({ where: { deploySessionId: session_id } })
+  if (token) {
+    await db.serverToken.update({
+      where: { id: token.id },
+      data: { status: 'error', deployError: errMsg },
+    })
+    const poolServer = await db.vpsReserve.findFirst({
+      where: { provisioningServerTokenId: token.id },
+    })
+    if (poolServer) {
+      await db.vpsReserve.update({
+        where: { id: poolServer.id },
+        data: { status: 'available' },
+      })
+    }
   }
 
-  await failProgress(session_id, 'Cancelled by user')
   return NextResponse.json({ ok: true, status: 'cancelled' })
 }
