@@ -34,7 +34,7 @@ export function DangerZone({ onDestroyed }: { onDestroyed?: () => void }) {
         throw new Error(data.error ?? `Server error ${res.status}`)
       }
       localStorage.removeItem('fractera_domain')
-      onDestroyed()
+      onDestroyed?.()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
       setDestroying(false)
