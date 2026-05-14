@@ -96,7 +96,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
     : 'text-gray-600'
 
   return (
-    <div className="flex flex-col gap-2 w-full max-w-xl">
+    <div className="flex flex-col gap-2 w-full">
       <p className="text-sm text-white font-bold uppercase tracking-widest">Your Domain</p>
       <div
         className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"

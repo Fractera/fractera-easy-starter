@@ -22,7 +22,16 @@ export function PlatformSelector() {
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-5 w-full">
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-mono font-bold uppercase tracking-widest text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-full px-3 py-1 w-fit">
+          MCP · AI Agents
+        </span>
+        <h3 className="text-lg font-bold text-white">Choose your AI assistant</h3>
+        <p className="text-sm text-white/60 leading-relaxed max-w-xl">
+          Use MCP to track installation progress, troubleshoot issues, and launch new servers directly from your AI agent — no terminal, no SSH required.
+        </p>
+      </div>
       <TooltipProvider>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {PLATFORMS.map(platform => {

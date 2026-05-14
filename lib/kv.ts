@@ -18,6 +18,9 @@ export type InstallProgress = {
 }
 
 export async function initProgress(session_id: string): Promise<void> {
+  // Idempotent — skip if entry already exists so pre-added steps (e.g. email_start) are not wiped
+  const existing = await kv.get<InstallProgress>(`progress:${session_id}`)
+  if (existing) return
   const initial: InstallProgress = { session_id, status: 'installing', steps: [] }
   await kv.set(`progress:${session_id}`, initial, { ex: 3600 })
 }

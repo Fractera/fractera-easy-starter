@@ -422,14 +422,16 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* Domain status */}
+      {/* Domain status — negative margin removes the 128px gap above and below */}
       {(liveSubdomain || installing) && (
-        <DomainStatus
-          onStatusChange={setDomainReady}
-          subdomain={liveSubdomain}
-          installing={installing}
-          onResetRef={fn => { domainResetRef.current = fn }}
-        />
+        <div className="-my-32 w-full">
+          <DomainStatus
+            onStatusChange={setDomainReady}
+            subdomain={liveSubdomain}
+            installing={installing}
+            onResetRef={fn => { domainResetRef.current = fn }}
+          />
+        </div>
       )}
 
       {/* Troubleshoot */}

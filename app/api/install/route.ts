@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { deployToServer } from '@/lib/deploy'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { appendStep } from '@/lib/kv'
+import { initProgress, appendStep } from '@/lib/kv'
 import { sendInstallStartedEmail } from '@/lib/email'
 
 export const maxDuration = 300
@@ -35,14 +35,15 @@ export async function POST(req: NextRequest) {
     tokenForBootstrap = newToken.token
   }
 
-  // SSH + upload bootstrap + launch (also calls initProgress internally)
-  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap })
-
-  // Mark email_start step and send first pipeline email (after initProgress runs inside deployToServer)
+  // Step 1: init progress + send confirmation email BEFORE SSH so it always fires
+  await initProgress(session_id)
   if (userEmail) {
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    sendInstallStartedEmail(userEmail).catch(console.error)
+    await sendInstallStartedEmail(userEmail)
   }
+
+  // Step 2: SSH + upload bootstrap + launch (initProgress is idempotent — won't wipe email_start step)
+  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap })
 
   return NextResponse.json({ session_id, status: 'installing' })
 }
