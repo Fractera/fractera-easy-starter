@@ -23,9 +23,26 @@ export async function POST(req: NextRequest) {
   const userId = session?.user?.id ?? null
 
   if (userId && userEmail) {
+    // Create free subscription (idempotent — reuse if one already exists and isn't cancelled)
+    let sub = await db.subscription.findFirst({
+      where: { userId, planId: 'free', status: { not: 'cancelled' } },
+    })
+    if (!sub) {
+      sub = await db.subscription.create({
+        data: {
+          userId,
+          stripeCustomerId: 'free',
+          status: 'active',
+          planId: 'free',
+          currentPeriodEnd: new Date('2099-01-01'),
+        },
+      })
+    }
+
     const newToken = await db.serverToken.create({
       data: {
         userId,
+        subscriptionId: sub.id,
         status: 'pending',
         deploySessionId: session_id,
         serverIp: ip,
