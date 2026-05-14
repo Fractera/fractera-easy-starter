@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export function DangerZone({ onDestroyed }: { onDestroyed: () => void }) {
+export function DangerZone({ onDestroyed }: { onDestroyed?: () => void }) {
   const [open, setOpen] = useState(false)
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')

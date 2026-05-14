@@ -22,28 +22,30 @@ export function PlatformSelector() {
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-mono font-bold uppercase tracking-widest text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-full px-3 py-1 w-fit">
-          MCP · AI Agents
-        </span>
-        <h3 className="text-lg font-bold text-white">Choose your AI assistant</h3>
-        <p className="text-sm text-white/60 leading-relaxed max-w-xl">
+    <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">MCP · AI Agents</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+          Choose Your AI Assistant
+        </h2>
+        <p className="max-w-xl text-base text-white/60">
           Use MCP to track installation progress, troubleshoot issues, and launch new servers directly from your AI agent — no terminal, no SSH required.
         </p>
       </div>
       <TooltipProvider>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {PLATFORMS.map(platform => {
+        {/* 6-col grid: first 3 cards span 2 cols each (33%), last 2 span 3 cols each (50%) */}
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+          {PLATFORMS.map((platform, index) => {
             const isActive = platform.id === 'claude-code'
             const isSelected = selected === platform.id
+            const colSpan = index >= 3 ? 'md:col-span-3' : 'md:col-span-2'
 
             if (isActive) {
               return (
                 <button
                   key={platform.id}
                   onClick={() => setSelected(s => s === platform.id ? null : platform.id)}
-                  className={`bg-white/5 border rounded-lg p-4 text-left flex flex-col gap-1 min-h-[88px] items-start transition-colors ${
+                  className={`${colSpan} bg-white/5 border rounded-lg p-4 text-left flex flex-col gap-1 min-h-[88px] items-start transition-colors ${
                     isSelected
                       ? 'border-violet-500/60 bg-violet-500/10'
                       : 'border-white/10 hover:border-white/30'
@@ -59,7 +61,7 @@ export function PlatformSelector() {
               <Tooltip key={platform.id}>
                 <TooltipTrigger
                   disabled
-                  className="bg-white/5 border border-white/10 rounded-lg p-4 text-left opacity-40 cursor-not-allowed flex flex-col gap-1 min-h-[88px] items-start"
+                  className={`${colSpan} bg-white/5 border border-white/10 rounded-lg p-4 text-left opacity-40 cursor-not-allowed flex flex-col gap-1 min-h-[88px] items-start`}
                 >
                   <span className="text-sm font-semibold text-white">{platform.name}</span>
                   <span className="text-xs text-gray-500">{platform.subscription}</span>

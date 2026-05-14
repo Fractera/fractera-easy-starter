@@ -68,14 +68,7 @@ export function HeroSection() {
   const [myServerLoading, setMyServerLoading] = useState(false)
   const [stripeSubdomain, setStripeSubdomain] = useState<string | null>(null)
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('fractera_domain')
-      if (!raw) return
-      const stored = JSON.parse(raw)
-      setDomainReady(stored.status === 'ready')
-    } catch {}
-  }, [])
+  // domainReady is set only via active credential verification — not from localStorage cache
 
   useEffect(() => {
     fetch('/api/pool/status')
@@ -434,35 +427,11 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* Troubleshoot */}
-      {showTroubleshoot && (
-        <div className="w-full max-w-4xl flex flex-col gap-3">
-          <div className="flex flex-col gap-3 bg-white/[0.05] border border-white/40 rounded-xl p-5">
-            <p className="text-base text-white font-semibold">
-              Having trouble? Choose your AI platform to get help:
-            </p>
-            <PlatformSelector />
-          </div>
+      {/* MCP block — only when server verified (installing or ready) */}
+      {(showTroubleshoot || domainReady) && (
+        <div className="w-full max-w-4xl">
+          <PlatformSelector />
         </div>
-      )}
-
-      {/* Success state */}
-      {domainReady && (
-        <>
-          <div className="flex flex-col gap-6 w-full max-w-4xl">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-bold text-white">Connect via Fractera MCP</h2>
-              <p className="text-base text-white max-w-xl">
-                Use the Fractera MCP to work with your server and your project directly from the
-                Claude chat — no terminal, no SSH. Full control over your application through
-                the standard Claude chat interface.
-              </p>
-            </div>
-            <PlatformSelector />
-          </div>
-
-          <DangerZone onDestroyed={() => { setDomainReady(false); setLiveSubdomain(''); domainResetRef.current?.() }} />
-        </>
       )}
 
       {/* Features grid */}
@@ -1377,6 +1346,28 @@ function FaqSection() {
             )}
           </div>
         ))}
+
+        {/* Danger Zone — always last FAQ item */}
+        <div className="bg-white/[0.02]">
+          <button
+            type="button"
+            onClick={() => setOpen(open === FAQ_ITEMS.length ? null : FAQ_ITEMS.length)}
+            className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.04] transition-colors"
+          >
+            <span className="text-lg font-semibold text-red-400 leading-snug">How do I delete my server?</span>
+            <span className={`shrink-0 text-red-400 mt-0.5 transition-transform duration-200 select-none ${open === FAQ_ITEMS.length ? 'rotate-180' : ''}`}>▾</span>
+          </button>
+          {open === FAQ_ITEMS.length && (
+            <div className="px-5 pb-5">
+              <p className="text-[15px] text-white/60 leading-relaxed mb-4">
+                This will stop all services, remove Fractera from the server, and release your domain.
+                The VPS itself is not deleted — you can reinstall Fractera on it at any time.
+              </p>
+              <DangerZone onDestroyed={() => { setOpen(null) }} />
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   )
