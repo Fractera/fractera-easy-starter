@@ -162,6 +162,7 @@ soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api]' || true"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -179,8 +180,12 @@ fi
 if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
+if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
+mkdir -p /opt/fractera/services/rag/storage
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Initial .env.local files (before build, without real subdomain) ===
@@ -220,6 +225,10 @@ NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
+RAG_ENV_PATH=/opt/fractera/services/rag/.env
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -227,6 +236,27 @@ AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
+ENVEOF
+
+cat > /opt/fractera/services/rag/.env <<ENVEOF
+HOST=127.0.0.1
+PORT=9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_KV_STORAGE=JsonKVStorage
+LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
+LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
+LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
+WORKING_DIR=/opt/fractera/services/rag/storage
+LLM_BINDING=openai
+LLM_BINDING_HOST=https://api.openai.com/v1
+LLM_BINDING_API_KEY=
+LLM_MODEL=gpt-4o-mini
+EMBEDDING_BINDING=openai
+EMBEDDING_BINDING_HOST=https://api.openai.com/v1
+EMBEDDING_BINDING_API_KEY=
+EMBEDDING_MODEL=text-embedding-3-large
+EMBEDDING_DIM=3072
+CORS_ORIGINS=http://localhost:3002
 ENVEOF
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -244,7 +274,8 @@ step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platfor
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
-log_email "start_data" "All 5 services started" 65
+soft_step "start_rag" "LightRAG service" "export PATH=\"\$HOME/.local/bin:\$PATH\" && cd /opt/fractera/services/rag && pm2 start \$HOME/.local/bin/lightrag-server --name fractera-rag --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
+log_email "start_data" "All 6 services started" 65
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
@@ -523,6 +554,10 @@ NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
 FRACTERA_INSTALL_SECRET=$INSTALL_SECRET
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
+RAG_ENV_PATH=/opt/fractera/services/rag/.env
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -531,6 +566,8 @@ DATA_PUBLIC_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
 ENVEOF
+
+sed -i "s|^CORS_ORIGINS=.*|CORS_ORIGINS=http://localhost:3002,https://admin.$SUBDOMAIN|" /opt/fractera/services/rag/.env >> "$LOG_FILE" 2>&1 || true
 
 # === Validate critical env vars are not empty or localhost ===
 MEDIA_VAL=$(grep "^DATA_PUBLIC_URL=" /opt/fractera/services/data/.env | cut -d'=' -f2)
@@ -560,6 +597,7 @@ CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-app fractera-auth fractera-admin fractera-data >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+pm2 restart fractera-rag >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Install certbot (done here — after builds, right before it's needed) ===
