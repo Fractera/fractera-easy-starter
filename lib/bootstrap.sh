@@ -32,16 +32,22 @@ log_email() {
     > /dev/null 2>&1 &
 }
 
-# Send a step update (start or finish)
+# Send a step update (start or finish) — retries 3x so a transient Vercel hiccup doesn't lose progress
 report() {
   local id="$1"
   local label="$2"
   local done="$3"
-  curl -s -X POST "$PROGRESS_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"session_id\":\"$SESSION_ID\",\"step\":{\"id\":\"$id\",\"label\":\"$label\",\"done\":$done,\"ts\":$(date +%s000)}}" \
-    > /dev/null 2>&1 || true
+  local _payload="{\"session_id\":\"$SESSION_ID\",\"step\":{\"id\":\"$id\",\"label\":\"$label\",\"done\":$done,\"ts\":$(date +%s000)}}"
+  local _attempt _code
+  for _attempt in 1 2 3; do
+    _code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -X POST "$PROGRESS_URL" \
+      -H "Content-Type: application/json" \
+      -H "x-install-secret: $INSTALL_SECRET" \
+      -d "$_payload" 2>/dev/null)
+    [ "$_code" = "200" ] && return 0
+    [ "$_attempt" -lt 3 ] && sleep 5
+  done
+  return 0
 }
 
 # Send error and exit
@@ -677,12 +683,16 @@ if [ -n "$SERVER_TOKEN" ]; then
   done
 fi
 
-# Signal completion with subdomain
-curl -s -X POST "$PROGRESS_URL" \
-  -H "Content-Type: application/json" \
-  -H "x-install-secret: $INSTALL_SECRET" \
-  -d "{\"session_id\":\"$SESSION_ID\",\"done\":true,\"response\":$RESPONSE}" \
-  > /dev/null 2>&1 || true
+# Signal completion with subdomain — retry up to 5x to survive Vercel cold starts
+_done_payload="{\"session_id\":\"$SESSION_ID\",\"done\":true,\"response\":$RESPONSE}"
+for _attempt in 1 2 3 4 5; do
+  _code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 -X POST "$PROGRESS_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "$_done_payload" 2>/dev/null)
+  [ "$_code" = "200" ] && break
+  sleep 10
+done
 
 echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
 echo "FRACTERA_READY: https://$SUBDOMAIN"

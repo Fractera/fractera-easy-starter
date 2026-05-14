@@ -161,6 +161,65 @@ export async function sendAdminAlertEmail(userEmail: string, subscriptionId: str
 }
 
 
+export async function sendInstallStartedEmail(to: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Your Fractera installation has started',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Installation started</h2>
+        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+          We're setting up Fractera on your server right now.
+          This usually takes <strong>15–20 minutes</strong>.
+        </p>
+
+        <p style="margin:0 0 6px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px">What happens next</p>
+        <ol style="margin:0 0 20px;padding-left:20px;color:#444;line-height:2">
+          <li>You'll receive a short update when dependencies are installed</li>
+          <li>The final email will contain your workspace URLs and SSH credentials</li>
+        </ol>
+
+        <div style="background:#f7f7f7;border-radius:8px;padding:16px;margin-bottom:20px">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#333">You can also check status anytime</p>
+          <p style="margin:0;font-size:13px;color:#555;line-height:1.6">
+            Visit <a href="https://fractera.ai" style="color:#6c47ff">fractera.ai</a>, sign in, and open the
+            <strong>Servers</strong> tab — your domain will appear there once installation is complete.
+          </p>
+        </div>
+
+        <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
+          If you re-enter your server IP and password on fractera.ai, the dashboard will detect the current state
+          and offer options like removing Fractera branding or deleting the server.
+        </p>
+      </div>
+    `,
+  })
+}
+
+export async function sendInstallProgressEmail(to: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Fractera: dependencies installed — building services',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Good progress</h2>
+        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+          All dependencies have been installed on your server.
+          We're now building the Fractera services and configuring your domain.
+        </p>
+        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+          You'll receive the final email with your workspace URLs in <strong>5–10 more minutes</strong>.
+        </p>
+        <p style="margin:0;font-size:12px;color:#888">
+          Check status anytime at <a href="https://fractera.ai" style="color:#6c47ff">fractera.ai</a> → Servers tab.
+        </p>
+      </div>
+    `,
+  })
+}
+
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({
     from: FROM,

@@ -50,6 +50,9 @@ const ALL_STEPS: Step[] = [
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',             done: false },
   { id: 'ssl_cert',             label: 'Getting SSL certificates (4 domains)',     done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },
+  { id: 'email_start',          label: 'Confirmation email sent',                 done: false },
+  { id: 'email_deps',           label: 'Progress update email sent',              done: false },
+  { id: 'email_complete',       label: 'Welcome email with URLs sent',            done: false },
 ]
 
 interface Props {

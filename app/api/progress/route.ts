@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
+import { sendWelcomeEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -60,6 +61,31 @@ export async function POST(req: NextRequest) {
     const subdomain = response?.subdomain ?? null
     if (subdomain) {
       await completeProgress(session_id, subdomain)
+
+      // Email pipeline: only for own-server deployments (sess-*).
+      // Pool provisioning sessions (pool-*) are handled by the admin flow — do not touch.
+      // Read status BEFORE updateMany so we know if ping already fired (status='active') or not ('pending').
+      if (!session_id.startsWith('pool-')) {
+        const token = await db.serverToken.findFirst({
+          where: { deploySessionId: session_id },
+          include: { user: { select: { email: true } } },
+        })
+        if (token?.user?.email) {
+          await appendStep(session_id, { id: 'email_complete', label: 'Welcome email sent', done: true, ts: Date.now() })
+          // If ping hasn't arrived yet (status still 'pending'), send welcome email as fallback.
+          // If status is already 'active', ping route already sent it — skip to avoid duplicate.
+          if (token.status === 'pending') {
+            sendWelcomeEmail(
+              token.user.email,
+              subdomain,
+              token.serverIp && token.serverPassword
+                ? { ip: token.serverIp, password: token.serverPassword }
+                : undefined
+            ).catch(console.error)
+          }
+        }
+      }
+
       await db.serverToken.updateMany({
         where: { deploySessionId: session_id, status: { not: 'offline' } },
         data: { subdomain, status: 'active' },
