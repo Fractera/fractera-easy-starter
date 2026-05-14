@@ -8,7 +8,6 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
 import { InstallForm } from '@/components/install-form'
-import { DangerZone } from '@/components/danger-zone'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
@@ -1279,6 +1278,20 @@ const FAQ_ITEMS: FaqItem[] = [
       'We are also looking for regional distributors. For inquiries, contact: admin@fractera.ai',
     ],
   },
+  {
+    q: 'What happens when I delete my server?',
+    a: [
+      'Deleting a server from your dashboard stops all Fractera services, removes the installation from the VPS, and releases your subdomain. The VPS itself is not deleted — it remains with your hosting provider and can be reinstalled at any time.',
+    ],
+    bullets: [
+      'Your paid subscription is preserved — it is not cancelled when you delete the server. You can deploy a new server and continue using your subscription.',
+      'White Label status is tied to the server. If you purchased branding removal, it applies to that specific server. Deleting the server and deploying a new one does not automatically carry over the White Label.',
+      'Your free (self-hosted) subscription is cancelled automatically when the server is deleted, since it has no value without an active server.',
+    ],
+    trail: [
+      'If you deleted your server by mistake and need to restore White Label on a new deployment without paying again, contact support at support@fractera.ai — we will apply your existing purchase manually.',
+    ],
+  },
 ]
 
 function FaqSection() {
@@ -1345,26 +1358,6 @@ function FaqSection() {
           </div>
         ))}
 
-        {/* Danger Zone — always last FAQ item */}
-        <div className="bg-white/[0.02]">
-          <button
-            type="button"
-            onClick={() => setOpen(open === FAQ_ITEMS.length ? null : FAQ_ITEMS.length)}
-            className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.04] transition-colors"
-          >
-            <span className="text-lg font-semibold text-red-400 leading-snug">How do I delete my server?</span>
-            <span className={`shrink-0 text-red-400 mt-0.5 transition-transform duration-200 select-none ${open === FAQ_ITEMS.length ? 'rotate-180' : ''}`}>▾</span>
-          </button>
-          {open === FAQ_ITEMS.length && (
-            <div className="px-5 pb-5">
-              <p className="text-[15px] text-white/60 leading-relaxed mb-4">
-                This will stop all services, remove Fractera from the server, and release your domain.
-                The VPS itself is not deleted — you can reinstall Fractera on it at any time.
-              </p>
-              <DangerZone onDestroyed={() => { setOpen(null) }} />
-            </div>
-          )}
-        </div>
 
       </div>
     </div>
