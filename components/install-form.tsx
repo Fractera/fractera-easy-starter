@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 
 type Step = { id: string; label: string; done: boolean; skipped?: boolean }
@@ -78,7 +79,14 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [destroying, setDestroying] = useState(false)
   const [renewingSsl, setRenewingSsl] = useState(false)
   const [sslRenewResult, setSslRenewResult] = useState<string | null>(null)
+  const [emailConfirmed, setEmailConfirmed] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { data: session, status: sessionStatus } = useSession()
+
+  // Reset email confirmation when server status changes away from 'fresh'
+  useEffect(() => {
+    if (serverStatus !== 'fresh') setEmailConfirmed(false)
+  }, [serverStatus])
 
   // Tick every second while installing — for elapsed time and silence detection
   useEffect(() => {
@@ -250,18 +258,13 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               onChange={e => setLogin(e.target.value)}
               className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
-            <div className="flex flex-col gap-1.5">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
-              />
-              <div className="text-sm text-white px-1">
-                Forgot your password?
-              </div>
-            </div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
+            />
           </div>
 
           {serverStatus === 'checking' && (
@@ -363,20 +366,51 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             </div>
           )}
 
+          {serverStatus === 'fresh' && statusError && (
+            <p className="text-xs text-yellow-600 px-1">
+              Could not reach server. You can still try installing.
+            </p>
+          )}
+
+          {/* Email confirmation — shown when server is ready to install */}
+          {serverStatus === 'fresh' && (
+            sessionStatus === 'loading' ? (
+              <div className="flex items-center gap-2 text-sm text-white/60">
+                <span className="inline-block w-3.5 h-3.5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+                Loading account info…
+              </div>
+            ) : session?.user?.email ? (
+              <div className="flex flex-col gap-3 bg-white/[0.04] border border-white/20 rounded-xl p-4">
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs text-white/50 uppercase tracking-widest">Installation updates will be sent to</p>
+                  <p className="text-sm font-semibold text-white">{session.user.email}</p>
+                </div>
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={emailConfirmed}
+                    onChange={e => setEmailConfirmed(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-white cursor-pointer shrink-0"
+                  />
+                  <span className="text-sm text-white leading-snug">
+                    I understand and have access to this email address
+                  </span>
+                </label>
+                <p className="text-xs text-white/35 leading-relaxed">
+                  If you don't have access to this email, sign out and sign in with an account you can access, then try again.
+                </p>
+              </div>
+            ) : null
+          )}
+
           {(serverStatus === 'fresh' || serverStatus === 'idle') && (
             <button
               onClick={handleInstall}
-              disabled={!ip || !password}
+              disabled={!ip || !password || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
               className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Launch my server →
             </button>
-          )}
-
-{serverStatus === 'fresh' && statusError && (
-            <p className="text-xs text-yellow-600 px-1">
-              Could not reach server. You can still try installing.
-            </p>
           )}
 
           <p className="text-sm text-white">
