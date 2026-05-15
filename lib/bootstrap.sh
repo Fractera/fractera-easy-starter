@@ -163,6 +163,10 @@ soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api]' || true"
+soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
+soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
+soft_step "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
+soft_step "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -182,6 +186,9 @@ if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
 fi
 if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
   echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
+if ! grep -q "HERMES_MCP_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "HERMES_MCP_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
@@ -259,6 +266,61 @@ EMBEDDING_DIM=3072
 CORS_ORIGINS=http://localhost:3002
 ENVEOF
 
+# === Hermes config (if installed) ===
+if [ -d "/root/.hermes" ]; then
+  cat > /root/.hermes/config.yaml <<HERMESEOF
+model:
+  provider: openrouter
+  model: deepseek/deepseek-r1:free
+  fallback_provider: openai
+  fallback_model: gpt-4o-mini
+
+memory:
+  provider: lightrag-memory
+
+plugins:
+  enabled:
+    - fractera-platforms
+
+mcp_servers:
+  claude-bridge:
+    url: http://localhost:3210
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  codex-bridge:
+    url: http://localhost:3211
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  gemini-bridge:
+    url: http://localhost:3212
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  qwen-bridge:
+    url: http://localhost:3213
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  kimi-bridge:
+    url: http://localhost:3214
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+
+terminal:
+  cwd: /opt/fractera/app
+
+logging:
+  level: INFO
+HERMESEOF
+  if ! grep -q "OPENAI_API_KEY=" /root/.hermes/.env 2>/dev/null; then
+    printf "\n# Fractera — set your API keys here\nOPENAI_API_KEY=\nOPENROUTER_API_KEY=\n" >> /root/.hermes/.env
+  fi
+  if ! grep -q "LIGHTRAG_URL=" /root/.hermes/.env 2>/dev/null; then
+    printf "LIGHTRAG_URL=http://localhost:9621\nLIGHTRAG_API_KEY=$LIGHTRAG_API_KEY\n" >> /root/.hermes/.env
+  fi
+  if ! grep -q "MCP_SECRET=" /root/.hermes/.env 2>/dev/null; then
+    printf "MCP_SECRET=$HERMES_MCP_SECRET\n" >> /root/.hermes/.env
+  fi
+fi
+
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 log_email "build_start" "Building services (this takes 5-10 min)" 40
@@ -275,7 +337,8 @@ step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth &
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-log_email "start_data" "All 6 services started" 65
+soft_step "start_hermes" "Hermes Agent service" "HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 5 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
@@ -443,6 +506,28 @@ server {
     }
 }
 
+# hermes — orchestration agent dashboard (iframe-accessible from admin panel)
+server {
+    listen 80;
+    server_name hermes.SUBDOMAIN_PLACEHOLDER;
+
+    location / {
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        # Allow iframe embedding from admin subdomain
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+}
+
 # lightrag — Company Brain WebUI
 server {
     listen 80;
@@ -530,7 +615,7 @@ CURRENT_LABEL="Registering service subdomains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 # SUBDOMAIN = "happy-wolf-86.fractera.ai", BASE = "happy-wolf-86"
 BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth admin data lightrag; do
+for PREFIX in auth admin data lightrag hermes; do
   curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
@@ -590,6 +675,8 @@ LIGHTRAG_URL=http://localhost:9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
 RAG_ENV_PATH=/opt/fractera/services/rag/.env
+MCP_SECRET=$HERMES_MCP_SECRET
+NEXT_PUBLIC_HERMES_URL=https://hermes.$SUBDOMAIN
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -630,6 +717,7 @@ CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-app fractera-auth fractera-admin fractera-data >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
 pm2 restart fractera-rag >> "$LOG_FILE" 2>&1 || true
+pm2 restart fractera-hermes >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Install certbot (done here — after builds, right before it's needed) ===
@@ -640,7 +728,7 @@ log_email "install_certbot" "Waiting for DNS + getting SSL certificates" 85
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN"; do
+for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN"; do
   RESOLVED=""
   for i in $(seq 1 60); do
     RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
@@ -668,6 +756,8 @@ certbot --nginx -d "admin.$SUBDOMAIN" --non-interactive --agree-tos --email nore
 certbot --nginx -d "data.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
   >> "$LOG_FILE" 2>&1 || fail "certbot failed for data.$SUBDOMAIN"
 certbot --nginx -d "lightrag.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || true
+certbot --nginx -d "hermes.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
   >> "$LOG_FILE" 2>&1 || true
 
 systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
