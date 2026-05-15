@@ -48,53 +48,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     return () => clearInterval(t)
   }, [installing])
 
-  // Auto-check server status when credentials are filled
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-
-    if (ip.length < 4 || login.length < 2 || password.length < 4) {
-      setServerStatus('idle')
-      setDetectedSubdomain(null)
-      setStatusError(null)
-      return
-    }
-
-    setServerStatus('checking')
-
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch('/api/status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ip, login, password }),
-        })
-        if (!res.ok) { setServerStatus('fresh'); return }
-        const data = await res.json()
-        if (data.installed) {
-          setDetectedSubdomain(data.subdomain ?? null)
-          setServerStatus('installed')
-          if (data.subdomain) onSubdomainReady?.(data.subdomain)
-          // Register as free user to get a ServerToken
-          if (data.subdomain) {
-            fetch('/api/server/register-free', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subdomain: data.subdomain, serverIp: ip.trim() }),
-            }).then(r => r.json()).then(d => {
-              if (d.serverTokenId) setFreeServerTokenId(d.serverTokenId)
-            }).catch(() => {})
-          }
-        } else {
-          setStatusError(data.sshError ?? null)
-          setServerStatus('fresh')
-        }
-      } catch {
-        setServerStatus('fresh')
-      }
-    }, 800)
-
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
-  }, [ip, login, password])
+  // No auto-check on keystroke — user clicks Check button manually
 
   async function checkNow() {
     if (!ip || !login || !password) return
@@ -387,6 +341,17 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 </p>
               </div>
             ) : null
+          )}
+
+          {/* Check button — manual only, no auto-requests */}
+          {serverStatus === 'idle' && ip && login && password && (
+            <button
+              type="button"
+              onClick={checkNow}
+              className="w-full border border-white/30 hover:border-white/50 text-white/70 hover:text-white font-medium px-6 py-3 rounded-xl text-sm transition-colors"
+            >
+              {t.checking ? 'Check server' : 'Check server'}
+            </button>
           )}
 
           {(serverStatus === 'fresh' || serverStatus === 'idle') && (
