@@ -748,17 +748,21 @@ CURRENT_STEP="get_cf_cert"
 CURRENT_LABEL="Downloading Cloudflare SSL certificate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 mkdir -p /etc/ssl/cloudflare
-CF_JSON=$(curl -sf -H "x-install-secret: $INSTALL_SECRET" \
-  "https://fractera-easy-starter.vercel.app/api/ssl-cert" 2>>"$LOG_FILE") \
-  || fail "could not download Cloudflare Origin Certificate from Easy Starter"
-python3 -c "
-import sys, json, os
-d = json.loads('''$CF_JSON''')
+CF_JSON_FILE=$(mktemp)
+curl -sf -H "x-install-secret: $INSTALL_SECRET" \
+  "https://fractera-easy-starter.vercel.app/api/ssl-cert" \
+  -o "$CF_JSON_FILE" 2>>"$LOG_FILE" \
+  || { rm -f "$CF_JSON_FILE"; fail "could not download Cloudflare Origin Certificate from Easy Starter"; }
+CF_JSON_FILE="$CF_JSON_FILE" python3 - >> "$LOG_FILE" 2>&1 <<'PYEOF' || { rm -f "$CF_JSON_FILE"; fail "could not write Cloudflare Origin Certificate"; }
+import json, os
+with open(os.environ['CF_JSON_FILE']) as f:
+    d = json.load(f)
 open('/etc/ssl/cloudflare/origin.crt', 'w').write(d['cert'])
 open('/etc/ssl/cloudflare/origin.key', 'w').write(d['key'])
 os.chmod('/etc/ssl/cloudflare/origin.key', 0o600)
 print('CF cert written')
-" >> "$LOG_FILE" 2>&1 || fail "could not write Cloudflare Origin Certificate"
+PYEOF
+rm -f "$CF_JSON_FILE"
 # Shared SSL parameters include
 cat > /etc/nginx/cf-ssl.conf << 'SSLEOF'
 ssl_certificate /etc/ssl/cloudflare/origin.crt;
