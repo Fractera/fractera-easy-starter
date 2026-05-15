@@ -189,6 +189,7 @@ const en: HeroContent = {
       '5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code',
       'LightRAG — the company brain',
       'Database, file storage & auth — built in',
+      'Hermes — AI orchestration agent',
       'Fractera Pro included',
     ],
     freeFeatures: [
@@ -206,7 +207,7 @@ const en: HeroContent = {
     label: 'MCP · AI Agents',
     h2: 'Deploy and Manage Your Server with an AI Agent via MCP',
     description:
-      'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation.',
+      'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation. You can also use the MCP server to diagnose and resolve any deployment issues directly from your AI chat.',
   },
 
   installForm: {
@@ -520,6 +521,7 @@ const ru: HeroContent = {
       '5 платформ — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code',
       'LightRAG — мозг компании',
       'База данных, файлы, auth — из коробки',
+      'Hermes — AI-оркестратор агентов',
       'Fractera Pro включён',
     ],
     freeFeatures: [
@@ -537,7 +539,7 @@ const ru: HeroContent = {
     label: 'MCP · AI Агенты',
     h2: 'Управляйте сервером через AI Agent по MCP',
     description:
-      'Деплой и управление продакшн-сервером через AI-агент в вашем чате — теперь это просто. Подключите Claude, Codex или Gemini к Fractera MCP — деплойте инфраструктуру, следите за установкой и запускайте среды, не выходя из чата.',
+      'Деплой и управление продакшн-сервером через AI-агент в вашем чате — теперь это просто. Подключите Claude, Codex или Gemini к Fractera MCP — деплойте инфраструктуру, следите за установкой и запускайте среды, не выходя из чата. Вы также можете использовать MCP сервер для диагностики и решения проблем, связанных с вашим развёртыванием.',
   },
 
   installForm: {

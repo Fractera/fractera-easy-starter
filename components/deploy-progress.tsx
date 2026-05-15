@@ -150,6 +150,16 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
         </div>
       )}
 
+      {/* Pulsing placeholder — URL will appear here after completion */}
+      {!installError && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-orange-500/30 bg-orange-500/5">
+          <span className="inline-block w-2 h-2 rounded-full bg-orange-400 animate-pulse shrink-0" />
+          <span className="text-sm text-orange-400 animate-pulse">
+            Your site URL will appear here when ready
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col gap-1.5 mt-2">
         {steps.map(step => (
           <div key={step.id} className="flex items-center gap-3">

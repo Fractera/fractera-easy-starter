@@ -85,37 +85,22 @@ export function HeroSection({ lang }: { lang?: string }) {
       description: "After setup finishes, you'll receive an email that your server is ready to use.",
       duration: 10000,
     })
+    // Single initial check only — no auto-polling
+    checkServerStatus()
+  }, [paymentSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  function checkServerStatus() {
     const stripeSessionId = searchParams.get('stripe_session_id')
     const apiUrl = stripeSessionId
       ? `/api/my-server?stripe_session_id=${encodeURIComponent(stripeSessionId)}`
       : '/api/my-server'
-
     setMyServerLoading(true)
-    let attempts = 0
-    const maxAttempts = 20
-
-    const pollServer = async () => {
-      try {
-        const res = await fetch(apiUrl)
-        if (res.ok) {
-          const data = await res.json()
-          if (data.server) {
-            setMyServer(data.server)
-            setMyServerLoading(false)
-            // Server exists for this stripe session (any status) — go to dashboard
-            openServers()
-            router.replace('/')
-            return
-          }
-        }
-      } catch {}
-      attempts++
-      if (attempts < maxAttempts) setTimeout(pollServer, 3000)
-      else setMyServerLoading(false)
-    }
-    pollServer()
-  }, [paymentSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+    fetch(apiUrl)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.server) setMyServer(data.server) })
+      .catch(() => {})
+      .finally(() => setMyServerLoading(false))
+  }
 
   function handleOneClick() {
     if (!session) { openModal(selectedPlan.id); return }
@@ -246,7 +231,7 @@ export function HeroSection({ lang }: { lang?: string }) {
 
       {/* Payment success: pipeline or server links */}
       {paymentSuccess && (
-        <div className="w-full max-w-4xl flex flex-col gap-4">
+        <div className="w-full max-w-4xl flex flex-col gap-4 py-32">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-lg">✓</span>
             <p className="text-sm font-semibold text-green-400">Payment confirmed</p>
@@ -286,20 +271,47 @@ export function HeroSection({ lang }: { lang?: string }) {
             />
           )}
 
-          {/* Waiting for webhook to fire (first 60s) */}
+          {/* Waiting for initial check */}
           {myServerLoading && !myServer && (
-            <div className="flex items-center gap-2 text-base text-white font-medium">
-              <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
-              Connecting to your server…
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-base text-white font-medium">
+                <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+                Connecting to your server…
+              </div>
+              <button
+                type="button"
+                onClick={() => router.replace('/')}
+                className="text-xs text-white/50 hover:text-red-400 transition-colors font-medium"
+              >
+                Cancel
+              </button>
             </div>
           )}
 
-          {/* Webhook didn't fire — rare fallback */}
+          {/* Server not found yet — show check button */}
           {!myServerLoading && !myServer && (
-            <p className="text-sm text-white">
-              Your Fractera environment is being set up. You&apos;ll receive an email at{' '}
-              <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready (3–7 min).
-            </p>
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-white">
+                Your Fractera environment is being set up. You&apos;ll receive an email at{' '}
+                <strong className="text-white">{session?.user?.email}</strong> when it&apos;s ready (3–7 min).
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={checkServerStatus}
+                  className="text-sm font-semibold text-white border border-white/40 hover:border-white/60 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Check status
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.replace('/')}
+                  className="text-xs text-white/50 hover:text-red-400 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
 
           <p className="text-xs text-yellow-400">

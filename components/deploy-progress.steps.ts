@@ -9,6 +9,7 @@ export const ALL_STEPS: Step[] = [
   { id: 'pm2',                  label: 'Installing PM2 process manager',           done: false },
   { id: 'clear_creds',          label: 'Clearing platform credentials',            done: false },
   { id: 'clone',                label: 'Downloading Fractera',                     done: false },
+  { id: 'email_start',          label: 'Confirmation email sent',                  done: false },
   { id: 'deps_root',            label: 'Installing dependencies (1/6)',            done: false },
   { id: 'deps_app',             label: 'Installing dependencies (2/6)',            done: false },
   { id: 'deps_app_native',      label: 'Installing native modules',                done: false },
@@ -16,6 +17,7 @@ export const ALL_STEPS: Step[] = [
   { id: 'deps_auth',            label: 'Installing dependencies (4/6)',            done: false },
   { id: 'deps_bridges_app',     label: 'Installing dependencies (5/6)',            done: false },
   { id: 'deps_data',            label: 'Installing dependencies (6/6)',            done: false },
+  { id: 'email_deps',           label: 'Progress update email sent',              done: false },
   { id: 'install_claude',         label: 'Claude Code',                            done: false },
   { id: 'install_codex',         label: 'Codex',                                   done: false },
   { id: 'install_gemini',        label: 'Gemini CLI',                              done: false },
@@ -53,7 +55,5 @@ export const ALL_STEPS: Step[] = [
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',             done: false },
   { id: 'ssl_cert',             label: 'Getting SSL certificates (6 domains)',     done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },
-  { id: 'email_start',          label: 'Confirmation email sent',                 done: false },
-  { id: 'email_deps',           label: 'Progress update email sent',              done: false },
   { id: 'email_complete',       label: 'Welcome email with URLs sent',            done: false },
 ]
