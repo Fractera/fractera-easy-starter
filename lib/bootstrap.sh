@@ -152,10 +152,10 @@ step "clone" "Downloading Fractera" \
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
-# Update remote so future git pull also works with the same token
-if [ -n "$GITHUB_TOKEN" ]; then
-  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
-fi
+# SECURITY: clean remote URL — do NOT store the GitHub token in .git/config
+# (any user with SSH access could read it and push to our repo).
+# Auto-updates that need to pull must provide credentials at command time.
+git remote set-url origin "https://github.com/Fractera/ai-workspace.git"
 
 # Record deployed commit and branch for verification
 DEPLOYED_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
