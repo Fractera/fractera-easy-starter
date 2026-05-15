@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { appendStep } from '@/lib/kv'
+import { appendStep, getProgress } from '@/lib/kv'
 import { sendInstallProgressEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
@@ -17,17 +17,23 @@ export async function POST(req: NextRequest) {
   })
   if (!serverToken) return NextResponse.json({ ok: false })
 
-  // Send progress email at the ~30% milestone (deps installed, building services)
+  // Send progress email ONCE per session at the ~30% milestone (deps installed, building services)
   // Only for own-server sessions (sess-*), not pool provisioning (pool-*)
   const isOwnServer = serverToken.deploySessionId && !serverToken.deploySessionId.startsWith('pool-')
   if (percent >= 30 && isOwnServer && serverToken.user?.email && serverToken.deploySessionId) {
-    sendInstallProgressEmail(serverToken.user.email).catch(console.error)
-    await appendStep(serverToken.deploySessionId, {
-      id: 'email_deps',
-      label: 'Progress update email sent',
-      done: true,
-      ts: Date.now(),
-    })
+    // Idempotent: skip if email_deps step already recorded — prevents 6× duplicates
+    // (bootstrap sends log_email at 30/40/65/75/85/100%, this endpoint would fire on each)
+    const progress = await getProgress(serverToken.deploySessionId)
+    const alreadySent = progress?.steps?.some(s => s.id === 'email_deps' && s.done)
+    if (!alreadySent) {
+      sendInstallProgressEmail(serverToken.user.email).catch(console.error)
+      await appendStep(serverToken.deploySessionId, {
+        id: 'email_deps',
+        label: 'Progress update email sent',
+        done: true,
+        ts: Date.now(),
+      })
+    }
   }
 
   return NextResponse.json({ ok: true })
