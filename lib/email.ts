@@ -61,7 +61,7 @@ export async function sendWelcomeEmail(
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="margin:0 0 12px">Your server is live!</h2>
-        <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All 6 services are running.</p>
+        <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All 7 services are running.</p>
 
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">AI Platforms (5 tools)</p>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8">
@@ -79,6 +79,12 @@ export async function sendWelcomeEmail(
           <p style="margin:0 0 6px;font-size:11px;color:#7c5cd1;text-transform:uppercase;letter-spacing:1px;font-weight:600">Company Brain</p>
           <p style="margin:0 0 10px;font-size:13px;color:#444;line-height:1.5">Your AI knowledge base is running. Feed it documentation, query it from the workspace.</p>
           <a href="https://lightrag.${subdomain}/webui/" style="color:#6c47ff;font-weight:600;font-size:13px">https://lightrag.${subdomain}/webui/</a>
+        </div>
+
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin:20px 0">
+          <p style="margin:0 0 6px;font-size:11px;color:#16a34a;text-transform:uppercase;letter-spacing:1px;font-weight:600">Hermes Orchestration Agent</p>
+          <p style="margin:0 0 10px;font-size:13px;color:#444;line-height:1.5">Your AI orchestration layer is running. Delegate complex multi-step tasks across all 5 platforms from one place.</p>
+          <a href="https://hermes.${subdomain}" style="color:#16a34a;font-weight:600;font-size:13px">https://hermes.${subdomain}</a>
         </div>
 
         ${credentials ? `
