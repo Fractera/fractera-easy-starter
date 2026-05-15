@@ -52,13 +52,17 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
   // Sync live install state from install-form
   const prevSubdomainRef = useRef('')
   useEffect(() => {
-    if (subdomain) {
+    if (subdomain && !installing) {
+      // Only mark ready when installation is fully complete
       prevSubdomainRef.current = subdomain
       updateState('ready', subdomain)
+    } else if (subdomain && installing) {
+      // Domain known but still installing — show pulsing, not clickable links
+      setDomain(subdomain)
+      setState('installing')
     } else if (installing) {
       setState(s => s === 'empty' ? 'installing' : s)
     } else if (prevSubdomainRef.current) {
-      // subdomain was set and is now cleared (destroy) — reset to empty
       prevSubdomainRef.current = ''
       setState('empty')
       setDomain('')
