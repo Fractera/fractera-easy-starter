@@ -747,18 +747,18 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 CURRENT_STEP="ssl_cert"
 CURRENT_LABEL="Getting SSL certificates"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-certbot --nginx -d "$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot failed for $SUBDOMAIN"
-certbot --nginx -d "auth.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot failed for auth.$SUBDOMAIN"
-certbot --nginx -d "admin.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot failed for admin.$SUBDOMAIN"
-certbot --nginx -d "data.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot failed for data.$SUBDOMAIN"
-certbot --nginx -d "lightrag.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || true
-certbot --nginx -d "hermes.$SUBDOMAIN" --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || true
+# One SAN certificate for all 6 subdomains = 1 Let's Encrypt request instead of 6.
+# This keeps consumption at 1/week per server (vs 6/week), safely under the 50/week global limit.
+# DNS propagation for all 6 domains is already verified above — safe to include all.
+certbot --nginx \
+  -d "$SUBDOMAIN" \
+  -d "auth.$SUBDOMAIN" \
+  -d "admin.$SUBDOMAIN" \
+  -d "data.$SUBDOMAIN" \
+  -d "lightrag.$SUBDOMAIN" \
+  -d "hermes.$SUBDOMAIN" \
+  --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
+  >> "$LOG_FILE" 2>&1 || fail "certbot SAN cert failed for $SUBDOMAIN"
 
 systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
 systemctl start certbot.timer >> "$LOG_FILE" 2>&1 || true

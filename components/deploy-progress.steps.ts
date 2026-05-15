@@ -53,7 +53,7 @@ export const ALL_STEPS: Step[] = [
   { id: 'pm2_restart',          label: 'Restarting services with new config',      done: false },
   { id: 'install_certbot',      label: 'Installing SSL tools',                     done: false },
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',             done: false },
-  { id: 'ssl_cert',             label: 'Getting SSL certificates (6 domains)',     done: false },
+  { id: 'ssl_cert',             label: 'Getting SSL certificate (SAN · 6 domains)', done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },
   { id: 'email_complete',       label: 'Welcome email with URLs sent',            done: false },
 ]
