@@ -51,9 +51,9 @@ export const ALL_STEPS: Step[] = [
   { id: 'rebuild_auth',         label: 'Rebuilding auth with domain',              done: false },
   { id: 'rebuild_bridges_app',  label: 'Rebuilding admin with domain',             done: false },
   { id: 'pm2_restart',          label: 'Restarting services with new config',      done: false },
-  { id: 'install_certbot',      label: 'Installing SSL tools',                     done: false },
+  { id: 'get_cf_cert',          label: 'Downloading Cloudflare SSL certificate',   done: false },
   { id: 'wait_dns',             label: 'Waiting for DNS to propagate',             done: false },
-  { id: 'ssl_cert',             label: 'Getting SSL certificate (SAN · 6 domains)', done: false },
+  { id: 'ssl_cert',             label: 'Configuring HTTPS (Cloudflare Origin)',    done: false },
   { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },
   { id: 'email_complete',       label: 'Welcome email with URLs sent',            done: false },
 ]

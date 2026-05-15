@@ -32,7 +32,7 @@ export async function createDnsRecord(ip: string, subdomain: string): Promise<vo
       name: subdomain,
       content: ip,
       ttl: 60,
-      proxied: false,
+      proxied: true,
     }),
   })
 

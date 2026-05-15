@@ -721,10 +721,9 @@ pm2 restart fractera-hermes >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Install certbot (done here — after builds, right before it's needed) ===
-step "install_certbot" "Installing SSL tools" "apt-get install -y -qq certbot python3-certbot-nginx"
-log_email "install_certbot" "Waiting for DNS + getting SSL certificates" 85
+log_email "get_cf_cert" "Waiting for DNS + activating HTTPS" 85
 
-# === Wait for DNS propagation for all 4 domains ===
+# === Wait for DNS propagation (Cloudflare proxy — resolves to CF IPs, not server IP) ===
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
@@ -732,59 +731,263 @@ for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN
   RESOLVED=""
   for i in $(seq 1 60); do
     RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
-    if [ "$RESOLVED" = "$SERVER_IP" ]; then
+    if [ -n "$RESOLVED" ]; then
       break
     fi
     sleep 5
   done
-  if [ "$RESOLVED" != "$SERVER_IP" ]; then
-    fail "DNS did not propagate within 5 minutes: $DOMAIN resolves to '$RESOLVED', expected $SERVER_IP"
+  if [ -z "$RESOLVED" ]; then
+    fail "DNS did not propagate within 5 minutes: $DOMAIN (no answer)"
   fi
+  echo "DNS OK: $DOMAIN → $RESOLVED" >> "$LOG_FILE"
 done
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Get SSL certificates for all 4 domains ===
-CURRENT_STEP="ssl_cert"
-CURRENT_LABEL="Getting SSL certificates"
+# === Download Cloudflare Origin Certificate from Easy Starter ===
+CURRENT_STEP="get_cf_cert"
+CURRENT_LABEL="Downloading Cloudflare SSL certificate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-# One SAN certificate for all 6 subdomains = 1 Let's Encrypt request instead of 6.
-# This keeps consumption at 1/week per server (vs 6/week), safely under the 50/week global limit.
-# DNS propagation for all 6 domains is already verified above — safe to include all.
-certbot --nginx \
-  -d "$SUBDOMAIN" \
-  -d "auth.$SUBDOMAIN" \
-  -d "admin.$SUBDOMAIN" \
-  -d "data.$SUBDOMAIN" \
-  -d "lightrag.$SUBDOMAIN" \
-  -d "hermes.$SUBDOMAIN" \
-  --non-interactive --agree-tos --email noreply@fractera.ai --redirect --no-eff-email \
-  >> "$LOG_FILE" 2>&1 || fail "certbot SAN cert failed for $SUBDOMAIN"
+mkdir -p /etc/ssl/cloudflare
+CF_JSON=$(curl -sf -H "x-install-secret: $INSTALL_SECRET" \
+  "https://fractera-easy-starter.vercel.app/api/ssl-cert" 2>>"$LOG_FILE") \
+  || fail "could not download Cloudflare Origin Certificate from Easy Starter"
+python3 -c "
+import sys, json, os
+d = json.loads('''$CF_JSON''')
+open('/etc/ssl/cloudflare/origin.crt', 'w').write(d['cert'])
+open('/etc/ssl/cloudflare/origin.key', 'w').write(d['key'])
+os.chmod('/etc/ssl/cloudflare/origin.key', 0o600)
+print('CF cert written')
+" >> "$LOG_FILE" 2>&1 || fail "could not write Cloudflare Origin Certificate"
+# Shared SSL parameters include
+cat > /etc/nginx/cf-ssl.conf << 'SSLEOF'
+ssl_certificate /etc/ssl/cloudflare/origin.crt;
+ssl_certificate_key /etc/ssl/cloudflare/origin.key;
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+SSLEOF
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-systemctl enable certbot.timer >> "$LOG_FILE" 2>&1 || true
-systemctl start certbot.timer >> "$LOG_FILE" 2>&1 || true
+# === Configure HTTPS nginx (Cloudflare Origin cert — no Let's Encrypt needed) ===
+CURRENT_STEP="ssl_cert"
+CURRENT_LABEL="Configuring HTTPS with Cloudflare certificate"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
-# Patch Certbot HTTPS block — add sub_filter that Certbot doesn't know about
-python3 - << 'PYEOF' >> "$LOG_FILE" 2>&1
-import sys, re
-path = '/etc/nginx/sites-available/fractera'
-content = open(path).read()
-OLD = '        proxy_read_timeout 86400;\n    }\n\n\n    listen [::]:443 ssl ipv6only=on; # managed by Certbot'
-NEW = (
-    '        proxy_read_timeout 86400;\n'
-    '        proxy_set_header Accept-Encoding "";\n'
-    '        sub_filter_once on;\n'
-    '        sub_filter \'</body>\' \'<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>\';\n'
-    '    }\n\n\n'
-    '    listen [::]:443 ssl ipv6only=on; # managed by Certbot'
-)
-if OLD in content:
-    open(path, 'w').write(content.replace(OLD, NEW, 1))
-    print('footer: HTTPS block patched')
-else:
-    print('footer: HTTPS pattern not found — skipping')
-PYEOF
-nginx -t >> "$LOG_FILE" 2>&1 && systemctl reload nginx >> "$LOG_FILE" 2>&1
+cat > /etc/nginx/sites-available/fractera <<'NGINXHTTPSEOF'
+# HTTP → HTTPS redirect (Cloudflare may send HTTP to origin in some modes)
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
 
+# shell — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
+    }
+}
+
+# auth — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name auth.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# admin + WebSocket bridges — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location /bridge/ {
+        proxy_pass http://127.0.0.1:3201/bridge/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /claude-bridge/ {
+        proxy_pass http://127.0.0.1:3200/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /codex-bridge/ {
+        proxy_pass http://127.0.0.1:3202/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /gemini-bridge/ {
+        proxy_pass http://127.0.0.1:3203/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /qwen-bridge/ {
+        proxy_pass http://127.0.0.1:3204/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /kimi-bridge/ {
+        proxy_pass http://127.0.0.1:3205/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location / {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+
+# data — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name data.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:3300/media/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+    location / {
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# lightrag — Company Brain WebUI — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name lightrag.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location ~ ^/(docs|redoc|openapi\.json)$ { return 404; }
+    location = /health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
+    }
+    location = /favicon.png { return 204; }
+    location / {
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+    }
+}
+
+# hermes — orchestration agent dashboard — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name hermes.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location / {
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+}
+NGINXHTTPSEOF
+
+sed -i "s/SUBDOMAIN_PLACEHOLDER/$SUBDOMAIN/g" /etc/nginx/sites-available/fractera
+nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx HTTPS config invalid"
+systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Final HTTPS health check ===
