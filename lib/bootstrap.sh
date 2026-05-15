@@ -354,6 +354,9 @@ mcp_servers:
 terminal:
   cwd: /opt/fractera/app
 
+dashboard:
+  theme: fractera-black
+
 logging:
   level: INFO
 HERMESEOF
