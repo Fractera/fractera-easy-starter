@@ -96,6 +96,52 @@ rm -rf \
   2>/dev/null || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+# === EARLY DOMAIN REGISTRATION ===
+# Register the main subdomain and all 5 service subdomains BEFORE the heavy
+# install steps. This way Cloudflare Total TLS starts provisioning edge
+# certificates in parallel with the bootstrap — by the time we finish
+# install (~15-20 min later), certs are ready. No SSL waiting at the end.
+CURRENT_STEP="register"
+CURRENT_LABEL="Registering your domain"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+if [ -n "$SUBDOMAIN_OVERRIDE" ]; then
+  SUBDOMAIN="$SUBDOMAIN_OVERRIDE"
+  echo "Using existing subdomain: $SUBDOMAIN" >> "$LOG_FILE"
+  # Still need SERVER_IP for register-subdomain
+  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
+else
+  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
+  if [ -z "$SERVER_IP" ]; then
+    fail "could not detect server IP"
+  fi
+  RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
+  if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
+    fail "domain registration failed: $RESPONSE"
+  fi
+  SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
+  if [ -z "$SUBDOMAIN" ]; then
+    fail "could not parse subdomain from response: $RESPONSE"
+  fi
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+CURRENT_STEP="register_subdomains"
+CURRENT_LABEL="Registering service subdomains"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
+for PREFIX in auth admin data lightrag hermes; do
+  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
+    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
+done
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+# Cloudflare Total TLS now starts provisioning certs in the background.
+
 if [ -n "$GITHUB_TOKEN" ]; then
   CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
 else
@@ -581,47 +627,6 @@ done
 if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
   fail "server not responding on port 80 (got $CODE)"
 fi
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
-
-# === Register main domain ===
-CURRENT_STEP="register"
-CURRENT_LABEL="Registering your domain"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-if [ -n "$SUBDOMAIN_OVERRIDE" ]; then
-  SUBDOMAIN="$SUBDOMAIN_OVERRIDE"
-  echo "Using existing subdomain: $SUBDOMAIN" >> "$LOG_FILE"
-else
-  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
-  if [ -z "$SERVER_IP" ]; then
-    fail "could not detect server IP"
-  fi
-  RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
-  if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
-    fail "domain registration failed: $RESPONSE"
-  fi
-  SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
-  if [ -z "$SUBDOMAIN" ]; then
-    fail "could not parse subdomain from response: $RESPONSE"
-  fi
-fi
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
-
-# === Register auth.*, admin.*, data.* subdomains ===
-CURRENT_STEP="register_subdomains"
-CURRENT_LABEL="Registering service subdomains"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-# SUBDOMAIN = "happy-wolf-86.fractera.ai", BASE = "happy-wolf-86"
-BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth admin data lightrag hermes; do
-  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
-    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
-done
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Update Nginx with real server_name ===
