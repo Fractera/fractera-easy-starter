@@ -212,6 +212,7 @@ soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PA
 soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
 soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
 soft_step "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
+soft_step "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
 soft_step "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
