@@ -346,9 +346,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           )}
 
           {serverStatus === 'fresh' && statusError && (
-            <p className="text-xs text-yellow-600 px-1">
-              {t.cantReach}
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-yellow-600 px-1">{t.cantReach}</p>
+              <button
+                type="button"
+                onClick={checkNow}
+                className="text-xs font-semibold text-white border border-white/40 hover:border-white/60 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Check
+              </button>
+            </div>
           )}
 
           {/* Email confirmation — shown when server is ready to install */}
