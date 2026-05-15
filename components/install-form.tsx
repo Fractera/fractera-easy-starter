@@ -96,6 +96,30 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [ip, login, password])
 
+  async function checkNow() {
+    if (!ip || !login || !password) return
+    setServerStatus('checking')
+    try {
+      const res = await fetch('/api/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip, login, password }),
+      })
+      if (!res.ok) { setServerStatus('fresh'); return }
+      const data = await res.json()
+      if (data.installed) {
+        setDetectedSubdomain(data.subdomain ?? null)
+        setServerStatus('installed')
+        if (data.subdomain) onSubdomainReady?.(data.subdomain)
+      } else {
+        setStatusError(data.sshError ?? null)
+        setServerStatus('fresh')
+      }
+    } catch {
+      setServerStatus('fresh')
+    }
+  }
+
   async function handleInstall() {
     if (!ip || !password) return
     setServerStatus('idle')
