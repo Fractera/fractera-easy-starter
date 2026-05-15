@@ -998,19 +998,35 @@ nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx HTTPS config invalid"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Final HTTPS health check ===
+# === Final HTTPS health check — verify all 6 subdomains are reachable ===
+# Cloudflare Total TLS provisioning happens async after DNS registration;
+# certs are usually ready by now but we wait up to 3 min per subdomain.
 CURRENT_STEP="https_check"
-CURRENT_LABEL="Verifying HTTPS is working"
+CURRENT_LABEL="Verifying HTTPS is working (6 subdomains)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for i in $(seq 1 15); do
-  CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$SUBDOMAIN" 2>/dev/null || echo "0")
-  if [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || [ "$CODE" = "307" ]; then
-    break
-  fi
-  sleep 2
+
+check_subdomain() {
+  local domain="$1"
+  for i in $(seq 1 30); do
+    local code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "https://$domain" 2>/dev/null || echo "0")
+    # Accept any non-5xx response — service is reachable
+    if [[ "$code" =~ ^(200|301|302|307|401|403|404)$ ]]; then
+      echo "  ✓ $domain → $code" >> "$LOG_FILE"
+      return 0
+    fi
+    sleep 6
+  done
+  echo "  ✗ $domain → last code: $code" >> "$LOG_FILE"
+  return 1
+}
+
+failed=""
+for sub in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN"; do
+  check_subdomain "$sub" || failed="$failed $sub"
 done
-if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
-  fail "HTTPS not responding on $SUBDOMAIN (got $CODE)"
+
+if [ -n "$failed" ]; then
+  fail "HTTPS not responding on:$failed"
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
