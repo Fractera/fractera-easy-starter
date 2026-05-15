@@ -1,7 +1,7 @@
 import { Client } from 'ssh2'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { initProgress } from '@/lib/kv'
+import { initProgress, appendStep } from '@/lib/kv'
 
 interface DeployOptions {
   ip: string
@@ -52,6 +52,8 @@ export async function deployToServer({
     const ssh = new Client()
 
     ssh.on('ready', () => {
+      // Mark the 'connect' step as done so UI doesn't stay stuck on it
+      appendStep(session_id, { id: 'connect', label: 'Connecting to server', done: true, ts: Date.now() }).catch(() => {})
       ssh.sftp((err, sftp) => {
         if (err) { reject(err); ssh.end(); return }
 

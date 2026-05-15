@@ -1,6 +1,7 @@
 export type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
 export const ALL_STEPS: Step[] = [
+  { id: 'email_start',          label: 'Confirmation email sent',                  done: false },
   { id: 'connect',              label: 'Connecting to server',                     done: false },
   { id: 'apt_update',           label: 'Updating system',                          done: false },
   { id: 'apt_install',          label: 'Installing base tools',                    done: false },
@@ -9,7 +10,6 @@ export const ALL_STEPS: Step[] = [
   { id: 'pm2',                  label: 'Installing PM2 process manager',           done: false },
   { id: 'clear_creds',          label: 'Clearing platform credentials',            done: false },
   { id: 'clone',                label: 'Downloading Fractera',                     done: false },
-  { id: 'email_start',          label: 'Confirmation email sent',                  done: false },
   { id: 'deps_root',            label: 'Installing dependencies (1/6)',            done: false },
   { id: 'deps_app',             label: 'Installing dependencies (2/6)',            done: false },
   { id: 'deps_app_native',      label: 'Installing native modules',                done: false },
