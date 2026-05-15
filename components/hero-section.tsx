@@ -433,9 +433,9 @@ export function HeroSection({ lang }: { lang?: string }) {
         </div>
       )}
 
-      {/* Domain status — negative margin removes the 128px gap above and below */}
+      {/* Domain status — 128px breathing room top and bottom */}
       {(liveSubdomain || installing) && (
-        <div className="-my-32 w-full">
+        <div className="py-32 w-full">
           <DomainStatus
             onStatusChange={setDomainReady}
             subdomain={liveSubdomain}

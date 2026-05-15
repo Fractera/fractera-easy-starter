@@ -108,9 +108,9 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
         <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Admin Panel</p>
         <div
           className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border transition-all duration-[1500ms]"
-          style={isReady ? { borderColor: 'rgba(74,222,128,0.4)' } : { borderColor: 'rgba(255,255,255,0.1)' }}
+          style={borderStyle}
         >
-          <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${isReady ? 'text-green-400' : 'text-gray-600'}`}>
+          <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${textColor}`}>
             {isEmpty ? 'admin panel will appear here' : `admin.${domain}`}
           </code>
           {isReady && (
