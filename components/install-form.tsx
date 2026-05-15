@@ -30,8 +30,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [freeServerTokenId, setFreeServerTokenId] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
   const [destroying, setDestroying] = useState(false)
-  const [renewingSsl, setRenewingSsl] = useState(false)
-  const [sslRenewResult, setSslRenewResult] = useState<string | null>(null)
   const [emailConfirmed, setEmailConfirmed] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: session, status: sessionStatus } = useSession()
@@ -242,30 +240,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               <div className="flex flex-wrap gap-2 mt-1">
                 <button
                   onClick={async () => {
-                    if (renewingSsl) return
-                    setRenewingSsl(true)
-                    setSslRenewResult(null)
-                    try {
-                      const res = await fetch('/api/renew-ssl', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password }),
-                      })
-                      const data = await res.json()
-                      setSslRenewResult(data.ok ? '✓ SSL renewed' : `✗ ${data.error ?? 'failed'}`)
-                    } catch {
-                      setSslRenewResult('✗ Connection error')
-                    } finally {
-                      setRenewingSsl(false)
-                    }
-                  }}
-                  disabled={renewingSsl}
-                  className="text-xs text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
-                >
-                  {renewingSsl ? t.renewingSsl : t.renewSsl}
-                </button>
-                <button
-                  onClick={async () => {
                     if (destroying) return
                     setDestroying(true)
                     try {
@@ -291,11 +265,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                   {destroying ? t.removing : t.deleteReinstall}
                 </button>
               </div>
-              {sslRenewResult && (
-                <p className={`text-xs px-1 ${sslRenewResult.startsWith('✓') ? 'text-green-400' : 'text-red-400'}`}>
-                  {sslRenewResult}
-                </p>
-              )}
             </div>
           )}
 
