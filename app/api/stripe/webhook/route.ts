@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
-import { confirmServerPayment, releaseServer } from '@/lib/pool'
+import { confirmServerPayment, releaseServer, findActiveReserveForUser } from '@/lib/pool'
 import { sendWelcomeEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
 
 export const maxDuration = 300
@@ -25,8 +25,19 @@ export async function POST(req: NextRequest) {
     const session = event.data.object
     const userId = session.metadata?.userId
     const planId = session.metadata?.planId ?? 'monthly'
-    const vpsReserveId = session.metadata?.vpsReserveId || null
+    let vpsReserveId = session.metadata?.vpsReserveId || null
     const productType = session.metadata?.productType
+
+    // Recovery: if metadata.vpsReserveId is empty (lost during a double
+    // checkout call) but the user actually has a hanging pending_payment
+    // reservation, claim it. Without this, the user ends up in queue while
+    // their reserved server orphans. See Step 45.
+    if (!vpsReserveId && userId && productType !== 'white_label') {
+      const hanging = await findActiveReserveForUser(userId)
+      if (hanging) {
+        vpsReserveId = hanging.id
+      }
+    }
 
     if (!userId) return NextResponse.json({ ok: true })
 

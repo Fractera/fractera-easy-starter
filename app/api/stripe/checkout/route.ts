@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
-import { reserveServer } from '@/lib/pool'
+import { db } from '@/lib/db'
+import { reserveServer, findActiveReserveForUser } from '@/lib/pool'
 
 const PRICE_IDS: Record<string, string> = {
   monthly: process.env.STRIPE_PRICE_MONTHLY!,
@@ -30,13 +31,28 @@ export async function POST(req: NextRequest) {
   const expiresAt = Math.floor(Date.now() / 1000) + CHECKOUT_TTL_SECONDS
   const reservedUntil = new Date(expiresAt * 1000)
 
-  // Path A: reserve server if available; Path B: proceed without reservation
+  // Idempotency: if this user already has an active reservation from a
+  // previous attempt (drawer remount, page refresh, retry), reuse it instead
+  // of trying to grab a new one. Otherwise the second call may orphan the
+  // first reservation while the user is paying through a fresh Stripe
+  // session whose metadata.vpsReserveId is empty — webhook then falls into
+  // Path B (queue) and admin has to fix manually. See Step 45.
   let vpsReserveId: string | null = null
-  try {
-    const reserved = await reserveServer(userId, reservedUntil)
-    vpsReserveId = reserved.id
-  } catch {
-    // Pool empty — Path B, no reservation
+  const existingReserve = await findActiveReserveForUser(userId)
+  if (existingReserve) {
+    // Extend TTL so the new Stripe session window is honored
+    await db.vpsReserve.update({
+      where: { id: existingReserve.id },
+      data: { reservedUntil },
+    })
+    vpsReserveId = existingReserve.id
+  } else {
+    try {
+      const reserved = await reserveServer(userId, reservedUntil)
+      vpsReserveId = reserved.id
+    } catch {
+      // Pool truly empty — Path B, no reservation
+    }
   }
 
   const returnUrl = `${baseUrl}/?payment=success&stripe_session_id={CHECKOUT_SESSION_ID}`

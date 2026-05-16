@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { findActiveReserveForUser } from '@/lib/pool'
 import { sendWelcomeEmail, sendQueuedEmail, sendAdminAlertEmail } from '@/lib/email'
 
 export async function POST() {
@@ -37,10 +38,16 @@ export async function POST() {
 
   const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
 
-  const poolServer = await db.vpsReserve.findFirst({
-    where: { status: 'ready' },
-    orderBy: { createdAt: 'asc' },
-  })
+  // Prefer the user's own hanging reservation (from a previous abandoned
+  // checkout) over a random ready server. Without this, the user gets a
+  // different server and their reserved one orphans in pending_payment.
+  // See Step 45.
+  const poolServer =
+    (await findActiveReserveForUser(userId)) ??
+    (await db.vpsReserve.findFirst({
+      where: { status: 'ready' },
+      orderBy: { createdAt: 'asc' },
+    }))
 
   if (poolServer) {
     await db.vpsReserve.update({
