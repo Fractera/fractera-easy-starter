@@ -388,6 +388,7 @@ step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && 
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+soft_step "install_hermes_webui" "Hermes Web UI (Fractera-branded)" "[ -x /opt/fractera/services/hermes-webui-installer/install.sh ] && bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 && sleep 4 && curl -sf http://127.0.0.1:9120/health >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
@@ -556,11 +557,48 @@ server {
     }
 }
 
-# hermes — orchestration agent dashboard (iframe-accessible from admin panel)
+# hermes — orchestration agent dashboard + Hermes Web UI chat (iframe-accessible from admin panel)
 server {
     listen 80;
     server_name hermes.SUBDOMAIN_PLACEHOLDER;
 
+    # Internal auth check — verifies Fractera session cookie via services/auth (port 3001).
+    # Returns 204 if logged in, 401 otherwise. Cookie is shared across .SUB.fractera.ai
+    # (COOKIE_DOMAIN=.$SUBDOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+
+    # Fractera-branded chat UI (nesquena/hermes-webui on port 9120) — auth-gated
+    location /chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @chat_login_redirect;
+
+        proxy_pass http://127.0.0.1:9120/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_buffering off;  # SSE streaming
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+    location @chat_login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
+
+    # Hermes dashboard (admin/config UI)
     location / {
         proxy_pass http://127.0.0.1:9119;
         proxy_http_version 1.1;
@@ -974,7 +1012,7 @@ server {
     }
 }
 
-# hermes — orchestration agent dashboard — HTTPS
+# hermes — orchestration agent dashboard + Hermes Web UI chat — HTTPS
 # Note: Hermes has DNS rebinding protection — only accepts Host header
 # matching what it was bound to (127.0.0.1). nginx rewrites Host so
 # Hermes accepts external requests without --insecure flag.
@@ -984,6 +1022,43 @@ server {
     server_name hermes.SUBDOMAIN_PLACEHOLDER;
     include /etc/nginx/cf-ssl.conf;
 
+    # Internal auth check — verifies Fractera session cookie via services/auth (port 3001).
+    # Returns 204 if logged in, 401 otherwise. Cookie is shared across .SUB.fractera.ai
+    # (COOKIE_DOMAIN=.$SUBDOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+
+    # Fractera-branded chat UI (nesquena/hermes-webui on port 9120) — auth-gated
+    location /chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @chat_login_redirect;
+
+        proxy_pass http://127.0.0.1:9120/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_buffering off;  # SSE streaming
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+    location @chat_login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
+
+    # Hermes dashboard (admin/config UI)
     location / {
         proxy_pass http://127.0.0.1:9119;
         proxy_http_version 1.1;
