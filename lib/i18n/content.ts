@@ -38,6 +38,8 @@ export type HeroContent = {
     freeFeatures: string[]
     subscribeButton: string
     subscribeButtonWait: string
+    disclaimer: string
+    trustItems: [string, string, string]
   }
   mcpSection: { label: string; h2: string; description: string }
   domainSection: { label: string; h2: string; description: string }
@@ -228,22 +230,23 @@ const en: HeroContent = {
     popularBadge: 'POPULAR',
     bestValueBadge: 'BEST VALUE',
     planFeatures: [
+      'Hermes — AI orchestration agent',
       '4 cores · 6 GB RAM · 150 GB disk',
       '5 coding platforms — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code',
       'LightRAG — the company brain',
       'Database, file storage & auth — built in',
-      'Hermes — AI orchestration agent',
-      'Fractera Pro included',
     ],
     freeFeatures: [
+      'Hermes — AI orchestration agent',
       '5 coding platforms',
       'LightRAG — the company brain',
       'Database, file storage & auth — built in',
       'Open source — self-hosted forever',
-      'Fractera Pro — 14-day free trial',
     ],
     subscribeButton: 'Subscribe · {price} →',
     subscribeButtonWait: 'Subscribe · {price} (ready in ~60 min) →',
+    disclaimer: '* Regardless of the chosen plan — immediately after installation is complete, you must change the password for access to your server. Remember: Fractera does not gain control over your code, and access to your servers is not available to us. This is your own software on your own servers, which Fractera helps install — and nothing more.',
+    trustItems: ['Your server', 'Your domain', 'Your AI'],
   },
 
   mcpSection: {
@@ -608,22 +611,23 @@ const ru: HeroContent = {
     popularBadge: 'ПОПУЛЯРНЫЙ',
     bestValueBadge: 'ВЫГОДНЕЕ',
     planFeatures: [
+      'Hermes — AI-оркестратор агентов',
       '4 ядра · 6 ГБ RAM · 150 ГБ диск',
       '5 платформ — Claude Code · Codex · Gemini CLI · Qwen Code · Kimi Code',
       'LightRAG — мозг компании',
       'База данных, файлы, auth — из коробки',
-      'Hermes — AI-оркестратор агентов',
-      'Fractera Pro включён',
     ],
     freeFeatures: [
+      'Hermes — AI-оркестратор агентов',
       '5 платформ для кода',
       'LightRAG — мозг компании',
       'База данных, файлы, auth — из коробки',
       'Open source — навсегда на своём сервере',
-      'Fractera Pro — 14 дней бесплатно',
     ],
     subscribeButton: 'Подписаться · {price} →',
     subscribeButtonWait: 'Подписаться · {price} (~60 мин) →',
+    disclaimer: '* Независимо от выбранного тарифа — сразу после завершения установки вы должны сменить пароль доступа к вашему серверу. Помните: Fractera не получает контроля над вашим кодом, и доступ к вашим серверам нам недоступен. Это ваше собственное программное обеспечение на ваших собственных серверах, которое Fractera помогает установить — и не более.',
+    trustItems: ['Ваш сервер', 'Ваш домен', 'Ваш AI'],
   },
 
   mcpSection: {

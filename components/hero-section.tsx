@@ -365,7 +365,7 @@ export function HeroSection({ lang }: { lang?: string }) {
 
               <ul className="flex flex-col gap-1.5 text-base text-white font-medium flex-1">
                 {content.planLabels.planFeatures.map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className={i === 0 || i === 4 ? 'font-bold' : ''}>{f}</span></li>
+                  <li key={i} className="flex items-center gap-2"><span className="text-violet-400">✓</span><span className={i === 0 ? 'font-bold' : ''}>{f}</span></li>
                 ))}
               </ul>
 
@@ -436,7 +436,22 @@ export function HeroSection({ lang }: { lang?: string }) {
               )}
             </div>
 
+          </div>{/* end pricing grid */}
+
+          {/* Trust row: Your server · Your domain · Your AI */}
+          <div className="grid grid-cols-3 gap-3">
+            {content.planLabels.trustItems.map((item, i) => (
+              <div key={i} className="flex items-center justify-center py-3 px-4 rounded-xl border border-white/15 bg-white/[0.03] text-sm font-bold text-white text-center tracking-wide">
+                {item}
+              </div>
+            ))}
           </div>
+
+          {/* Disclaimer */}
+          <p className="text-xs text-orange-400/80 leading-relaxed">
+            {content.planLabels.disclaimer}
+          </p>
+
         </div>
       )}
 
@@ -752,11 +767,6 @@ function FeaturesGrid() {
               <h3 className="text-lg font-medium leading-tight tracking-tight text-white">{title}</h3>
             </div>
             <p className="text-sm leading-snug text-white/50">{description}</p>
-            <span className={`mt-1 self-start text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border ${
-              badge === 'Pro'
-                ? 'text-violet-300 bg-violet-500/10 border-violet-500/30'
-                : 'text-white/50 bg-white/[0.05] border-white/20'
-            }`}>{badge}</span>
           </li>
           )
         })}
