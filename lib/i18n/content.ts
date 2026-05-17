@@ -9,6 +9,7 @@ export type FaqItem = {
 export type HeroContent = {
   description: string
   featureItems: { title: string; text: string }[]
+  heroBenefits: { title: string; text: string }[]
   dpHeader: { label: string; h2: string; description: string }
   dpLeft: { imageSrc: string; title: string; description: string }
   dpRight: { imageSrc: string; title: string; description: string }
@@ -98,6 +99,33 @@ const en: HeroContent = {
     { title: 'Build the Product',   text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
     { title: 'Beyond the Code',     text: "If you're a developer who wants to build products, not just write code — you'll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities." },
     { title: 'Ship 10× Faster',     text: 'All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand.' },
+  ],
+
+  heroBenefits: [
+    {
+      title: 'Hermes — AI Orchestrator',
+      text: 'Runs on subscriptions — Claude Code, Codex, Gemini CLI. Zero API spend for everyday coding. Switch to API mode for fully autonomous, hands-free workflows.',
+    },
+    {
+      title: 'LightRAG — Company Brain',
+      text: 'Persistent vector memory shared across all five AI platforms. Your codebase, every decision, every pattern — always in context. No more starting from scratch each session.',
+    },
+    {
+      title: 'Five Coding Platforms',
+      text: 'Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code — all on subscription. No API keys. No per-token billing. Switch platforms without losing your project thread.',
+    },
+    {
+      title: 'Your Server & Domain',
+      text: 'A dedicated VPS only you control. Your personal domain — provisioned and fully configured automatically. SSL, DNS, Nginx — ready before you write a single line of code.',
+    },
+    {
+      title: 'Auth, Storage & Database',
+      text: 'Google OAuth, magic-link, SQLite, file storage, and vector store — pre-configured on your server. No Clerk. No Supabase. No extra invoices. Everything owned by you.',
+    },
+    {
+      title: 'Sell Your Skills',
+      text: 'Solved something hard? Package your workflow as a skill and sell it on the marketplace. Others pay for your solution — not your time. Your best work earns while you sleep.',
+    },
   ],
 
   dpHeader: {
@@ -454,6 +482,33 @@ const ru: HeroContent = {
     { title: 'Стройте продукт',      text: 'Менеджер или предприниматель — создавайте продукт и код без команды разработчиков. Библиотека сообщества помогает находить подходы и запускаться быстрее.' },
     { title: 'За пределами кода',    text: 'Разработчик, который хочет строить продукты? Освойте SEO, i18n, роутинг и другие product-навыки.' },
     { title: 'В 10× быстрее',        text: 'Профессиональные приложения — за часть времени и бюджета.' },
+  ],
+
+  heroBenefits: [
+    {
+      title: 'Hermes — AI-оркестратор',
+      text: 'Работает на подписках — Claude Code, Codex, Gemini CLI. Ноль API-расходов в ежедневном кодинге. Переключите в API-режим для полностью автономных сценариев.',
+    },
+    {
+      title: 'LightRAG — мозг компании',
+      text: 'Постоянная векторная память для всех пяти платформ. Кодовая база, каждое решение, каждый паттерн — всегда в контексте. Никакого «напомни как работает авторизация» в каждой сессии.',
+    },
+    {
+      title: 'Пять платформ',
+      text: 'Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code — все на подписке. Никаких API-ключей. Никаких расходов токенов. Переключайтесь без потери нити проекта.',
+    },
+    {
+      title: 'Сервер и домен',
+      text: 'Выделенный VPS под вашим полным контролем. Личный домен — настраивается автоматически. SSL, DNS, Nginx — готовы до первой строки кода.',
+    },
+    {
+      title: 'Auth, хранилище и база',
+      text: 'Google OAuth, magic-link, SQLite, файловое и векторное хранилище — преднастроены на вашем сервере. Никакого Clerk. Никакого Supabase. Никаких лишних счетов.',
+    },
+    {
+      title: 'Продавайте навыки',
+      text: 'Решили сложную задачу? Упакуйте процесс как навык и продайте на маркетплейсе. Другие платят за ваше решение — не за ваше время. Лучшая работа приносит доход, пока вы спите.',
+    },
   ],
 
   dpHeader: {

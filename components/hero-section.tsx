@@ -31,6 +31,8 @@ const PLATFORMS = [
   'LightRAG',
 ]
 
+const HERO_BENEFIT_ICONS = [Bot, Brain, Code2, Globe, Database, ShoppingBag]
+
 const FEATURE_ITEMS = [
   { icon: Layers,    title: "Zero to Production",  text: "Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain." },
   { icon: Lightbulb, title: "Build the Product",   text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
@@ -174,16 +176,21 @@ export function HeroSection({ lang }: { lang?: string }) {
             </p>
           </div>
 
-          {/* Bottom: 3 feature blocks (AIFA pattern) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 pb-12 pt-8 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
-            {content.featureItems.slice(0, 3).map(({ title, text }, i) => (
-              <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
-                <h3 className="text-2xl font-bold text-white">{title}</h3>
-                <p className="mb-4 text-base text-white/50 min-h-[1.5rem]" />
-                <div className="mb-4 h-px w-16 bg-violet-500" />
-                <p className="text-[15px] text-white/80 leading-relaxed">{text}</p>
-              </div>
-            ))}
+          {/* Bottom: 6 benefit blocks 3×2 grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 px-4 pb-12 pt-8 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
+            {content.heroBenefits.map(({ title, text }, i) => {
+              const Icon = HERO_BENEFIT_ICONS[i]
+              return (
+                <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon className="w-5 h-5 shrink-0 text-violet-400" />
+                    <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
+                  </div>
+                  <div className="mb-3 h-px w-12 bg-violet-500" />
+                  <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
