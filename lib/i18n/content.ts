@@ -39,6 +39,7 @@ export type HeroContent = {
     subscribeButtonWait: string
   }
   mcpSection: { label: string; h2: string; description: string }
+  domainSection: { label: string; h2: string; description: string }
   installForm: {
     title: string
     ipPlaceholder: string
@@ -222,6 +223,13 @@ const en: HeroContent = {
     h2: 'Deploy and Manage Your Server with an AI Agent via MCP',
     description:
       'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation. You can also use the MCP server to diagnose and resolve any deployment issues directly from your AI chat.',
+  },
+
+  domainSection: {
+    label: 'Your current access',
+    h2: 'Your personal workspace',
+    description:
+      'Use these links to open your project. Remember that you can always find all your active servers, subscriptions, and purchases in your Dashboard — available from the top-right corner after signing in.',
   },
 
   installForm: {
@@ -568,6 +576,13 @@ const ru: HeroContent = {
     h2: 'Управляйте сервером через AI Agent по MCP',
     description:
       'Деплой и управление продакшн-сервером через AI-агент в вашем чате — теперь это просто. Подключите Claude, Codex или Gemini к Fractera MCP — деплойте инфраструктуру, следите за установкой и запускайте среды, не выходя из чата. Вы также можете использовать MCP сервер для диагностики и решения проблем, связанных с вашим развёртыванием.',
+  },
+
+  domainSection: {
+    label: 'Ваш текущий доступ',
+    h2: 'Персональное пространство для вашей работы',
+    description:
+      'Используйте эти ссылки для того чтобы открыть свой проект. Помните что вы всегда можете найти все ваши текущие сервера, подписки и покупки на вашем Дашборде — он доступен в правом верхнем углу экрана после авторизации.',
   },
 
   installForm: {

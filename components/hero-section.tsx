@@ -433,15 +433,33 @@ export function HeroSection({ lang }: { lang?: string }) {
         </div>
       )}
 
-      {/* Domain status — 128px breathing room top and bottom */}
+      {/* Domain status section */}
       {(liveSubdomain || installing) && (
-        <div className="py-32 w-full">
-          <DomainStatus
-            onStatusChange={setDomainReady}
-            subdomain={liveSubdomain}
-            installing={installing}
-            onResetRef={fn => { domainResetRef.current = fn }}
-          />
+        <div className="w-full max-w-4xl flex flex-col gap-6">
+
+          {/* Section header */}
+          <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+            <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">
+              {content.domainSection.label}
+            </p>
+            <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+              {content.domainSection.h2}
+            </h2>
+            <p className="max-w-xl text-base text-white/60">
+              {content.domainSection.description}
+            </p>
+          </div>
+
+          {/* Card wrapping both domain rows */}
+          <div className="w-full rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/50 via-violet-900/20 to-black/60 p-6">
+            <DomainStatus
+              onStatusChange={setDomainReady}
+              subdomain={liveSubdomain}
+              installing={installing}
+              onResetRef={fn => { domainResetRef.current = fn }}
+            />
+          </div>
+
         </div>
       )}
 
