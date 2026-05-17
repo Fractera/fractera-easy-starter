@@ -63,6 +63,20 @@ export type HeroContent = {
     tryAgain: string
     silentWarning: string
     errorDetails: string
+    progressToast: {
+      title: string
+      dashboardNote: string
+      checkboxLabel: string
+      hideButton: string
+    }
+    successToast: {
+      title: string
+      siteLabel: string
+      adminLabel: string
+      dashboardNote: string
+      checkboxLabel: string
+      closeButton: string
+    }
   }
   featuresHeader: { label: string; h2: string; description: string }
   featureList: { title: string; description: string; badge: string }[]
@@ -234,6 +248,20 @@ const en: HeroContent = {
     tryAgain: 'Try again',
     silentWarning: 'Server has been silent for {secs}s. The installation may still be running, or the server may be unreachable.',
     errorDetails: 'Error details:',
+    progressToast: {
+      title: 'Deployment in progress…',
+      dashboardNote: 'You can track the deployment progress at any time in your Dashboard — available in the top-right corner of the page after signing in.',
+      checkboxLabel: 'I understand',
+      hideButton: 'Hide',
+    },
+    successToast: {
+      title: 'Your server has been successfully deployed',
+      siteLabel: 'Your site',
+      adminLabel: 'Admin panel',
+      dashboardNote: 'All your servers and subscription details are available in your Dashboard — accessible from the top-right corner of the page after signing in.',
+      checkboxLabel: 'I understand',
+      closeButton: 'Close',
+    },
   },
 
   featuresHeader: {
@@ -566,6 +594,20 @@ const ru: HeroContent = {
     tryAgain: 'Повторить',
     silentWarning: 'Сервер не отвечает {secs}с. Установка может продолжаться.',
     errorDetails: 'Подробности ошибки:',
+    progressToast: {
+      title: 'Развёртывание запущено…',
+      dashboardNote: 'Следить за прогрессом развёртывания вы сможете в любой момент через Дашборд — он доступен в правом верхнем углу страницы после авторизации.',
+      checkboxLabel: 'Я понимаю',
+      hideButton: 'Скрыть',
+    },
+    successToast: {
+      title: 'Ваш сервер успешно развёрнут',
+      siteLabel: 'Ваш сайт',
+      adminLabel: 'Панель управления',
+      dashboardNote: 'Все ваши серверы и информация о подписке доступны в Дашборде — он находится в правом верхнем углу страницы после авторизации.',
+      checkboxLabel: 'Я понимаю',
+      closeButton: 'Закрыть',
+    },
   },
 
   featuresHeader: {

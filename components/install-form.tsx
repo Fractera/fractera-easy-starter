@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useHeroContent } from '@/lib/i18n/context'
+import { DeploySuccessToast } from './deploy-success-toast'
+import { DeployProgressToast } from './deploy-progress-toast'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
@@ -26,6 +28,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const eventSourceRef = useRef<(() => void) | null>(null)
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
+  const [successSubdomain, setSuccessSubdomain] = useState<string | null>(null)
+  const [showProgressToast, setShowProgressToast] = useState(false)
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [freeServerTokenId, setFreeServerTokenId] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -78,6 +82,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     setDetectedSubdomain(null)
     setStatusError(null)
     setInstalling(true)
+    setShowProgressToast(true)
     onInstallingChange?.(true)
     setSteps(ALL_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
@@ -134,13 +139,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             status: 'ready',
           }))
           setInstalling(false)
+          setShowProgressToast(false)
           onInstallingChange?.(false)
           onSubdomainReady?.(progress.subdomain)
+          setSuccessSubdomain(progress.subdomain)
         }
 
         if (progress.status === 'error') {
           clearInterval(pollInterval)
           setInstallError(progress.error ?? 'Installation failed')
+          setShowProgressToast(false)
           toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
         }
       } catch {
@@ -165,6 +173,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const t = content.installForm
 
   return (
+    <>
     <div className="w-full max-w-xl flex flex-col gap-6">
 
       {/* Form */}
@@ -408,5 +417,22 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       )}
 
     </div>
+
+    {showProgressToast && (
+      <DeployProgressToast
+        progress={progress}
+        strings={t.progressToast}
+        onHide={() => setShowProgressToast(false)}
+      />
+    )}
+
+    {successSubdomain && (
+      <DeploySuccessToast
+        subdomain={successSubdomain}
+        strings={t.successToast}
+        onClose={() => setSuccessSubdomain(null)}
+      />
+    )}
+    </>
   )
 }
