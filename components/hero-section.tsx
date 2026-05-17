@@ -857,12 +857,26 @@ function DoublePresentation() {
     </div>
   )
 
+  const featureBlocks = (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full pt-4">
+      {content.featureItems.slice(0, 3).map(({ title, text }, i) => (
+        <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
+          <h3 className="text-2xl font-bold text-white">{title}</h3>
+          <p className="mb-4 text-base text-white/50 min-h-[1.5rem]" />
+          <div className="mb-4 h-px w-16 bg-violet-500" />
+          <p className="text-[15px] text-white/80 leading-relaxed">{text}</p>
+        </div>
+      ))}
+    </div>
+  )
+
   if (isMobile) {
     return (
       <div className="w-full max-w-4xl flex flex-col gap-6">
         {header}
         {renderMobileCard(content.dpLeft)}
         {renderMobileCard(content.dpRight)}
+        {featureBlocks}
       </div>
     )
   }
@@ -874,6 +888,7 @@ function DoublePresentation() {
         {renderDesktopCard(content.dpLeft, 'left')}
         {renderDesktopCard(content.dpRight, 'right')}
       </div>
+      {featureBlocks}
     </div>
   )
 }
