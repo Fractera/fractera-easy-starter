@@ -459,18 +459,13 @@ const en: HeroContent = {
     {
       q: 'Do you have a referral program?',
       a: [
-        'Yes — we offer a referral program for content creators, bloggers, and anyone interested in building their own branded version of Fractera.',
-        'Partners receive a complete white-label deployment of Fractera. Partners set their own pricing within our recommended range.',
-      ],
-      bullets: [
-        'All subscription payments go directly to the partner — 100%.',
-        'All White Label purchases also go entirely to the partner.',
-        'Partners define their own pricing for both subscriptions and White Label.',
-        'Partners are required to retain attribution to the Fractera brand on their landing page.',
+        'Yes — the Fractera Partner Program offers two ways to earn.',
+        'Type 1 — VPS referrals. Get an affiliate link from any VPS provider we list (Contabo, Hetzner, Netcup, DigitalOcean). Share it with us and we\'ll place it in the server block on the landing page. When a user clicks your link and buys a server, the provider pays you directly — Fractera is not involved in that transaction.',
+        'Type 2 — Fractera referrals. Share your personal Fractera referral link. When someone signs up and purchases a paid plan, you receive 50% of their first payment.',
       ],
       trail: [
-        'To apply: publish a public post about Fractera, then email admin@fractera.ai with the link. Deployment is a one-time $500 fee. Availability is limited.',
-        'We are also looking for regional distributors. For inquiries: admin@fractera.ai',
+        'To join the program, register using the link on the Partners page. Once registered, you\'ll receive your personal referral link and instructions for submitting your VPS affiliate links.',
+        'For questions: admin@fractera.ai',
       ],
     },
     {
@@ -852,18 +847,13 @@ const ru: HeroContent = {
     {
       q: 'Есть ли реферальная программа?',
       a: [
-        'Да — программа для создателей контента, блогеров и всех, кто хочет создать собственную брендированную версию Fractera.',
-        'Партнёры получают полный white-label деплой Fractera с лендингом и инфраструктурой. Партнёры сами устанавливают цены.',
-      ],
-      bullets: [
-        '100% платежей по подписке — партнёру.',
-        '100% покупок White Label — партнёру.',
-        'Партнёры сами определяют цены для подписок и White Label.',
-        'Обязательно сохранить атрибуцию бренда Fractera на лендинге.',
+        'Да — партнёрская программа Fractera предлагает два способа заработка.',
+        'Тип 1 — VPS-рефералы. Получите партнёрскую ссылку у любого из провайдеров в нашем списке (Contabo, Hetzner, Netcup, DigitalOcean). Передайте её нам — мы разместим её в блоке серверов на лендинге. Когда пользователь перейдёт по вашей ссылке и купит сервер, провайдер выплатит вознаграждение напрямую вам — Fractera в этой транзакции не участвует.',
+        'Тип 2 — реферальная ссылка Fractera. Поделитесь своей персональной ссылкой. Когда пользователь зарегистрируется и купит платный тариф — вы получите 50% от его первого платежа.',
       ],
       trail: [
-        'Для заявки: опубликуйте статью о Fractera, отправьте письмо на admin@fractera.ai со ссылкой. Единоразовый деплой: $500. Доступность ограничена.',
-        'Ищем региональных дистрибьюторов. По вопросам: admin@fractera.ai',
+        'Чтобы присоединиться к программе, зарегистрируйтесь по ссылке на странице партнёров. После регистрации вы получите персональную реферальную ссылку и инструкции по передаче ваших VPS-партнёрских ссылок.',
+        'По вопросам: admin@fractera.ai',
       ],
     },
     {
