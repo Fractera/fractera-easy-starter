@@ -41,6 +41,12 @@ export type HeroContent = {
     disclaimer: string
     trustItems: [string, string, string]
   }
+  serverSection: {
+    label: string
+    h2: string
+    description: string
+    providers: { name: string; tagline: string; url: string }[]
+  }
   mcpSection: { label: string; h2: string; description: string }
   domainSection: { label: string; h2: string; description: string }
   installForm: {
@@ -247,6 +253,18 @@ const en: HeroContent = {
     subscribeButtonWait: 'Subscribe · {price} (ready in ~60 min) →',
     disclaimer: '* Regardless of the chosen plan — immediately after installation is complete, you must change the password for access to your server. Remember: Fractera does not gain control over your code, and access to your servers is not available to us. This is your own software on your own servers, which Fractera helps install — and nothing more.',
     trustItems: ['Your server', 'Your domain', 'Your AI'],
+  },
+
+  serverSection: {
+    label: 'Where to buy',
+    h2: 'Affordable & Reliable VPS Servers',
+    description: 'Fractera installs on any Ubuntu 24.04 VPS with 4 cores and 6 GB RAM. These providers are tested and trusted — pick whichever suits your region and budget.',
+    providers: [
+      { name: 'Contabo', tagline: 'High-resource VPS at unbeatable prices. Popular for AI workloads.', url: 'https://contabo.com' },
+      { name: 'Netcup', tagline: 'German-quality hosting with generous specs and fair pricing.', url: 'https://www.netcup.com' },
+      { name: 'Hetzner', tagline: 'Best price-to-performance in Europe. Fast NVMe storage included.', url: 'https://www.hetzner.com' },
+      { name: 'DigitalOcean', tagline: 'Developer-friendly cloud. Simple setup, global data centers.', url: 'https://www.digitalocean.com' },
+    ],
   },
 
   mcpSection: {
@@ -628,6 +646,18 @@ const ru: HeroContent = {
     subscribeButtonWait: 'Подписаться · {price} (~60 мин) →',
     disclaimer: '* Независимо от выбранного тарифа — сразу после завершения установки вы должны сменить пароль доступа к вашему серверу. Помните: Fractera не получает контроля над вашим кодом, и доступ к вашим серверам нам недоступен. Это ваше собственное программное обеспечение на ваших собственных серверах, которое Fractera помогает установить — и не более.',
     trustItems: ['Ваш сервер', 'Ваш домен', 'Ваш AI'],
+  },
+
+  serverSection: {
+    label: 'Где купить',
+    h2: 'Надёжные VPS-серверы по доступным ценам',
+    description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Эти провайдеры проверены сообществом — выбирайте по региону и бюджету.',
+    providers: [
+      { name: 'Contabo', tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.', url: 'https://contabo.com' },
+      { name: 'Netcup', tagline: 'Немецкое качество, щедрые конфигурации и честная цена.', url: 'https://www.netcup.com' },
+      { name: 'Hetzner', tagline: 'Лучшее соотношение цены и производительности в Европе. NVMe SSD.', url: 'https://www.hetzner.com' },
+      { name: 'DigitalOcean', tagline: 'Удобен для разработчиков. Простая настройка, глобальные дата-центры.', url: 'https://www.digitalocean.com' },
+    ],
   },
 
   mcpSection: {

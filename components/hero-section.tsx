@@ -452,6 +452,40 @@ export function HeroSection({ lang }: { lang?: string }) {
             {content.planLabels.disclaimer}
           </p>
 
+          {/* Server providers section */}
+          <div className="flex flex-col gap-5 pt-4 border-t border-white/10">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">
+                {content.serverSection.label}
+              </p>
+              <h3 className="text-xl font-bold font-serif text-white">
+                {content.serverSection.h2}
+              </h3>
+              <p className="text-sm text-white/50 leading-relaxed max-w-xl">
+                {content.serverSection.description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {content.serverSection.providers.map(({ name, tagline, url }) => (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col gap-2 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-4 py-4 transition-all duration-200"
+                >
+                  <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">
+                    {name} ↗
+                  </span>
+                  <span className="text-xs text-white/45 leading-snug">
+                    {tagline}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
         </div>
       )}
 
