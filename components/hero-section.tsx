@@ -1186,8 +1186,8 @@ function FractеraTestimonial() {
 function FractеraPromo() {
   const content = useHeroContent()
   return (
-    <div className="w-full self-stretch -mx-6 px-6 bg-black border-y-4 border-violet-500 py-8">
-      <div className="max-w-4xl mx-auto flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
+    <div className="w-screen bg-black border-y-4 border-violet-500 py-8" style={{ marginLeft: 'calc(50% - 50vw)' }}>
+      <div className="max-w-4xl mx-auto px-6 flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <h2 className="mb-6 max-w-3xl font-serif font-bold leading-tight text-white text-xl md:text-2xl lg:text-4xl">
             {content.promoSection.h2}
