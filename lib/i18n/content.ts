@@ -12,6 +12,16 @@ export type HeroContent = {
   description: string
   featureItems: { title: string; text: string }[]
   heroBenefits: { title: string; text: string }[]
+  loopShowcase: {
+    h2: string
+    description: string
+    slides: {
+      label: string
+      sublabel: string
+      title: string
+      description: string
+    }[]
+  }
   dpHeader: { label: string; h2: string; description: string }
   dpLeft: { imageSrc: string; title: string; description: string }
   dpRight: { imageSrc: string; title: string; description: string }
@@ -103,6 +113,34 @@ export type HeroContent = {
 const en: HeroContent = {
   heroTitle: 'One-Click Private AI Coding Infrastructure',
   deployButton: 'Deploy Fractera',
+  loopShowcase: {
+    h2: 'From Idea to Marketplace — The Fractera Build Loop',
+    description:
+      'Three ways your private AI infrastructure compounds value: ship products, automate with Hermes loops, monetize through the skills marketplace.',
+    slides: [
+      {
+        label: 'Build Products',
+        sublabel: 'Idea → Production in days',
+        title: 'Ship full products with AI on your VPS',
+        description:
+          'Pre-configured stack — auth, DB, storage, routing. Hermes orchestrates Claude Code, Codex, Gemini to turn ideas into production-grade applications. Your code stays on your server. Your domain is live in 10 minutes.',
+      },
+      {
+        label: 'Hermes Loops',
+        sublabel: 'Agentic orchestration cycles',
+        title: 'Agentic loops that learn from every iteration',
+        description:
+          'Hermes coordinates 5 AI platforms through LightRAG persistent memory. Each task feeds context back into the loop. Agents share state, avoid repetition, and ship faster with fewer tokens.',
+      },
+      {
+        label: 'Skills Marketplace',
+        sublabel: 'Buy, sell, share workflows',
+        title: 'Monetize the workflows you build',
+        description:
+          'Package your best AI workflows as Fractera Skills. Sell them in the community marketplace, share for free, or buy battle-tested recipes from other builders. Your AI infrastructure becomes a passive revenue stream.',
+      },
+    ],
+  },
   description:
     'Full-stack development environment on your own server in 10 minutes. Hermes, our AI orchestrator, automatically deploys and connects Claude Code, Codex, Gemini CLI, databases, and LightRAG vector memory on your VPS. Control top AI platforms through a single interface with full code ownership and zero API costs.',
 
@@ -495,6 +533,34 @@ const en: HeroContent = {
 const ru: HeroContent = {
   heroTitle: 'Частная AI-инфраструктура разработки в один клик',
   deployButton: 'Развернуть Fractera',
+  loopShowcase: {
+    h2: 'От идеи до маркетплейса — цикл создания на Fractera',
+    description:
+      'Три способа, как ваша приватная AI-инфраструктура накапливает ценность: запускайте продукты, автоматизируйте через петли Hermes, монетизируйте через маркетплейс навыков.',
+    slides: [
+      {
+        label: 'Создание продуктов',
+        sublabel: 'От идеи до продакшна за дни',
+        title: 'Запускайте полноценные продукты с AI на своём VPS',
+        description:
+          'Преднастроенный стек — auth, БД, хранилище, роутинг. Hermes оркеструет Claude Code, Codex, Gemini, превращая идеи в production-приложения. Код остаётся на вашем сервере. Домен живой за 10 минут.',
+      },
+      {
+        label: 'Петли Hermes',
+        sublabel: 'Циклы агентной оркестрации',
+        title: 'Агентные петли, обучающиеся с каждой итерацией',
+        description:
+          'Hermes координирует 5 AI-платформ через персистентную память LightRAG. Каждая задача возвращает контекст в петлю. Агенты делятся состоянием, не повторяются и работают быстрее с меньшим расходом токенов.',
+      },
+      {
+        label: 'Маркетплейс навыков',
+        sublabel: 'Покупайте, продавайте, делитесь',
+        title: 'Монетизируйте созданные вами workflows',
+        description:
+          'Упакуйте лучшие AI-workflows в Fractera Skills. Продавайте на маркетплейсе сообщества, делитесь бесплатно или покупайте проверенные рецепты у других builders. Ваша AI-инфраструктура — источник пассивного дохода.',
+      },
+    ],
+  },
   description:
     'Полная Full-Stack среда разработки на вашем собственном сервере за 10 минут. Наш AI-оркестратор Hermes автоматически разворачивает и связывает Claude Code, Codex, Gemini CLI, базы данных и векторную память LightRAG на вашем VPS. Управляйте топовыми ИИ-платформами через единый интерфейс с полным контролем над кодом и абсолютным нулем расходов на API.',
 
