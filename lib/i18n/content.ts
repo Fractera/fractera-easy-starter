@@ -104,7 +104,7 @@ const en: HeroContent = {
   heroTitle: 'One-Click Private AI Coding Infrastructure',
   deployButton: 'Deploy Fractera',
   description:
-    'Full-stack development environment on your own server in 10 minutes. Hermes, our AI orchestrator, automatically deploys and connects Claude Code, Gemini CLI, databases, and LightRAG vector memory on your VPS. Control top AI platforms through a single interface with full code ownership and zero API costs.',
+    'Full-stack development environment on your own server in 10 minutes. Hermes, our AI orchestrator, automatically deploys and connects Claude Code, Codex, Gemini CLI, databases, and LightRAG vector memory on your VPS. Control top AI platforms through a single interface with full code ownership and zero API costs.',
 
   featureItems: [
     { title: 'Zero to Production',  text: 'Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.' },
@@ -496,7 +496,7 @@ const ru: HeroContent = {
   heroTitle: 'Частная AI-инфраструктура разработки в один клик',
   deployButton: 'Развернуть Fractera',
   description:
-    'Полная Full-Stack среда разработки на вашем собственном сервере за 10 минут. Наш AI-оркестратор Hermes автоматически разворачивает и связывает Claude Code, Gemini CLI, базы данных и векторную память LightRAG на вашем VPS. Управляйте топовыми ИИ-платформами через единый интерфейс с полным контролем над кодом и абсолютным нулем расходов на API.',
+    'Полная Full-Stack среда разработки на вашем собственном сервере за 10 минут. Наш AI-оркестратор Hermes автоматически разворачивает и связывает Claude Code, Codex, Gemini CLI, базы данных и векторную память LightRAG на вашем VPS. Управляйте топовыми ИИ-платформами через единый интерфейс с полным контролем над кодом и абсолютным нулем расходов на API.',
 
   featureItems: [
     { title: 'С нуля в продакшн',    text: 'Архитектура, база данных, AI-агенты, глобальная память — всё преднастроено. Сервер и домен — сразу.' },
