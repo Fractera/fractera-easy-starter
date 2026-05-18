@@ -5,6 +5,7 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
 import { SUPPORTED_LANGS } from '@/proxy'
+import { getMeta } from '@/lib/i18n/locales'
 
 export async function generateMetadata({
   params,
@@ -12,33 +13,31 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const { lang } = await params
+  const m = getMeta(lang)
 
   return {
-    title: 'Fractera — Open-Source Production AI Development Workspace',
-    description:
-      'Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.',
+    title: m.title,
+    description: m.description,
     metadataBase: new URL('https://fractera.ai'),
     openGraph: {
       type: 'website',
       url: `https://fractera.ai/${lang}`,
       siteName: 'Fractera',
-      title: 'Fractera — Open-Source Production AI Development Workspace',
-      description:
-        'Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.',
+      title: m.ogTitle,
+      description: m.ogDescription,
       images: [
         {
           url: '/fractera-snipet.png',
           width: 1200,
           height: 630,
-          alt: 'Fractera — Open-Source Production AI Development Workspace',
+          alt: m.ogTitle,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Fractera — Open-Source Production AI Development Workspace',
-      description:
-        'Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.',
+      title: m.ogTitle,
+      description: m.ogDescription,
       images: ['/fractera-snipet.png'],
     },
     icons: {
@@ -52,23 +51,10 @@ export async function generateMetadata({
         { rel: 'android-chrome-512', url: '/android-chrome-512x512.png' },
       ],
     },
-    keywords: [
-      'production coding AI',
-      'Claude Code server',
-      'Codex self-hosted',
-      'Gemini CLI server',
-      'LightRAG',
-      'AI coding platform',
-      'own server',
-      'no API key',
-      'fewer tokens',
-      'self-hosted AI',
-    ],
-    robots: {
-      index: true,
-      follow: true,
-    },
+    keywords: m.keywords,
+    robots: { index: true, follow: true },
     alternates: {
+      canonical: `https://fractera.ai/${lang}`,
       languages: Object.fromEntries(
         SUPPORTED_LANGS.map(l => [l, `https://fractera.ai/${l}`])
       ),
@@ -80,16 +66,18 @@ export function generateStaticParams() {
   return SUPPORTED_LANGS.map(lang => ({ lang }))
 }
 
-const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Fractera',
-  url: 'https://www.fractera.ai',
-  logo: 'https://www.fractera.ai/fractera-logo.jpg',
-  description:
-    'Production AI Development Workspace. Ship features faster with fewer tokens using Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code on your own server.',
-  email: 'admin@fractera.ai',
-  sameAs: ['https://www.fractera.ai'],
+function buildOrganizationSchema(lang: string) {
+  const m = getMeta(lang)
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Fractera',
+    url: 'https://www.fractera.ai',
+    logo: 'https://www.fractera.ai/fractera-logo.jpg',
+    description: m.organizationDescription,
+    email: 'admin@fractera.ai',
+    sameAs: ['https://www.fractera.ai'],
+  }
 }
 
 const websiteSchema = {
@@ -114,7 +102,7 @@ export default async function LangLayout({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildOrganizationSchema(lang)) }}
       />
       <script
         type="application/ld+json"

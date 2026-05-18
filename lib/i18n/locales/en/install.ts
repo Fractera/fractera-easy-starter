@@ -1,0 +1,59 @@
+import type { SiteContent } from '../../types'
+
+type InstallPart = Pick<SiteContent, 'mcpSection' | 'domainSection' | 'installForm'>
+
+export const install: InstallPart = {
+  mcpSection: {
+    label: 'MCP · AI Agents',
+    h2: 'Deploy and Manage Your Server with an AI Agent via MCP',
+    description:
+      'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation. You can also use the MCP server to diagnose and resolve any deployment issues directly from your AI chat.',
+  },
+
+  domainSection: {
+    label: 'Your current access',
+    h2: 'Your personal workspace',
+    description:
+      'Use these links to open your project. Remember that you can always find all your active servers, subscriptions, and purchases in your Dashboard — available from the top-right corner after signing in.',
+  },
+
+  installForm: {
+    title: 'Install Fractera on your server',
+    ipPlaceholder: 'Server IP address (e.g. 109.199.105.213)',
+    loginPlaceholder: 'Login (usually: root)',
+    passwordPlaceholder: 'Password',
+    checking: 'Checking server...',
+    alreadyInstalled: 'Fractera is already installed on this server',
+    yourDomains: 'Your domains',
+    removeWhiteLabel: 'Remove Fractera branding — $100',
+    renewingSsl: 'Renewing SSL…',
+    renewSsl: 'Renew SSL certificates',
+    removing: 'Removing…',
+    deleteReinstall: 'Delete and reinstall fresh',
+    cantReach: 'Could not reach server. You can still try installing.',
+    updatesTo: 'Installation updates will be sent to',
+    emailConfirmCheck: 'I understand and have access to this email address',
+    emailConfirmNote: "If you don't have access to this email, sign out and sign in with an account you can access, then try again.",
+    launchButton: 'Launch my server →',
+    credentials: 'Your credentials are used only for installation and are never stored on our servers.',
+    installFailed: 'Installation failed',
+    preparing: 'Preparing...',
+    tryAgain: 'Try again',
+    silentWarning: 'Server has been silent for {secs}s. The installation may still be running, or the server may be unreachable.',
+    errorDetails: 'Error details:',
+    progressToast: {
+      title: 'Deployment in progress…',
+      dashboardNote: 'You can track the deployment progress at any time in your Dashboard — available in the top-right corner of the page after signing in.',
+      checkboxLabel: 'I understand',
+      hideButton: 'Hide',
+    },
+    successToast: {
+      title: 'Your server has been successfully deployed',
+      siteLabel: 'Your site',
+      adminLabel: 'Admin panel',
+      dashboardNote: 'All your servers and subscription details are available in your Dashboard — accessible from the top-right corner of the page after signing in.',
+      checkboxLabel: 'I understand',
+      closeButton: 'Close',
+    },
+  },
+}
