@@ -7,6 +7,8 @@ export type FaqItem = {
 }
 
 export type HeroContent = {
+  heroTitle: string
+  deployButton: string
   description: string
   featureItems: { title: string; text: string }[]
   heroBenefits: { title: string; text: string }[]
@@ -99,8 +101,10 @@ export type HeroContent = {
 // ─── English ──────────────────────────────────────────────────────────────────
 
 const en: HeroContent = {
+  heroTitle: 'One-Click Private AI Coding Infrastructure',
+  deployButton: 'Deploy Fractera',
   description:
-    'In seconds, you get a server with a live domain — ready to start building your project with AI right in the browser.',
+    'Full-stack development environment on your own server in 10 minutes. Hermes, our AI orchestrator, automatically deploys and connects Claude Code, Gemini CLI, databases, and LightRAG vector memory on your VPS. Control top AI platforms through a single interface with full code ownership and zero API costs.',
 
   featureItems: [
     { title: 'Zero to Production',  text: 'Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.' },
@@ -422,7 +426,6 @@ const en: HeroContent = {
       a: [
         'Fractera is open-source — you can self-host and run it entirely on your own infrastructure at no cost.',
         'Deploying with our tools gives you Fractera Lite, which covers roughly 90% of everything you need to build and ship a professional application.',
-        'Want more? Fractera Pro adds advanced capabilities on top of your own server for $20/month or $149/year.',
         'Need the fastest path to a live environment? Our hosted plan includes the server, full Fractera Pro, and everything pre-configured — $25/month or $199/year.',
       ],
     },
@@ -490,8 +493,10 @@ const en: HeroContent = {
 // ─── Russian ──────────────────────────────────────────────────────────────────
 
 const ru: HeroContent = {
+  heroTitle: 'Частная AI-инфраструктура разработки в один клик',
+  deployButton: 'Развернуть Fractera',
   description:
-    'За секунды — сервер с живым доменом. Начните строить проект с AI прямо в браузере.',
+    'Полная Full-Stack среда разработки на вашем собственном сервере за 10 минут. Наш AI-оркестратор Hermes автоматически разворачивает и связывает Claude Code, Gemini CLI, базы данных и векторную память LightRAG на вашем VPS. Управляйте топовыми ИИ-платформами через единый интерфейс с полным контролем над кодом и абсолютным нулем расходов на API.',
 
   featureItems: [
     { title: 'С нуля в продакшн',    text: 'Архитектура, база данных, AI-агенты, глобальная память — всё преднастроено. Сервер и домен — сразу.' },
@@ -778,7 +783,7 @@ const ru: HeroContent = {
     {
       q: 'Какие характеристики сервера нужны?',
       a: [
-        'Для полной AI-разработки — минимум 6 ядер и 8 ГБ RAM. Хранилище зависит от проекта: 75 ГБ — хорошая база, больше — если планируете видео или медиафайлы.',
+        'Для полной AI-разработки — минимум 4 ядра и 6 ГБ RAM. Хранилище зависит от проекта: 75 ГБ — хорошая база, больше — если планируете видео или медиафайлы.',
         'Когда активная разработка завершена — можно снизить до 2 ядер / 4 ГБ RAM. Такие серверы стоят €1–2 в месяц.',
       ],
     },
@@ -810,7 +815,6 @@ const ru: HeroContent = {
       a: [
         'Fractera — open source. Полностью на своей инфраструктуре без каких-либо затрат.',
         'Деплой с нашими инструментами даёт Fractera Lite — покрывает ~90% всего необходимого для профессионального приложения.',
-        'Хотите больше? Fractera Pro добавляет расширенные возможности: $20/мес или $149/год.',
         'Нужен быстрый старт? Hosted план включает сервер, Fractera Pro и всё преднастроенное: $25/мес или $199/год.',
       ],
     },
