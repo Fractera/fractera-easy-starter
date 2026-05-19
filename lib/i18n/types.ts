@@ -11,6 +11,7 @@ export type SiteContent = {
   deployButton: string
   description: string
   featureItems: { title: string; text: string }[]
+  heroBenefitsHeader: { h2: string }
   heroBenefits: { title: string; text: string }[]
   loopShowcase: {
     h2: string

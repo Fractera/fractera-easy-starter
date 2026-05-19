@@ -7,7 +7,7 @@ type ProblemPart = Pick<SiteContent,
 export const problem: ProblemPart = {
   problemHeader: {
     label: 'Почему это важно',
-    h2: 'Проблемы, которые решает Fractera',
+    h2: 'Скрытые затраты фрагментированных AI-стеков разработки',
     description: 'Современные AI-стеки ненадёжны, дороги и не помнят контекст. Вот во что это обходится на практике.',
   },
 

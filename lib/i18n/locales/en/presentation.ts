@@ -8,7 +8,7 @@ type PresentationPart = Pick<SiteContent,
 export const presentation: PresentationPart = {
   dpHeader: {
     label: 'Production AI Development',
-    h2: 'Ship From Your Browser. Live in Seconds.',
+    h2: 'Production AI Coding: Hermes + LightRAG + 5 Platforms',
     description:
       'Production AI development happens entirely in your browser, from the first second. No VS Code. No local environment to configure. No database to spin up. No domain to wire. No deployment pipeline to debug. You open a tab — your server is already live, your domain is already registered, your database is already running, and five AI coding platforms wait for your first voice command. This is not just a tool for developers — this is the moment anyone with an idea can build, ship, and scale a real product without leaving the browser.',
   },
@@ -29,7 +29,7 @@ export const presentation: PresentationPart = {
 
   platformsHeader: {
     label: 'AI Platforms',
-    h2: 'Five AI Platforms. One Environment.',
+    h2: 'Core AI Generation Engine: Five Platforms, One Environment',
     description:
       'No API keys. No local setup. All five coding platforms run on your server with full terminal access and persistent LightRAG memory.',
   },

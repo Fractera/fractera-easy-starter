@@ -2,7 +2,7 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefits' | 'loopShowcase'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'loopShowcase'
 >
 
 export const hero: HeroPart = {
@@ -39,7 +39,11 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Open-source платформа разворачивает на вашем VPS полный AI-стек: Hermes orchestrator, память LightRAG, 5 AI-платформ (Claude Code, Codex, Gemini CLI, Qwen, Kimi), авторизацию, базу данных и хранилище. Без API-ключей. Без Clerk. Без Supabase. Ваш сервер, ваш стек, ваши данные.',
+    'Open-source платформа разворачивает на вашем VPS за 10 минут полный AI-стек: Hermes orchestrator, память LightRAG, 5 AI-платформ (Claude Code, Codex, Gemini CLI, Qwen, Kimi), авторизацию, базу данных и хранилище. Без API-ключей. Без Clerk. Без Supabase. Ваш сервер, ваш стек, ваши данные.',
+
+  heroBenefitsHeader: {
+    h2: 'AI-нативная платформа самохостинга',
+  },
 
   featureItems: [
     { title: 'С нуля в продакшн',  text: 'Ваш VPS, домен, auth, база данных и пять AI-платформ — за 10 минут. Никаких облачных аккаунтов. Никаких решений по инфраструктуре.' },
@@ -50,7 +54,7 @@ export const hero: HeroPart = {
 
   heroBenefits: [
     {
-      title: 'Hermes Orchestrator: мультимодельные петли',
+      title: 'Hermes Orchestrator: мультимодельные агентные петли',
       text: 'Hermes Agent от Nous Research, развёрнутый и настроенный на вашем VPS. Координирует Claude Code, Codex и Gemini CLI через общий контекст. Переключите в API-режим для автономных агентных workflows — каждая петля делает следующую умнее.',
     },
     {
@@ -62,11 +66,11 @@ export const hero: HeroPart = {
       text: 'Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code — все преднастроены на вашем сервере. Работают на ваших существующих AI-подписках. Никаких API-ключей, никакой оплаты за токены. Переключение платформ посреди задачи — LightRAG держит контекст проекта.',
     },
     {
-      title: 'Ваш VPS, ваш собственный домен',
+      title: 'Выделенная VPS-среда с собственным доменом',
       text: 'Выделенный Ubuntu 24.04 VPS настраивается автоматически. Собственный домен зарегистрирован, SSL выписан, Nginx маршрутизирован — до первой строки кода. Проверенные провайдеры: Contabo, Hetzner, Netcup, DigitalOcean. Минимум — 4 ядра и 6 ГБ RAM.',
     },
     {
-      title: 'БД, хранилище, авторизация — встроены',
+      title: 'Преднастроенный безопасный стек: БД + Auth',
       text: 'Google OAuth, magic-link email, SQLite с WAL-режимом, файловое хранилище и векторный store — преднастроены на вашем сервере. Никакой подписки на Clerk, никаких счетов Supabase, никакого отдельного email-провайдера. Один стек, ваш, один счёт у VPS-провайдера.',
     },
     {

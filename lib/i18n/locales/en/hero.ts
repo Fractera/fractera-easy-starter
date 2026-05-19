@@ -2,7 +2,7 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefits' | 'loopShowcase'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'loopShowcase'
 >
 
 export const hero: HeroPart = {
@@ -39,7 +39,11 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Open-source platform that deploys your complete AI development infrastructure on your own VPS: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. No API fees. No Clerk. No Supabase. Your server, your stack, your data.',
+    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
+
+  heroBenefitsHeader: {
+    h2: 'The AI-Native Self-Hosting Platform',
+  },
 
   featureItems: [
     { title: 'Zero to Production',  text: 'Your VPS, domain, auth, database, and five AI platforms — live in 10 minutes. No cloud accounts to set up. No infrastructure decisions to make.' },
@@ -50,7 +54,7 @@ export const hero: HeroPart = {
 
   heroBenefits: [
     {
-      title: 'Hermes Orchestrator: Multi-Model Loops',
+      title: 'Hermes Orchestrator: Multi-Model Agentic Loops',
       text: 'Hermes Agent by Nous Research, deployed and configured on your VPS. Coordinates Claude Code, Codex, and Gemini CLI through shared context. Switch to API mode for autonomous agentic workflows that run without your input — every loop refines the next.',
     },
     {
@@ -62,11 +66,11 @@ export const hero: HeroPart = {
       text: 'Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code — all preconfigured on your server. Run on your existing AI subscriptions. No API keys to manage, no per-token billing. Switch platforms mid-task without losing your project context — LightRAG keeps the thread.',
     },
     {
-      title: 'Your Own VPS, Your Own Domain',
+      title: 'Dedicated VPS Environment with Custom Domain',
       text: 'Dedicated Ubuntu 24.04 VPS configured automatically. Custom domain provisioned, SSL issued, Nginx routed — before you write the first line of code. Tested providers: Contabo, Hetzner, Netcup, DigitalOcean. 4 cores and 6 GB RAM is the minimum we recommend.',
     },
     {
-      title: 'Database, Storage, Auth — Built In',
+      title: 'Pre-Configured Secure Database & Auth Stack',
       text: 'Google OAuth, magic-link email, SQLite with WAL mode, file storage, and vector store — preconfigured on your server. No Clerk subscription, no Supabase invoice, no separate email provider. One stack, owned by you, billed once through your VPS provider.',
     },
     {

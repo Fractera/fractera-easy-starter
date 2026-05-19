@@ -7,7 +7,7 @@ type ProblemPart = Pick<SiteContent,
 export const problem: ProblemPart = {
   problemHeader: {
     label: 'Why it matters',
-    h2: 'The problems Fractera was built to solve',
+    h2: 'The Hidden Costs of Fragmented AI Development Stacks',
     description: 'Modern AI development stacks are fragile, expensive, and forgetful. Here is what that costs you in practice.',
   },
 

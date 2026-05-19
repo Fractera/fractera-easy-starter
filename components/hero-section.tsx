@@ -145,7 +145,10 @@ export function HeroSection({ lang }: { lang?: string }) {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 px-4 pb-12 pt-8 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
+          <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
+            {content.heroBenefitsHeader.h2}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
             {content.heroBenefits.map(({ title, text }, i) => {
               const Icon = HERO_BENEFIT_ICONS[i]
               return (
