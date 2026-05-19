@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { SUPPORTED_LANGS } from '@/proxy'
+import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS } from '@/config/translations/translations.config'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://fractera.ai'

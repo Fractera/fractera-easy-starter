@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 export function SiteFooter() {
   const pathname = usePathname()
@@ -34,7 +35,10 @@ export function SiteFooter() {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-white border-t border-white/20 pt-6">
           <span>© {new Date().getFullYear()} Fractera. All rights reserved.</span>
-          <span className="font-mono font-semibold">fractera.ai</span>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <span className="font-mono font-semibold">fractera.ai</span>
+          </div>
         </div>
 
       </div>

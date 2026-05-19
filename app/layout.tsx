@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -18,14 +19,17 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://fractera.ai"),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const lang = headersList.get("x-lang") ?? "en";
+
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

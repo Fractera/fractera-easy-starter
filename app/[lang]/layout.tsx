@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
-import { SUPPORTED_LANGS } from '@/proxy'
+import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
 
 export async function generateMetadata({
@@ -55,9 +55,12 @@ export async function generateMetadata({
     robots: { index: true, follow: true },
     alternates: {
       canonical: `https://fractera.ai/${lang}`,
-      languages: Object.fromEntries(
-        SUPPORTED_LANGS.map(l => [l, `https://fractera.ai/${l}`])
-      ),
+      languages: {
+        'x-default': 'https://fractera.ai/en',
+        ...Object.fromEntries(
+          SUPPORTED_LANGS.map(l => [l, `https://fractera.ai/${l}`])
+        ),
+      },
     },
   }
 }
