@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
@@ -19,10 +20,10 @@ export function SiteHeader() {
   return (
     <header className="w-full border-b border-white/40 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Image src="/fractera-logo.jpg" alt="Fractera" width={28} height={28} className="rounded" />
           <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
           {status === 'loading' && (
