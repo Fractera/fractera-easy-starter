@@ -1,24 +1,25 @@
 import type { SiteMeta } from '../../types'
 
 export const meta: SiteMeta = {
-  title: 'Fractera — Open-Source Production AI Development Workspace',
+  title: 'Fractera — One-Click Private AI Coding Infrastructure',
   description:
-    'Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.',
+    'AI-native self-hosting platform. Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees. Full code ownership.',
   keywords: [
-    'production coding AI',
-    'Claude Code server',
-    'Codex self-hosted',
-    'Gemini CLI server',
-    'LightRAG',
-    'AI coding platform',
-    'own server',
-    'no API key',
-    'fewer tokens',
-    'self-hosted AI',
+    'Open-Source AI Orchestrator Platform',
+    'self-hosted AI infrastructure',
+    'Hermes orchestrator',
+    'LightRAG persistent memory',
+    'Claude Code MCP server',
+    'MCP server deployment',
+    'agentic engineering for teams',
+    'multi-model AI dev environment',
+    'zero API fees AI coding',
+    'one-click AI deploy VPS',
+    'Coolify for AI',
   ],
-  ogTitle: 'Fractera — Open-Source Production AI Development Workspace',
+  ogTitle: 'Fractera — One-Click Private AI Coding Infrastructure',
   ogDescription:
-    'Open-source. Your own server and live domain in seconds. Production AI development workspace with 5 platforms, database, agents, and LightRAG memory — ready to build.',
+    'AI-native self-hosting platform. Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees. Full code ownership.',
   organizationDescription:
-    'Production AI Development Workspace. Ship features faster with fewer tokens using Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code on your own server.',
+    'Fractera — AI-native self-hosting platform. Curated AI dev stack (Hermes orchestrator, LightRAG memory, 5 AI coding platforms) with one-click VPS deployment.',
 }

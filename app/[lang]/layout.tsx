@@ -76,7 +76,10 @@ function buildOrganizationSchema(lang: string) {
     logo: 'https://www.fractera.ai/fractera-logo.jpg',
     description: m.organizationDescription,
     email: 'admin@fractera.ai',
-    sameAs: ['https://www.fractera.ai'],
+    sameAs: [
+      'https://www.fractera.ai',
+      'https://github.com/Fractera/ai-workspace',
+    ],
   }
 }
 
@@ -85,6 +88,41 @@ const websiteSchema = {
   '@type': 'WebSite',
   name: 'Fractera',
   url: 'https://www.fractera.ai',
+}
+
+const softwareApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Fractera',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Linux (Ubuntu 24.04 VPS)',
+  description: 'AI-native self-hosting platform — Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees.',
+  url: 'https://www.fractera.ai',
+  offers: [
+    {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      name: 'Fractera Light',
+      description: 'Free forever open-source self-hosting on your own VPS.',
+    },
+    {
+      '@type': 'Offer',
+      price: '20',
+      priceCurrency: 'USD',
+      priceSpecification: { '@type': 'UnitPriceSpecification', billingDuration: 'P1M' },
+      name: 'Fractera Pro',
+      description: 'Full Fractera stack on your VPS — includes Hermes orchestrator, all 5 AI coding platforms.',
+    },
+    {
+      '@type': 'Offer',
+      price: '25',
+      priceCurrency: 'USD',
+      priceSpecification: { '@type': 'UnitPriceSpecification', billingDuration: 'P1M' },
+      name: 'Fractera Pro + Managed Server',
+      description: 'Fractera Pro with a managed 4-core 6GB VPS included — zero infrastructure setup.',
+    },
+  ],
 }
 
 export default async function LangLayout({
@@ -107,6 +145,10 @@ export default async function LangLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
       />
       <SiteHeader />
       {children}

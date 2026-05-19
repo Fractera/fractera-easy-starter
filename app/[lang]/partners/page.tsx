@@ -1,5 +1,3 @@
-import { getContent } from '@/lib/i18n/content'
-
 export default async function PartnersPage({
   params,
 }: {
@@ -68,8 +66,19 @@ export default async function PartnersPage({
     ctaNote: 'Questions? admin@fractera.ai',
   }
 
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://fractera.ai' },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'Партнёры' : 'Partners', item: `https://fractera.ai/${lang}/partners` },
+    ],
+  }
+
   return (
-    <main className="min-h-screen bg-black text-white">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      <main className="min-h-screen bg-black text-white">
       <div className="max-w-3xl mx-auto px-6 py-20 flex flex-col gap-16">
 
         {/* Header */}
@@ -156,5 +165,6 @@ export default async function PartnersPage({
 
       </div>
     </main>
+    </>
   )
 }

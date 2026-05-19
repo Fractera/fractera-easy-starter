@@ -1,24 +1,27 @@
 import type { SiteMeta } from '../../types'
 
 export const meta: SiteMeta = {
-  title: 'Fractera — Open-Source AI-платформа для продакшн-разработки',
+  title: 'Fractera — Приватная AI-инфраструктура в один клик: Claude Code, MCP, LightRAG на вашем VPS',
   description:
-    'Open-source. Ваш сервер и живой домен за секунды. Продакшн AI-платформа с 5 инструментами, базой данных, агентами и памятью LightRAG — готова к работе.',
+    'AI-нативная платформа самохостинга. Развёртывайте Hermes orchestrator, LightRAG память, Claude Code, Codex, Gemini CLI на своём VPS за 10 минут. Без API-ключей. Полный контроль над кодом.',
   keywords: [
-    'продакшн AI разработка',
-    'Claude Code сервер',
-    'Codex self-hosted',
-    'Gemini CLI сервер',
+    'Claude Code на своём сервере',
+    'MCP-сервер',
+    'Open-Source AI оркестратор-платформа',
+    'самохостинг AI',
     'LightRAG',
-    'AI платформа программирования',
-    'собственный сервер',
-    'без API ключей',
-    'меньше токенов',
-    'self-hosted AI',
+    'векторная память AI',
+    'AI без API',
+    'без API-ключей',
+    'локальный ИИ',
+    'AI агент VPS',
+    'агентные ИИ системы',
+    'мультимодельная AI среда',
+    'Hermes orchestrator',
   ],
-  ogTitle: 'Fractera — Open-Source AI-платформа для продакшн-разработки',
+  ogTitle: 'Fractera — Приватная AI-инфраструктура в один клик: Claude Code, MCP, LightRAG на вашем VPS',
   ogDescription:
-    'Open-source. Ваш сервер и живой домен за секунды. Продакшн AI-платформа с 5 инструментами, базой данных, агентами и памятью LightRAG — готова к работе.',
+    'AI-нативная платформа самохостинга. Развёртывайте Hermes orchestrator, LightRAG память, Claude Code, Codex, Gemini CLI на своём VPS за 10 минут. Без API-ключей. Полный контроль над кодом.',
   organizationDescription:
-    'Платформа AI-разработки для продакшна. Запускайте фичи быстрее с меньшим числом токенов используя Claude Code, Codex, Gemini CLI, Qwen Code и Kimi Code на вашем сервере.',
+    'Fractera — AI-нативная платформа самохостинга. Готовый AI-стек (Hermes orchestrator, LightRAG память, 5 AI coding платформ) с одним кликом деплоя на VPS.',
 }
