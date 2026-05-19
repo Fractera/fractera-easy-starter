@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Server, Globe, Rocket } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
@@ -18,7 +18,6 @@ const PLACEHOLDER_LABELS = [
 ]
 
 const STEP_SWITCH_DURATION = 5000
-const LINE_ANIMATION_DURATION = 15000
 const FADE_DURATION = 700
 
 export function LoopShowcase() {
@@ -28,27 +27,8 @@ export function LoopShowcase() {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [imageOpacity, setImageOpacity] = useState(1)
-  const [progressWidth, setProgressWidth] = useState(0)
-
-  const lineAnimationFrameRef = useRef<number | null>(null)
-  const lineStartTimeRef = useRef<number>(0)
-
-  const animateLine = useCallback((currentTime: number) => {
-    if (!lineStartTimeRef.current) lineStartTimeRef.current = currentTime
-    const elapsed = currentTime - lineStartTimeRef.current
-    let newProgress = (elapsed / LINE_ANIMATION_DURATION) * 100
-    if (newProgress >= 100) {
-      newProgress = 100
-      setProgressWidth(0)
-      lineStartTimeRef.current = currentTime
-    } else {
-      setProgressWidth(newProgress)
-    }
-    lineAnimationFrameRef.current = requestAnimationFrame(animateLine)
-  }, [])
 
   useEffect(() => {
-    lineAnimationFrameRef.current = requestAnimationFrame(animateLine)
     const stepInterval = setInterval(() => {
       setImageOpacity(0)
       setTimeout(() => {
@@ -56,12 +36,8 @@ export function LoopShowcase() {
         setImageOpacity(1)
       }, FADE_DURATION)
     }, STEP_SWITCH_DURATION)
-
-    return () => {
-      if (lineAnimationFrameRef.current) cancelAnimationFrame(lineAnimationFrameRef.current)
-      clearInterval(stepInterval)
-    }
-  }, [totalSteps, animateLine])
+    return () => clearInterval(stepInterval)
+  }, [totalSteps])
 
   const activeAccent = ACCENTS[currentStepIndex]
   const accentBorder =
@@ -76,15 +52,6 @@ export function LoopShowcase() {
   const getCircleLeft = (index: number) => {
     if (totalSteps === 3) {
       if (index === 0) return '60px'
-      if (index === 1) return 'calc((60px + (100% - 25%)) / 2)'
-      if (index === 2) return 'calc(100% - 25%)'
-    }
-    return `${(index / (totalSteps - 1)) * 100}%`
-  }
-
-  const getCircleLeftMobile = (index: number) => {
-    if (totalSteps === 3) {
-      if (index === 0) return '60px'
       if (index === 1) return '50%'
       if (index === 2) return 'calc(100% - 60px)'
     }
@@ -95,6 +62,15 @@ export function LoopShowcase() {
 
   return (
     <section className="w-full max-w-5xl mx-auto px-4 flex flex-col items-center">
+      {/* CSS keyframes — runs in browser native, no JS animation needed */}
+      <style>{`
+        @keyframes fractera-line-slide {
+          0%   { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
+        }
+      `}</style>
+
+      {/* Section header */}
       <div className="text-center flex flex-col items-center gap-3 max-w-3xl mb-12">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif leading-tight text-white">
           {content.loopShowcase.h2}
@@ -132,39 +108,41 @@ export function LoopShowcase() {
         })}
       </div>
 
-      {/* Horizontal step indicator with progress line — placed BEFORE caption so its position never shifts when caption height changes */}
-      <div className="relative w-full max-w-4xl mx-auto px-4 mb-8 h-10">
-        {/* Line container — centered vertically via top-1/2 of explicit h-10 parent */}
+      {/* Active slide caption — title + description. Placed ABOVE animated block per user request. */}
+      <div
+        className={`text-center flex flex-col items-center gap-2 max-w-3xl mb-6 transition-opacity duration-700 ${
+          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
+        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
+      </div>
+
+      {/* Animated step indicator — fixed h-10. Progress line uses CSS keyframes (always visible, GPU-accelerated). */}
+      <div className="relative w-full max-w-4xl mx-auto h-12 mb-4">
+        {/* Base line — full width, gray */}
         <div
-          className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
+          className="absolute top-1/2 left-[60px] right-[60px] h-[2px] -translate-y-1/2 bg-white/20"
+        />
+        {/* Animated progress line — CSS keyframes, scales from 0 to 1 over 15s, infinite */}
+        <div
+          className="absolute top-1/2 left-[60px] right-[60px] h-[2px] -translate-y-1/2 bg-violet-500 origin-left"
           style={{
-            maskImage: 'linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%)',
+            animation: 'fractera-line-slide 15s linear infinite',
           }}
-        >
-          {/* Base line — full width */}
-          <div className="absolute inset-0 bg-white/25" />
-          {/* Animated progress line — grows from left:60px */}
-          <div
-            className="absolute top-0 left-[60px] bottom-0 bg-violet-500"
-            style={{ width: `${progressWidth}%`, transition: 'width 0.1s linear' }}
-          />
-        </div>
+        />
 
         {/* Numbered circles — z-10 above line */}
         {slides.map((_, index) => (
           <div
             key={index}
-            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 md:left-[var(--desktop-left)] left-[var(--mobile-left)]"
-            style={{
-              ['--desktop-left' as string]: getCircleLeft(index),
-              ['--mobile-left' as string]: getCircleLeftMobile(index),
-            } as React.CSSProperties}
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+            style={{ left: getCircleLeft(index) }}
           >
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 ${
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 ${
                 index === currentStepIndex
-                  ? 'border-violet-500 bg-black text-violet-400 shadow-lg shadow-violet-500/40'
+                  ? 'border-violet-500 bg-black text-violet-400 shadow-lg shadow-violet-500/40 scale-110'
                   : 'border-white/30 bg-black text-white/60'
               }`}
             >
@@ -174,17 +152,7 @@ export function LoopShowcase() {
         ))}
       </div>
 
-      {/* Active slide caption — title + description. Placed AFTER step indicator: changing height won't shift the animated block */}
-      <div
-        className={`text-center flex flex-col items-center gap-2 max-w-3xl mb-8 transition-opacity duration-700 ${
-          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
-        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
-      </div>
-
-      {/* Bottom 3 columns: label + sublabel, active clear, others blurred */}
+      {/* Bottom 3 columns: label + sublabel — DIRECTLY under animated block. Active clear, others blurred. */}
       <div className="w-full max-w-4xl mx-auto px-4">
         {/* Desktop: all 3 visible with blur on inactive */}
         <div className="hidden md:flex justify-between gap-8">
