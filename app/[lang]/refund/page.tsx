@@ -11,7 +11,7 @@ export default async function RefundPage({
 
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Refund Policy</h1>
-          <p className="text-sm text-white/40">Last updated: May 19, 2025</p>
+          <p className="text-sm text-white/40">Last updated: May 19, 2026</p>
         </div>
 
         <div className="flex flex-col gap-6 text-base text-white/70 leading-relaxed">
