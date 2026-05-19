@@ -1,28 +1,15 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Bot, Brain, Code2, Globe, Database, ShoppingBag } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { DomainStatus } from '@/components/domain-status'
 import { InstallForm } from '@/components/install-form'
-import { PlatformSelector } from '@/components/platform-selector'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
-import { getContent } from '@/lib/i18n/content'
-import { HeroContentCtx } from '@/lib/i18n/context'
-import { LoopShowcase } from '@/components/sections/loop-showcase'
-import { DoublePresentation } from '@/components/sections/double-presentation'
-import { PlatformsGrid } from '@/components/sections/platforms-grid'
-import { ProblemSection } from '@/components/sections/problem-section'
-import { FeaturesGrid } from '@/components/sections/features-grid'
-import { FractеraPromo } from '@/components/sections/fractera-promo'
-import { FaqSection } from '@/components/sections/faq-section'
-import { FractеraTestimonial } from '@/components/sections/testimonial'
-
-const HERO_BENEFIT_ICONS = [Bot, Brain, Code2, Globe, Database, ShoppingBag]
+import { useHeroContent } from '@/lib/i18n/context'
 
 type MyServer = {
   id: string
@@ -42,8 +29,8 @@ type Plan = {
   comingSoon?: boolean
 }
 
-export function HeroSection({ lang }: { lang?: string }) {
-  const content = getContent(lang ?? 'en')
+export function PricingFlow() {
+  const content = useHeroContent()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -57,10 +44,10 @@ export function HeroSection({ lang }: { lang?: string }) {
     { id: 'annual',  name: 'Fractera Pro + Server', sublabel: content.planLabels.annualSubLabel,  price: '$190', period: '/yr', badge: content.planLabels.bestValueBadge },
   ]
 
-  const [domainReady, setDomainReady] = useState(false)
+  const [, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
   const [installing, setInstalling] = useState(false)
-  const [installStarted, setInstallStarted] = useState(false)
+  const [, setInstallStarted] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(plans[0])
   const [poolAvailable, setPoolAvailable] = useState<number | null>(null)
   const domainResetRef = useRef<(() => void) | undefined>(undefined)
@@ -112,64 +99,7 @@ export function HeroSection({ lang }: { lang?: string }) {
   }, [session, pendingPlan]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HeroContentCtx.Provider value={content}>
-    <section className="flex flex-col gap-32 items-start">
-
-      {/* ── Hero fullscreen ── */}
-      <div className="relative min-h-screen overflow-hidden flex flex-col -mx-6 w-[calc(100%+3rem)]">
-        <video
-          className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
-          src="/video/ai-loop.mp4"
-          autoPlay loop muted playsInline
-        />
-        <div className="relative z-10 flex flex-col flex-1 min-h-screen">
-          <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-              <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">Open Source</span>
-            </div>
-            <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
-            <h1
-              className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl"
-              style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
-            >
-              {content.heroTitle}
-            </h1>
-            <p className="text-lg text-white/80 leading-relaxed max-w-xl">{content.description}</p>
-            <a
-              href="#pricing"
-              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30 mt-2"
-            >
-              {content.deployButton}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-
-          <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
-            {content.heroBenefitsHeader.h2}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
-            {content.heroBenefits.map(({ title, text }, i) => {
-              const Icon = HERO_BENEFIT_ICONS[i]
-              return (
-                <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Icon className="w-5 h-5 shrink-0 text-violet-400" />
-                    <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
-                  </div>
-                  <div className="mb-3 h-px w-12 bg-violet-500" />
-                  <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      <LoopShowcase />
-      <DoublePresentation />
-      <PlatformsGrid />
-
+    <>
       {/* ── Payment success ── */}
       {paymentSuccess && (
         <div className="w-full max-w-4xl flex flex-col gap-4 py-32">
@@ -237,8 +167,6 @@ export function HeroSection({ lang }: { lang?: string }) {
           </p>
         </div>
       )}
-
-      <ProblemSection />
 
       {/* ── Pricing ── */}
       {!paymentSuccess && (
@@ -385,21 +313,7 @@ export function HeroSection({ lang }: { lang?: string }) {
           </div>
         </div>
       )}
-
-      <div className="w-full max-w-4xl">
-        <PlatformSelector />
-      </div>
-
-      <FeaturesGrid />
-      <FractеraPromo />
-      <FaqSection />
-
-      <div className="mb-32 w-full flex justify-center">
-        <FractеraTestimonial />
-      </div>
-
-    </section>
-    </HeroContentCtx.Provider>
+    </>
   )
 }
 

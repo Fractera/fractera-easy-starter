@@ -1,7 +1,6 @@
-import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import { HeroSection } from '@/components/hero-section'
+import { HomeContent } from '@/components/home-content'
 import { getContent } from '@/lib/i18n/content'
 
 function buildFaqSchema(lang: string) {
@@ -44,10 +43,8 @@ export default async function HomePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFaqSchema(lang)) }}
       />
       <main className="min-h-screen bg-black text-white">
-        <div className="max-w-5xl mx-auto px-6 pb-20 flex flex-col gap-20">
-          <Suspense fallback={null}>
-            <HeroSection lang={lang} />
-          </Suspense>
+        <div className="max-w-5xl mx-auto px-6 pb-20">
+          <HomeContent lang={lang} />
         </div>
       </main>
     </>
