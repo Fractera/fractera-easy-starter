@@ -1,3 +1,5 @@
+import { LEGAL } from '@/config/legal'
+
 export default async function TermsPage({
   params,
 }: {
@@ -10,7 +12,7 @@ export default async function TermsPage({
       <div className="max-w-3xl mx-auto px-6 py-20 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
-          <p className="text-sm text-white/40">Last updated: May 19, 2026</p>
+          <p className="text-sm text-white/40">Last updated: {LEGAL.lastUpdated}</p>
         </div>
 
         <div className="flex flex-col gap-6 text-base text-white/70 leading-relaxed">
@@ -22,15 +24,15 @@ export default async function TermsPage({
               (&quot;Terms&quot;) and our{' '}
               <a href="./privacy" className="text-white underline hover:no-underline">Privacy Policy</a>.
               If you do not agree to these Terms, please do not use our services.
-              These Terms constitute a binding legal agreement between you and Fractera, Inc.
+              These Terms constitute a binding legal agreement between you and {LEGAL.companyName}
             </p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">2. About Fractera, Inc.</h2>
+            <h2 className="text-lg font-semibold text-white">2. About {LEGAL.companyName}</h2>
             <p>
-              Fractera, Inc. is a corporation incorporated under the laws of the State of Delaware,
-              United States (EIN: 35-2937218). We provide a platform for deploying and managing
+              {LEGAL.companyName} is a corporation incorporated under the laws of the State of Delaware,
+              United States (EIN: {LEGAL.ein}). We provide a platform for deploying and managing
               AI coding environments on your own server infrastructure.
             </p>
           </section>
@@ -38,7 +40,7 @@ export default async function TermsPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">3. Description of Service</h2>
             <p>
-              Fractera, Inc. provides a platform for deploying and managing AI coding environments
+              {LEGAL.companyName} provides a platform for deploying and managing AI coding environments
               on your own server infrastructure. We facilitate subdomain registration and server
               setup, but you retain full ownership and control of your server. We are not
               responsible for the content, security, or uptime of servers you provision.
@@ -51,8 +53,8 @@ export default async function TermsPage({
               You are responsible for maintaining the confidentiality of your account credentials
               and for all activities that occur under your account. You agree to notify us
               immediately at{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>{' '}
               of any unauthorized use of your account.
             </p>
@@ -80,7 +82,7 @@ export default async function TermsPage({
             <p>You agree not to use Fractera to:</p>
             <ul className="list-disc pl-5 flex flex-col gap-2">
               <li>Violate any applicable local, state, national, or international laws or regulations.</li>
-              <li>Infringe intellectual property rights of Fractera, Inc. or third parties.</li>
+              <li>Infringe intellectual property rights of {LEGAL.companyName} or third parties.</li>
               <li>Transmit harmful, unlawful, defamatory, or fraudulent content.</li>
               <li>Interfere with the proper functioning of our services or servers.</li>
               <li>Attempt to gain unauthorized access to our systems or other users&apos; accounts.</li>
@@ -91,7 +93,7 @@ export default async function TermsPage({
             <h2 className="text-lg font-semibold text-white">7. Intellectual Property</h2>
             <p>
               The Fractera platform, including its software, design, trademarks, and content,
-              is owned by Fractera, Inc. and protected by intellectual property laws. Your
+              is owned by {LEGAL.companyName} and protected by intellectual property laws. Your
               subscription grants you a limited, non-exclusive, non-transferable license to
               use the platform for your internal business purposes.
             </p>
@@ -100,7 +102,7 @@ export default async function TermsPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">8. Limitation of Liability</h2>
             <p>
-              To the maximum extent permitted by applicable law, Fractera, Inc. shall not be
+              To the maximum extent permitted by applicable law, {LEGAL.companyName} shall not be
               liable for any indirect, incidental, special, consequential, or punitive damages
               arising from your use of the service, including but not limited to loss of data,
               revenue, or service interruptions. Our total liability to you for any claim arising
@@ -124,8 +126,8 @@ export default async function TermsPage({
               We reserve the right to terminate or suspend your account at any time for material
               violations of these Terms, with or without notice. You may terminate your account
               at any time by contacting{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>.
               Upon termination, your right to use the service ceases immediately.
             </p>
@@ -135,7 +137,7 @@ export default async function TermsPage({
             <h2 className="text-lg font-semibold text-white">11. Governing Law and Dispute Resolution</h2>
             <p>
               These Terms are governed by and construed in accordance with the laws of the
-              State of <strong className="text-white">Delaware, United States</strong>,
+              State of <strong className="text-white">{LEGAL.companyState}, {LEGAL.companyCountry}</strong>,
               without regard to its conflict of law principles.
             </p>
             <p>
@@ -164,14 +166,14 @@ export default async function TermsPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">13. Contact</h2>
             <p>
-              Fractera, Inc.<br />
-              Incorporated in Delaware, United States<br />
-              EIN: 35-2937218
+              {LEGAL.companyName}<br />
+              Incorporated in {LEGAL.companyState}, {LEGAL.companyCountry}<br />
+              EIN: {LEGAL.ein}
             </p>
             <p>
               Legal inquiries:{' '}
-              <a href="mailto:legal@fractera.ai" className="text-white underline hover:no-underline">
-                legal@fractera.ai
+              <a href="mailto:{LEGAL.emails.legal}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.legal}
               </a>
             </p>
           </section>

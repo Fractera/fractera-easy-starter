@@ -1,3 +1,5 @@
+import { LEGAL } from '@/config/legal'
+
 export default async function RefundPage({
   params,
 }: {
@@ -11,7 +13,7 @@ export default async function RefundPage({
 
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Refund Policy</h1>
-          <p className="text-sm text-white/40">Last updated: May 19, 2026</p>
+          <p className="text-sm text-white/40">Last updated: {LEGAL.lastUpdated}</p>
         </div>
 
         <div className="flex flex-col gap-6 text-base text-white/70 leading-relaxed">
@@ -30,8 +32,8 @@ export default async function RefundPage({
             <p>
               You may cancel your subscription at any time from your account dashboard or by
               contacting us at{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>.
               Upon cancellation:
             </p>
@@ -60,8 +62,8 @@ export default async function RefundPage({
             </ul>
             <p>
               To request a refund under an exception, email{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>{' '}
               within 14 days of the charge with your account email and a description of the issue.
             </p>
@@ -86,8 +88,8 @@ export default async function RefundPage({
             </p>
             <p>
               To exercise your right of withdrawal, contact us at{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>{' '}
               with the subject line <em>"Right of Withdrawal"</em> before the 14-day period expires.
               Refunds will be issued within 14 days of receiving your withdrawal notice.
@@ -102,8 +104,8 @@ export default async function RefundPage({
               UK residents have a 14-day cancellation right for digital services purchased online,
               subject to the same conditions regarding early commencement of service described above.
               Contact{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>{' '}
               to exercise this right.
             </p>
@@ -145,8 +147,8 @@ export default async function RefundPage({
             <h2 className="text-lg font-semibold text-white">9. Contact</h2>
             <p>
               For refund requests or questions about this policy, contact us at{' '}
-              <a href="mailto:support@fractera.ai" className="text-white underline hover:no-underline">
-                support@fractera.ai
+              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.support}
               </a>.
               We aim to respond within 2 business days.
             </p>

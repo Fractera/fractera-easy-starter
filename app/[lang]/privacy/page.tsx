@@ -1,3 +1,5 @@
+import { LEGAL } from '@/config/legal'
+
 export default async function PrivacyPage({
   params,
 }: {
@@ -10,7 +12,7 @@ export default async function PrivacyPage({
       <div className="max-w-3xl mx-auto px-6 py-20 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
-          <p className="text-sm text-white/40">Last updated: May 19, 2026</p>
+          <p className="text-sm text-white/40">Last updated: {LEGAL.lastUpdated}</p>
         </div>
 
         <div className="flex flex-col gap-6 text-base text-white/70 leading-relaxed">
@@ -18,7 +20,7 @@ export default async function PrivacyPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">1. Introduction</h2>
             <p>
-              Fractera, Inc. (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), a Delaware corporation,
+              {LEGAL.companyName} (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), a {LEGAL.companyState} corporation,
               is committed to protecting your privacy. This Privacy Policy explains how we collect,
               use, disclose, and safeguard your information when you use our platform.
               Please read this policy carefully.
@@ -94,8 +96,8 @@ export default async function PrivacyPage({
               Our legal basis for processing is performance of a contract (subscription services)
               and legitimate interests (security, fraud prevention). To exercise your rights,
               contact{' '}
-              <a href="mailto:privacy@fractera.ai" className="text-white underline hover:no-underline">
-                privacy@fractera.ai
+              <a href="mailto:{LEGAL.emails.privacy}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.privacy}
               </a>.
               We will respond within 30 days.
             </p>
@@ -116,8 +118,8 @@ export default async function PrivacyPage({
             </ul>
             <p>
               To submit a CCPA request, contact us at{' '}
-              <a href="mailto:privacy@fractera.ai" className="text-white underline hover:no-underline">
-                privacy@fractera.ai
+              <a href="mailto:{LEGAL.emails.privacy}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.privacy}
               </a>{' '}
               or by mail at the address below. We will verify your identity before processing your request.
             </p>
@@ -154,14 +156,14 @@ export default async function PrivacyPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">11. Contact</h2>
             <p>
-              Fractera, Inc.<br />
-              Incorporated in Delaware, United States<br />
-              EIN: 35-2937218
+              {LEGAL.companyName}<br />
+              Incorporated in {LEGAL.companyState}, {LEGAL.companyCountry}<br />
+              EIN: {LEGAL.ein}
             </p>
             <p>
               Privacy inquiries:{' '}
-              <a href="mailto:privacy@fractera.ai" className="text-white underline hover:no-underline">
-                privacy@fractera.ai
+              <a href="mailto:{LEGAL.emails.privacy}" className="text-white underline hover:no-underline">
+                {LEGAL.emails.privacy}
               </a>
             </p>
           </section>
