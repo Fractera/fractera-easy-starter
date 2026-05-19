@@ -129,13 +129,29 @@ export const faqItems: FaqItem[] = [
   {
     q: 'Do you have a referral program?',
     a: [
-      'Yes — the Fractera Partner Program offers two ways to earn.',
-      "Type 1 — VPS referrals. Get an affiliate link from any VPS provider we list (Contabo, Hetzner, Netcup, DigitalOcean). Share it with us and we'll place it in the server block on the landing page. When a user clicks your link and buys a server, the provider pays you directly — Fractera is not involved in that transaction.",
-      'Type 2 — Fractera referrals. Share your personal Fractera referral link. When someone signs up and purchases a paid plan, you receive 50% of their first payment.',
+      'Yes — the Fractera Partner Program. The model is straightforward: VPS referrals.',
+      "Get an affiliate link from any of the four VPS providers we list (Contabo, Hetzner, Netcup, DigitalOcean) and submit it via the Partners page. We place your link in the recommended servers block on the landing page. When a user clicks through and buys a server, the provider pays your commission directly — Fractera is not involved in the transaction.",
     ],
     trail: [
-      "To join the program, register using the link on the Partners page. Once registered, you'll receive your personal referral link and instructions for submitting your VPS affiliate links.",
+      'To join, register on the Partners page. You will receive instructions for submitting your VPS affiliate links.',
       'For questions: admin@fractera.ai',
+    ],
+  },
+  {
+    q: 'How do I earn with Fractera?',
+    a: [
+      'Your income from partnership is closer and simpler than you might imagine. Five minutes of setup, then passive payouts for as long as your content keeps attracting viewers.',
+    ],
+    steps: [
+      'Sign up as an affiliate with one — or all four — of our recommended VPS providers: Contabo, Hetzner, Netcup, DigitalOcean. A few minutes per provider.',
+      'Open the Partner Program tab on the Partners page, create your partner account, and submit your referral links.',
+      'You receive a personal link to a co-branded version of the Fractera site.',
+      'Recommend Fractera through your blog, YouTube channel, social posts — anywhere developers gather.',
+      'Any visitor who follows your link and wants to try Fractera buys a VPS from the hosting provider first.',
+      'When they click Buy Server, the hosting provider locks your affiliate link and pays the commission directly to you — Fractera is never in the middle.',
+    ],
+    trail: [
+      'The math is simple: five minutes of setup, then passive payouts for as long as your article, post, or video keeps bringing traffic. VPS providers compete hard for new customers — and you get rewarded for every one you bring into their ecosystem.',
     ],
   },
   {
