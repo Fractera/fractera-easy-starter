@@ -5,12 +5,7 @@ import { Server, Globe, Rocket } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
 const ICONS = [Server, Globe, Rocket]
-const GRADIENTS = [
-  'from-violet-900/40 via-violet-700/20 to-purple-950/40',
-  'from-blue-900/40 via-cyan-700/20 to-blue-950/40',
-  'from-amber-900/40 via-yellow-700/20 to-orange-950/40',
-]
-const ACCENTS = ['violet', 'cyan', 'amber'] as const
+const GRADIENT = 'from-violet-900/40 via-violet-700/20 to-purple-950/40'
 const PLACEHOLDER_LABELS = [
   'Your Own Server diagram',
   'Your Own Domain diagram',
@@ -68,16 +63,6 @@ export function LoopShowcase() {
   }
   const handleCirclePointerUp = () => setIsPausedByPress(false)
 
-  const activeAccent = ACCENTS[currentStepIndex]
-  const accentBorder =
-    activeAccent === 'violet' ? 'border-violet-500/60 shadow-violet-500/[0.12]' :
-    activeAccent === 'cyan'   ? 'border-cyan-500/60 shadow-cyan-500/[0.12]' :
-                                'border-amber-500/60 shadow-amber-500/[0.12]'
-  const activeAccentText =
-    activeAccent === 'violet' ? 'text-violet-400' :
-    activeAccent === 'cyan'   ? 'text-cyan-400' :
-                                'text-amber-400'
-
   const getCircleLeft = (index: number) => {
     if (totalSteps === 3) {
       if (index === 0) return '60px'
@@ -109,26 +94,21 @@ export function LoopShowcase() {
         </p>
       </div>
 
-      {/* Image area — placeholder gradient with icon, fades on switch */}
+      {/* Image area — placeholder gradient with icon, fades on switch. All accents unified to violet. */}
       <div
-        className={`relative w-full aspect-[16/9] max-w-4xl mx-auto mb-8 rounded-2xl border-2 ${accentBorder} overflow-hidden shadow-2xl transition-all duration-300`}
+        className="relative w-full aspect-[16/9] max-w-4xl mx-auto mb-8 rounded-2xl border-2 border-violet-500/60 shadow-violet-500/[0.12] overflow-hidden shadow-2xl"
       >
         {slides.map((_, index) => {
           const Icon = ICONS[index]
-          const gradient = GRADIENTS[index]
-          const accentText =
-            ACCENTS[index] === 'violet' ? 'text-violet-400' :
-            ACCENTS[index] === 'cyan'   ? 'text-cyan-400' :
-                                          'text-amber-400'
           const isActive = index === currentStepIndex
           const opacity = isActive && imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
           return (
             <div
               key={index}
-              className={`absolute inset-0 bg-gradient-to-br ${gradient} flex flex-col items-center justify-center gap-4 transition-opacity duration-700 ${opacity}`}
+              className={`absolute inset-0 bg-gradient-to-br ${GRADIENT} flex flex-col items-center justify-center gap-4 transition-opacity duration-700 ${opacity}`}
             >
-              <Icon className={`w-24 h-24 ${accentText} opacity-80`} strokeWidth={1.5} />
-              <p className={`text-sm font-mono font-bold ${accentText} uppercase tracking-widest opacity-70`}>
+              <Icon className="w-24 h-24 text-violet-400 opacity-80" strokeWidth={1.5} />
+              <p className="text-sm font-mono font-bold text-violet-400 uppercase tracking-widest opacity-70">
                 {PLACEHOLDER_LABELS[index]}
               </p>
               <p className="text-xs text-white/40 italic">placeholder — image coming soon</p>
