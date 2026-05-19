@@ -5,8 +5,9 @@ type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSec
 export const pricing: PricingPart = {
   pricingHeader: {
     label: 'Get Started',
-    h2: 'Deploy Private AI Infrastructure: Choose Your Stack',
-    description: 'One-click deployment with a server included, or install on your own VPS — both give you the full Fractera environment.',
+    h2: 'Deploy Private AI Infrastructure on Your Own Server',
+    // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: оригинал — 'One-click deployment with a server included, or install on your own VPS — both give you the full Fractera environment.'
+    description: 'Install Fractera on your own VPS and get the full AI development environment — completely free and open source.',
   },
 
   planLabels: {

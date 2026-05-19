@@ -5,8 +5,9 @@ type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSec
 export const pricing: PricingPart = {
   pricingHeader: {
     label: 'Начать',
-    h2: 'Разверните приватную AI-инфраструктуру: выберите стек',
-    description: 'Деплой в один клик с включённым сервером или установка на собственный VPS — оба варианта дают полную среду Fractera.',
+    h2: 'Разверните приватную AI-инфраструктуру на своём сервере',
+    // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: оригинал — 'Деплой в один клик с включённым сервером или установка на собственный VPS — оба варианта дают полную среду Fractera.'
+    description: 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно и open source.',
   },
 
   planLabels: {

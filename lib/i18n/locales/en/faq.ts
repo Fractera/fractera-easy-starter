@@ -65,7 +65,8 @@ export const faqItems: FaqItem[] = [
       'This loop repeats as many times as you want. Every product stays yours — on your server, under your domain, your code, your data, your subscriptions.',
     ],
   },
-  {
+  // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос о переходе с платного плана скрыт
+  /* {
     q: 'Can I switch from the paid plan to free self-hosting later?',
     a: ["Yes — at any time. Here's the recommended migration path:"],
     steps: [
@@ -75,7 +76,7 @@ export const faqItems: FaqItem[] = [
       'Import your database and file storage, then verify the app works end-to-end.',
       'Point your custom domain to the new server, then cancel your subscription.',
     ],
-  },
+  }, */
   {
     q: 'Can I bring my existing project into Fractera and continue AI-assisted development?',
     a: ["Yes. Connect your existing GitHub repository to your Fractera workspace and start coding with AI immediately. Depending on your project's complexity, some initial migration steps may be needed — Fractera's built-in AI assistants can guide you through."],
@@ -88,14 +89,15 @@ export const faqItems: FaqItem[] = [
       'Also keep in mind that Vercel and cloud storage pricing can escalate quickly under real-world traffic. Migrating back to a self-hosted Fractera server is straightforward — your code is already on GitHub.',
     ],
   },
-  {
+  // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: раздел о платных тарифах скрыт
+  /* {
     q: 'Pricing and plans — details',
     a: [
       'Fractera is open-source — you can self-host and run it entirely on your own infrastructure at no cost.',
       'Deploying with our tools gives you Fractera Lite, which covers roughly 90% of everything you need to build and ship a professional application.',
       'Need the fastest path to a live environment? Our hosted plan includes the server, full Fractera Pro, and everything pre-configured — $25/month or $199/year.',
     ],
-  },
+  }, */
   {
     q: 'Can I combine local development with the Fractera production platform?',
     a: [
@@ -113,7 +115,8 @@ export const faqItems: FaqItem[] = [
       'Your local environment will continue to use the database and file storage that live on your server — no cloud subscriptions required.',
     ],
   },
-  {
+  // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос о White Label ($100) скрыт
+  /* {
     q: 'Can I remove the "Powered by Fractera" branding from my site?',
     a: ['Yes — White Label is a one-time $100 purchase per server. After payment, the Fractera branding is removed automatically and permanently.'],
     bullets: [
@@ -125,7 +128,7 @@ export const faqItems: FaqItem[] = [
       'To purchase, open your Dashboard, select the server, and click "Remove Fractera branding".',
       'Tip: after removal, open your site in an incognito window to confirm the footer is gone — your main browser may show a cached version.',
     ],
-  },
+  }, */
   {
     q: 'Do you have a referral program?',
     a: [
@@ -154,7 +157,8 @@ export const faqItems: FaqItem[] = [
       'The math is simple: five minutes of setup, then passive payouts for as long as your article, post, or video keeps bringing traffic. VPS providers compete hard for new customers — and you get rewarded for every one you bring into their ecosystem.',
     ],
   },
-  {
+  // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос об удалении сервера упоминает платную подписку и White Label
+  /* {
     q: 'What happens when I delete my server?',
     a: ['Deleting a server from your dashboard stops all Fractera services, removes the installation from the VPS, and releases your subdomain. The VPS itself is not deleted.'],
     bullets: [
@@ -163,5 +167,5 @@ export const faqItems: FaqItem[] = [
       'Your free (self-hosted) subscription is cancelled automatically when the server is deleted.',
     ],
     trail: ['If you deleted your server by mistake and need to restore White Label without paying again, contact support@fractera.ai'],
-  },
+  }, */
 ]

@@ -67,6 +67,8 @@ export function SiteHeader() {
                       </div>
                       {!isAdmin && (
                         <>
+                          {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Subscription скрыта для позиционирования как бесплатного open-source проекта */}
+                          {false && (
                           <button
                             type="button"
                             onClick={() => { setMenuOpen(false); openSubscription() }}
@@ -78,6 +80,7 @@ export function SiteHeader() {
                             </svg>
                             Subscription
                           </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => { setMenuOpen(false); openServers() }}
@@ -91,6 +94,8 @@ export function SiteHeader() {
                             </svg>
                             Servers
                           </button>
+                          {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Purchases скрыта */}
+                          {false && (
                           <button
                             type="button"
                             onClick={() => { setMenuOpen(false); openPurchases() }}
@@ -103,6 +108,7 @@ export function SiteHeader() {
                             </svg>
                             Purchases
                           </button>
+                          )}
                           <div className="h-px bg-white/20 my-1" />
                         </>
                       )}

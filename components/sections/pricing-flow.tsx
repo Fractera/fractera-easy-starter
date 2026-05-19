@@ -36,7 +36,8 @@ export function PricingFlow() {
   const router = useRouter()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const { openModal } = useAuthModal()
-  const { openServers, openWhiteLabel } = useDashboard()
+  const { openServers } = useDashboard()
+  // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: openWhiteLabel убрана отсюда — была передана в InstallForm как onWhiteLabel для кнопки White Label ($100)
   const { openCheckout } = useCheckout()
 
   const plans: Plan[] = [
@@ -101,7 +102,8 @@ export function PricingFlow() {
   return (
     <>
       {/* ── Payment success ── */}
-      {paymentSuccess && (
+      {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная стратегия развёртывания временно скрыта для позиционирования проекта как полностью бесплатного и open-source */}
+      {false && paymentSuccess && (
         <div className="w-full max-w-4xl flex flex-col gap-4 py-32">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-lg">✓</span>
@@ -169,7 +171,7 @@ export function PricingFlow() {
       )}
 
       {/* ── Pricing ── */}
-      {!paymentSuccess && (
+      {(
         <div className="w-full max-w-4xl flex flex-col gap-6">
           <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
             <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
@@ -179,8 +181,9 @@ export function PricingFlow() {
             <p className="max-w-xl text-base text-white/60">{content.pricingHeader.description}</p>
           </div>
 
-          <div id="pricing" className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-            {/* Paid card */}
+          <div id="pricing" className="grid grid-cols-1 gap-6 items-stretch">
+            {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная карточка «Fractera Pro + Server» ($25/мес, $190/год) временно скрыта */}
+            {false && (
             <div className="flex flex-col gap-5 rounded-2xl p-6 bg-gradient-to-br from-violet-950/70 via-violet-900/30 to-black/60"
               style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(139,92,246,0.7)' }}>
               <div className="flex items-center gap-2">
@@ -228,6 +231,7 @@ export function PricingFlow() {
                 <p className="text-sm text-white/50 text-center -mt-2">{content.planLabels.signInPrompt}</p>
               )}
             </div>
+            )}
 
             {/* Free card */}
             <div id="light-card" className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60"
@@ -249,10 +253,10 @@ export function PricingFlow() {
                 </li>
               </ul>
               {session ? (
+                // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: onWhiteLabel скрыт — убирает кнопку "Remove Fractera branding — $100"
                 <InstallForm
                   onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
                   onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
-                  onWhiteLabel={openWhiteLabel}
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}

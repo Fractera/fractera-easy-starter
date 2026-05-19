@@ -14,7 +14,7 @@ export const install: InstallPart = {
     label: 'Your current access',
     h2: 'Your personal workspace',
     description:
-      'Use these links to open your project. Remember that you can always find all your active servers, subscriptions, and purchases in your Dashboard — available from the top-right corner after signing in.',
+      'Use these links to open your project. Remember that you can always find all your active servers in your Dashboard — available from the top-right corner after signing in.',
   },
 
   installForm: {
@@ -51,7 +51,7 @@ export const install: InstallPart = {
       title: 'Your server has been successfully deployed',
       siteLabel: 'Your site',
       adminLabel: 'Admin panel',
-      dashboardNote: 'All your servers and subscription details are available in your Dashboard — accessible from the top-right corner of the page after signing in.',
+      dashboardNote: 'All your servers are available in your Dashboard — accessible from the top-right corner of the page after signing in.',
       checkboxLabel: 'I understand',
       closeButton: 'Close',
     },
