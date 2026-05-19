@@ -108,16 +108,6 @@ export function LoopShowcase() {
         })}
       </div>
 
-      {/* Active slide caption — title + description. Placed ABOVE animated block per user request. */}
-      <div
-        className={`text-center flex flex-col items-center gap-2 max-w-3xl mb-6 transition-opacity duration-700 ${
-          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
-        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
-      </div>
-
       {/* Animated step indicator — fixed h-10. Progress line uses CSS keyframes (always visible, GPU-accelerated). */}
       <div className="relative w-full max-w-4xl mx-auto h-12 mb-4">
         {/* Base line — full width, gray */}
@@ -153,7 +143,7 @@ export function LoopShowcase() {
       </div>
 
       {/* Bottom 3 columns: label + sublabel — DIRECTLY under animated block. Active clear, others blurred. */}
-      <div className="w-full max-w-4xl mx-auto px-4">
+      <div className="w-full max-w-4xl mx-auto px-4 mb-8">
         {/* Desktop: all 3 visible with blur on inactive */}
         <div className="hidden md:flex justify-between gap-8">
           {slides.map((slide, index) => (
@@ -180,6 +170,16 @@ export function LoopShowcase() {
             <p className="text-sm text-white/60 leading-relaxed">{activeSlide.sublabel}</p>
           </div>
         </div>
+      </div>
+
+      {/* Active slide caption — title + description. Placed BELOW the entire animated group (steps + 3-col blur). */}
+      <div
+        className={`text-center flex flex-col items-center gap-2 max-w-3xl transition-opacity duration-700 ${
+          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
+        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
       </div>
     </section>
   )
