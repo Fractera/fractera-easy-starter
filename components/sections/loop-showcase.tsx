@@ -190,7 +190,7 @@ export function LoopShowcase() {
               }`}
             >
               <h4 className="text-lg font-bold text-white mb-2">{slide.label}</h4>
-              <p className="text-sm text-white/60 leading-relaxed">{slide.sublabel}</p>
+              <p className="text-sm text-violet-400 leading-relaxed">{slide.sublabel}</p>
             </div>
           ))}
         </div>
@@ -203,7 +203,7 @@ export function LoopShowcase() {
             }`}
           >
             <h4 className="text-lg font-bold text-white mb-2">{activeSlide.label}</h4>
-            <p className="text-sm text-white/60 leading-relaxed">{activeSlide.sublabel}</p>
+            <p className="text-sm text-violet-400 leading-relaxed">{activeSlide.sublabel}</p>
           </div>
         </div>
       </div>
@@ -214,7 +214,7 @@ export function LoopShowcase() {
           imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
+        <h3 className="text-xl md:text-2xl font-bold text-white">{activeSlide.title}</h3>
         <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
       </div>
     </section>
