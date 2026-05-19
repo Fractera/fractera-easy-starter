@@ -49,11 +49,29 @@ export const hero: HeroPart = {
   ],
 
   heroBenefits: [
-    { title: 'Hermes — AI Orchestrator',  text: 'Runs on subscriptions — Claude Code, Codex, Gemini CLI. Zero API spend for everyday coding. Switch to API mode for fully autonomous, hands-free workflows.' },
-    { title: 'LightRAG — Company Brain',  text: 'Persistent vector memory shared across all five AI platforms. Your codebase, every decision, every pattern — always in context. No more starting from scratch each session.' },
-    { title: 'Five Coding Platforms',     text: 'Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code — all on subscription. No API keys. No per-token billing. Switch platforms without losing your project thread.' },
-    { title: 'Your Server & Domain',      text: 'A dedicated VPS only you control. Your personal domain — provisioned and fully configured automatically. SSL, DNS, Nginx — ready before you write a single line of code.' },
-    { title: 'Auth, Storage & Database',  text: 'Google OAuth, magic-link, SQLite, file storage, and vector store — pre-configured on your server. No Clerk. No Supabase. No extra invoices. Everything owned by you.' },
-    { title: 'Sell Your Skills',          text: 'Solved something hard? Package your workflow as a skill and sell it on the marketplace. Others pay for your solution — not your time. Your best work earns while you sleep.' },
+    {
+      title: 'Hermes Orchestrator: Multi-Model Loops',
+      text: 'Hermes Agent by Nous Research, deployed and configured on your VPS. Coordinates Claude Code, Codex, and Gemini CLI through shared context. Switch to API mode for autonomous agentic workflows that run without your input — every loop refines the next.',
+    },
+    {
+      title: 'LightRAG: Persistent Memory for AI Agents',
+      text: 'A persistent vector store by HKUDS, shared across all five coding platforms. Your codebase, every architectural decision, every solved problem — always in context. No more starting each AI session from scratch. The company brain that compounds with every iteration.',
+    },
+    {
+      title: 'Five AI Coding Platforms, One Server',
+      text: 'Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code — all preconfigured on your server. Run on your existing AI subscriptions. No API keys to manage, no per-token billing. Switch platforms mid-task without losing your project context — LightRAG keeps the thread.',
+    },
+    {
+      title: 'Your Own VPS, Your Own Domain',
+      text: 'Dedicated Ubuntu 24.04 VPS configured automatically. Custom domain provisioned, SSL issued, Nginx routed — before you write the first line of code. Tested providers: Contabo, Hetzner, Netcup, DigitalOcean. 4 cores and 6 GB RAM is the minimum we recommend.',
+    },
+    {
+      title: 'Database, Storage, Auth — Built In',
+      text: 'Google OAuth, magic-link email, SQLite with WAL mode, file storage, and vector store — preconfigured on your server. No Clerk subscription, no Supabase invoice, no separate email provider. One stack, owned by you, billed once through your VPS provider.',
+    },
+    {
+      title: 'Monetize AI Workflows via Skills Marketplace',
+      text: 'Package the workflows you\'ve solved into reusable AI Skills. Sell them in the community marketplace, share them free, or buy battle-tested recipes from other builders. Your AI infrastructure becomes a passive revenue stream — your best work earns while you sleep.',
+    },
   ],
 }
