@@ -66,12 +66,11 @@ function LanguageSwitcherInner() {
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all"
-        title="Switch language"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-violet-500/60 text-white/80 hover:text-white hover:border-violet-400 hover:bg-violet-500/10 transition-all"
+        title={currentMeta?.englishName ?? 'Switch language'}
       >
-        <Languages size={15} />
-        <span className="text-base leading-none">{currentMeta?.flag ?? '🌐'}</span>
-        <span className="font-medium uppercase tracking-wide text-xs">{currentLang}</span>
+        <Languages size={14} />
+        <span className="font-semibold uppercase tracking-wider text-xs">{currentLang}</span>
       </button>
 
       {open && (
