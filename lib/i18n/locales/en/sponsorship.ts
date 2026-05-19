@@ -23,7 +23,7 @@ export const sponsorship: SponsorshipPart = {
     perksTitle: 'What sponsors get',
     perks: [
       'Your email listed on the Sponsors page (here and on GitHub)',
-      'Priority response to GitHub issues you open',
+      'Access to a private Telegram group for sponsors',
       'Direct line to share feature requests',
     ],
   },

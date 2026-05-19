@@ -78,8 +78,8 @@ export default async function HomePage({
 
               <FeaturesGrid />
               <FractеraPromo />
-              <FaqSection />
               <SponsorshipSection />
+              <FaqSection />
 
               <div className="mb-32 w-full flex justify-center">
                 <FractеraTestimonial />

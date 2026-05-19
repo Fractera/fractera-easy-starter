@@ -252,6 +252,16 @@ export async function sendSponsorThankYouEmail(to: string, tier: 's1' | 's5' | '
           </ul>
         </div>
 
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:20px;margin:24px 0;text-align:center">
+          <p style="margin:0 0 8px;font-size:11px;color:#1e40af;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Join the private Telegram group</p>
+          <p style="margin:0 0 14px;color:#1e3a8a;line-height:1.6;font-size:14px">
+            A closed group for Fractera sponsors — roadmap previews, early features, and direct chat with the team.
+          </p>
+          <a href="https://t.me/+7TABWdWliKBiYmI8" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 22px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px">
+            Join Telegram →
+          </a>
+        </div>
+
         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:24px 0">
           <p style="margin:0 0 8px;font-size:11px;color:#374151;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">We're in touch</p>
           <p style="margin:0;color:#374151;line-height:1.7;font-size:14px">
