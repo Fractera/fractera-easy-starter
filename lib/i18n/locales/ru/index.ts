@@ -6,6 +6,7 @@ import { pricing } from './pricing'
 import { install } from './install'
 import { features } from './features'
 import { faqItems } from './faq'
+import { sponsorship } from './sponsorship'
 
 export const ru: SiteContent = {
   ...hero,
@@ -14,5 +15,6 @@ export const ru: SiteContent = {
   ...pricing,
   ...install,
   ...features,
+  ...sponsorship,
   faqItems,
 }

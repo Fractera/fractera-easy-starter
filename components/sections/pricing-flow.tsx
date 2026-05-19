@@ -110,9 +110,9 @@ export function PricingFlow() {
             <p className="text-sm font-semibold text-green-400">Payment confirmed</p>
           </div>
 
-          {myServer?.status === 'active' && (myServer.subdomain || stripeSubdomain) && (
+          {myServer?.status === 'active' && (myServer!.subdomain || stripeSubdomain) && (
             <>
-              <ServerLinks subdomain={(stripeSubdomain ?? myServer.subdomain)!} email={session?.user?.email ?? ''} />
+              <ServerLinks subdomain={(stripeSubdomain ?? myServer!.subdomain)!} email={session?.user?.email ?? ''} />
               <div className="flex flex-wrap gap-3">
                 <button type="button" onClick={openServers}
                   className="text-base font-semibold text-white hover:text-white border border-white/40 hover:border-white/60 px-4 py-2 rounded-lg transition-colors">
@@ -126,9 +126,9 @@ export function PricingFlow() {
             </>
           )}
 
-          {myServer && myServer.status !== 'active' && myServer.deploySessionId && (
+          {myServer && myServer!.status !== 'active' && myServer!.deploySessionId && (
             <DeployProgress
-              sessionId={myServer.deploySessionId}
+              sessionId={myServer!.deploySessionId!}
               onComplete={sub => {
                 setStripeSubdomain(sub)
                 setMyServer(prev => prev ? { ...prev, status: 'active', subdomain: sub } : prev)
@@ -209,7 +209,7 @@ export function PricingFlow() {
                   Checking availability…
                 </div>
               )}
-              {poolAvailable !== null && poolAvailable > 0 && (
+              {poolAvailable !== null && poolAvailable! > 0 && (
                 <button type="button" onClick={handleOneClick}
                   className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30">
                   {content.planLabels.subscribeButton.replace('{price}', selectedPlan.price ?? '')}

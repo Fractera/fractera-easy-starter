@@ -17,7 +17,10 @@ const DashboardCtx = createContext({
 })
 export const useDashboard = () => useContext(DashboardCtx)
 
-const CheckoutCtx = createContext({ openCheckout: (_plan: string) => {} })
+const CheckoutCtx = createContext({
+  openCheckout: (_plan: string) => {},
+  openSponsorCheckout: (_tier: string) => {},
+})
 export const useCheckout = () => useContext(CheckoutCtx)
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -26,6 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' | 'purchases' }>({ open: false, view: 'servers' })
   const [checkoutState, setCheckoutState] = useState<{ open: boolean; planId: string }>({ open: false, planId: 'monthly' })
   const [wlState, setWlState] = useState<{ open: boolean; serverTokenId: string | null }>({ open: false, serverTokenId: null })
+  const [sponsorState, setSponsorState] = useState<{ open: boolean; tier: string }>({ open: false, tier: 's5' })
 
   const openModal = useCallback((plan?: string) => {
     setPendingPlan(plan)
@@ -37,12 +41,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const openPurchases = useCallback(() => setDashboardState({ open: true, view: 'purchases' }), [])
   const openWhiteLabel = useCallback((id: string) => setWlState({ open: true, serverTokenId: id }), [])
   const openCheckout = useCallback((plan: string) => setCheckoutState({ open: true, planId: plan }), [])
+  const openSponsorCheckout = useCallback((tier: string) => setSponsorState({ open: true, tier }), [])
 
   return (
     <SessionProvider>
       <AuthModalCtx.Provider value={{ openModal }}>
         <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases, openWhiteLabel }}>
-          <CheckoutCtx.Provider value={{ openCheckout }}>
+          <CheckoutCtx.Provider value={{ openCheckout, openSponsorCheckout }}>
             {children}
             <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} pendingPlan={pendingPlan} />
             <DashboardModal
@@ -56,6 +61,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
               open={wlState.open}
               serverTokenId={wlState.serverTokenId ?? undefined}
               onClose={() => setWlState({ open: false, serverTokenId: null })}
+            />
+            <CheckoutDrawer
+              open={sponsorState.open}
+              sponsorTier={sponsorState.tier}
+              onClose={() => setSponsorState(s => ({ ...s, open: false }))}
             />
           </CheckoutCtx.Provider>
         </DashboardCtx.Provider>

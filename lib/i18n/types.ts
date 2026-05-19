@@ -90,6 +90,19 @@ export type SiteContent = {
   faqHeader: { label: string; h2: string; description: string }
   faqItems: FaqItem[]
   testimonial: { blogButton: string; casesButton: string; marketplaceButton: string }
+  sponsorship: {
+    label: string
+    h2: string
+    body: string[]
+    tiers: { id: 's1' | 's5' | 's20'; amount: string; period: string; sublabel: string; badge?: string }[]
+    sponsorButton: string
+    signInPrompt: string
+    signInButton: string
+    thankYouTitle: string
+    thankYouBody: string
+    perksTitle: string
+    perks: string[]
+  }
 }
 
 export type SiteMeta = {

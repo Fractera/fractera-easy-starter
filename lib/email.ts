@@ -225,6 +225,50 @@ export async function sendInstallProgressEmail(to: string) {
   })
 }
 
+export async function sendSponsorThankYouEmail(to: string, tier: 's1' | 's5' | 's20') {
+  const tierLabel = tier === 's1' ? '$1/month' : tier === 's5' ? '$5/month' : '$20/month'
+  await resend.emails.send({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: 'Thank you for sponsoring Fractera 💛',
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#111">
+        <div style="text-align:center;font-size:56px;line-height:1;margin-bottom:16px">💛</div>
+        <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;text-align:center;color:#111">
+          Thank you for becoming a sponsor!
+        </h1>
+
+        <p style="margin:0 0 20px;color:#333;line-height:1.7;font-size:16px;text-align:center">
+          Your <strong>${tierLabel}</strong> support means the world to me — Fractera is built by one person, and every sponsor is a real boost.
+        </p>
+
+        <div style="background:linear-gradient(135deg,#fef9c3 0%,#fef3c7 100%);border:1px solid #fcd34d;border-radius:14px;padding:20px;margin:24px 0">
+          <p style="margin:0 0 8px;font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">What happens next</p>
+          <ul style="margin:0;padding-left:18px;color:#1f2937;line-height:1.8;font-size:14px">
+            <li>Your email will be listed on the <strong>Sponsors</strong> page here on fractera.ai</li>
+            <li>You'll be added to the public Sponsors section in our GitHub repository</li>
+            <li>You can manage or cancel your subscription anytime from the Dashboard</li>
+          </ul>
+        </div>
+
+        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:24px 0">
+          <p style="margin:0 0 8px;font-size:11px;color:#374151;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">We're in touch</p>
+          <p style="margin:0;color:#374151;line-height:1.7;font-size:14px">
+            If you have ideas, feature requests, or wishes for the project —
+            <strong>just reply to this email</strong>. Your message lands directly with me, and I read every one personally.
+          </p>
+        </div>
+
+        <p style="margin:32px 0 0;color:#6b7280;line-height:1.6;font-size:13px;text-align:center">
+          With sincere gratitude,<br>
+          <strong style="color:#111">The Fractera team</strong>
+        </p>
+      </div>
+    `,
+  })
+}
+
 export async function sendCancellationEmail(to: string) {
   await resend.emails.send({
     from: FROM,

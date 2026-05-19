@@ -35,6 +35,17 @@ type SaleRecord = {
   subscriptionStatus: string | null
 }
 
+type SponsorRow = {
+  id: string
+  tier: 's1' | 's5' | 's20'
+  email: string | null
+  status: string
+  firstPaymentAt: string | null
+  lastPaymentAt: string | null
+  paymentsCount: number
+  createdAt: string
+}
+
 // ─── Таймер с момента начала bootstrap ───────────────────────────────────────
 
 function ElapsedTimer({ startedAt }: { startedAt: number }) {
@@ -92,6 +103,7 @@ export default function AdminPage() {
   const [addLoading, setAddLoading] = useState(false)
   const [addError, setAddError] = useState('')
   const [counts, setCounts] = useState({ ready: 0, provisioning: 0, pending: 0 })
+  const [sponsors, setSponsors] = useState<SponsorRow[]>([])
   const [bootstrapping, setBootstrapping] = useState<Set<string>>(new Set())
   const [recovering, setRecovering] = useState<Set<string>>(new Set())
   const [resetting, setResetting] = useState<Set<string>>(new Set())
@@ -127,6 +139,12 @@ export default function AdminPage() {
     setQueued(await res.json())
   }
 
+  async function loadSponsors() {
+    const res = await fetch('/api/admin/sponsors')
+    if (!res.ok) return
+    setSponsors(await res.json())
+  }
+
   useEffect(() => {
     if (status === 'unauthenticated') { router.replace('/'); return }
     if (status === 'loading') return
@@ -134,10 +152,12 @@ export default function AdminPage() {
 
     loadServers()
     loadQueued()
+    loadSponsors()
 
     const id = setInterval(() => {
       loadServers()
       loadQueued()
+      loadSponsors()
     }, 5000)
 
     return () => clearInterval(id)
@@ -739,7 +759,99 @@ export default function AdminPage() {
           )}
         </section>
 
+        {/* ─── Спонсоры ─────────────────────────────────────────────────────── */}
+        <SponsorsTab sponsors={sponsors} fmtDateTime={fmtDateTime} />
+
       </div>
     </main>
+  )
+}
+
+// ─── Sponsors tab ──────────────────────────────────────────────────────────────
+
+const TIER_META: Record<'s1' | 's5' | 's20', { label: string; amount: string; color: string }> = {
+  s1:  { label: '$1/мес',  amount: '$1',  color: 'border-yellow-500/30 bg-yellow-500/[0.04]' },
+  s5:  { label: '$5/мес',  amount: '$5',  color: 'border-yellow-500/50 bg-yellow-500/[0.08]' },
+  s20: { label: '$20/мес', amount: '$20', color: 'border-yellow-500/70 bg-yellow-500/[0.12]' },
+}
+
+function SponsorsTab({ sponsors, fmtDateTime }: {
+  sponsors: SponsorRow[]
+  fmtDateTime: (s: string | null) => string
+}) {
+  const tiers: Array<'s1' | 's5' | 's20'> = ['s1', 's5', 's20']
+
+  const grouped = tiers.map(tier => ({
+    tier,
+    rows: sponsors.filter(s => s.tier === tier),
+  }))
+
+  const totalActive = sponsors.filter(s => s.status === 'active').length
+  const totalMrr = sponsors
+    .filter(s => s.status === 'active')
+    .reduce((acc, s) => acc + (s.tier === 's1' ? 1 : s.tier === 's5' ? 5 : 20), 0)
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-sm font-mono font-bold text-yellow-400 uppercase tracking-widest">Спонсоры</h2>
+        <div className="flex gap-3 text-xs text-white">
+          <span>Активных: <strong className="text-yellow-400">{totalActive}</strong></span>
+          <span>MRR: <strong className="text-yellow-400">${totalMrr}</strong></span>
+        </div>
+      </div>
+
+      {grouped.map(({ tier, rows }) => {
+        const meta = TIER_META[tier]
+        return (
+          <div key={tier} className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <span className={`text-xs font-mono font-bold text-yellow-300 px-3 py-1 rounded-full border ${meta.color} uppercase tracking-widest`}>
+                {meta.label}
+              </span>
+              <span className="text-xs text-white/50">{rows.length} {rows.length === 1 ? 'спонсор' : 'спонсоров'}</span>
+            </div>
+
+            {rows.length === 0 ? (
+              <div className="bg-white/[0.02] border border-white/15 rounded-2xl p-4 text-sm text-white/40 text-center">
+                Пока нет спонсоров на этом тире
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-white/40">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/40 text-xs text-white font-bold uppercase tracking-widest">
+                      <th className="text-left px-4 py-3 font-normal">Email</th>
+                      <th className="text-left px-4 py-3 font-normal">Первый платёж</th>
+                      <th className="text-left px-4 py-3 font-normal">Последний платёж</th>
+                      <th className="text-left px-4 py-3 font-normal">Всего платежей</th>
+                      <th className="text-left px-4 py-3 font-normal">Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map(s => (
+                      <tr key={s.id} className="border-b border-white/25 last:border-0 hover:bg-white/[0.02]">
+                        <td className="px-4 py-3 text-white font-semibold">{s.email ?? '—'}</td>
+                        <td className="px-4 py-3 text-white font-medium">{fmtDateTime(s.firstPaymentAt)}</td>
+                        <td className="px-4 py-3 text-white font-medium">{fmtDateTime(s.lastPaymentAt)}</td>
+                        <td className="px-4 py-3 font-mono text-white font-bold">{s.paymentsCount}</td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs px-1.5 py-0.5 rounded border ${
+                            s.status === 'active' ? 'text-green-400 border-green-500/30 bg-green-500/10' :
+                            s.status === 'past_due' || s.status === 'unpaid' ? 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10' :
+                            s.status === 'canceled' ? 'text-white/30 border-white/10' :
+                            'text-white/70 border-white/20'
+                          }`}>{s.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </section>
   )
 }
