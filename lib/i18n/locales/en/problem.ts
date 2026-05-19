@@ -28,12 +28,6 @@ export const problem: ProblemPart = {
       solution: 'Fractera includes LightRAG — a persistent vector store that remembers your codebase and every architectural decision. Switch between Claude Code, Gemini CLI, or Codex without losing the thread.',
     },
     {
-      id: 'product-gap',
-      title: 'Products Need More Than Code',
-      problem: 'SEO, routing, multi-language, auth, media handling — not optional extras. Most developers stop at the code. The gap between idea and live product stays wide and costs real money.',
-      solution: 'Fractera ships with production starters: auth, database, storage, routing — preconfigured. The AI skips months of scaffolding and goes straight to your feature from day one.',
-    },
-    {
       id: 'failure-points',
       title: 'Too Many Single Points of Failure',
       problem: 'Ten services mean ten billing cycles, ten dashboards, ten places something can break. One service quietly expires — you do not know which one caused the white screen.',
