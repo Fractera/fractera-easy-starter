@@ -12,28 +12,28 @@ export const hero: HeroPart = {
   loopShowcase: {
     h2: 'From Idea to Marketplace — The Fractera Build Loop',
     description:
-      'Three ways your open-source AI infrastructure compounds value: ship full products with multi-model agentic engineering, automate with Hermes loops, monetize through the skills marketplace.',
+      'The compounding product loop: build your product on Fractera, list it on the marketplace, watch any developer launch it in a few steps, add their improvements, and return an even stronger version. Every cycle multiplies value.',
     slides: [
       {
-        label: 'Build Products',
+        label: 'Build Your Product',
         sublabel: 'Idea → production in 10 minutes',
-        title: 'Ship full products with agentic engineering on your VPS',
+        title: 'Ship a full product with agentic engineering on your VPS',
         description:
-          'Preconfigured stack — auth, database, storage, routing — ready out of the box. Hermes orchestrator coordinates Claude Code, Codex, and Gemini CLI to turn requirements into production-grade applications. Your code lives on your server, your domain is live in 10 minutes, your subscriptions stay yours.',
+          'Preconfigured stack — auth, database, storage, routing — ready out of the box. Multi-model agentic engineering coordinates Claude Code, Codex, and Gemini CLI to turn requirements into production-grade applications. Your domain is live in 10 minutes. When the product is ready, you list it on the Fractera marketplace.',
       },
       {
-        label: 'Hermes Loops',
-        sublabel: 'Agentic orchestration cycles',
-        title: 'Agentic loops that learn from every iteration',
+        label: 'Product Compounding Loop',
+        sublabel: 'Every relaunch adds new vectors',
+        title: 'Any developer launches your product in a few steps',
         description:
-          'Hermes Agent coordinates five AI coding platforms through LightRAG persistent memory. Each completed task feeds context back into the loop. Agents share state, avoid repetition, and ship features with fewer tokens. Run agentic workflows autonomously, or stay in the loop with one-message-per-cycle approval.',
+          'Other developers pick your product from the marketplace and launch it on their own VPS in a few clicks. They add new features, new integrations, new vectors of value — building on the foundation you shipped. Each iteration is a stronger product than the one before, evolving open-source style across the community.',
       },
       {
-        label: 'Skills Marketplace',
-        sublabel: 'Buy, sell, share workflows',
-        title: 'Monetize the workflows you build',
+        label: 'Marketplace Compounds Value',
+        sublabel: 'Each improved version goes back',
+        title: 'Every enhanced version re-enters the marketplace',
         description:
-          'Package your best AI workflows as Fractera Skills. List them in the community marketplace, give them away free, or buy battle-tested recipes from other builders. Your open-source AI infrastructure becomes a passive revenue stream. Every skill sold earns while your next product is being built.',
+          'The improved product returns to the marketplace. The original creator earns from new launches, every contributor earns from their additions, and the next developer picks up an even stronger foundation. The Fractera build loop compounds — products become richer with every developer who passes through.',
       },
     ],
   },

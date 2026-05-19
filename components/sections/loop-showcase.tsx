@@ -13,8 +13,8 @@ const GRADIENTS = [
 const ACCENTS = ['violet', 'cyan', 'amber'] as const
 const PLACEHOLDER_LABELS = [
   'Build Products diagram',
-  'Hermes Loop diagram',
-  'Skills Marketplace diagram',
+  'Product Loop diagram',
+  'Marketplace Compound diagram',
 ]
 
 const STEP_SWITCH_DURATION = 5000
