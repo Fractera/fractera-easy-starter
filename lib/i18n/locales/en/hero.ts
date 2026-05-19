@@ -12,28 +12,28 @@ export const hero: HeroPart = {
   loopShowcase: {
     h2: 'From Idea to Marketplace — The Fractera Build Loop',
     description:
-      'Three ways your private AI infrastructure compounds value: ship products, automate with Hermes loops, monetize through the skills marketplace.',
+      'Three ways your open-source AI infrastructure compounds value: ship full products with multi-model agentic engineering, automate with Hermes loops, monetize through the skills marketplace.',
     slides: [
       {
         label: 'Build Products',
-        sublabel: 'Idea → Production in days',
-        title: 'Ship full products with AI on your VPS',
+        sublabel: 'Idea → production in 10 minutes',
+        title: 'Ship full products with agentic engineering on your VPS',
         description:
-          'Pre-configured stack — auth, DB, storage, routing. Hermes orchestrates Claude Code, Codex, Gemini to turn ideas into production-grade applications. Your code stays on your server. Your domain is live in 10 minutes.',
+          'Preconfigured stack — auth, database, storage, routing — ready out of the box. Hermes orchestrator coordinates Claude Code, Codex, and Gemini CLI to turn requirements into production-grade applications. Your code lives on your server, your domain is live in 10 minutes, your subscriptions stay yours.',
       },
       {
         label: 'Hermes Loops',
         sublabel: 'Agentic orchestration cycles',
         title: 'Agentic loops that learn from every iteration',
         description:
-          'Hermes coordinates 5 AI platforms through LightRAG persistent memory. Each task feeds context back into the loop. Agents share state, avoid repetition, and ship faster with fewer tokens.',
+          'Hermes Agent coordinates five AI coding platforms through LightRAG persistent memory. Each completed task feeds context back into the loop. Agents share state, avoid repetition, and ship features with fewer tokens. Run agentic workflows autonomously, or stay in the loop with one-message-per-cycle approval.',
       },
       {
         label: 'Skills Marketplace',
         sublabel: 'Buy, sell, share workflows',
         title: 'Monetize the workflows you build',
         description:
-          'Package your best AI workflows as Fractera Skills. Sell them in the community marketplace, share for free, or buy battle-tested recipes from other builders. Your AI infrastructure becomes a passive revenue stream.',
+          'Package your best AI workflows as Fractera Skills. List them in the community marketplace, give them away free, or buy battle-tested recipes from other builders. Your open-source AI infrastructure becomes a passive revenue stream. Every skill sold earns while your next product is being built.',
       },
     ],
   },
