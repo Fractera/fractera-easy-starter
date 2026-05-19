@@ -43,6 +43,29 @@ export const faqItems: FaqItem[] = [
     ],
   },
   {
+    q: 'Step by step — what does the full path from buying a server to monetizing my product look like?',
+    a: [
+      'The complete cycle: from an empty VPS to a live product on the marketplace. Under 30 minutes to launch, everything after that runs at your development pace.',
+    ],
+    steps: [
+      'Buy a VPS from any tested provider (Contabo, Hetzner, Netcup, DigitalOcean). Receive your IP address, login, and password.',
+      'On the "Your Server" tab, enter those credentials and launch the deployment. Watch real-time events for a few minutes. Two emails arrive: one when installation starts, another when it completes.',
+      'Your dashboard sits in the top-right corner — click your name after signing in. Inside you will find direct links to your live site and admin panel. The same links arrive in your completion email.',
+      'Sign up in the admin panel with a real email and password (save them carefully). The first user becomes the administrator — only admins can change settings. You can promote more admins later.',
+      'Have your own domain? Open "Settings", enter the domain name, copy the A-record. Set it at your domain registrar or in Cloudflare — and it works immediately.',
+      'Authorize one or more coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code). Codex is recommended as the channel for working through Hermes. Authorization is standard browser-based, just like in a local CLI. One-time setup.',
+      'Open Hermes and configure it your way. Add a messenger channel, or use the chat directly in the admin panel.',
+      'Tell Hermes what to change or what to generate. For example: "Let Claude do this and Codex do that" — both run in parallel through Hermes orchestration.',
+      'Upload documents (requirements, business description, any reference material) to your Company Brain — powered by LightRAG — manually, or ask Hermes to automate your data ingestion.',
+      'Want to accelerate? Ask Hermes to find a ready-made solution from the Fractera skills marketplace.',
+      'Your domain is live from minute one. After every development cycle, the site updates automatically — no manual deploy step.',
+      'Finished a project? Ask Hermes to turn it into a skill and publish it on the marketplace. Set a price, sell it, earn.',
+    ],
+    trail: [
+      'This loop repeats as many times as you want. Every product stays yours — on your server, under your domain, your code, your data, your subscriptions.',
+    ],
+  },
+  {
     q: 'Can I switch from the paid plan to free self-hosting later?',
     a: ["Yes — at any time. Here's the recommended migration path:"],
     steps: [
