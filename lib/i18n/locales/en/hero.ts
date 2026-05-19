@@ -10,30 +10,30 @@ export const hero: HeroPart = {
   deployButton: 'Deploy My Server',
 
   loopShowcase: {
-    h2: 'From Idea to Marketplace — The Fractera Build Loop',
+    h2: 'Full Stack Ownership: Your Server, Your Domain, Your Product',
     description:
-      'The compounding product loop: build your product on Fractera, list it on the marketplace, watch any developer launch it in a few steps, add their improvements, and return an even stronger version. Every cycle multiplies value.',
+      'Modern AI coding is easy — the hard part is owning the infrastructure. Fractera makes ownership effortless: a dedicated Ubuntu VPS, an automatic custom domain with SSL, and a production-ready product stack — all yours, forever.',
     slides: [
       {
-        label: 'Build Your Product',
-        sublabel: 'Idea → production in 10 minutes',
-        title: 'Ship a full product with agentic engineering on your VPS',
+        label: 'Your Own Server',
+        sublabel: 'Dedicated VPS, never rented',
+        title: 'A dedicated Ubuntu VPS, yours forever — not a platform you rent',
         description:
-          'Preconfigured stack — auth, database, storage, routing — ready out of the box. Multi-model agentic engineering coordinates Claude Code, Codex, and Gemini CLI to turn requirements into production-grade applications. Your domain is live in 10 minutes. When the product is ready, you list it on the Fractera marketplace.',
+          'Vercel and Netlify deploy you in seconds — but your code, database, and users live on their infrastructure. Fractera deploys a real Ubuntu 24.04 VPS in 10 minutes. Your hardware. Your storage. Your terms. No platform repricing can take your product offline.',
       },
       {
-        label: 'Product Compounding Loop',
-        sublabel: 'Every relaunch adds new vectors',
-        title: 'Any developer launches your product in a few steps',
+        label: 'Your Own Domain',
+        sublabel: 'SSL + DNS + Nginx — automatic',
+        title: 'Custom domain live in 10 minutes — zero DNS pain',
         description:
-          'Other developers pick your product from the marketplace and launch it on their own VPS in a few clicks. They add new features, new integrations, new vectors of value — building on the foundation you shipped. Each iteration is a stronger product than the one before, evolving open-source style across the community.',
+          'Custom domain provisioning, SSL certificate, Nginx routing — all automatic. The exact friction that pushes developers onto managed platforms is solved in one click. No certificate renewals to track. No DNS dashboards to learn.',
       },
       {
-        label: 'Marketplace Compounds Value',
-        sublabel: 'Each improved version goes back',
-        title: 'Every enhanced version re-enters the marketplace',
+        label: 'Your Own Product',
+        sublabel: 'Code ownership, no lock-in',
+        title: 'Build, own, ship — no platform lock-in, ever',
         description:
-          'The improved product returns to the marketplace. The original creator earns from new launches, every contributor earns from their additions, and the next developer picks up an even stronger foundation. The Fractera build loop compounds — products become richer with every developer who passes through.',
+          'Modern AI coding is easy. Server setup is what pushes developers onto hosted platforms. Fractera makes the hard part simple — a self-hosted AI development stack on your own VPS. Code on your GitHub. Data on your server. Product yours forever.',
       },
     ],
   },

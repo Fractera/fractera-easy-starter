@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Layers, RefreshCcw, ShoppingBag } from 'lucide-react'
+import { Server, Globe, Rocket } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
-const ICONS = [Layers, RefreshCcw, ShoppingBag]
+const ICONS = [Server, Globe, Rocket]
 const GRADIENTS = [
   'from-violet-900/40 via-violet-700/20 to-purple-950/40',
   'from-blue-900/40 via-cyan-700/20 to-blue-950/40',
@@ -12,9 +12,9 @@ const GRADIENTS = [
 ]
 const ACCENTS = ['violet', 'cyan', 'amber'] as const
 const PLACEHOLDER_LABELS = [
-  'Build Products diagram',
-  'Product Loop diagram',
-  'Marketplace Compound diagram',
+  'Your Own Server diagram',
+  'Your Own Domain diagram',
+  'Your Own Product diagram',
 ]
 
 const STEP_SWITCH_DURATION = 5000
@@ -132,17 +132,7 @@ export function LoopShowcase() {
         })}
       </div>
 
-      {/* Active slide caption — title + description */}
-      <div
-        className={`text-center flex flex-col items-center gap-2 max-w-3xl mb-8 transition-opacity duration-700 ${
-          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
-        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
-      </div>
-
-      {/* Horizontal step indicator with progress line — fixed height for reliable rendering */}
+      {/* Horizontal step indicator with progress line — placed BEFORE caption so its position never shifts when caption height changes */}
       <div className="relative w-full max-w-4xl mx-auto px-4 mb-8 h-10">
         {/* Line container — centered vertically via top-1/2 of explicit h-10 parent */}
         <div
@@ -184,8 +174,18 @@ export function LoopShowcase() {
         ))}
       </div>
 
+      {/* Active slide caption — title + description. Placed AFTER step indicator: changing height won't shift the animated block */}
+      <div
+        className={`text-center flex flex-col items-center gap-2 max-w-3xl mb-8 transition-opacity duration-700 ${
+          imageOpacity === 1 ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <h3 className={`text-xl md:text-2xl font-bold ${activeAccentText}`}>{activeSlide.title}</h3>
+        <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
+      </div>
+
       {/* Bottom 3 columns: label + sublabel, active clear, others blurred */}
-      <div className="w-full max-w-4xl mx-auto px-4 mt-[40px]">
+      <div className="w-full max-w-4xl mx-auto px-4">
         {/* Desktop: all 3 visible with blur on inactive */}
         <div className="hidden md:flex justify-between gap-8">
           {slides.map((slide, index) => (
