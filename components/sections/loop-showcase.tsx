@@ -142,35 +142,39 @@ export function LoopShowcase() {
         <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
       </div>
 
-      {/* Horizontal step indicator with progress line */}
-      <div className="relative w-full max-w-4xl mx-auto px-4 mb-8">
+      {/* Horizontal step indicator with progress line — fixed height for reliable rendering */}
+      <div className="relative w-full max-w-4xl mx-auto px-4 mb-8 h-10">
+        {/* Line container — centered vertically via top-1/2 of explicit h-10 parent */}
         <div
-          className="absolute top-1/2 left-0 right-0 h-px transform -translate-y-1/2 mx-auto"
+          className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
           style={{
             maskImage: 'linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%)',
           }}
         >
-          <div className="absolute top-0 left-0 right-0 h-px bg-white/20" />
+          {/* Base line — full width */}
+          <div className="absolute inset-0 bg-white/25" />
+          {/* Animated progress line — grows from left:60px */}
           <div
-            className="absolute top-0 left-[60px] h-px bg-violet-500"
+            className="absolute top-0 left-[60px] bottom-0 bg-violet-500"
             style={{ width: `${progressWidth}%`, transition: 'width 0.1s linear' }}
           />
         </div>
 
+        {/* Numbered circles — z-10 above line */}
         {slides.map((_, index) => (
           <div
             key={index}
-            className="absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 md:left-[var(--desktop-left)] left-[var(--mobile-left)]"
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 md:left-[var(--desktop-left)] left-[var(--mobile-left)]"
             style={{
               ['--desktop-left' as string]: getCircleLeft(index),
               ['--mobile-left' as string]: getCircleLeftMobile(index),
             } as React.CSSProperties}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 ${
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 ${
                 index === currentStepIndex
-                  ? 'border-violet-500 bg-black text-violet-400'
+                  ? 'border-violet-500 bg-black text-violet-400 shadow-lg shadow-violet-500/40'
                   : 'border-white/30 bg-black text-white/60'
               }`}
             >
