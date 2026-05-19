@@ -1,180 +1,113 @@
 import { LEGAL } from '@/config/legal'
+import { getLegal } from '@/lib/i18n/legal'
 
 export default async function TermsPage({
   params,
 }: {
   params: Promise<{ lang: string }>
 }) {
-  const { lang: _lang } = await params
+  const { lang } = await params
+  const t = getLegal(lang).terms
 
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="max-w-3xl mx-auto px-6 py-20 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
-          <p className="text-sm text-white/40">Last updated: {LEGAL.lastUpdated}</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t.title}</h1>
+          <p className="text-sm text-white/40">{LEGAL.lastUpdated}</p>
         </div>
 
         <div className="flex flex-col gap-6 text-base text-white/70 leading-relaxed">
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">1. Acceptance of Terms</h2>
+            <h2 className="text-lg font-semibold text-white">{t.s1.title}</h2>
             <p>
-              By accessing or using Fractera, you agree to be bound by these Terms of Service
-              (&quot;Terms&quot;) and our{' '}
-              <a href="./privacy" className="text-white underline hover:no-underline">Privacy Policy</a>.
-              If you do not agree to these Terms, please do not use our services.
-              These Terms constitute a binding legal agreement between you and {LEGAL.companyName}
+              {t.s1.p1.split('Privacy Policy')[0]}
+              <a href="./privacy" className="text-white underline hover:no-underline">Privacy Policy</a>
+              {t.s1.p1.split('Privacy Policy')[1]}
             </p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">2. About {LEGAL.companyName}</h2>
+            <h2 className="text-lg font-semibold text-white">{t.s2.title}</h2>
+            <p>{t.s2.p1} (EIN: {LEGAL.ein})</p>
+          </section>
+
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold text-white">{t.s3.title}</h2>
+            <p>{t.s3.p1}</p>
+          </section>
+
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold text-white">{t.s4.title}</h2>
             <p>
-              {LEGAL.companyName} is a corporation incorporated under the laws of the State of Delaware,
-              United States (EIN: {LEGAL.ein}). We provide a platform for deploying and managing
-              AI coding environments on your own server infrastructure.
+              {t.s4.p1}{' '}
+              <a href={`mailto:${LEGAL.emails.support}`} className="text-white underline hover:no-underline">{LEGAL.emails.support}</a>.
             </p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">3. Description of Service</h2>
+            <h2 className="text-lg font-semibold text-white">{t.s5.title}</h2>
+            <p>{t.s5.p1}</p>
             <p>
-              {LEGAL.companyName} provides a platform for deploying and managing AI coding environments
-              on your own server infrastructure. We facilitate subdomain registration and server
-              setup, but you retain full ownership and control of your server. We are not
-              responsible for the content, security, or uptime of servers you provision.
+              {t.s5.p2.split('Refund Policy')[0]}
+              <a href="./refund" className="text-white underline hover:no-underline">Refund Policy</a>
+              {t.s5.p2.split('Refund Policy')[1]}
             </p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">4. Account Responsibilities</h2>
-            <p>
-              You are responsible for maintaining the confidentiality of your account credentials
-              and for all activities that occur under your account. You agree to notify us
-              immediately at{' '}
-              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
-                {LEGAL.emails.support}
-              </a>{' '}
-              of any unauthorized use of your account.
-            </p>
-          </section>
-
-          <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">5. Subscriptions and Payments</h2>
-            <p>
-              Some features of Fractera require a paid subscription. By subscribing, you agree
-              to pay the fees set out at the time of purchase. Subscriptions are billed in advance
-              on a monthly or annual basis. Most payments are processed by{' '}
-              <strong className="text-white">Stripe</strong>; alternative local payment providers
-              may be used depending on your country of residence and will be displayed at checkout.
-            </p>
-            <p>
-              Cancellations and refunds are governed by our{' '}
-              <a href="./refund" className="text-white underline hover:no-underline">Refund Policy</a>,
-              which includes country-specific rights (EU 14-day withdrawal, Brazil 7-day regret,
-              UK cancellation rights, and Australian consumer guarantees).
-            </p>
-          </section>
-
-          <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">6. Acceptable Use</h2>
-            <p>You agree not to use Fractera to:</p>
+            <h2 className="text-lg font-semibold text-white">{t.s6.title}</h2>
+            <p>{t.s6.intro}</p>
             <ul className="list-disc pl-5 flex flex-col gap-2">
-              <li>Violate any applicable local, state, national, or international laws or regulations.</li>
-              <li>Infringe intellectual property rights of {LEGAL.companyName} or third parties.</li>
-              <li>Transmit harmful, unlawful, defamatory, or fraudulent content.</li>
-              <li>Interfere with the proper functioning of our services or servers.</li>
-              <li>Attempt to gain unauthorized access to our systems or other users&apos; accounts.</li>
+              {t.s6.items.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">7. Intellectual Property</h2>
-            <p>
-              The Fractera platform, including its software, design, trademarks, and content,
-              is owned by {LEGAL.companyName} and protected by intellectual property laws. Your
-              subscription grants you a limited, non-exclusive, non-transferable license to
-              use the platform for your internal business purposes.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{t.s7.title}</h2>
+            <p>{t.s7.p1}</p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">8. Limitation of Liability</h2>
-            <p>
-              To the maximum extent permitted by applicable law, {LEGAL.companyName} shall not be
-              liable for any indirect, incidental, special, consequential, or punitive damages
-              arising from your use of the service, including but not limited to loss of data,
-              revenue, or service interruptions. Our total liability to you for any claim arising
-              from these Terms shall not exceed the amount you paid us in the 12 months preceding
-              the claim.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{t.s8.title}</h2>
+            <p>{t.s8.p1}</p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">9. Disclaimer of Warranties</h2>
-            <p>
-              The service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind,
-              express or implied, including but not limited to implied warranties of merchantability,
-              fitness for a particular purpose, and non-infringement.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{t.s9.title}</h2>
+            <p>{t.s9.p1}</p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">10. Termination</h2>
+            <h2 className="text-lg font-semibold text-white">{t.s10.title}</h2>
             <p>
-              We reserve the right to terminate or suspend your account at any time for material
-              violations of these Terms, with or without notice. You may terminate your account
-              at any time by contacting{' '}
-              <a href="mailto:{LEGAL.emails.support}" className="text-white underline hover:no-underline">
-                {LEGAL.emails.support}
-              </a>.
-              Upon termination, your right to use the service ceases immediately.
+              {t.s10.p1}{' '}
+              <a href={`mailto:${LEGAL.emails.support}`} className="text-white underline hover:no-underline">{LEGAL.emails.support}</a>.
             </p>
           </section>
 
           <section className="flex flex-col gap-3 border border-white/10 rounded-lg p-5">
-            <h2 className="text-lg font-semibold text-white">11. Governing Law and Dispute Resolution</h2>
-            <p>
-              These Terms are governed by and construed in accordance with the laws of the
-              State of <strong className="text-white">{LEGAL.companyState}, {LEGAL.companyCountry}</strong>,
-              without regard to its conflict of law principles.
-            </p>
-            <p>
-              Any dispute arising from these Terms shall first be subject to good-faith
-              negotiation. If unresolved within 30 days, disputes shall be submitted to
-              binding arbitration in Delaware under the rules of the American Arbitration
-              Association (AAA), conducted in English.
-            </p>
-            <p>
-              <strong className="text-white">EU / EEA residents:</strong> Nothing in this
-              clause limits your rights under mandatory consumer protection laws of your
-              country of residence, including your right to bring a claim before your local
-              courts or consumer authority.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{t.s11.title}</h2>
+            <p>{t.s11.p1}</p>
+            <p>{t.s11.p2}</p>
+            <p><strong className="text-white">EU / EEA:</strong> {t.s11.p3}</p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">12. Changes to Terms</h2>
-            <p>
-              We reserve the right to modify these Terms at any time. We will notify you of
-              material changes by email at least 14 days in advance. Continued use of the
-              service after changes take effect constitutes acceptance of the revised Terms.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{t.s12.title}</h2>
+            <p>{t.s12.p1}</p>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-white">13. Contact</h2>
+            <h2 className="text-lg font-semibold text-white">{t.s13.title}</h2>
             <p>
               {LEGAL.companyName}<br />
-              Incorporated in {LEGAL.companyState}, {LEGAL.companyCountry}<br />
+              {LEGAL.companyState}, {LEGAL.companyCountry}<br />
               EIN: {LEGAL.ein}
             </p>
             <p>
-              Legal inquiries:{' '}
-              <a href="mailto:{LEGAL.emails.legal}" className="text-white underline hover:no-underline">
-                {LEGAL.emails.legal}
-              </a>
+              <a href={`mailto:${LEGAL.emails.legal}`} className="text-white underline hover:no-underline">{LEGAL.emails.legal}</a>
             </p>
           </section>
 
