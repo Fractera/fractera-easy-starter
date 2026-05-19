@@ -42,10 +42,10 @@ export const hero: HeroPart = {
     'Open-source platform that deploys your complete AI development infrastructure on your own VPS: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. No API fees. No Clerk. No Supabase. Your server, your stack, your data.',
 
   featureItems: [
-    { title: 'Zero to Production', text: 'Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.' },
-    { title: 'Build the Product',  text: "If you're a product manager or entrepreneur — you can build both the product and the code. Community skill libraries help you discover new approaches and ship faster." },
-    { title: 'Beyond the Code',    text: "If you're a developer who wants to build products, not just write code — you'll expand your expertise into SEO, multi-language support, routing, and other product-level capabilities." },
-    { title: 'Ship 10× Faster',    text: 'All of this lets you ship professional applications at a fraction of the time and cost of managing a project by hand.' },
+    { title: 'Zero to Production',  text: 'Your VPS, domain, auth, database, and five AI platforms — live in 10 minutes. No cloud accounts to set up. No infrastructure decisions to make.' },
+    { title: 'Exit the Cloud',      text: 'No Clerk. No Supabase. No Vercel. Auth, storage, and database run on your own server — one bill, one place, full ownership.' },
+    { title: 'Any Device, Full Speed', text: 'All computation runs on your VPS. Build from a laptop, tablet, or phone without hitting hardware limits.' },
+    { title: 'Ship 10× Faster',    text: 'AI skips months of scaffolding. Production-grade starters mean your first feature ships in hours, not weeks.' },
   ],
 
   heroBenefits: [
