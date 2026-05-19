@@ -6,8 +6,8 @@ type HeroPart = Pick<SiteContent,
 >
 
 export const hero: HeroPart = {
-  heroTitle: 'One-Click Open-Source AI Coding Infrastructure',
-  deployButton: 'Deploy Fractera',
+  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS',
+  deployButton: 'Deploy My Server',
 
   loopShowcase: {
     h2: 'From Idea to Marketplace — The Fractera Build Loop',
@@ -39,7 +39,7 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Open-source platform that deploys a full-stack AI development environment on your own server in 10 minutes. Hermes, our AI orchestrator, automatically deploys and connects Claude Code, Codex, Gemini CLI, databases, and LightRAG vector memory on your VPS. Control top AI platforms through a single interface with full code ownership and zero API costs.',
+    'Open-source platform that deploys your complete AI development infrastructure on your own VPS: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. No API fees. No Clerk. No Supabase. Your server, your stack, your data.',
 
   featureItems: [
     { title: 'Zero to Production', text: 'Everything comes pre-configured out of the box: architecture, database, development agents, global memory, your own server and domain.' },
