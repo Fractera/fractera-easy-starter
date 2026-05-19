@@ -45,8 +45,16 @@ export default async function TermsPage({
             <p>
               Some features of Fractera require a paid subscription. By subscribing, you agree
               to pay the fees set out at the time of purchase. Subscriptions are billed in advance
-              on a monthly or annual basis and are non-refundable except as required by law.
-              Payments are processed by Stripe.
+              on a monthly or annual basis. Most payments are processed by Stripe; alternative
+              local payment providers may be used depending on your country of residence.
+            </p>
+            <p>
+              Cancellations and refunds are governed by our{' '}
+              <a href="./refund" className="text-white underline hover:no-underline">
+                Refund Policy
+              </a>
+              , which includes country-specific rights (EU 14-day withdrawal, Brazil 7-day regret,
+              UK cancellation rights, and Australian consumer guarantees).
             </p>
           </section>
 

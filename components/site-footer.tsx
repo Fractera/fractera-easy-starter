@@ -22,6 +22,7 @@ export function SiteFooter() {
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">
           <a href={`/${lang}/privacy`} className="hover:text-violet-400 transition-colors">Privacy Policy</a>
           <a href={`/${lang}/terms`} className="hover:text-violet-400 transition-colors">Terms of Service</a>
+          <a href={`/${lang}/refund`} className="hover:text-violet-400 transition-colors">Refund Policy</a>
           <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">Cookie Policy</a>
           <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">Partner Program</a>
           <button
