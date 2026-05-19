@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Server, Globe, Rocket } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
@@ -25,10 +25,31 @@ export function LoopShowcase() {
   const slides = content.loopShowcase.slides
   const totalSteps = slides.length
 
+  const sectionRef = useRef<HTMLElement>(null)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [imageOpacity, setImageOpacity] = useState(1)
+  const [isPausedByPress, setIsPausedByPress] = useState(false)
+  const [isInView, setIsInView] = useState(true)
 
+  // Animation runs only when section is in view AND user is not pressing a circle
+  const isAnimating = isInView && !isPausedByPress
+
+  // Viewport pause: stop animation when section scrolls out of view (prevents
+  // layout shifts that disturb scroll position when user reads sections below)
   useEffect(() => {
+    const el = sectionRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.15 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // Slide-switch interval — pauses cleanly when isAnimating goes false
+  useEffect(() => {
+    if (!isAnimating) return
     const stepInterval = setInterval(() => {
       setImageOpacity(0)
       setTimeout(() => {
@@ -37,7 +58,15 @@ export function LoopShowcase() {
       }, FADE_DURATION)
     }, STEP_SWITCH_DURATION)
     return () => clearInterval(stepInterval)
-  }, [totalSteps])
+  }, [totalSteps, isAnimating])
+
+  // Press-and-hold on a circle: pause + jump to that slide. Release to resume.
+  const handleCirclePointerDown = (index: number) => {
+    setIsPausedByPress(true)
+    setImageOpacity(1)
+    setCurrentStepIndex(index)
+  }
+  const handleCirclePointerUp = () => setIsPausedByPress(false)
 
   const activeAccent = ACCENTS[currentStepIndex]
   const accentBorder =
@@ -61,7 +90,7 @@ export function LoopShowcase() {
   const activeSlide = slides[currentStepIndex]
 
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 flex flex-col items-center">
+    <section ref={sectionRef} className="w-full max-w-5xl mx-auto px-4 flex flex-col items-center">
       {/* CSS keyframes — runs in browser native, no JS animation needed */}
       <style>{`
         @keyframes fractera-line-slide {
@@ -114,31 +143,38 @@ export function LoopShowcase() {
         <div
           className="absolute top-1/2 left-[60px] right-[60px] h-[2px] -translate-y-1/2 bg-white/20"
         />
-        {/* Animated progress line — CSS keyframes, scales from 0 to 1 over 15s, infinite */}
+        {/* Animated progress line — CSS keyframes, scales from 0 to 1 over 15s, infinite. Pauses when out of view OR user presses a circle. */}
         <div
           className="absolute top-1/2 left-[60px] right-[60px] h-[2px] -translate-y-1/2 bg-violet-500 origin-left"
           style={{
             animation: 'fractera-line-slide 15s linear infinite',
+            animationPlayState: isAnimating ? 'running' : 'paused',
           }}
         />
 
-        {/* Numbered circles — z-10 above line */}
+        {/* Numbered circles — interactive. Press-and-hold: pause animation + jump to that slide. Release: resume. */}
         {slides.map((_, index) => (
-          <div
+          <button
             key={index}
-            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+            type="button"
+            aria-label={`Slide ${index + 1}${isPausedByPress && index === currentStepIndex ? ' (paused — release to resume)' : ' (press and hold to pause)'}`}
+            onPointerDown={(e) => { e.preventDefault(); handleCirclePointerDown(index) }}
+            onPointerUp={handleCirclePointerUp}
+            onPointerCancel={handleCirclePointerUp}
+            onPointerLeave={handleCirclePointerUp}
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 touch-none select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-full"
             style={{ left: getCircleLeft(index) }}
           >
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 ${
                 index === currentStepIndex
                   ? 'border-violet-500 bg-black text-violet-400 shadow-lg shadow-violet-500/40 scale-110'
-                  : 'border-white/30 bg-black text-white/60'
+                  : 'border-white/30 bg-black text-white/60 hover:border-white/60'
               }`}
             >
               {index + 1}
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
