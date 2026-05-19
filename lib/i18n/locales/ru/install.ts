@@ -5,7 +5,7 @@ type InstallPart = Pick<SiteContent, 'mcpSection' | 'domainSection' | 'installFo
 export const install: InstallPart = {
   mcpSection: {
     label: 'MCP · AI Агенты',
-    h2: 'Управляйте сервером через AI Agent по MCP',
+    h2: 'Полное управление сервером через Claude Code MCP-сервер',
     description:
       'Деплой и управление продакшн-сервером через AI-агент в вашем чате — теперь это просто. Подключите Claude, Codex или Gemini к Fractera MCP — деплойте инфраструктуру, следите за установкой и запускайте среды, не выходя из чата. Вы также можете использовать MCP сервер для диагностики и решения проблем, связанных с вашим развёртыванием.',
   },

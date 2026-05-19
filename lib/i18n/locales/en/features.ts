@@ -9,8 +9,8 @@ type FeaturesPart = Pick<SiteContent,
 export const features: FeaturesPart = {
   featuresHeader: {
     label: "What's included",
-    h2: 'Everything You Need to Ship',
-    description: 'Fractera Lite covers 90% of what a professional application needs. Fractera Pro unlocks the rest.',
+    h2: 'Production-Ready Full-Stack Engineering Features',
+    description: 'Fractera Lite covers 90% of what a professional application needs. Fractera Pro unlocks the remaining 10%.',
   },
 
   featureList: [
@@ -18,7 +18,7 @@ export const features: FeaturesPart = {
     { title: 'Auth Stack Built-in',   description: 'Google OAuth, magic-link via Resend, and Credentials — all pre-configured with role management and enterprise sessions.',                 badge: 'Lite' },
     { title: 'Database & Storage',    description: 'SQLite with WAL mode, object file storage, and media service included. Scales with your project without extra subscriptions.',             badge: 'Lite' },
     { title: 'GitHub & Dev Workflow', description: 'GitHub sync, production coding and local development unified. Push, pull, and deploy directly from the admin panel in one click.',         badge: 'Lite' },
-    { title: 'Platforms in 50ms',     description: 'All five coding platforms pre-configured and ready to use. LightRAG global memory initialised on first start. Zero setup time.',           badge: 'Lite' },
+    { title: 'Platforms in 50ms',     description: 'All five coding platforms preconfigured and ready to use. LightRAG global memory initialized on first start. Zero setup time.',           badge: 'Lite' },
     { title: 'Skills Marketplace',    description: 'Discover, buy, and sell AI workflows in the community library. Share free skills or monetise your own automation recipes.',                badge: 'Lite' },
     { title: 'SEO, PWA & i18n',       description: 'Production-grade SEO, Progressive Web App support, and multi-language routing — all configured before your first user arrives.',          badge: 'Pro'  },
     { title: 'Element Highlighting',  description: 'Click any UI element to capture its exact identifier. Communicate precise changes to the AI — fewer tokens, faster iterations.',           badge: 'Pro'  },
@@ -26,7 +26,7 @@ export const features: FeaturesPart = {
   ],
 
   promoSection: {
-    h2: 'Open Source — Fork It, Build Your Own Platform',
+    h2: 'Fork and Build a Custom White-Label AI Platform',
     description:
       'Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.',
     githubButton: 'View on GitHub',
@@ -34,7 +34,7 @@ export const features: FeaturesPart = {
 
   faqHeader: {
     label: 'FAQ',
-    h2: 'Common Questions',
+    h2: 'Fractera Technical Architecture FAQ',
     description: 'Everything you need to know before getting started.',
   },
 

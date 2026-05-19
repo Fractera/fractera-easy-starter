@@ -5,7 +5,7 @@ type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSec
 export const pricing: PricingPart = {
   pricingHeader: {
     label: 'Начать',
-    h2: 'Выберите свой путь',
+    h2: 'Разверните приватную AI-инфраструктуру: выберите стек',
     description: 'Деплой в один клик с включённым сервером или установка на собственный VPS — оба варианта дают полную среду Fractera.',
   },
 
@@ -45,7 +45,7 @@ export const pricing: PricingPart = {
 
   serverSection: {
     label: 'Где купить',
-    h2: 'Надёжные VPS-серверы по доступным ценам',
+    h2: 'Проверенные Ubuntu 24.04 VPS-провайдеры для AI',
     description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Эти провайдеры проверены сообществом — выбирайте по региону и бюджету.',
     providers: [
       { name: 'Contabo',      tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.',            url: 'https://contabo.com' },

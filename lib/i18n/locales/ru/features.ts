@@ -9,8 +9,8 @@ type FeaturesPart = Pick<SiteContent,
 export const features: FeaturesPart = {
   featuresHeader: {
     label: 'Что включено',
-    h2: 'Всё для запуска',
-    description: 'Fractera Lite — 90% того, что нужно профессиональному приложению. Fractera Pro — всё остальное.',
+    h2: 'Production-Ready full-stack функции разработки',
+    description: 'Fractera Lite покрывает 90% того, что нужно профессиональному приложению. Fractera Pro открывает оставшиеся 10%.',
   },
 
   featureList: [
@@ -26,7 +26,7 @@ export const features: FeaturesPart = {
   ],
 
   promoSection: {
-    h2: 'Open Source — форкни и создай свою платформу',
+    h2: 'Форк и кастомная white-label AI-платформа',
     description:
       'Fractera полностью open source. Форкните репозиторий, разверните собственный инстанс и создавайте продукты с AI — для себя или как бизнес: деплой серверов для клиентов и консалтинговые услуги.',
     githubButton: 'Смотреть на GitHub',
@@ -34,7 +34,7 @@ export const features: FeaturesPart = {
 
   faqHeader: {
     label: 'FAQ',
-    h2: 'Частые вопросы',
+    h2: 'Техническая архитектура Fractera — FAQ',
     description: 'Всё, что нужно знать перед стартом.',
   },
 
