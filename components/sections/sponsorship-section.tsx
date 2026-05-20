@@ -51,7 +51,7 @@ export function SponsorshipSection() {
   }
 
   return (
-    <div className="w-full max-w-4xl flex flex-col gap-8">
+    <div id="sponsorship" className="w-full max-w-4xl flex flex-col gap-8 scroll-mt-20">
       {/* ─── Header ─── */}
       <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
         <p className="text-xs font-mono font-bold text-yellow-400 uppercase tracking-widest">
