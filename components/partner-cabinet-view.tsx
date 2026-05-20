@@ -14,7 +14,7 @@ type PartnerLink = {
 const EMBED_ORIGIN = 'https://fractera.ai'
 
 function buildEmbedUrl(lang: Lang, slug: string) {
-  return `${EMBED_ORIGIN}/${lang}/embed/signup?ref=${slug}`
+  return `${EMBED_ORIGIN}/${lang}/embed?ref=${slug}`
 }
 
 type Lang = 'ru' | 'en'
