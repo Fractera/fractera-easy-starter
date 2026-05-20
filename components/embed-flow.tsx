@@ -214,15 +214,15 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
 
         {/* ── PRESENTATION (mirror of landing pricing-flow section) ── */}
         <div className="w-full flex flex-col gap-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            <div className="flex flex-col gap-6 items-start text-left">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+            <div className="flex flex-col gap-6 items-start text-left h-full">
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{t.label}</p>
                 <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">{t.h2}</h2>
                 <p className="text-base text-white/60">{t.description}</p>
               </div>
 
-              <div className="flex flex-col gap-3 w-full pt-4 border-t border-white/10">
+              <div className="flex flex-col gap-3 w-full pt-4 border-t border-white/10 mt-auto">
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{t.serverLabel}</p>
                   <h3 className="text-base font-bold font-serif text-white">{t.serverHeader}</h3>
@@ -243,33 +243,31 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
               </div>
             </div>
 
-            <div className="flex flex-col gap-6">
-              <div id="light-card" className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60 border border-emerald-500/60">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">{t.freeBadge}</span>
-                  <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
-                  <p className="text-sm text-emerald-300/70 font-medium">{t.freeSub}</p>
-                </div>
-                <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">
-                  {t.features.slice(0, 4).map((f, i) => (
-                    <li key={i} className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>{f}</span></li>
-                  ))}
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 shrink-0 mt-0.5">◈</span>
-                    <span className="text-white">{t.features[4]}</span>
-                  </li>
-                </ul>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (state === 'presentation') setState('signup')
-                  }}
-                  disabled={state !== 'presentation'}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
-                >
-                  {t.deployButton} →
-                </button>
+            <div id="light-card" className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60 border border-emerald-500/60 h-full">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">{t.freeBadge}</span>
+                <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
+                <p className="text-sm text-emerald-300/70 font-medium">{t.freeSub}</p>
               </div>
+              <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">
+                {t.features.slice(0, 4).map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>{f}</span></li>
+                ))}
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-400 shrink-0 mt-0.5">◈</span>
+                  <span className="text-white">{t.features[4]}</span>
+                </li>
+              </ul>
+              <button
+                type="button"
+                onClick={() => {
+                  if (state === 'presentation') setState('signup')
+                }}
+                disabled={state !== 'presentation'}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
+              >
+                {t.deployButton} →
+              </button>
             </div>
           </div>
 
@@ -281,10 +279,6 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             ))}
           </div>
         </div>
-
-        <p className="text-xs text-white/30 text-center">
-          <a href="https://fractera.ai" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">Powered by Fractera</a>
-        </p>
       </div>
 
       {/* ── SIGNUP MODAL (overlay over the presentation) ── */}
