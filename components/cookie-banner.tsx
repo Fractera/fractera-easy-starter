@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 export function CookieBanner() {
+  const pathname = usePathname() ?? ''
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -14,6 +16,7 @@ export function CookieBanner() {
     return () => window.removeEventListener('open-cookie-settings', handler)
   }, [])
 
+  if (pathname.includes('/embed')) return null
   if (!visible) return null
 
   return (

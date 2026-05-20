@@ -3,11 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { useLang } from '@/lib/i18n/use-lang'
 
 export function SiteHeader() {
+  const pathname = usePathname() ?? ''
   const { data: session, status } = useSession()
   const { openModal } = useAuthModal()
   const { openServers, openSubscription, openPurchases, openPartnerCabinet } = useDashboard()
@@ -16,6 +18,8 @@ export function SiteHeader() {
   const isPartner = !!session?.user?.partnerSlug
   const lang = useLang()
   const partnerCabinetLabel = lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet'
+
+  if (pathname.includes('/embed')) return null
 
   const initials = session?.user?.name
     ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()

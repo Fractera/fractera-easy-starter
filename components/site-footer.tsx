@@ -36,6 +36,8 @@ export function SiteFooter() {
     window.dispatchEvent(new Event('open-cookie-settings'))
   }
 
+  if (pathname?.includes('/embed')) return null
+
   return (
     <footer className="border-t border-white/20 bg-black text-white mt-auto">
       <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
