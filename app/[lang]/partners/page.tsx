@@ -1,3 +1,5 @@
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
 import { PartnersCta } from './partners-cta'
 
 export default async function PartnersPage({
@@ -7,6 +9,14 @@ export default async function PartnersPage({
 }) {
   const { lang } = await params
   const isRu = lang === 'ru'
+
+  const session = await auth()
+  const partner = session?.user?.id
+    ? await db.partner.findUnique({
+        where: { userId: session.user.id },
+        select: { slug: true, createdAt: true },
+      })
+    : null
 
   const t = isRu ? {
     badge: 'Партнёрская программа',
@@ -43,6 +53,12 @@ export default async function PartnersPage({
     joinBody: 'Регистрация занимает 30 секунд. Достаточно согласиться с политикой сотрудничества — мы сразу активируем ваш партнёрский кабинет и отправляем письмо с подробностями.',
     joinButton: 'Зарегистрироваться как партнёр',
     joinNote: 'Аккаунт Fractera нужен — если ещё не вошли, откроется окно входа.',
+
+    activeBadge: '✓ Вы партнёр',
+    activeTitle: 'Поздравляем — вы стали партнёром Fractera',
+    activeIdLabel: 'Ваш партнёрский идентификатор',
+    activeBody: 'Подробности и управление партнёрскими ссылками — в Dashboard в правом верхнем углу, на вкладке «Партнёрский кабинет». Если вы её ещё не видите — обновите страницу: вкладка появляется после регистрации.',
+    activeNote: 'Email с подробностями уже отправлен. Проверьте папку «спам», если письма нет во входящих.',
   } : {
     badge: 'Partner Program',
     h1: 'Fractera Partner Cabinet',
@@ -78,6 +94,12 @@ export default async function PartnersPage({
     joinBody: 'Sign-up takes 30 seconds. Just agree to the cooperation policy — your partner cabinet is activated immediately and a welcome email is sent.',
     joinButton: 'Register as a partner',
     joinNote: 'A Fractera account is required — if you are not signed in, the sign-in window will open.',
+
+    activeBadge: '✓ You are a partner',
+    activeTitle: 'Congratulations — you are now a Fractera partner',
+    activeIdLabel: 'Your partner identifier',
+    activeBody: 'Details and affiliate-link management live in the Dashboard (top-right corner) under the «Partner cabinet» tab. If you do not see the tab yet, reload the page — it appears after registration.',
+    activeNote: 'A welcome email has been sent. Check your spam folder if it is not in the inbox.',
   }
 
   const breadcrumb = {
@@ -134,13 +156,28 @@ export default async function PartnersPage({
           <p className="text-sm text-white/75 leading-relaxed">{t.payoutsNoteBody}</p>
         </div>
 
-        {/* Join — instant signup */}
-        <div className="flex flex-col gap-5 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-8 items-start">
-          <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.joinTitle}</h2>
-          <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.joinBody}</p>
-          <PartnersCta lang={lang} label={t.joinButton} />
-          <p className="text-sm text-white/50">{t.joinNote}</p>
-        </div>
+        {/* Join / Active partner state */}
+        {partner ? (
+          <div className="flex flex-col gap-5 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-emerald-900/20 to-black/60 p-8 items-start">
+            <span className="self-start text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest border border-emerald-500/40 bg-emerald-500/[0.08] px-3 py-1 rounded-full">
+              {t.activeBadge}
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.activeTitle}</h2>
+            <div className="w-full flex flex-col gap-2 rounded-xl border border-emerald-500/30 bg-black/40 p-5">
+              <p className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest">{t.activeIdLabel}</p>
+              <p className="font-mono text-2xl md:text-3xl font-bold text-white tracking-wide select-all">{partner.slug}</p>
+            </div>
+            <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.activeBody}</p>
+            <p className="text-sm text-white/50">{t.activeNote}</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-8 items-start">
+            <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.joinTitle}</h2>
+            <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.joinBody}</p>
+            <PartnersCta lang={lang} label={t.joinButton} />
+            <p className="text-sm text-white/50">{t.joinNote}</p>
+          </div>
+        )}
 
       </div>
     </main>
