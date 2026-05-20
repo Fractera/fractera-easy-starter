@@ -45,6 +45,7 @@ export default async function PartnersPage({
 
     howTitle: 'Как работает партнёрка',
     howBody: 'Партнёрская программа — это договор между вами и VPS-поставщиком (например, Contabo или любой другой хостинг с affiliate-программой). Fractera не участвует в денежной транзакции: выплаты идут напрямую от поставщика вам, по его тарифам и графику. Мы даём инфраструктуру вокруг — поддомен, кабинет, виджет, MCP — благодаря которой вы можете рекомендовать любого провайдера так, чтобы это конвертировалось в реальные клики и регистрации.',
+    howFootnote: '* Например, Contabo выплачивает от 20 до 55 € за каждого нового клиента в зависимости от выбранной им конфигурации сервера. Однако сначала вы должны зарегистрироваться на cj.com как publisher — Contabo, как и более 3000 других брендов, ведёт свою партнёрку через эту сеть. Onboarding в CJ — один раз: tax forms, payment info, описание property — после чего весь каталог программ открывается для подачи заявок (каждый бренд одобряет вас отдельно, но повторять регистрацию не нужно). Поэтому час, потраченный на CJ, окупается доступом к одному из крупнейших каталогов affiliate-программ в мире.',
 
     payoutsNoteTitle: 'Важно про выплаты',
     payoutsNoteBody: 'Никакой статистики выплат внутри Fractera-кабинета не будет. Деньги вам платит ваш VPS-поставщик, и историю выплат вы видите в его собственном кабинете. Мы можем показать клики и регистрации, которые прошли через ваш поддомен, виджет или MCP — это нужно для понимания эффективности вашего контента. Сами комиссии — на стороне поставщика.',
@@ -87,6 +88,7 @@ export default async function PartnersPage({
 
     howTitle: 'How the partner program works',
     howBody: 'The affiliate program is a contract between you and a VPS provider (for example, Contabo or any other host with an affiliate program). Fractera does not participate in the financial transaction: payouts come directly from the provider to you, on their terms and schedule. We provide the surrounding infrastructure — the mirror, the cabinet, the widget, the MCP — that lets you recommend any provider in a way that actually converts into clicks and signups.',
+    howFootnote: '* For example, Contabo pays 20–55 € per new customer, depending on the server configuration they pick. But first you need to register on cj.com as a publisher — Contabo, like 3,000+ other brands, runs its affiliate program through that network. CJ onboarding happens once: tax forms, payment info, property description — after which the whole catalogue is open for applications (each brand still approves you separately, but you never repeat the signup). The hour you spend on CJ is repaid by access to one of the largest affiliate-program catalogues in the world.',
 
     payoutsNoteTitle: 'A note on payouts',
     payoutsNoteBody: 'There will be no payout statistics inside the Fractera cabinet. Money is paid to you by the VPS provider, and you see the payout history in their own dashboard. We can show clicks and signups that came through your subdomain, widget, or MCP — useful for understanding what content works. The commissions themselves stay on the provider side.',
@@ -150,6 +152,7 @@ export default async function PartnersPage({
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.howTitle}</h2>
           <p className="text-base text-white/70 leading-relaxed">{t.howBody}</p>
+          <p className="text-sm text-orange-400/80 leading-relaxed border-t border-orange-500/20 pt-4">{t.howFootnote}</p>
         </div>
 
         {/* Payouts note */}
