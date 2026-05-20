@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 type Lang = 'en' | 'ru'
 type DocKey = 'privacy' | 'terms' | 'cookies'
@@ -21,30 +22,40 @@ export function PartnerPageFooter({
   const contact = companyEmail?.trim() || null
 
   const labels = isRu
-    ? { privacy: 'Конфиденциальность', terms: 'Условия использования', cookies: 'Файлы cookie', poweredBy: 'Работает на' }
-    : { privacy: 'Privacy', terms: 'Terms of Service', cookies: 'Cookies', poweredBy: 'Powered by' }
+    ? { privacy: 'Политика конфиденциальности', terms: 'Условия использования', cookies: 'Политика куки', poweredBy: 'Работает на', rights: 'Все права защищены.' }
+    : { privacy: 'Privacy Policy', terms: 'Terms of Service', cookies: 'Cookie Policy', poweredBy: 'Powered by', rights: 'All rights reserved.' }
 
   const docs = buildDocs(lang, operator, contact)
 
   return (
     <>
-      <footer className="border-t border-white/10 bg-black text-white">
-        <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-4 text-center">
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/60 font-medium">
-            <button type="button" onClick={() => setOpenDoc('privacy')} className="hover:text-violet-300 transition-colors">{labels.privacy}</button>
-            <button type="button" onClick={() => setOpenDoc('terms')} className="hover:text-violet-300 transition-colors">{labels.terms}</button>
-            <button type="button" onClick={() => setOpenDoc('cookies')} className="hover:text-violet-300 transition-colors">{labels.cookies}</button>
-          </div>
-          <div className="flex flex-col gap-1 text-xs text-white/35">
-            <span>{operator}</span>
+      <footer className="border-t border-white/20 bg-black text-white">
+        <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-lg font-bold tracking-tight">{operator}</span>
             {contact && (
-              <a href={`mailto:${contact}`} className="hover:text-white/60 transition-colors">{contact}</a>
+              <a href={`mailto:${contact}`} className="text-sm text-white/50 hover:text-violet-400 transition-colors w-fit">{contact}</a>
             )}
-            <span>
-              {labels.poweredBy}{' '}
-              <a href={`https://fractera.ai/${lang}`} target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">Fractera</a>
-            </span>
           </div>
+
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">
+            <button type="button" onClick={() => setOpenDoc('privacy')} className="hover:text-violet-400 transition-colors text-left">{labels.privacy}</button>
+            <button type="button" onClick={() => setOpenDoc('terms')} className="hover:text-violet-400 transition-colors text-left">{labels.terms}</button>
+            <button type="button" onClick={() => setOpenDoc('cookies')} className="hover:text-violet-400 transition-colors text-left">{labels.cookies}</button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-white border-t border-white/20 pt-6">
+            <span>© {new Date().getFullYear()} {operator}. {labels.rights}</span>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              <span className="text-xs text-white/40">
+                {labels.poweredBy}{' '}
+                <a href={`https://fractera.ai/${lang}`} target="_blank" rel="noopener noreferrer" className="font-mono font-semibold hover:text-violet-400 transition-colors">Fractera</a>
+              </span>
+            </div>
+          </div>
+
         </div>
       </footer>
 

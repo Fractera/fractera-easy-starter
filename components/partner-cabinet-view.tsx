@@ -28,9 +28,6 @@ function buildEmbedUrl(lang: Lang, slug: string) {
 function buildPartnerPageUrl(lang: Lang, slug: string) {
   return `${PARTNERS_ORIGIN}/${lang}/${slug}`
 }
-function buildPartnerCanonicalUrl(lang: Lang, slug: string) {
-  return `${EMBED_ORIGIN}/${lang}/partners/${slug}`
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 function getTexts(lang: Lang) {
@@ -101,8 +98,6 @@ function getTexts(lang: Lang) {
       ? 'Ссылки, показываемые на вашей партнёрской странице partners.fractera.ai. Разрешены только проверенные хостинги — для защиты бренда Fractera.'
       : 'Links shown on your partner page at partners.fractera.ai. Only trusted hosts are allowed — to protect the Fractera brand.',
     pageUrlLabel: isRu ? 'URL вашей партнёрской страницы' : 'Your partner page URL',
-    pageUrlCanonical: isRu ? 'Canonical (главный URL)' : 'Canonical (main URL)',
-    pageUrlShort: isRu ? 'Короткая форма' : 'Short form',
     infoTitle: isRu ? 'Реквизиты для footer страницы' : 'Footer details',
     infoIntro: isRu
       ? 'Эти данные показываются в footer вашей партнёрской страницы. Нужны для одобрения партнёрства у хостинга (например, при валидации Contabo через CJ Affiliate).'
@@ -212,8 +207,7 @@ function WidgetTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; la
 
 // ─────────────────────────────────────────────────────────────────────────────
 function PageTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang: Lang }) {
-  const canonicalUrl = buildPartnerCanonicalUrl(lang, partnerSlug)
-  const shortUrl = buildPartnerPageUrl(lang, partnerSlug)
+  const pageUrl = buildPartnerPageUrl(lang, partnerSlug)
 
   async function copyText(text: string) {
     try {
@@ -226,11 +220,10 @@ function PageTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Live URLs */}
+      {/* Live URL */}
       <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.04] p-4">
         <p className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest">{t.pageUrlLabel}</p>
-        <UrlRow label={t.pageUrlShort} value={shortUrl} onCopy={copyText} t={t} />
-        <UrlRow label={t.pageUrlCanonical} value={canonicalUrl} onCopy={copyText} t={t} />
+        <UrlRow value={pageUrl} onCopy={copyText} t={t} />
       </div>
 
       {/* Partner info form */}
@@ -242,32 +235,28 @@ function PageTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang
   )
 }
 
-function UrlRow({ label, value, onCopy, t }: {
-  label: string
+function UrlRow({ value, onCopy, t }: {
   value: string
   onCopy: (text: string) => void
   t: Texts
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs text-white/40 font-mono uppercase tracking-widest">{label}</span>
-      <div className="flex items-center gap-2 flex-wrap">
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-emerald-200 hover:text-emerald-100 font-mono break-all flex-1"
-        >
-          {value}
-        </a>
-        <button
-          type="button"
-          onClick={() => onCopy(value)}
-          className="text-xs font-semibold text-white/70 hover:text-white border border-white/15 hover:border-white/40 px-2 py-1 rounded transition-colors"
-        >
-          {t.copy}
-        </button>
-      </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-emerald-200 hover:text-emerald-100 font-mono break-all flex-1"
+      >
+        {value}
+      </a>
+      <button
+        type="button"
+        onClick={() => onCopy(value)}
+        className="text-xs font-semibold text-white/70 hover:text-white border border-white/15 hover:border-white/40 px-2 py-1 rounded transition-colors"
+      >
+        {t.copy}
+      </button>
     </div>
   )
 }
