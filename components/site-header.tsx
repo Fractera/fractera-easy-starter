@@ -20,9 +20,6 @@ export function SiteHeader() {
   const partnerCabinetLabel = lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet'
 
   if (pathname.includes('/embed')) return null
-  // Hide chrome on partner pages (path shape: /<lang>/partners/<slug>),
-  // but keep it on the program description page (/<lang>/partners exactly).
-  if (/\/partners\/[^/]+/.test(pathname)) return null
 
   const initials = session?.user?.name
     ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()

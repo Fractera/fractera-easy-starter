@@ -17,7 +17,6 @@ export function CookieBanner() {
   }, [])
 
   if (pathname.includes('/embed')) return null
-  if (/\/partners\/[^/]+/.test(pathname)) return null
   if (!visible) return null
 
   return (

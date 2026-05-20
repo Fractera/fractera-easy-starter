@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
@@ -138,6 +139,24 @@ export default async function LangLayout({
   const { lang } = await params
 
   if (!SUPPORTED_LANGS.includes(lang)) notFound()
+
+  // Partner subdomain (partners.fractera.ai) gets a bare layout: no Fractera
+  // SiteHeader / SiteFooter / CookieBanner / JSON-LD. The partner page brings
+  // its own footer. Detected server-side via the host header — a client-side
+  // pathname check cannot work here because proxy.ts rewrites the partner
+  // path internally, so usePathname() never sees a /partners/ segment.
+  const headerStore = await headers()
+  const host = (headerStore.get('host') ?? '').toLowerCase()
+  const isPartnerHost = host.endsWith('partners.fractera.ai')
+
+  if (isPartnerHost) {
+    return (
+      <>
+        {children}
+        <Toaster position="top-center" theme="dark" />
+      </>
+    )
+  }
 
   return (
     <>
