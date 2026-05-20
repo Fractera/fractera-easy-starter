@@ -130,15 +130,31 @@ model Sponsorship {
 }
 
 model Partner {
-  id        String        @id @default(cuid())
-  userId    String        @unique
-  slug      String        @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
-  status    String        @default("active") // active | suspended (auto-approve at registration)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  user      User          @relation("PartnerSelf", fields: [userId], references: [id], onDelete: Cascade)
-  links     PartnerLink[]
-  referrals User[]        @relation("PartnerReferrals")
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  slug          String         @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
+  status        String         @default("active") // active | suspended (auto-approve at registration)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation("PartnerSelf", fields: [userId], references: [id], onDelete: Cascade)
+  links         PartnerLink[]
+  referrals     User[]         @relation("PartnerReferrals")
+  embedSessions EmbedSession[]
+}
+
+model EmbedSession {
+  id        String   @id @default(cuid())
+  token     String   @unique // shown to the widget once at signup; stored in localStorage by the iframe
+  email     String
+  partnerId String?
+  userId    String?  // populated after the user clicks the magic link
+  status    String   @default("pending") // pending | activated | installing | deployed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+
+  @@index([email])
+  @@index([status])
 }
 
 model PartnerLink {

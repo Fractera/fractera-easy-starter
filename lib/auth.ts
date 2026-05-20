@@ -70,4 +70,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session
     },
   },
+  events: {
+    // Link any pending EmbedSession with this email to the user that just
+    // verified the magic link. If the EmbedSession was created with a
+    // partnerId, also stamp the user's referredByPartnerId — this is the
+    // attribution moment for the widget flow.
+    async signIn({ user }) {
+      if (!user?.id || !user.email) return
+      try {
+        const email = user.email.toLowerCase()
+        const pending = await db.embedSession.findMany({
+          where: { email, status: 'pending' },
+          select: { id: true, partnerId: true },
+        })
+        if (pending.length === 0) return
+
+        await db.embedSession.updateMany({
+          where: { email, status: 'pending' },
+          data: { status: 'activated', userId: user.id },
+        })
+
+        const partnerId = pending.find(p => p.partnerId)?.partnerId
+        if (partnerId) {
+          const u = await db.user.findUnique({
+            where: { id: user.id },
+            select: { referredByPartnerId: true },
+          })
+          if (u && !u.referredByPartnerId) {
+            await db.user.update({
+              where: { id: user.id },
+              data: { referredByPartnerId: partnerId },
+            })
+          }
+        }
+      } catch (err) {
+        console.error('[auth][events.signIn] embed-session linking failed', err)
+      }
+    },
+  },
 })
