@@ -37,6 +37,7 @@ export function SiteFooter() {
   }
 
   if (pathname?.includes('/embed')) return null
+  if (pathname && /\/partners\/[^/]+/.test(pathname)) return null
 
   return (
     <footer className="border-t border-white/20 bg-black text-white mt-auto">
