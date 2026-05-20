@@ -134,6 +134,8 @@ model Partner {
   userId        String         @unique
   slug          String         @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
   status        String         @default("active") // active | suspended (auto-approve at registration)
+  companyName   String?        // shown in partner-page footer
+  companyEmail  String?        // shown in partner-page footer
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   user          User           @relation("PartnerSelf", fields: [userId], references: [id], onDelete: Cascade)
@@ -160,9 +162,12 @@ model EmbedSession {
 model PartnerLink {
   id           String   @id @default(cuid())
   partnerId    String
-  providerName String   // user-supplied label, surfaced on widget/mirror (e.g. "Contabo")
+  providerName String   // user-supplied label, surfaced on widget/page (e.g. "Contabo")
   affiliateUrl String   // full affiliate URL from the provider's program
-  isDefault    Boolean  @default(false) // exactly one default per partner (enforced in app layer)
+  isDefault    Boolean  @default(false) // one default per surface, enforced in app layer
+  forWidget    Boolean  @default(true)  // allowed in iframe widget (any URL, partner's blog responsibility)
+  forPage      Boolean  @default(false) // allowed on partner page (must be in trusted-providers whitelist)
+  sortOrder    Int      @default(0)     // partner-controlled order for multi-link display
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   partner      Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)

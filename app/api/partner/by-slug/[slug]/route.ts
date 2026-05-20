@@ -12,8 +12,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       id: true,
       slug: true,
       status: true,
+      // Widget needs the default link that is allowed in the widget surface.
       links: {
-        where: { isDefault: true },
+        where: { isDefault: true, forWidget: true },
         select: { providerName: true, affiliateUrl: true },
         take: 1,
       },

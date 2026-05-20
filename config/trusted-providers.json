@@ -1,0 +1,22 @@
+{
+  "providers": [
+    { "domain": "contabo.com",     "name": "Contabo",           "category": "vps" },
+    { "domain": "timeweb.ru",      "name": "Timeweb",           "category": "vps" },
+    { "domain": "timeweb.com",     "name": "Timeweb",           "category": "vps" },
+    { "domain": "sprinthost.ru",   "name": "Sprinthost",        "category": "vps" },
+    { "domain": "fornex.com",      "name": "Fornex",            "category": "vps" },
+    { "domain": "spaceweb.ru",     "name": "Spaceweb",          "category": "vps" },
+    { "domain": "hyperhost.ua",    "name": "Hyperhost",         "category": "vps" },
+    { "domain": "xorek.cloud",     "name": "Xorek Cloud",       "category": "vps" },
+    { "domain": "hostiman.ru",     "name": "Hostiman",          "category": "vps" },
+    { "domain": "justhost.ru",     "name": "JustHost",          "category": "vps" },
+    { "domain": "play2go.cloud",   "name": "Play2Go",           "category": "vps" },
+    { "domain": "reg.ru",          "name": "Reg.ru",            "category": "vps" },
+    { "domain": "ruvds.com",       "name": "RuVDS",             "category": "vps" },
+    { "domain": "eurobyte.ru",     "name": "Eurobyte",          "category": "vps" },
+    { "domain": "kingservers.com", "name": "KingServers",       "category": "vps" },
+    { "domain": "ewwhk.com",       "name": "Admitad (network)", "category": "aff-network" },
+    { "domain": "admitad.com",     "name": "Admitad",           "category": "aff-network" },
+    { "domain": "cj.com",          "name": "CJ Affiliate",      "category": "aff-network" }
+  ]
+}
