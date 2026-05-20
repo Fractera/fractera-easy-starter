@@ -2,41 +2,12 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'loopShowcase'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits'
 >
 
 export const hero: HeroPart = {
   heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS',
   deployButton: 'Deploy My Server',
-
-  loopShowcase: {
-    h2: 'Full Stack Ownership: Your Server, Your Domain, Your Product',
-    description:
-      'Modern AI coding is easy — the hard part is owning the infrastructure. Fractera makes ownership effortless: a dedicated Ubuntu VPS, an automatic custom domain with SSL, and a production-ready product stack — all yours, forever.',
-    slides: [
-      {
-        label: 'Your Own Server',
-        sublabel: 'Dedicated VPS, never rented',
-        title: 'A dedicated Ubuntu VPS, yours forever — not a platform you rent',
-        description:
-          'Vercel and Netlify deploy you in seconds — but your code, database, and users live on their infrastructure. Fractera deploys a real Ubuntu 24.04 VPS in 10 minutes. Your hardware. Your storage. Your terms. No platform repricing can take your product offline.',
-      },
-      {
-        label: 'Your Own Domain',
-        sublabel: 'SSL + DNS + Nginx — automatic',
-        title: 'Custom domain live in 10 minutes — zero DNS pain',
-        description:
-          'Custom domain provisioning, SSL certificate, Nginx routing — all automatic. The exact friction that pushes developers onto managed platforms is solved in one click. No certificate renewals to track. No DNS dashboards to learn.',
-      },
-      {
-        label: 'Your Own Product',
-        sublabel: 'Code ownership, no lock-in',
-        title: 'Build, own, ship — no platform lock-in, ever',
-        description:
-          'Modern AI coding is easy. Server setup is what pushes developers onto hosted platforms. Fractera makes the hard part simple — a self-hosted AI development stack on your own VPS. Code on your GitHub. Data on your server. Product yours forever.',
-      },
-    ],
-  },
 
   description:
     'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',

@@ -14,9 +14,16 @@ export type SiteContent = {
   heroBenefitsHeader: { h2: string }
   heroBenefits: { title: string; text: string }[]
   loopShowcase: {
+    label: string
     h2: string
     description: string
-    slides: { label: string; sublabel: string; title: string; description: string }[]
+    slides: {
+      label: string
+      sublabel: string
+      title: string
+      description: string
+      imageSrc?: string
+    }[]
   }
   dpHeader: { label: string; h2: string; description: string }
   dpLeft: { imageSrc: string; title: string; description: string }

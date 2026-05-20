@@ -2,41 +2,12 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'loopShowcase'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits'
 >
 
 export const hero: HeroPart = {
   heroTitle: 'Open-Source AI-инфраструктура на вашем VPS — в один клик',
   deployButton: 'Развернуть мой сервер',
-
-  loopShowcase: {
-    h2: 'Полное владение стеком: ваш сервер, ваш домен, ваш продукт',
-    description:
-      'Современный AI-кодинг прост — сложно владеть инфраструктурой. Fractera делает владение лёгким: выделенный Ubuntu VPS, автоматический кастомный домен с SSL и production-ready стек продукта — всё ваше, навсегда.',
-    slides: [
-      {
-        label: 'Ваш собственный сервер',
-        sublabel: 'Выделенный VPS, без аренды',
-        title: 'Выделенный Ubuntu VPS — ваш навсегда, а не платформа в аренде',
-        description:
-          'Vercel и Netlify запускают вас за секунды — но код, база и пользователи живут на их инфраструктуре. Fractera разворачивает реальный Ubuntu 24.04 VPS за 10 минут. Ваше железо. Ваше хранилище. Ваши условия. Никакие повышения тарифов не положат ваш продукт.',
-      },
-      {
-        label: 'Ваш собственный домен',
-        sublabel: 'SSL + DNS + Nginx — автоматически',
-        title: 'Кастомный домен живой за 10 минут — без боли с DNS',
-        description:
-          'Регистрация домена, SSL-сертификат, маршрутизация Nginx — всё автоматически. Именно эта боль гонит разработчиков на managed-платформы — решается одним кликом. Никаких ручных продлений сертификатов. Никаких дашбордов DNS.',
-      },
-      {
-        label: 'Ваш собственный продукт',
-        sublabel: 'Полный контроль кода, без lock-in',
-        title: 'Создайте, владейте, запустите — без lock-in платформы, навсегда',
-        description:
-          'Современный AI-кодинг прост. Настройка сервера — вот что гонит разработчиков на хостинг-платформы. Fractera упрощает сложное — self-hosted AI dev-стек на вашем VPS. Код на вашем GitHub. Данные на вашем сервере. Продукт ваш навсегда.',
-      },
-    ],
-  },
 
   description:
     'Open-source платформа разворачивает на вашем VPS за 10 минут полный AI-стек: Hermes orchestrator, память LightRAG, 5 AI-платформ (Claude Code, Codex, Gemini CLI, Qwen, Kimi), авторизацию, базу данных и хранилище. Без API-ключей. Без Clerk. Без Supabase. Ваш сервер, ваш стек, ваши данные.',

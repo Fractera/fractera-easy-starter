@@ -1,5 +1,6 @@
 import type { SiteContent } from '../../types'
 import { hero } from './hero'
+import { loopShowcase } from './loop-showcase'
 import { presentation } from './presentation'
 import { problem } from './problem'
 import { pricing } from './pricing'
@@ -10,6 +11,7 @@ import { sponsorship } from './sponsorship'
 
 export const en: SiteContent = {
   ...hero,
+  ...loopShowcase,
   ...presentation,
   ...problem,
   ...pricing,
