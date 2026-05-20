@@ -15,10 +15,12 @@ export function PartnerRegistrationDrawer({ open, onClose, lang }: {
   const { data: session } = useSession()
   const [submitting, setSubmitting] = useState(false)
   const [partner, setPartner] = useState<Partner | null>(null)
+  const [agreed, setAgreed] = useState(false)
 
   useEffect(() => {
     if (!open) return
     setPartner(null)
+    setAgreed(false)
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -94,7 +96,6 @@ export function PartnerRegistrationDrawer({ open, onClose, lang }: {
     }
   }
 
-  const [agreed, setAgreed] = useState(false)
   const signedIn = !!session?.user
 
   return (
