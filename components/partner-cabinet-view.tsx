@@ -11,7 +11,11 @@ type PartnerLink = {
   createdAt: string
 }
 
-const EMBED_BASE = 'https://fractera.ai/embed/signup'
+const EMBED_ORIGIN = 'https://fractera.ai'
+
+function buildEmbedUrl(lang: Lang, slug: string) {
+  return `${EMBED_ORIGIN}/${lang}/embed/signup?ref=${slug}`
+}
 
 type Lang = 'ru' | 'en'
 
@@ -101,7 +105,7 @@ export function PartnerCabinetView({ partnerSlug, lang }: { partnerSlug: string;
         </button>
       </div>
 
-      {tab === 'links' ? <LinksTab t={t} /> : <WidgetTab partnerSlug={partnerSlug} t={t} />}
+      {tab === 'links' ? <LinksTab t={t} /> : <WidgetTab partnerSlug={partnerSlug} t={t} lang={lang} />}
     </div>
   )
 }
@@ -331,8 +335,8 @@ function LinkForm({ t, initial, onCancel, onSaved }: {
   )
 }
 
-function WidgetTab({ partnerSlug, t }: { partnerSlug: string; t: Texts }) {
-  const snippet = `<iframe\n  src="${EMBED_BASE}?ref=${partnerSlug}"\n  width="100%" height="640"\n  style="border:0; border-radius:16px"\n></iframe>`
+function WidgetTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang: Lang }) {
+  const snippet = `<iframe\n  src="${buildEmbedUrl(lang, partnerSlug)}"\n  width="100%" height="640"\n  style="border:0; border-radius:16px"\n></iframe>`
   const [referralCount, setReferralCount] = useState<number | null>(null)
 
   useEffect(() => {

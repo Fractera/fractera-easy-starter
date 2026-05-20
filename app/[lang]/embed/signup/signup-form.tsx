@@ -56,8 +56,8 @@ export function SignupForm({
     setSubmitting(true)
     try {
       const callbackUrl = partnerSlug
-        ? `/embed/post-signup?ref=${encodeURIComponent(partnerSlug)}`
-        : '/embed/post-signup'
+        ? `/${lang}/embed/post-signup?ref=${encodeURIComponent(partnerSlug)}`
+        : `/${lang}/embed/post-signup`
       const result = await signIn('resend', { email: trimmed, callbackUrl, redirect: false })
       if (result?.error) {
         setError(t.failed)

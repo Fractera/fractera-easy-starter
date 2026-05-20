@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Allow /embed/* to be framed from any domain (partner blogs, articles, etc.)
-        source: '/embed/:path*',
+        // Allow /:lang/embed/* to be framed from any domain (partner blogs, articles, etc.)
+        source: '/:lang/embed/:path*',
         headers: [
           { key: 'Content-Security-Policy', value: 'frame-ancestors *;' },
         ],

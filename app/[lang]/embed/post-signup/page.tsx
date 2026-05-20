@@ -4,11 +4,14 @@ import { db } from '@/lib/db'
 export const dynamic = 'force-dynamic'
 
 export default async function EmbedPostSignupPage({
+  params,
   searchParams,
 }: {
-  searchParams: Promise<{ ref?: string; lang?: string }>
+  params: Promise<{ lang: string }>
+  searchParams: Promise<{ ref?: string }>
 }) {
-  const { ref, lang: langParam } = await searchParams
+  const { lang: langParam } = await params
+  const { ref } = await searchParams
   const lang: 'en' | 'ru' = langParam === 'ru' ? 'ru' : 'en'
 
   const session = await auth()
