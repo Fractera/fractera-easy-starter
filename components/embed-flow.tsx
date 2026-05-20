@@ -370,7 +370,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                 >
                   <span className="flex flex-col gap-0.5">
                     <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{providerName ?? 'Contabo'}</span>
-                    <span className="text-xs text-white/60 font-medium">{t.providerPrice}</span>
+                    {!affiliateUrl && <span className="text-xs text-white/60 font-medium">{t.providerPrice}</span>}
                   </span>
                   <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">↗</span>
                 </a>

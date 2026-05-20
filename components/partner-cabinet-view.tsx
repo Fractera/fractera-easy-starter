@@ -234,20 +234,12 @@ function LinksTab({ t }: { t: Texts }) {
               </div>
             ))}
           </div>
-          {adding ? (
+          {adding && (
             <LinkForm
               t={t}
               onCancel={() => setAdding(false)}
               onSaved={() => { setAdding(false); fetchLinks() }}
             />
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              {t.addLink}
-            </button>
           )}
         </>
       )}
