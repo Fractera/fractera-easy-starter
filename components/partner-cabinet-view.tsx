@@ -11,7 +11,7 @@ type PartnerLink = {
   createdAt: string
 }
 
-const EMBED_BASE = 'https://embed.fractera.ai/signup'
+const EMBED_BASE = 'https://fractera.ai/embed/signup'
 
 type Lang = 'ru' | 'en'
 
@@ -53,10 +53,10 @@ function getTexts(lang: Lang) {
     saveFailed: isRu ? 'Ошибка сохранения' : 'Save failed',
 
     // Widget tab
-    widgetWipBadge: isRu ? 'В разработке' : 'In development',
-    widgetWipBody: isRu
-      ? 'Embed-виджет ещё не запущен — endpoint заработает в следующем шаге разработки. Snippet ниже уже содержит ваш идентификатор партнёра — его можно сохранить или скопировать сейчас, чтобы вставить в блог или статью когда виджет станет доступен.'
-      : 'The embed widget has not shipped yet — the endpoint will go live in the next development step. The snippet below already contains your partner identifier — you can save or copy it now and paste it into your blog or article once the widget is available.',
+    referralsLabel: isRu ? 'Регистраций через ваш ref' : 'Signups via your ref',
+    referralsHint: isRu
+      ? 'Считаются пользователи, прошедшие активацию учётной записи (клик по magic-link) после прихода через виджет с вашим идентификатором.'
+      : 'Counts users who completed account activation (clicked the magic link) after coming through the widget with your identifier.',
     snippetLabel: isRu ? 'Snippet для встраивания' : 'Embed snippet',
     copy: isRu ? 'Копировать' : 'Copy',
     copied: isRu ? 'Скопировано' : 'Copied',
@@ -333,6 +333,14 @@ function LinkForm({ t, initial, onCancel, onSaved }: {
 
 function WidgetTab({ partnerSlug, t }: { partnerSlug: string; t: Texts }) {
   const snippet = `<iframe\n  src="${EMBED_BASE}?ref=${partnerSlug}"\n  width="100%" height="640"\n  style="border:0; border-radius:16px"\n></iframe>`
+  const [referralCount, setReferralCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/partner/stats')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d && typeof d.referralCount === 'number') setReferralCount(d.referralCount) })
+      .catch(() => {})
+  }, [])
 
   async function copy() {
     try {
@@ -345,9 +353,10 @@ function WidgetTab({ partnerSlug, t }: { partnerSlug: string; t: Texts }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-4">
-        <p className="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">{t.widgetWipBadge}</p>
-        <p className="text-sm text-white/70 leading-relaxed">{t.widgetWipBody}</p>
+      <div className="flex flex-col gap-2 rounded-xl border border-violet-500/30 bg-violet-500/[0.04] p-4">
+        <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.referralsLabel}</p>
+        <p className="text-3xl font-bold text-white font-mono">{referralCount === null ? '—' : referralCount}</p>
+        <p className="text-xs text-white/50 leading-relaxed">{t.referralsHint}</p>
       </div>
 
       <div className="flex flex-col gap-2">

@@ -9,20 +9,22 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String?        @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  createdAt     DateTime       @default(now())
-  accounts      Account[]
-  sessions      Session[]
-  subscriptions Subscription[]
-  serverTokens  ServerToken[]
-  vpsReserves   VpsReserve[]
-  purchases     Purchase[]
-  sponsorships  Sponsorship[]
-  partner       Partner?
+  id                  String         @id @default(cuid())
+  email               String?        @unique
+  emailVerified       DateTime?
+  name                String?
+  image               String?
+  createdAt           DateTime       @default(now())
+  referredByPartnerId String?
+  accounts            Account[]
+  sessions            Session[]
+  subscriptions       Subscription[]
+  serverTokens        ServerToken[]
+  vpsReserves         VpsReserve[]
+  purchases           Purchase[]
+  sponsorships        Sponsorship[]
+  partner             Partner?       @relation("PartnerSelf")
+  referredBy          Partner?       @relation("PartnerReferrals", fields: [referredByPartnerId], references: [id])
 }
 
 model Account {
@@ -134,8 +136,9 @@ model Partner {
   status    String        @default("active") // active | suspended (auto-approve at registration)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User          @relation("PartnerSelf", fields: [userId], references: [id], onDelete: Cascade)
   links     PartnerLink[]
+  referrals User[]        @relation("PartnerReferrals")
 }
 
 model PartnerLink {
