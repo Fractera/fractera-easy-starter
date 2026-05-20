@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { PartnerCabinetView } from '@/components/partner-cabinet-view'
+import { useLang } from '@/lib/i18n/use-lang'
 
 type ServerRecord = {
   id: string
@@ -485,6 +486,7 @@ interface Props {
 
 export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
   const { data: session } = useSession()
+  const lang = useLang()
   const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases' | 'partner'>(view)
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [purchases, setPurchases] = useState<PurchaseRecord[]>([])
@@ -579,7 +581,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-white">
-              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : activeView === 'partner' ? 'Партнёрский кабинет' : 'Purchases'}
+              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : activeView === 'partner' ? (lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet') : 'Purchases'}
             </h2>
             {session?.user?.email && (
               <p className="text-sm text-white/60 font-medium">{session.user.email}</p>
@@ -597,9 +599,15 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
         <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-3">
           {activeView === 'partner' ? (
             session?.user?.partnerSlug ? (
-              <PartnerCabinetView partnerSlug={session.user.partnerSlug} />
+              <PartnerCabinetView partnerSlug={session.user.partnerSlug} lang={lang} />
             ) : (
-              <p className="text-base text-white/60 py-4">Партнёрская регистрация ещё не выполнена. Откройте страницу <a href="/ru/partners" className="text-violet-400 hover:text-violet-300">Партнёры</a> и нажмите «Зарегистрироваться».</p>
+              <p className="text-base text-white/60 py-4">
+                {lang === 'ru' ? (
+                  <>Партнёрская регистрация ещё не выполнена. Откройте страницу <a href="/ru/partners" className="text-violet-400 hover:text-violet-300">Партнёры</a> и нажмите «Зарегистрироваться».</>
+                ) : (
+                  <>You have not registered as a partner yet. Open the <a href="/en/partners" className="text-violet-400 hover:text-violet-300">Partners</a> page and click «Register as a partner».</>
+                )}
+              </p>
             )
           ) : loading ? (
             <div className="flex items-center gap-2 text-base text-white font-medium py-4">

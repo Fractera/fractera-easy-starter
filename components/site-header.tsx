@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
+import { useLang } from '@/lib/i18n/use-lang'
 
 export function SiteHeader() {
   const { data: session, status } = useSession()
@@ -13,6 +14,8 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
   const isPartner = !!session?.user?.partnerSlug
+  const lang = useLang()
+  const partnerCabinetLabel = lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet'
 
   const initials = session?.user?.name
     ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -105,7 +108,7 @@ export function SiteHeader() {
                                 <circle cx="7" cy="4.5" r="2.2" stroke="currentColor" strokeWidth="1.3"/>
                                 <path d="M2.5 12c0-2.4 2-4 4.5-4s4.5 1.6 4.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                               </svg>
-                              Партнёрский кабинет
+                              {partnerCabinetLabel}
                             </button>
                           )}
                           {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Purchases скрыта */}
