@@ -38,7 +38,7 @@ export const hero: HeroPart = {
     },
     {
       title: 'Dedicated VPS Environment with Custom Domain',
-      text: 'Dedicated Ubuntu 24.04 VPS configured automatically. Custom domain provisioned, SSL issued, Nginx routed — before you write the first line of code. Tested providers: Contabo, Hetzner, Netcup, DigitalOcean. 4 cores and 6 GB RAM is the minimum we recommend.',
+      text: 'Dedicated Ubuntu 24.04 VPS configured automatically. Custom domain provisioned, SSL issued, Nginx routed — before you write the first line of code. Recommended provider: Contabo. 4 cores and 6 GB RAM is the minimum we recommend.',
     },
     {
       title: 'Pre-Configured Secure Database & Auth Stack',

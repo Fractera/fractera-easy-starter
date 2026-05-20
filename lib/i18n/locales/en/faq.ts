@@ -48,7 +48,7 @@ export const faqItems: FaqItem[] = [
       'The complete cycle: from an empty VPS to a live product on the marketplace. Under 30 minutes to launch, everything after that runs at your development pace.',
     ],
     steps: [
-      'Buy a VPS from any tested provider (Contabo, Hetzner, Netcup, DigitalOcean). Receive your IP address, login, and password.',
+      'Buy a VPS from Contabo (our recommended provider). Receive your IP address, login, and password.',
       'On the "Your Server" tab, enter those credentials and launch the deployment. Watch real-time events for a few minutes. Two emails arrive: one when installation starts, another when it completes.',
       'Your dashboard sits in the top-right corner — click your name after signing in. Inside you will find direct links to your live site and admin panel. The same links arrive in your completion email.',
       'Sign up in the admin panel with a real email and password (save them carefully). The first user becomes the administrator — only admins can change settings. You can promote more admins later.',
@@ -132,29 +132,29 @@ export const faqItems: FaqItem[] = [
   {
     q: 'Do you have a referral program?',
     a: [
-      'Yes — the Fractera Partner Program. The model is straightforward: VPS referrals.',
-      "Get an affiliate link from any of the four VPS providers we list (Contabo, Hetzner, Netcup, DigitalOcean) and submit it via the Partners page. We place your link in the recommended servers block on the landing page. When a user clicks through and buys a server, the provider pays your commission directly — Fractera is not involved in the transaction.",
+      'Yes — the Fractera Partner Program. The model is straightforward: Contabo VPS referrals.',
+      "Apply as an affiliate at Contabo. Contabo is a trusted, long-standing hosting provider — note that they don't issue affiliate links instantly: they review the page where your link will be hosted and require basic legal details about your company. Once approved, submit the link to us via the Partners page and we place it in the recommended servers block of the landing page. Each new user pays out 20 € for our recommended configuration, or 30 €+ for higher-tier servers — full payout details on the Contabo affiliate site.",
     ],
     trail: [
-      'To join, register on the Partners page. You will receive instructions for submitting your VPS affiliate links.',
+      'To join, see the Partners page for the full process.',
       'For questions: admin@fractera.ai',
     ],
   },
   {
     q: 'How do I earn with Fractera?',
     a: [
-      'Your income from partnership is closer and simpler than you might imagine. Five minutes of setup, then passive payouts for as long as your content keeps attracting viewers.',
+      'Your income from partnership is closer and simpler than you might imagine. A short approval process at Contabo, then passive payouts for as long as your content keeps attracting viewers.',
     ],
     steps: [
-      'Sign up as an affiliate with one — or all four — of our recommended VPS providers: Contabo, Hetzner, Netcup, DigitalOcean. A few minutes per provider.',
-      'Open the Partner Program tab on the Partners page, create your partner account, and submit your referral links.',
-      'You receive a personal link to a co-branded version of the Fractera site.',
+      'Apply as an affiliate at Contabo via their affiliate program page. They will ask for the URL where the affiliate link will live and basic legal details — review usually takes a few business days.',
+      'Once Contabo approves you, copy your affiliate link.',
+      'Open the Partner Program tab on the Partners page, create your partner account, and submit your Contabo link.',
+      'You receive a personal mirror of the Fractera landing page, with your Contabo link replacing ours.',
       'Recommend Fractera through your blog, YouTube channel, social posts — anywhere developers gather.',
-      'Any visitor who follows your link and wants to try Fractera buys a VPS from the hosting provider first.',
-      'When they click Buy Server, the hosting provider locks your affiliate link and pays the commission directly to you — Fractera is never in the middle.',
+      'Any visitor who follows your link and buys a Contabo server triggers a payout — 20 € for the recommended configuration, 30 €+ for higher-tier servers — paid by Contabo directly to you. Fractera is never in the middle.',
     ],
     trail: [
-      'The math is simple: five minutes of setup, then passive payouts for as long as your article, post, or video keeps bringing traffic. VPS providers compete hard for new customers — and you get rewarded for every one you bring into their ecosystem.',
+      'The math is simple: one approval at Contabo, then passive payouts for as long as your article, post, or video keeps bringing traffic. Contabo competes hard for new customers — and you get rewarded for every one you bring into their ecosystem.',
     ],
   },
   // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос об удалении сервера упоминает платную подписку и White Label

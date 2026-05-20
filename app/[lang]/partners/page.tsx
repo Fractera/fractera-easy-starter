@@ -1,3 +1,5 @@
+const CONTABO_AFFILIATE_PROGRAM_URL = 'https://contabo.com/en/affiliate-program/'
+
 export default async function PartnersPage({
   params,
 }: {
@@ -9,52 +11,68 @@ export default async function PartnersPage({
   const t = isRu ? {
     badge: 'Партнёрская программа',
     h1: 'Зарабатывайте вместе с Fractera',
-    subtitle: 'Пять минут настройки — пассивный доход, пока ваш контент жив.',
-    mainTitle: 'VPS-партнёрство',
-    mainBody: 'Каждый пользователь Fractera покупает VPS у одного из четырёх проверенных провайдеров — Contabo, Hetzner, Netcup, DigitalOcean. Станьте их аффилиатом, передайте нам свои партнёрские ссылки — мы разместим их в блоке рекомендованных серверов на лендинге. Каждый купленный через ваш канал сервер приносит вам вознаграждение напрямую от провайдера.',
+    subtitle: 'Партнёрство с Contabo — пассивный доход, пока ваш контент жив.',
+    mainTitle: 'Реферальная программа Contabo',
+    mainBody: 'Наш рекомендованный VPS-провайдер — Contabo. Это доверенный, давно работающий хостинг, который стабильно выплачивает партнёрское вознаграждение. Станьте его аффилиатом, передайте нам свою партнёрскую ссылку — мы разместим её в блоке рекомендованных серверов на лендинге. Каждый клиент, купивший сервер через ваш канал, приносит вам выплату напрямую от Contabo.',
+    rewardsTitle: 'Размер вознаграждения',
+    rewardsItems: [
+      'Наша рекомендованная конфигурация (Cloud VPS 10, Ubuntu 24.04) — 20 € за каждого нового клиента.',
+      'Более мощные конфигурации — 30 € и выше за клиента.',
+      'Точные тарифы и условия выплат — на странице партнёрской программы Contabo.',
+    ],
     mainHow: 'Как это работает:',
     mainSteps: [
-      'Зарегистрируйтесь как аффилиат у выбранного VPS-провайдера и получите партнёрскую ссылку. Несколько минут на каждого.',
-      'Передайте ссылки через форму регистрации ниже.',
-      'Мы размещаем их на лендинге рядом с именем провайдера.',
-      'Пользователь переходит по ссылке, покупает сервер — провайдер выплачивает вознаграждение напрямую вам.',
+      'Перейдите на страницу партнёрской программы Contabo (ссылка ниже) и подайте заявку. Contabo не выдаёт партнёрскую ссылку мгновенно: они проверяют страницу, на которой будет размещена ссылка, и запрашивают базовые юридические данные о вашей компании. Это стандартная практика для серьёзной партнёрки.',
+      'Проверка занимает обычно несколько рабочих дней. После одобрения Contabo выдаёт вашу персональную партнёрскую ссылку.',
+      'Передайте ссылку нам — на этом этапе принимаем заявки по email: admin@fractera.ai.',
+      'Мы размещаем вашу ссылку на лендинге в блоке рекомендованных серверов. Каждый купленный через неё VPS приносит вам выплату напрямую от Contabo.',
     ],
-    mainNote: 'Fractera не участвует в транзакции. Размер и периодичность выплат определяет хостинг-провайдер. Подходит для блогеров, контент-мейкеров, технических авторов и YouTube-каналов.',
-    benefitsTitle: 'Почему это работает',
+    mainNote: 'Fractera не участвует в транзакции — выплаты идут напрямую от Contabo. Размер, периодичность и условия определяет Contabo. Подходит для блогеров, контент-мейкеров, технических авторов и YouTube-каналов.',
+    soonTitle: 'Что появится позже',
+    soonBody: 'Сейчас мы готовим полноценный партнёрский кабинет с автоматической регистрацией, личным поддоменом-зеркалом (например, your-name.partners.fractera.ai) и статистикой кликов. До его запуска заявки принимаем вручную — пишите на admin@fractera.ai.',
+    benefitsTitle: 'Почему Contabo',
     benefits: [
-      'Пассивный доход — статья или видео работают на вас месяцами и годами.',
-      'Никаких порогов и лимитов — каждый приведённый клиент учитывается.',
-      'Прямая выплата от провайдера — без посредников, без задержек.',
-      'Подключение за пять минут — все четыре провайдера принимают новых аффилиатов онлайн.',
+      'Стабильность — десятилетия на рынке, репутация надёжного европейского хостинга.',
+      'Цена и ресурсы — Cloud VPS 10 (4 vCPU, 8 ГБ RAM, 150 ГБ NVMe SSD) от €4.50/мес. Идеально под AI-нагрузки Fractera.',
+      'Прозрачная партнёрка — фиксированная выплата за каждого приведённого клиента, без скрытых условий.',
+      'Прямая выплата от Contabo — без посредников и задержек со стороны Fractera.',
     ],
-    ctaTitle: 'Готовы присоединиться?',
-    ctaBody: 'Зарегистрируйтесь по ссылке ниже. После регистрации получите инструкции по передаче VPS-партнёрских ссылок.',
-    ctaButton: 'Зарегистрироваться в программе',
+    ctaTitle: 'Подайте заявку в Contabo',
+    ctaBody: 'Откройте страницу партнёрской программы Contabo, изучите условия и подайте заявку. После одобрения напишите нам — мы разместим вашу ссылку на лендинге.',
+    ctaButton: 'Открыть Contabo Affiliate Program',
     ctaNote: 'По вопросам: admin@fractera.ai',
   } : {
     badge: 'Partner Program',
     h1: 'Earn with Fractera',
-    subtitle: 'Five minutes of setup — passive income for as long as your content stays alive.',
-    mainTitle: 'VPS Referrals',
-    mainBody: 'Every Fractera user buys a VPS from one of four tested providers — Contabo, Hetzner, Netcup, DigitalOcean. Become their affiliate, submit your referral links, and we display them in the recommended servers block on the landing page. Every server bought through your channel pays you a commission directly from the provider.',
+    subtitle: 'Partner with Contabo — passive income for as long as your content stays alive.',
+    mainTitle: 'Contabo Referral Program',
+    mainBody: 'Our recommended VPS provider is Contabo — a trusted, long-standing host with a reliable affiliate-payout track record. Become a Contabo affiliate, submit your referral link to us, and we display it in the recommended servers block on the landing page. Every customer who buys a server through your link pays out directly from Contabo to you.',
+    rewardsTitle: 'Reward amount',
+    rewardsItems: [
+      'Our recommended configuration (Cloud VPS 10, Ubuntu 24.04) — 20 € per new customer.',
+      'Higher-tier configurations — 30 € and above per customer.',
+      'Exact rates and payout terms are listed on the Contabo affiliate program page.',
+    ],
     mainHow: 'How it works:',
     mainSteps: [
-      'Sign up as an affiliate with your chosen VPS provider and grab your referral link. A few minutes per provider.',
-      'Submit your links via the registration form below.',
-      'We place them on the landing page next to the provider name.',
-      'A user clicks your link, buys a server — the provider pays your commission directly.',
+      'Open the Contabo affiliate program page (link below) and apply. Contabo does not issue affiliate links instantly: they review the page where the link will be hosted and ask for basic legal details about your company. This is standard practice for a serious affiliate program.',
+      'Review typically takes a few business days. Once approved, Contabo gives you your personal affiliate link.',
+      'Submit the link to us — at this stage we accept submissions by email: admin@fractera.ai.',
+      'We place your link on the landing page in the recommended servers block. Every VPS purchased through it pays you directly from Contabo.',
     ],
-    mainNote: 'Fractera is not involved in the transaction. The hosting provider sets the reward amount and payout schedule. Ideal for bloggers, content creators, technical writers, and YouTube channels.',
-    benefitsTitle: 'Why this works',
+    mainNote: 'Fractera is not involved in the transaction — payouts come directly from Contabo. Contabo sets the amount, schedule, and terms. Ideal for bloggers, content creators, technical writers, and YouTube channels.',
+    soonTitle: 'Coming soon',
+    soonBody: 'A full partner cabinet is in development — automated signup, your own mirror subdomain (e.g., your-name.partners.fractera.ai), and click analytics. Until it ships, we accept submissions manually — email admin@fractera.ai.',
+    benefitsTitle: 'Why Contabo',
     benefits: [
-      'Passive income — your article or video keeps working for months and years.',
-      'No thresholds, no caps — every customer you bring is counted.',
-      'Direct payout from the provider — no middlemen, no delays.',
-      'Five-minute onboarding — all four providers accept new affiliates online.',
+      'Reliability — decades on the market, reputation as a dependable European host.',
+      'Resources for the price — Cloud VPS 10 (4 vCPU, 8 GB RAM, 150 GB NVMe SSD) from €4.50/mo. A natural fit for Fractera AI workloads.',
+      'Transparent affiliate program — flat payout per customer, no hidden terms.',
+      'Direct payout from Contabo — no middlemen, no Fractera-side delays.',
     ],
-    ctaTitle: 'Ready to join?',
-    ctaBody: 'Register via the link below. After signing up you will receive instructions for submitting your VPS affiliate links.',
-    ctaButton: 'Join the Partner Program',
+    ctaTitle: 'Apply at Contabo',
+    ctaBody: 'Open the Contabo affiliate program page, review the terms, and apply. Once approved, email us — we will place your link on the landing page.',
+    ctaButton: 'Open Contabo Affiliate Program',
     ctaNote: 'Questions? admin@fractera.ai',
   }
 
@@ -90,7 +108,22 @@ export default async function PartnersPage({
         <div className="flex flex-col gap-5 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-8">
           <h2 className="text-2xl font-bold text-white">{t.mainTitle}</h2>
           <p className="text-base text-white/70 leading-relaxed">{t.mainBody}</p>
-          <div className="flex flex-col gap-3">
+
+          {/* Rewards */}
+          <div className="flex flex-col gap-3 pt-2">
+            <p className="text-sm font-semibold text-white/50 uppercase tracking-widest">{t.rewardsTitle}</p>
+            <ul className="flex flex-col gap-2">
+              {t.rewardsItems.map((item, i) => (
+                <li key={i} className="flex items-start gap-3 text-base text-white/80 leading-relaxed">
+                  <span className="shrink-0 text-violet-400 mt-1">€</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* How it works */}
+          <div className="flex flex-col gap-3 pt-2">
             <p className="text-sm font-semibold text-white/50 uppercase tracking-widest">{t.mainHow}</p>
             <ol className="flex flex-col gap-3">
               {t.mainSteps.map((step, i) => (
@@ -103,10 +136,17 @@ export default async function PartnersPage({
               ))}
             </ol>
           </div>
+
           <p className="text-xs text-white/35 leading-relaxed border-t border-white/10 pt-4">{t.mainNote}</p>
         </div>
 
-        {/* Why it works */}
+        {/* Coming soon — partner cabinet */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-6">
+          <h2 className="text-lg font-bold text-amber-300">{t.soonTitle}</h2>
+          <p className="text-sm text-white/70 leading-relaxed">{t.soonBody}</p>
+        </div>
+
+        {/* Why Contabo */}
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold text-white">{t.benefitsTitle}</h2>
           <ul className="flex flex-col gap-3">
@@ -124,10 +164,12 @@ export default async function PartnersPage({
           <h2 className="text-2xl font-bold text-white">{t.ctaTitle}</h2>
           <p className="text-base text-white/60 max-w-md leading-relaxed">{t.ctaBody}</p>
           <a
-            href="#"
+            href={CONTABO_AFFILIATE_PROGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
           >
-            {t.ctaButton} →
+            {t.ctaButton} ↗
           </a>
           <p className="text-sm text-white/35">{t.ctaNote}</p>
         </div>

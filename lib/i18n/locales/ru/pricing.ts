@@ -2,6 +2,10 @@ import type { SiteContent } from '../../types'
 
 type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection'>
 
+// Bake-in at build time via `next build`. Fallback = Cloud VPS 10 / Ubuntu 24.04 product page.
+const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
+  || 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
+
 export const pricing: PricingPart = {
   pricingHeader: {
     label: 'Начать',
@@ -46,13 +50,10 @@ export const pricing: PricingPart = {
 
   serverSection: {
     label: 'Где купить',
-    h2: 'Проверенные Ubuntu 24.04 VPS-провайдеры для AI',
-    description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Эти провайдеры проверены сообществом — выбирайте по региону и бюджету.',
+    h2: 'Рекомендуемый Ubuntu 24.04 VPS-провайдер для AI',
+    description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Мы рекомендуем Contabo — максимум ресурсов по минимальной цене, популярен у AI-разработчиков.',
     providers: [
-      { name: 'Contabo',      tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.',            url: 'https://contabo.com' },
-      { name: 'Netcup',       tagline: 'Немецкое качество, щедрые конфигурации и честная цена.',                       url: 'https://www.netcup.com' },
-      { name: 'Hetzner',      tagline: 'Лучшее соотношение цены и производительности в Европе. NVMe SSD.',             url: 'https://www.hetzner.com' },
-      { name: 'DigitalOcean', tagline: 'Удобен для разработчиков. Простая настройка, глобальные дата-центры.',         url: 'https://www.digitalocean.com' },
+      { name: 'Contabo', tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.', url: CONTABO_URL },
     ],
   },
 }
