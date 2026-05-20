@@ -60,7 +60,7 @@ export type SiteContent = {
     label: string
     h2: string
     description: string
-    providers: { name: string; tagline: string; url: string }[]
+    providers: { name: string; tagline: string; url: string; price?: string }[]
   }
   mcpSection: { label: string; h2: string; description: string }
   domainSection: { label: string; h2: string; description: string }

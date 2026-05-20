@@ -191,17 +191,21 @@ export function PricingFlow() {
                   <h3 className="text-base font-bold font-serif text-white">{content.serverSection.h2}</h3>
                   <p className="text-xs text-white/50 leading-relaxed">{content.serverSection.description}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {content.serverSection.providers.map(({ name, tagline, url }) => (
+                <div className="flex flex-col gap-2">
+                  {content.serverSection.providers.map(({ name, tagline, url, price }) => (
                     <a
                       key={name}
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
                       title={tagline}
-                      className="inline-flex items-center gap-1 rounded-lg border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-3 py-1.5 text-xs font-bold text-white hover:text-violet-300 transition-all"
+                      className="group w-full flex items-center justify-between gap-3 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-5 py-4 transition-all"
                     >
-                      {name} ↗
+                      <span className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{name}</span>
+                        {price && <span className="text-xs text-white/60 font-medium">{price}</span>}
+                      </span>
+                      <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">↗</span>
                     </a>
                   ))}
                 </div>
