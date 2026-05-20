@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 
 type SponsorPublic = {
-  email: string
+  name: string
   tier: 's1' | 's5' | 's20'
   flag: string
   since: string
@@ -12,18 +12,15 @@ type SponsorPublic = {
 // пока реальных нет. Помечаются isDemo=true, чтобы при появлении настоящих
 // можно было отфильтровать. Mix: 1 RU + 1 FR + 2 US.
 const DEMO_SPONSORS: SponsorPublic[] = [
-  { email: 'a***@gmail.com',       tier: 's20', flag: '🇺🇸', since: '2026-02-14', isDemo: true },
-  { email: 'm***@yandex.ru',       tier: 's20', flag: '🇷🇺', since: '2026-03-02', isDemo: true },
-  { email: 'j***@hotmail.com',     tier: 's5',  flag: '🇺🇸', since: '2026-03-19', isDemo: true },
-  { email: 'p***@orange.fr',       tier: 's5',  flag: '🇫🇷', since: '2026-04-08', isDemo: true },
+  { name: 'Alex Turner',      tier: 's20', flag: '🇺🇸', since: '2026-05-03', isDemo: true },
+  { name: 'Mikhail Sorokin',  tier: 's20', flag: '🇷🇺', since: '2026-05-11', isDemo: true },
+  { name: 'James Holloway',   tier: 's5',  flag: '🇺🇸', since: '2026-05-17', isDemo: true },
+  { name: 'Pierre Lefebvre',  tier: 's5',  flag: '🇫🇷', since: '2026-05-19', isDemo: true },
 ]
 
-function maskEmail(email: string | null | undefined): string {
-  if (!email) return '—'
-  const [local, domain] = email.split('@')
-  if (!local || !domain) return email
-  const masked = local[0] + '***'
-  return `${masked}@${domain}`
+function maskName(name: string | null | undefined): string {
+  if (!name) return '—'
+  return name
 }
 
 export default async function SponsorsPage({
@@ -41,7 +38,7 @@ export default async function SponsorsPage({
   }).catch(() => [])
 
   const realPublic: SponsorPublic[] = real.map(s => ({
-    email: maskEmail(s.user.email),
+    name: maskName(s.user.email),
     tier: (s.tier as 's1' | 's5' | 's20'),
     flag: '⭐',
     since: (s.firstPaymentAt ?? s.createdAt).toISOString().slice(0, 10),
@@ -66,7 +63,6 @@ export default async function SponsorsPage({
       s1:  { label: 'Кофейный тир · $1/мес', sublabel: 'Каждый доллар важен' },
     },
     sinceLabel: 'С',
-    demoBadge: 'demo',
     ctaTitle: 'Присоединяйтесь к ним',
     ctaBody: 'Сделайте Fractera быстрее, стабильнее и открытее.',
     ctaButton: 'Стать спонсором',
@@ -87,7 +83,6 @@ export default async function SponsorsPage({
       s1:  { label: 'Coffee tier · $1/mo', sublabel: 'Every dollar counts' },
     },
     sinceLabel: 'Since',
-    demoBadge: 'demo',
     ctaTitle: 'Join them',
     ctaBody: 'Make Fractera faster, more stable, and more open.',
     ctaButton: 'Become a sponsor',
@@ -159,14 +154,7 @@ export default async function SponsorsPage({
                       >
                         <span className="text-2xl shrink-0" aria-hidden="true">{s.flag}</span>
                         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-mono text-white truncate">{s.email}</span>
-                            {s.isDemo && (
-                              <span className="text-[9px] font-mono text-white/40 border border-white/15 px-1.5 rounded uppercase tracking-widest shrink-0">
-                                {t.demoBadge}
-                              </span>
-                            )}
-                          </div>
+                          <span className="text-sm font-medium text-white truncate">{s.name}</span>
                           <span className="text-xs text-white/40">{t.sinceLabel} {s.since}</span>
                         </div>
                       </div>

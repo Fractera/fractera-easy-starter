@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, useParams } from 'next/navigation'
 import { useHeroContent } from '@/lib/i18n/context'
 import { useAuthModal, useCheckout } from '@/components/providers'
 
@@ -15,6 +15,8 @@ export function SponsorshipSection() {
   const { openSponsorCheckout } = useCheckout()
   const searchParams = useSearchParams()
   const router = useRouter()
+  const params = useParams()
+  const lang = (params?.lang as string) ?? 'en'
   const justSponsored = searchParams.get('sponsor') === 'thanks'
 
   const [hovered, setHovered] = useState<TierId | null>(null)
@@ -135,6 +137,22 @@ export function SponsorshipSection() {
           ))}
         </ul>
       </div>
+
+      {/* ─── Our Sponsors ─── */}
+      <a
+        href={`/${lang}/sponsors`}
+        className="w-full flex items-center justify-between gap-4 rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-950/30 via-amber-900/10 to-black/40 px-6 py-5 hover:border-yellow-500/60 hover:bg-yellow-950/40 transition-all duration-200 group"
+      >
+        <div className="flex flex-col gap-0.5">
+          <p className="text-xs font-mono font-bold text-yellow-400 uppercase tracking-widest">
+            {content.sponsorship.ourSponsorsLabel}
+          </p>
+          <p className="text-base font-semibold text-white group-hover:text-yellow-100 transition-colors">
+            {content.sponsorship.ourSponsorsLink}
+          </p>
+        </div>
+        <span className="text-yellow-400 text-xl font-bold group-hover:translate-x-1 transition-transform">→</span>
+      </a>
     </div>
   )
 }

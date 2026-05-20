@@ -173,15 +173,18 @@ export function PricingFlow() {
       {/* ── Pricing ── */}
       {(
         <div className="w-full max-w-4xl flex flex-col gap-6">
-          <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-            <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
-            <h2 className="max-w-3xl font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-              {content.pricingHeader.h2}
-            </h2>
-            <p className="max-w-xl text-base text-white/60">{content.pricingHeader.description}</p>
-          </div>
+          <div id="pricing" className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left: description */}
+            <div className="flex flex-col gap-3 items-start text-left">
+              <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
+              <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+                {content.pricingHeader.h2}
+              </h2>
+              <p className="text-base text-white/60">{content.pricingHeader.description}</p>
+            </div>
 
-          <div id="pricing" className="grid grid-cols-1 gap-6 items-stretch">
+            {/* Right: install card */}
+            <div className="flex flex-col gap-6">
             {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная карточка «Fractera Pro + Server» ($25/мес, $190/год) временно скрыта */}
             {false && (
             <div className="flex flex-col gap-5 rounded-2xl p-6 bg-gradient-to-br from-violet-950/70 via-violet-900/30 to-black/60"
@@ -265,7 +268,8 @@ export function PricingFlow() {
                 </button>
               )}
             </div>
-          </div>
+            </div>{/* end right column */}
+          </div>{/* end two-col grid */}
 
           <div className="grid grid-cols-3 gap-3">
             {content.planLabels.trustItems.map((item, i) => (

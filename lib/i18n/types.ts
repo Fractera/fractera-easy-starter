@@ -102,6 +102,8 @@ export type SiteContent = {
     thankYouBody: string
     perksTitle: string
     perks: string[]
+    ourSponsorsLabel: string
+    ourSponsorsLink: string
   }
 }
 

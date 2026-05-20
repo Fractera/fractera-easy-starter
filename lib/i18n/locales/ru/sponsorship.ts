@@ -26,5 +26,7 @@ export const sponsorship: SponsorshipPart = {
       'Доступ в закрытую Telegram-группу для спонсоров',
       'Прямой канал для предложения новых функций',
     ],
+    ourSponsorsLabel: 'Наши спонсоры',
+    ourSponsorsLink: 'Посмотреть всех, кто поддерживает Fractera →',
   },
 }
