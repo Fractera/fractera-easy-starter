@@ -183,9 +183,15 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
       const startData = await startRes.json()
       const token = startData.embedToken as string
 
+      // Return the user to this very partner page after the magic link.
+      // The flow restores state='waiting' from localStorage and the poller
+      // flips it to 'activated' once the EmbedSession is linked.
+      const origin = typeof window !== 'undefined'
+        ? window.location.origin
+        : 'https://partners.fractera.ai'
       const signInResult = await signIn('resend', {
         email: trimmed,
-        callbackUrl: `/${lang}/embed/callback`,
+        callbackUrl: `${origin}/${lang}/${partner.slug}`,
         redirect: false,
       })
       if (signInResult?.error) { setError(t.sendFailed); return }
