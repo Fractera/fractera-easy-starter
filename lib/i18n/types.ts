@@ -28,7 +28,7 @@ export type SiteContent = {
   dpHeader: { label: string; h2: string; description: string }
   dpLeft: { imageSrc: string; title: string; description: string }
   dpRight: { imageSrc: string; title: string; description: string }
-  platformsHeader: { label: string; h2: string; description: string }
+  platformsHeader: { label: string; h2: string; description: string; disclaimer: string }
   platformCards: { title: string; subtitle: string; company: string }[]
   problemHeader: { label: string; h2: string; description: string }
   problemLabel: string

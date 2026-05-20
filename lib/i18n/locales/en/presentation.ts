@@ -32,6 +32,7 @@ export const presentation: PresentationPart = {
     h2: 'Core AI Generation Engine: Five Platforms, One Environment',
     description:
       'No API keys. No local setup. All five coding platforms run on your server with full terminal access and persistent LightRAG memory.',
+    disclaimer: '* The project runs on your own subscriptions to the AI platforms — Fractera does not charge any additional fees or commissions for their use. You are free to connect one, several, or all five platforms — at your own discretion.',
   },
 
   platformCards: [

@@ -47,6 +47,10 @@ export function PlatformsGrid() {
           </div>
         ))}
       </div>
+
+      <p className="text-xs text-orange-400/80 leading-relaxed">
+        {content.platformsHeader.disclaimer}
+      </p>
     </div>
   )
 }
