@@ -3,9 +3,34 @@
 import { usePathname } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/language-switcher'
 
+const FOOTER_LABELS: Record<string, {
+  privacy: string; terms: string; refund: string; cookies: string
+  partners: string; cookieSettings: string; rights: string
+}> = {
+  ru: {
+    privacy: 'Политика конфиденциальности',
+    terms: 'Условия использования',
+    refund: 'Политика возврата',
+    cookies: 'Политика куки',
+    partners: 'Партнёрская программа',
+    cookieSettings: 'Настройки куки',
+    rights: 'Все права защищены.',
+  },
+  en: {
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service',
+    refund: 'Refund Policy',
+    cookies: 'Cookie Policy',
+    partners: 'Partner Program',
+    cookieSettings: 'Cookie Settings',
+    rights: 'All rights reserved.',
+  },
+}
+
 export function SiteFooter() {
   const pathname = usePathname()
   const lang = pathname?.split('/')[1] || 'en'
+  const t = FOOTER_LABELS[lang] ?? FOOTER_LABELS.en
 
   function openCookieSettings() {
     window.dispatchEvent(new Event('open-cookie-settings'))
@@ -20,22 +45,22 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white font-medium">
-          <a href={`/${lang}/privacy`} className="hover:text-violet-400 transition-colors">Privacy Policy</a>
-          <a href={`/${lang}/terms`} className="hover:text-violet-400 transition-colors">Terms of Service</a>
-          <a href={`/${lang}/refund`} className="hover:text-violet-400 transition-colors">Refund Policy</a>
-          <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">Cookie Policy</a>
-          <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">Partner Program</a>
+          <a href={`/${lang}/privacy`} className="hover:text-violet-400 transition-colors">{t.privacy}</a>
+          <a href={`/${lang}/terms`} className="hover:text-violet-400 transition-colors">{t.terms}</a>
+          <a href={`/${lang}/refund`} className="hover:text-violet-400 transition-colors">{t.refund}</a>
+          <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">{t.cookies}</a>
+          <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">{t.partners}</a>
           <button
             type="button"
             onClick={openCookieSettings}
             className="hover:text-violet-400 transition-colors text-left"
           >
-            Cookie Settings
+            {t.cookieSettings}
           </button>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-white border-t border-white/20 pt-6">
-          <span>© {new Date().getFullYear()} Fractera. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Fractera. {t.rights}</span>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <span className="font-mono font-semibold">fractera.ai</span>
