@@ -13,6 +13,7 @@ const DashboardCtx = createContext({
   openServers: () => {},
   openSubscription: () => {},
   openPurchases: () => {},
+  openPartnerCabinet: () => {},
   openWhiteLabel: (_serverTokenId: string) => {},
 })
 export const useDashboard = () => useContext(DashboardCtx)
@@ -26,7 +27,7 @@ export const useCheckout = () => useContext(CheckoutCtx)
 export function Providers({ children }: { children: React.ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [pendingPlan, setPendingPlan] = useState<string | undefined>()
-  const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' | 'purchases' }>({ open: false, view: 'servers' })
+  const [dashboardState, setDashboardState] = useState<{ open: boolean; view: 'servers' | 'subscription' | 'purchases' | 'partner' }>({ open: false, view: 'servers' })
   const [checkoutState, setCheckoutState] = useState<{ open: boolean; planId: string }>({ open: false, planId: 'monthly' })
   const [wlState, setWlState] = useState<{ open: boolean; serverTokenId: string | null }>({ open: false, serverTokenId: null })
   const [sponsorState, setSponsorState] = useState<{ open: boolean; tier: string }>({ open: false, tier: 's5' })
@@ -39,6 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const openServers = useCallback(() => setDashboardState({ open: true, view: 'servers' }), [])
   const openSubscription = useCallback(() => setDashboardState({ open: true, view: 'subscription' }), [])
   const openPurchases = useCallback(() => setDashboardState({ open: true, view: 'purchases' }), [])
+  const openPartnerCabinet = useCallback(() => setDashboardState({ open: true, view: 'partner' }), [])
   const openWhiteLabel = useCallback((id: string) => setWlState({ open: true, serverTokenId: id }), [])
   const openCheckout = useCallback((plan: string) => setCheckoutState({ open: true, planId: plan }), [])
   const openSponsorCheckout = useCallback((tier: string) => setSponsorState({ open: true, tier }), [])
@@ -46,7 +48,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <AuthModalCtx.Provider value={{ openModal }}>
-        <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases, openWhiteLabel }}>
+        <DashboardCtx.Provider value={{ openServers, openSubscription, openPurchases, openPartnerCabinet, openWhiteLabel }}>
           <CheckoutCtx.Provider value={{ openCheckout, openSponsorCheckout }}>
             {children}
             <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} pendingPlan={pendingPlan} />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { PartnerCabinetView } from '@/components/partner-cabinet-view'
 
 type ServerRecord = {
   id: string
@@ -477,14 +478,14 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
 
 interface Props {
   open: boolean
-  view: 'servers' | 'subscription' | 'purchases'
+  view: 'servers' | 'subscription' | 'purchases' | 'partner'
   onClose: () => void
   onWhiteLabel?: (serverTokenId: string) => void
 }
 
 export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
   const { data: session } = useSession()
-  const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases'>(view)
+  const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases' | 'partner'>(view)
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [purchases, setPurchases] = useState<PurchaseRecord[]>([])
   const [loading, setLoading] = useState(false)
@@ -578,7 +579,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-white">
-              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : 'Purchases'}
+              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : activeView === 'partner' ? 'Партнёрский кабинет' : 'Purchases'}
             </h2>
             {session?.user?.email && (
               <p className="text-sm text-white/60 font-medium">{session.user.email}</p>
@@ -594,7 +595,13 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
 
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-3">
-          {loading ? (
+          {activeView === 'partner' ? (
+            session?.user?.partnerSlug ? (
+              <PartnerCabinetView partnerSlug={session.user.partnerSlug} />
+            ) : (
+              <p className="text-base text-white/60 py-4">Партнёрская регистрация ещё не выполнена. Откройте страницу <a href="/ru/partners" className="text-violet-400 hover:text-violet-300">Партнёры</a> и нажмите «Зарегистрироваться».</p>
+            )
+          ) : loading ? (
             <div className="flex items-center gap-2 text-base text-white font-medium py-4">
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Loading…

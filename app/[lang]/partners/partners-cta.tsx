@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useAuthModal } from '@/components/providers'
+import { useAuthModal, useDashboard } from '@/components/providers'
 import { PartnerRegistrationDrawer } from '@/components/partner-registration-drawer'
 
 export function PartnersCta({ lang, label }: { lang: string; label: string }) {
@@ -29,5 +29,18 @@ export function PartnersCta({ lang, label }: { lang: string; label: string }) {
       </button>
       <PartnerRegistrationDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} />
     </>
+  )
+}
+
+export function OpenCabinetButton({ label }: { label: string }) {
+  const { openPartnerCabinet } = useDashboard()
+  return (
+    <button
+      type="button"
+      onClick={openPartnerCabinet}
+      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/20"
+    >
+      {label} →
+    </button>
   )
 }

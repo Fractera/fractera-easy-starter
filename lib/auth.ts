@@ -53,8 +53,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/',
   },
   callbacks: {
-    session({ session, user }) {
+    async session({ session, user }) {
       session.user.id = user.id
+      // Surface partner.slug on the session so the user dropdown can show
+      // the "Partner cabinet" entry without an extra round-trip per page.
+      try {
+        const partner = await db.partner.findUnique({
+          where: { userId: user.id },
+          select: { slug: true },
+        })
+        session.user.partnerSlug = partner?.slug ?? null
+      } catch (err) {
+        console.error('[auth][session] partner lookup failed', err)
+        session.user.partnerSlug = null
+      }
       return session
     },
   },

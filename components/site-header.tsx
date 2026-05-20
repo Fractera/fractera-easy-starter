@@ -9,9 +9,10 @@ import { useAuthModal, useDashboard } from '@/components/providers'
 export function SiteHeader() {
   const { data: session, status } = useSession()
   const { openModal } = useAuthModal()
-  const { openServers, openSubscription, openPurchases } = useDashboard()
+  const { openServers, openSubscription, openPurchases, openPartnerCabinet } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
+  const isPartner = !!session?.user?.partnerSlug
 
   const initials = session?.user?.name
     ? session.user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -94,6 +95,19 @@ export function SiteHeader() {
                             </svg>
                             Servers
                           </button>
+                          {isPartner && (
+                            <button
+                              type="button"
+                              onClick={() => { setMenuOpen(false); openPartnerCabinet() }}
+                              className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/[0.06] rounded-lg transition-colors text-left"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                <circle cx="7" cy="4.5" r="2.2" stroke="currentColor" strokeWidth="1.3"/>
+                                <path d="M2.5 12c0-2.4 2-4 4.5-4s4.5 1.6 4.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                              </svg>
+                              Партнёрский кабинет
+                            </button>
+                          )}
                           {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Purchases скрыта */}
                           {false && (
                           <button

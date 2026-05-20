@@ -128,13 +128,27 @@ model Sponsorship {
 }
 
 model Partner {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  slug      String   @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
-  status    String   @default("active") // active | suspended (auto-approve at registration)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String        @id @default(cuid())
+  userId    String        @unique
+  slug      String        @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
+  status    String        @default("active") // active | suspended (auto-approve at registration)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links     PartnerLink[]
+}
+
+model PartnerLink {
+  id           String   @id @default(cuid())
+  partnerId    String
+  providerName String   // user-supplied label, surfaced on widget/mirror (e.g. "Contabo")
+  affiliateUrl String   // full affiliate URL from the provider's program
+  isDefault    Boolean  @default(false) // exactly one default per partner (enforced in app layer)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  partner      Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
 }
 
 model VpsReserve {

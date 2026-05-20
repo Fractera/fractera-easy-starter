@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { PartnersCta } from './partners-cta'
+import { PartnersCta, OpenCabinetButton } from './partners-cta'
 
 export default async function PartnersPage({
   params,
@@ -57,7 +57,8 @@ export default async function PartnersPage({
     activeBadge: '✓ Вы партнёр',
     activeTitle: 'Поздравляем — вы стали партнёром Fractera',
     activeIdLabel: 'Ваш партнёрский идентификатор',
-    activeBody: 'Подробности и управление партнёрскими ссылками — в Dashboard в правом верхнем углу, на вкладке «Партнёрский кабинет». Если вы её ещё не видите — обновите страницу: вкладка появляется после регистрации.',
+    activeBody: 'Управление партнёрскими ссылками и виджет — в Dashboard в правом верхнем углу, на вкладке «Партнёрский кабинет». Или нажмите кнопку ниже, чтобы открыть кабинет прямо сейчас.',
+    activeButton: 'Открыть партнёрский кабинет',
     activeNote: 'Email с подробностями уже отправлен. Проверьте папку «спам», если письма нет во входящих.',
   } : {
     badge: 'Partner Program',
@@ -98,7 +99,8 @@ export default async function PartnersPage({
     activeBadge: '✓ You are a partner',
     activeTitle: 'Congratulations — you are now a Fractera partner',
     activeIdLabel: 'Your partner identifier',
-    activeBody: 'Details and affiliate-link management live in the Dashboard (top-right corner) under the «Partner cabinet» tab. If you do not see the tab yet, reload the page — it appears after registration.',
+    activeBody: 'Manage your affiliate links and widget in the Dashboard (top-right corner) under the «Partner cabinet» tab. Or click the button below to open it right now.',
+    activeButton: 'Open partner cabinet',
     activeNote: 'A welcome email has been sent. Check your spam folder if it is not in the inbox.',
   }
 
@@ -168,6 +170,7 @@ export default async function PartnersPage({
               <p className="font-mono text-2xl md:text-3xl font-bold text-white tracking-wide select-all">{partner.slug}</p>
             </div>
             <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.activeBody}</p>
+            <OpenCabinetButton label={t.activeButton} />
             <p className="text-sm text-white/50">{t.activeNote}</p>
           </div>
         ) : (
