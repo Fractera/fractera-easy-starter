@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
-import { initProgress, appendStep } from '@/lib/kv'
+import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
@@ -74,23 +74,28 @@ export async function POST(req: NextRequest) {
     try { await sendInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install] start email failed', err) }
   }
 
-  // Fire-and-forget the actual deploy. The widget does not stream progress —
-  // the user gets details via email, the cabinet shows the server later.
+  // Fire-and-forget the actual deploy, but route any SSH/upload errors that
+  // happen *before* bootstrap.sh starts pinging back through failProgress so
+  // the widget's progress poller sees them. Bootstrap-side errors are
+  // already routed via POST /api/progress { error }.
   deployToServer({
     ip,
     login,
     password,
     session_id: sessionId,
     serverToken: serverToken.token,
-  }).catch(err => console.error('[embed/install] deployToServer failed', err))
-
-  // Mark session as deployed (not pending anymore — bootstrap has been kicked
-  // off). Final status flip to actually-deployed happens in the existing
-  // server-token lifecycle.
-  await db.embedSession.update({
-    where: { id: session.id },
-    data: { status: 'deployed' },
+  }).catch(async err => {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('[embed/install] deployToServer failed', err)
+    try {
+      await failProgress(sessionId, errMsg)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+    } catch (writeErr) {
+      console.error('[embed/install] failProgress write error', writeErr)
+    }
   })
 
+  // EmbedSession.status stays at 'installing' — the existing ServerToken
+  // lifecycle / /api/progress callbacks drive the actual deployment state.
   return NextResponse.json({ sessionId, status: 'installing' })
 }

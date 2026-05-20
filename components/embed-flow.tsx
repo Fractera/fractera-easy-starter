@@ -4,15 +4,27 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { signIn } from 'next-auth/react'
 
 type Lang = 'en' | 'ru'
-type State = 'presentation' | 'signup' | 'waiting' | 'post-activation' | 'install' | 'deploying'
+type State =
+  | 'presentation'
+  | 'signup'
+  | 'waiting'
+  | 'post-activation'
+  | 'deploying'
+  | 'deploy-done'
+  | 'deploy-error'
 
 const LS_TOKEN = 'fractera_embed_token'
 const LS_STATE = 'fractera_embed_state'
 const LS_EMAIL = 'fractera_embed_email'
-const POLL_INTERVAL_MS = 3000
+const LS_SESSION_ID = 'fractera_embed_session_id'
+const LS_IP = 'fractera_embed_ip'
+const POLL_ACTIVATION_MS = 3000
+const POLL_PROGRESS_MS = 3000
 
 const FALLBACK_PROVIDER_URL = 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
 
+// ───────────────────────────────────────────────────────────────────────────
+// All UI text, RU + EN
 function getTexts(lang: Lang) {
   const isRu = lang === 'ru'
   return {
@@ -81,17 +93,46 @@ function getTexts(lang: Lang) {
     ipLabel: isRu ? 'IP-адрес сервера' : 'Server IP address',
     passwordLabel: isRu ? 'Root-пароль' : 'Root password',
     deployStart: isRu ? 'Запустить развёртывание' : 'Start deployment',
-    deploying: isRu ? 'Запускаем…' : 'Starting…',
-    installFailed: isRu ? 'Не удалось запустить развёртывание.' : 'Failed to start deployment.',
+    deployStarting: isRu ? 'Запускаем…' : 'Starting…',
+    installKickoffFailed: isRu ? 'Не удалось запустить развёртывание.' : 'Failed to start deployment.',
+    installMissingFields: isRu ? 'Введите IP и пароль.' : 'Please enter both IP and password.',
 
-    // Final
-    finalTitle: isRu ? 'Развёртывание начато' : 'Deployment started',
-    finalBody: isRu
-      ? 'Установка займёт несколько минут. Подробная информация о вашем сервере — IP, ссылки, доступы — придёт на email сразу после завершения развёртывания.'
-      : 'Setup takes a few minutes. Full information about your server — IP, URLs, credentials — will arrive by email as soon as deployment completes.',
-    finalHint: isRu ? 'Это окно можно закрыть. Письма уже идут.' : 'You can close this window. The emails are on their way.',
+    // Deploying (with progress)
+    deployingTitle: isRu ? 'Развёртывание идёт' : 'Deployment in progress',
+    deployingBody: isRu
+      ? 'Установка занимает несколько минут. Можно не закрывать это окно — мы покажем результат прямо здесь. Подробности также придут на email.'
+      : 'Setup takes a few minutes. You can leave this window open — we will show you the result here. Details will also arrive by email.',
+    deployingActive: isRu ? 'Сейчас:' : 'Now:',
+
+    // Deploy done
+    doneTitle: isRu ? 'Развёртывание завершено' : 'Deployment complete',
+    doneBody: (subdomain: string | null) => isRu
+      ? subdomain
+        ? `Ваш сервер готов: ${subdomain}. Подробности — на email.`
+        : 'Сервер готов. Подробности с URL и доступами уже на email.'
+      : subdomain
+        ? `Your server is live: ${subdomain}. Full details are in your email.`
+        : 'Your server is ready. Full URLs and credentials are in your email.',
+    doneHint: isRu ? 'Проверьте папку «Спам», если письма не во входящих.' : 'Check the spam folder if the email is not in your inbox.',
     openDashboard: isRu ? 'Открыть Dashboard на fractera.ai' : 'Open Dashboard at fractera.ai',
+
+    // Deploy error
+    errorTitle: isRu ? 'Развёртывание не удалось' : 'Deployment failed',
+    errorBody: isRu
+      ? 'Не удалось подключиться к вашему серверу или установить ПО. Чаще всего причина — опечатка в IP или пароле. Проверьте данные и попробуйте снова.'
+      : 'We could not connect to your server or run the install. The most common cause is a typo in the IP or password. Check the data and try again.',
+    errorRetry: isRu ? 'Изменить данные и повторить' : 'Edit data and retry',
+    errorDetails: isRu ? 'Сообщение от сервера' : 'Server message',
   }
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+type ProgressStep = { id: string; label: string; done: boolean; ts: number; skipped?: boolean }
+type ProgressData = {
+  status: 'installing' | 'done' | 'error'
+  steps: ProgressStep[]
+  subdomain?: string
+  error?: string
 }
 
 export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
@@ -101,38 +142,52 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
   affiliateUrl: string | null
 }) {
   const t = getTexts(lang)
+
+  // ── State ──
   const [state, setStateRaw] = useState<State>('presentation')
   const [email, setEmail] = useState('')
   const [submittedEmail, setSubmittedEmail] = useState('')
   const [embedToken, setEmbedToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Persist state in localStorage for iframe reloads
+  // Install / deployment
+  const [ip, setIp] = useState('')
+  const [password, setPassword] = useState('')
+  const [deploySessionId, setDeploySessionId] = useState<string | null>(null)
+  const [progress, setProgress] = useState<ProgressData | null>(null)
+  const [deployError, setDeployError] = useState<string | null>(null)
+
+  // Polling refs
+  const activationPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const progressPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   const setState = useCallback((next: State) => {
     setStateRaw(next)
     try { localStorage.setItem(LS_STATE, next) } catch {}
   }, [])
 
-  // Restore state on mount
+  // ── Restore from localStorage ──
   useEffect(() => {
     try {
       const savedToken = localStorage.getItem(LS_TOKEN)
       const savedState = localStorage.getItem(LS_STATE) as State | null
       const savedEmail = localStorage.getItem(LS_EMAIL)
+      const savedSessionId = localStorage.getItem(LS_SESSION_ID)
+      const savedIp = localStorage.getItem(LS_IP)
       if (savedToken) setEmbedToken(savedToken)
       if (savedEmail) setSubmittedEmail(savedEmail)
+      if (savedSessionId) setDeploySessionId(savedSessionId)
+      if (savedIp) setIp(savedIp)
       if (savedState && savedState !== 'presentation' && savedState !== 'signup') {
         setStateRaw(savedState)
       }
     } catch {}
   }, [])
 
-  // Polling for activation
+  // ── Polling: account activation ──
   useEffect(() => {
     if (state !== 'waiting' || !embedToken) return
-
     let cancelled = false
     async function poll() {
       try {
@@ -140,19 +195,45 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
         if (!res.ok) return
         const data = await res.json()
         if (cancelled) return
-        if (data.activated) {
-          setState('post-activation')
+        if (data.activated) setState('post-activation')
+      } catch {}
+    }
+    poll()
+    activationPollRef.current = setInterval(poll, POLL_ACTIVATION_MS)
+    return () => {
+      cancelled = true
+      if (activationPollRef.current) clearInterval(activationPollRef.current)
+    }
+  }, [state, embedToken, setState])
+
+  // ── Polling: deployment progress ──
+  useEffect(() => {
+    if (state !== 'deploying' || !deploySessionId) return
+    let cancelled = false
+    async function poll() {
+      try {
+        const res = await fetch(`/api/progress?session_id=${encodeURIComponent(deploySessionId!)}`)
+        if (!res.ok) return
+        const data: ProgressData = await res.json()
+        if (cancelled) return
+        setProgress(data)
+        if (data.status === 'done') {
+          setState('deploy-done')
+        } else if (data.status === 'error') {
+          setDeployError(data.error ?? 'Unknown error')
+          setState('deploy-error')
         }
       } catch {}
     }
     poll()
-    pollTimer.current = setInterval(poll, POLL_INTERVAL_MS)
+    progressPollRef.current = setInterval(poll, POLL_PROGRESS_MS)
     return () => {
       cancelled = true
-      if (pollTimer.current) clearInterval(pollTimer.current)
+      if (progressPollRef.current) clearInterval(progressPollRef.current)
     }
-  }, [state, embedToken, setState])
+  }, [state, deploySessionId, setState])
 
+  // ── Handlers ──
   async function handleSubmitEmail(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -200,12 +281,64 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
     }
   }
 
+  async function handleDeploy(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    if (!ip.trim() || !password.trim()) {
+      setError(t.installMissingFields)
+      return
+    }
+    if (!embedToken) {
+      setError(t.installKickoffFailed)
+      return
+    }
+    setBusy(true)
+    try {
+      const res = await fetch('/api/embed/install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: embedToken, ip: ip.trim(), password }),
+      })
+      if (!res.ok) {
+        setError(t.installKickoffFailed)
+        return
+      }
+      const data = await res.json()
+      const sessionId = data.sessionId as string
+      if (!sessionId) {
+        setError(t.installKickoffFailed)
+        return
+      }
+      try {
+        localStorage.setItem(LS_SESSION_ID, sessionId)
+        localStorage.setItem(LS_IP, ip.trim())
+      } catch {}
+      setDeploySessionId(sessionId)
+      setProgress(null)
+      setDeployError(null)
+      setState('deploying')
+    } catch {
+      setError(t.installKickoffFailed)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function retryFromError() {
+    setProgress(null)
+    setDeployError(null)
+    setDeploySessionId(null)
+    try { localStorage.removeItem(LS_SESSION_ID) } catch {}
+    // Keep IP + password populated for typo fix
+    setState('post-activation')
+  }
+
   function cancelToPresentation() {
     setError(null)
     setState('presentation')
   }
 
-  // Computed
+  // ── Computed ──
   const buyButtonLabel = providerName ? t.buyVpsAt(providerName) : t.buyVpsGeneric
   const partnerUrl = affiliateUrl ?? FALLBACK_PROVIDER_URL
 
@@ -285,7 +418,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
         </div>
       </div>
 
-      {/* ── SIGNUP MODAL (overlay over the presentation) ── */}
+      {/* ── SIGNUP MODAL ── */}
       {state === 'signup' && (
         <Overlay onClose={cancelToPresentation}>
           <form onSubmit={handleSubmitEmail} className="flex flex-col gap-4">
@@ -349,30 +482,91 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
       {/* ── POST-ACTIVATION (CTA + install form) ── */}
       {state === 'post-activation' && (
         <Overlay>
-          <PostActivationStep
-            lang={lang}
-            t={t}
-            buyButtonLabel={buyButtonLabel}
-            partnerUrl={partnerUrl}
-            embedToken={embedToken}
-            onStartInstall={() => setState('install')}
-            onDeploying={() => setState('deploying')}
-          />
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-400 text-xl leading-none">✓</span>
+                <h2 className="text-xl font-bold text-white font-serif">{t.activatedTitle}</h2>
+              </div>
+              <p className="text-sm text-white/70 leading-relaxed">{t.activatedBody}</p>
+            </div>
+
+            <a
+              href={partnerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
+            >
+              {buyButtonLabel} ↗
+            </a>
+
+            <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-base font-bold text-white">{t.installTitle}</h3>
+                <p className="text-xs text-white/60">{t.installSubtitle}</p>
+              </div>
+              <form onSubmit={handleDeploy} className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.ipLabel}</label>
+                  <input
+                    type="text"
+                    value={ip}
+                    onChange={e => setIp(e.target.value)}
+                    placeholder="123.45.67.89"
+                    disabled={busy}
+                    className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70 font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.passwordLabel}</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    disabled={busy}
+                    className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70 font-mono"
+                  />
+                </div>
+                {error && <p className="text-sm text-red-400">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={busy || !ip.trim() || !password.trim()}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  {busy ? <><span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t.deployStarting}</> : <>{t.deployStart} →</>}
+                </button>
+              </form>
+            </div>
+          </div>
         </Overlay>
       )}
 
-      {/* ── DEPLOYING (terminal state) ── */}
+      {/* ── DEPLOYING (with progress polling) ── */}
       {state === 'deploying' && (
         <Overlay>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-emerald-400 text-2xl leading-none">✓</span>
-              <h2 className="text-xl font-bold text-white font-serif">{t.finalTitle}</h2>
+              <span className="inline-block w-5 h-5 border-2 border-violet-500/40 border-t-violet-300 rounded-full animate-spin" />
+              <h2 className="text-xl font-bold text-white font-serif">{t.deployingTitle}</h2>
             </div>
-            <p className="text-sm text-white/70 leading-relaxed">{t.finalBody}</p>
-            <p className="text-xs text-amber-300/80">{t.finalHint}</p>
+            <p className="text-sm text-white/70 leading-relaxed">{t.deployingBody}</p>
+            <ProgressList progress={progress} t={t} />
+          </div>
+        </Overlay>
+      )}
+
+      {/* ── DEPLOY DONE ── */}
+      {state === 'deploy-done' && (
+        <Overlay>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-400 text-2xl leading-none">✓</span>
+              <h2 className="text-xl font-bold text-white font-serif">{t.doneTitle}</h2>
+            </div>
+            <p className="text-sm text-white/70 leading-relaxed">{t.doneBody(progress?.subdomain ?? null)}</p>
+            <p className="text-xs text-amber-300/80">{t.doneHint}</p>
             <a
-              href="https://fractera.ai"
+              href={progress?.subdomain ? `https://${progress.subdomain}` : 'https://fractera.ai'}
               target="_blank"
               rel="noopener noreferrer"
               className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
@@ -382,17 +576,42 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
           </div>
         </Overlay>
       )}
+
+      {/* ── DEPLOY ERROR ── */}
+      {state === 'deploy-error' && (
+        <Overlay>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-red-400 text-2xl leading-none">✗</span>
+              <h2 className="text-xl font-bold text-white font-serif">{t.errorTitle}</h2>
+            </div>
+            <p className="text-sm text-white/70 leading-relaxed">{t.errorBody}</p>
+            {deployError && (
+              <div className="flex flex-col gap-1.5 rounded-lg border border-red-500/30 bg-red-500/[0.05] p-3">
+                <p className="text-xs font-mono font-bold text-red-300 uppercase tracking-widest">{t.errorDetails}</p>
+                <p className="text-xs text-red-200 break-all whitespace-pre-wrap font-mono leading-relaxed">{deployError}</p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={retryFromError}
+              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              {t.errorRetry} →
+            </button>
+          </div>
+        </Overlay>
+      )}
     </main>
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Overlay shell (blur + centred card). Optional close button if onClose given.
+// ───────────────────────────────────────────────────────────────────────────
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-neutral-950 border border-white/15 rounded-2xl shadow-2xl p-6">
+      <div className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto bg-neutral-950 border border-white/15 rounded-2xl shadow-2xl p-6">
         {onClose && (
           <button
             type="button"
@@ -409,119 +628,48 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose?: (
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Post-activation step: CTA to buy VPS + install form. Lives inside its own
-// component so input state is isolated.
-function PostActivationStep({
-  lang,
-  t,
-  buyButtonLabel,
-  partnerUrl,
-  embedToken,
-  onStartInstall,
-  onDeploying,
-}: {
-  lang: Lang
-  t: ReturnType<typeof getTexts>
-  buyButtonLabel: string
-  partnerUrl: string
-  embedToken: string | null
-  onStartInstall: () => void
-  onDeploying: () => void
-}) {
-  void lang
-  const [ip, setIp] = useState('')
-  const [password, setPassword] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  async function handleDeploy(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    if (!ip.trim() || !password.trim()) {
-      setError(t.installFailed)
-      return
-    }
-    if (!embedToken) {
-      setError(t.installFailed)
-      return
-    }
-    setBusy(true)
-    onStartInstall()
-    try {
-      const res = await fetch('/api/embed/install', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: embedToken, ip: ip.trim(), password }),
-      })
-      if (!res.ok) {
-        setError(t.installFailed)
-        return
-      }
-      onDeploying()
-    } catch {
-      setError(t.installFailed)
-    } finally {
-      setBusy(false)
-    }
+// ───────────────────────────────────────────────────────────────────────────
+function ProgressList({ progress, t }: { progress: ProgressData | null; t: ReturnType<typeof getTexts> }) {
+  if (!progress) {
+    return (
+      <p className="text-xs text-white/40 italic">{t.deployingActive} …</p>
+    )
   }
 
+  const steps = progress.steps ?? []
+  const activeStep = steps.length > 0 && !steps[steps.length - 1].done ? steps[steps.length - 1] : null
+  const doneCount = steps.filter(s => s.done).length
+  const total = Math.max(doneCount + (activeStep ? 1 : 0), steps.length, 1)
+  const percent = Math.min(100, Math.round((doneCount / Math.max(total, 1)) * 100))
+
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <span className="text-emerald-400 text-xl leading-none">✓</span>
-          <h2 className="text-xl font-bold text-white font-serif">{t.activatedTitle}</h2>
+    <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-xs font-mono text-white/50 uppercase tracking-widest">
+            {activeStep ? `${t.deployingActive} ${activeStep.label}` : `${t.deployingActive} …`}
+          </p>
+          <p className="text-xs font-mono text-white/40">{percent}%</p>
         </div>
-        <p className="text-sm text-white/70 leading-relaxed">{t.activatedBody}</p>
-      </div>
-
-      <a
-        href={partnerUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
-      >
-        {buyButtonLabel} ↗
-      </a>
-
-      <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-base font-bold text-white">{t.installTitle}</h3>
-          <p className="text-xs text-white/60">{t.installSubtitle}</p>
+        <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="h-full bg-violet-400 transition-all duration-500"
+            style={{ width: `${percent}%` }}
+          />
         </div>
-        <form onSubmit={handleDeploy} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.ipLabel}</label>
-            <input
-              type="text"
-              value={ip}
-              onChange={e => setIp(e.target.value)}
-              placeholder="123.45.67.89"
-              disabled={busy}
-              className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70 font-mono"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.passwordLabel}</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              disabled={busy}
-              className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70 font-mono"
-            />
-          </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <button
-            type="submit"
-            disabled={busy || !ip.trim() || !password.trim()}
-            className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
-          >
-            {busy ? <><span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t.deploying}</> : <>{t.deployStart} →</>}
-          </button>
-        </form>
       </div>
+      {steps.length > 0 && (
+        <ul className="flex flex-col gap-1 max-h-40 overflow-y-auto">
+          {steps.map(step => (
+            <li key={step.id} className="flex items-center gap-2 text-xs">
+              <span className={`w-4 text-center ${step.done ? 'text-emerald-400' : 'text-white/40'}`}>
+                {step.done ? (step.skipped ? '—' : '✓') : '…'}
+              </span>
+              <span className={step.done ? 'text-white/70' : 'text-white/50'}>{step.label}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
