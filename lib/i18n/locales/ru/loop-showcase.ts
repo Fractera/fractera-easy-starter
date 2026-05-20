@@ -8,9 +8,11 @@ export const loopShowcase: LoopShowcasePart = {
     h2: 'Полное владение стеком: ваш сервер, ваш домен, ваш продукт',
     description:
       'Современный AI-кодинг прост — сложно владеть инфраструктурой. Fractera делает владение лёгким: выделенный Ubuntu VPS, автоматический кастомный домен с SSL и production-ready стек продукта — всё ваше, навсегда.',
+    // Изображения слайдов лежат в /public/slides/N.jpg — см. /public/slides/README.md
     slides: [
       // ── Блок 1: владение стеком (1–3) ─────────────────────────────────────
       {
+        imageSrc: '/slides/1.jpg',
         label: 'Ваш собственный сервер',
         sublabel: 'Выделенный VPS, без аренды',
         title: 'Выделенный Ubuntu VPS — ваш навсегда, а не платформа в аренде',
@@ -18,6 +20,7 @@ export const loopShowcase: LoopShowcasePart = {
           'Vercel и Netlify запускают вас за секунды — но код, база и пользователи живут на их инфраструктуре. Fractera разворачивает реальный Ubuntu 24.04 VPS за 10 минут. Ваше железо. Ваше хранилище. Ваши условия. Никакие повышения тарифов не положат ваш продукт.',
       },
       {
+        imageSrc: '/slides/2.jpg',
         label: 'Ваш собственный домен',
         sublabel: 'SSL + DNS + Nginx — автоматически',
         title: 'Кастомный домен живой за 10 минут — без боли с DNS',
@@ -25,6 +28,7 @@ export const loopShowcase: LoopShowcasePart = {
           'Регистрация домена, SSL-сертификат, маршрутизация Nginx — всё автоматически. Именно эта боль гонит разработчиков на managed-платформы — решается одним кликом. Никаких ручных продлений сертификатов. Никаких дашбордов DNS.',
       },
       {
+        imageSrc: '/slides/3.jpg',
         label: 'Ваш собственный продукт',
         sublabel: 'Полный контроль кода, без lock-in',
         title: 'Создайте, владейте, запустите — без lock-in платформы, навсегда',
@@ -34,6 +38,7 @@ export const loopShowcase: LoopShowcasePart = {
 
       // ── Блок 2: AI-кодинг внутри (4–6) — FAKE для теста ───────────────────
       {
+        imageSrc: '/slides/4.jpg',
         label: 'AI прямо в браузере',
         sublabel: 'Пять платформ, один сервер',
         title: 'Claude Code, Codex, Gemini, Qwen, Kimi — все на вашем VPS',
@@ -41,6 +46,7 @@ export const loopShowcase: LoopShowcasePart = {
           'FAKE-демо. Откройте вкладку — пять AI-платформ уже преднастроены и ждут команды. Без API-ключей, без локальной IDE, без VS Code. Терминал, файловая система и проект — всё в браузере.',
       },
       {
+        imageSrc: '/slides/5.jpg',
         label: 'Память проекта',
         sublabel: 'LightRAG: персистентный контекст',
         title: 'Векторная память, общая для всех пяти платформ',
@@ -48,6 +54,7 @@ export const loopShowcase: LoopShowcasePart = {
           'FAKE-демо. LightRAG хранит ваш код, архитектурные решения и каждую решённую задачу. Переключайте AI-платформу посреди задачи — контекст сохраняется. Company brain, который компаундится с каждой итерацией.',
       },
       {
+        imageSrc: '/slides/6.jpg',
         label: 'Hermes-оркестратор',
         sublabel: 'Мультимодельные агентные петли',
         title: 'Координация Claude + Codex + Gemini через общий контекст',
@@ -57,6 +64,7 @@ export const loopShowcase: LoopShowcasePart = {
 
       // ── Блок 3: продакшн-цикл (7–9) — FAKE для теста ──────────────────────
       {
+        imageSrc: '/slides/7.jpg',
         label: 'Деплой в один клик',
         sublabel: 'Без CI, без YAML, без боли',
         title: 'Изменения в продакшн за секунды — прямо из браузерной сессии',
@@ -64,6 +72,7 @@ export const loopShowcase: LoopShowcasePart = {
           'FAKE-демо. AI пишет код → build → pm2 reload → ваш домен обновлён. Никаких GitHub Actions, никаких pipeline-стадий. Один эндпоинт, X-Deploy-Secret, готово.',
       },
       {
+        imageSrc: '/slides/8.jpg',
         label: 'Маркетплейс Skills',
         sublabel: 'Монетизация AI-workflow',
         title: 'Упакуйте решённые задачи в переиспользуемые Skills',
@@ -71,6 +80,7 @@ export const loopShowcase: LoopShowcasePart = {
           'FAKE-демо. Продавайте свои workflow как AI Skills в маркетплейсе сообщества. Или покупайте чужие проверенные рецепты. Ваша AI-инфраструктура превращается в источник пассивного дохода.',
       },
       {
+        imageSrc: '/slides/9.jpg',
         label: 'Бэкапы и владение',
         sublabel: 'Снапшоты VPS, экспорт данных',
         title: 'Полная переносимость — заберите всё в любой момент',

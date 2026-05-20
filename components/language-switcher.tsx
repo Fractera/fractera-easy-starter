@@ -8,6 +8,11 @@ import {
   DEFAULT_LANGUAGE,
   SINGLE_LANG_MODE,
 } from '@/config/translations/translations.config'
+import {
+  LANGUAGE_REGIONS,
+  type LanguageRegion,
+  type LanguageMetadata,
+} from '@/config/translations/language-metadata'
 
 export function LanguageSwitcher() {
   if (SINGLE_LANG_MODE) return null
@@ -38,6 +43,19 @@ function LanguageSwitcherInner() {
       l => l.nativeName.toLowerCase().startsWith(q) || l.englishName.toLowerCase().startsWith(q)
     )
   }, [allLanguages, filter])
+
+  // Group by region. Languages with multiple regions appear in each of them.
+  // LANGUAGE_REGIONS preserves a stable left-to-right reading order.
+  const groupedByRegion = useMemo(() => {
+    const map = new Map<LanguageRegion, LanguageMetadata[]>()
+    LANGUAGE_REGIONS.forEach(region => map.set(region, []))
+    allLanguages.forEach(lang => {
+      lang.regions.forEach(region => {
+        map.get(region)?.push(lang)
+      })
+    })
+    return map
+  }, [allLanguages])
 
   // Close on outside click
   useEffect(() => {
@@ -99,29 +117,78 @@ function LanguageSwitcherInner() {
 
           {/* List */}
           <div className="max-h-60 overflow-y-auto py-1">
-            {filtered.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-white/40">No languages found</p>
+            {filter ? (
+              // Active search → flat result list (no region headers, default flag)
+              filtered.length === 0 ? (
+                <p className="px-4 py-6 text-center text-sm text-white/40">No languages found</p>
+              ) : (
+                filtered.map(lang => (
+                  <LangRow
+                    key={lang.code}
+                    lang={lang}
+                    flag={lang.flag}
+                    isActive={lang.code === currentLang}
+                    onSelect={switchLang}
+                  />
+                ))
+              )
             ) : (
-              filtered.map(lang => (
-                <button
-                  key={lang.code}
-                  type="button"
-                  onClick={() => switchLang(lang.code)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors text-left
-                    ${lang.code === currentLang
-                      ? 'bg-violet-600/20 text-violet-300'
-                      : 'text-white/80 hover:bg-white/8 hover:text-white'
-                    }`}
-                >
-                  <span className="text-base leading-none">{lang.flag}</span>
-                  <span>{lang.nativeName}</span>
-                  <span className="ml-auto text-xs text-white/30 uppercase">{lang.code}</span>
-                </button>
-              ))
+              // No search → grouped by region; multi-region langs repeat with region-specific flag
+              LANGUAGE_REGIONS.map((region, regionIdx) => {
+                const list = groupedByRegion.get(region) ?? []
+                if (list.length === 0) return null
+                return (
+                  <div key={region}>
+                    {regionIdx > 0 && <div className="h-px bg-white/10 my-1" />}
+                    <p
+                      className="sticky top-0 z-[1] bg-[#111] px-3 py-1.5 text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest"
+                    >
+                      {region}
+                    </p>
+                    {list.map(lang => (
+                      <LangRow
+                        key={`${region}-${lang.code}`}
+                        lang={lang}
+                        flag={lang.regionFlags?.[region] ?? lang.flag}
+                        isActive={lang.code === currentLang}
+                        onSelect={switchLang}
+                      />
+                    ))}
+                  </div>
+                )
+              })
             )}
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+function LangRow({
+  lang,
+  flag,
+  isActive,
+  onSelect,
+}: {
+  lang: LanguageMetadata
+  flag: string
+  isActive: boolean
+  onSelect: (code: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(lang.code)}
+      className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors text-left ${
+        isActive
+          ? 'bg-violet-600/20 text-violet-300'
+          : 'text-white/80 hover:bg-white/[0.08] hover:text-white'
+      }`}
+    >
+      <span className="text-base leading-none">{flag}</span>
+      <span>{lang.nativeName}</span>
+      <span className="ml-auto text-xs text-white/30 uppercase">{lang.code}</span>
+    </button>
   )
 }

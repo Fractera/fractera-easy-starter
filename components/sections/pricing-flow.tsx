@@ -174,13 +174,38 @@ export function PricingFlow() {
       {(
         <div className="w-full max-w-4xl flex flex-col gap-6">
           <div id="pricing" className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            {/* Left: description */}
-            <div className="flex flex-col gap-3 items-start text-left">
-              <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
-              <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-                {content.pricingHeader.h2}
-              </h2>
-              <p className="text-base text-white/60">{content.pricingHeader.description}</p>
+            {/* Left: description + where-to-buy-servers block */}
+            <div className="flex flex-col gap-6 items-start text-left">
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
+                <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
+                  {content.pricingHeader.h2}
+                </h2>
+                <p className="text-base text-white/60">{content.pricingHeader.description}</p>
+              </div>
+
+              {/* Server providers — compact one-line chips */}
+              <div className="flex flex-col gap-3 w-full pt-4 border-t border-white/10">
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.serverSection.label}</p>
+                  <h3 className="text-base font-bold font-serif text-white">{content.serverSection.h2}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed">{content.serverSection.description}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {content.serverSection.providers.map(({ name, tagline, url }) => (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={tagline}
+                      className="inline-flex items-center gap-1 rounded-lg border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-3 py-1.5 text-xs font-bold text-white hover:text-violet-300 transition-all"
+                    >
+                      {name} ↗
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Right: install card */}
@@ -280,24 +305,6 @@ export function PricingFlow() {
           </div>
 
           <p className="text-xs text-orange-400/80 leading-relaxed">{content.planLabels.disclaimer}</p>
-
-          {/* Server providers */}
-          <div className="flex flex-col gap-5 pt-4 border-t border-white/10">
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.serverSection.label}</p>
-              <h3 className="text-xl font-bold font-serif text-white">{content.serverSection.h2}</h3>
-              <p className="text-sm text-white/50 leading-relaxed max-w-xl">{content.serverSection.description}</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {content.serverSection.providers.map(({ name, tagline, url }) => (
-                <a key={name} href={url} target="_blank" rel="noopener noreferrer"
-                  className="group flex flex-col gap-2 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-4 py-4 transition-all duration-200">
-                  <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{name} ↗</span>
-                  <span className="text-xs text-white/45 leading-snug">{tagline}</span>
-                </a>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 

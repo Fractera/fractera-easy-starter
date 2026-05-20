@@ -18,9 +18,10 @@ export function LoopShowcase() {
   const blockCount = Math.max(1, Math.ceil(totalSlides / SLIDES_PER_BLOCK))
 
   const sectionRef = useRef<HTMLElement>(null)
+  const preloadStartedRef = useRef<Set<number>>(new Set())
   const [currentSlide, setCurrentSlide] = useState(0)
   const [opacity, setOpacity] = useState(1)
-  const [isPausedByPress, setIsPausedByPress] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const [isInView, setIsInView] = useState(true)
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({})
 
@@ -29,7 +30,7 @@ export function LoopShowcase() {
   const blockSlides = slides.slice(blockStart, blockStart + SLIDES_PER_BLOCK)
   const dotsCount = blockSlides.length
 
-  const isAnimating = isInView && !isPausedByPress
+  const isAnimating = isInView && !isPaused
 
   // Pause when section scrolls out of view (prevents layout shift on long pages)
   useEffect(() => {
@@ -56,7 +57,9 @@ export function LoopShowcase() {
     return () => clearInterval(timer)
   }, [isAnimating, totalSlides])
 
-  // Lazy-load images only for current + next block so 100+ slides stay light
+  // Lazy-load images only for current + next block so 100+ slides stay light.
+  // preloadStartedRef dedupes — each image is fetched at most once. If the
+  // image 404s, it stays unloaded forever (placeholder shows), no retries.
   useEffect(() => {
     const preload = new Set<number>()
     for (let i = blockStart; i < blockStart + SLIDES_PER_BLOCK && i < totalSlides; i++) {
@@ -67,21 +70,27 @@ export function LoopShowcase() {
       preload.add(i)
     }
     preload.forEach(idx => {
+      if (preloadStartedRef.current.has(idx)) return
       const slide = slides[idx]
-      if (!slide?.imageSrc || loadedImages[idx]) return
+      if (!slide?.imageSrc) return
+      preloadStartedRef.current.add(idx)
       const img = new window.Image()
       img.src = slide.imageSrc
       img.onload = () => setLoadedImages(prev => ({ ...prev, [idx]: true }))
     })
-  }, [blockIndex, blockStart, blockCount, totalSlides, slides, loadedImages])
+  }, [blockIndex, blockStart, blockCount, totalSlides, slides])
 
-  // Press-and-hold a circle: pause + jump. Release to resume.
-  const handleCirclePointerDown = (slideIdx: number) => {
-    setIsPausedByPress(true)
+  // Click a circle: toggle pause if same slide, otherwise jump and pause.
+  // The active circle shows "||" instead of its number while paused.
+  const handleCircleClick = (slideIdx: number) => {
+    if (slideIdx === currentSlide && isPaused) {
+      setIsPaused(false)
+      return
+    }
     setOpacity(1)
     setCurrentSlide(slideIdx)
+    setIsPaused(true)
   }
-  const handleCirclePointerUp = () => setIsPausedByPress(false)
 
   // Block-step navigation: ±3 with wrap-around
   const shiftBlock = (delta: 1 | -1) => {
@@ -199,20 +208,18 @@ export function LoopShowcase() {
           {blockSlides.map((_, pos) => {
             const slideIdx = blockStart + pos
             const isActive = slideIdx === currentSlide
+            const showPauseGlyph = isActive && isPaused
             return (
               <button
                 key={slideIdx}
                 type="button"
-                aria-label={`Slide ${slideIdx + 1}${
-                  isPausedByPress && isActive
-                    ? ' (paused — release to resume)'
-                    : ' (press and hold to pause)'
-                }`}
-                onPointerDown={(e) => { e.preventDefault(); handleCirclePointerDown(slideIdx) }}
-                onPointerUp={handleCirclePointerUp}
-                onPointerCancel={handleCirclePointerUp}
-                onPointerLeave={handleCirclePointerUp}
-                className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 touch-none select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-full"
+                aria-label={
+                  showPauseGlyph
+                    ? `Slide ${slideIdx + 1} (paused — click to resume)`
+                    : `Slide ${slideIdx + 1} (click to pause)`
+                }
+                onClick={() => handleCircleClick(slideIdx)}
+                className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-full"
                 style={{ left: getCircleLeft(pos) }}
               >
                 <div
@@ -222,7 +229,11 @@ export function LoopShowcase() {
                       : 'border-white/30 bg-black text-white/60 hover:border-white/60'
                   }`}
                 >
-                  {slideIdx + 1}
+                  {showPauseGlyph ? (
+                    <span className="tracking-tighter leading-none">‖</span>
+                  ) : (
+                    slideIdx + 1
+                  )}
                 </div>
               </button>
             )

@@ -20,7 +20,8 @@ export type AITranslationTier = 'A' | 'B' | 'beta' | 'community';
 
 export type LanguageMetadata = {
   code: string;              // ISO 639-1 two-letter code
-  flag: string;              // Emoji flag
+  flag: string;              // Default emoji flag (used when region context is missing)
+  regionFlags?: Partial<Record<LanguageRegion, string>>; // Override flag per region
   nativeName: string;        // Name in the language itself
   englishName: string;       // Name in English
   regions: LanguageRegion[]; // One language can appear in multiple regions
@@ -32,15 +33,35 @@ export const ALL_LANGUAGE_METADATA: Record<string, LanguageMetadata> = {
   // ============================================================================
   // NORTH AMERICA
   // ============================================================================
-  en: { code: 'en', flag: '🇺🇸', nativeName: 'English',           englishName: 'English',     regions: ['North America', 'Europe', 'Asia Pacific', 'Sub-Saharan Africa'], aiTier: 'A' },
-  fr: { code: 'fr', flag: '🇫🇷', nativeName: 'Français',           englishName: 'French',      regions: ['North America', 'Europe', 'Sub-Saharan Africa'],                aiTier: 'A' },
+  en: {
+    code: 'en', flag: '🇺🇸', nativeName: 'English', englishName: 'English',
+    regions: ['North America', 'Europe', 'Asia Pacific', 'Sub-Saharan Africa'],
+    regionFlags: { 'North America': '🇺🇸', 'Europe': '🇬🇧', 'Asia Pacific': '🇦🇺', 'Sub-Saharan Africa': '🇿🇦' },
+    aiTier: 'A',
+  },
+  fr: {
+    code: 'fr', flag: '🇫🇷', nativeName: 'Français', englishName: 'French',
+    regions: ['North America', 'Europe', 'Sub-Saharan Africa'],
+    regionFlags: { 'North America': '🇨🇦', 'Europe': '🇫🇷', 'Sub-Saharan Africa': '🇸🇳' },
+    aiTier: 'A',
+  },
 
   // ============================================================================
   // LATIN AMERICA
   // ============================================================================
-  es: { code: 'es', flag: '🇪🇸', nativeName: 'Español',            englishName: 'Spanish',     regions: ['Latin America', 'Europe', 'North America'],                     aiTier: 'A' },
+  es: {
+    code: 'es', flag: '🇪🇸', nativeName: 'Español', englishName: 'Spanish',
+    regions: ['Latin America', 'Europe', 'North America'],
+    regionFlags: { 'Latin America': '🇲🇽', 'Europe': '🇪🇸', 'North America': '🇲🇽' },
+    aiTier: 'A',
+  },
   // FIX: added 'North America' — 42M Spanish speakers in the US
-  pt: { code: 'pt', flag: '🇧🇷', nativeName: 'Português',          englishName: 'Portuguese',  regions: ['Latin America', 'Europe', 'Sub-Saharan Africa'],                aiTier: 'A' },
+  pt: {
+    code: 'pt', flag: '🇧🇷', nativeName: 'Português', englishName: 'Portuguese',
+    regions: ['Latin America', 'Europe', 'Sub-Saharan Africa'],
+    regionFlags: { 'Latin America': '🇧🇷', 'Europe': '🇵🇹', 'Sub-Saharan Africa': '🇲🇿' },
+    aiTier: 'A',
+  },
   // FIX: added 'Sub-Saharan Africa' — official in Angola, Mozambique, Cape Verde
 
   // ============================================================================
