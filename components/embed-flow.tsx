@@ -45,7 +45,8 @@ function getTexts(lang: Lang) {
     ],
     trust: isRu ? ['Ваш сервер', 'Ваш домен', 'Ваш AI'] : ['Your server', 'Your domain', 'Your AI'],
 
-    deployButton: isRu ? 'Развернуть на своём сервере' : 'Deploy on your own server',
+    deployButton: isRu ? 'Нажмите, чтобы подтвердить ваш email' : 'Click to verify your email',
+    deployHint: isRu ? 'Email будет использоваться для развёртывания проекта.' : 'Your email will be used to deploy the project.',
     buyVpsAt: (provider: string) => isRu ? `Купить VPS у ${provider}` : `Buy VPS at ${provider}`,
     buyVpsGeneric: isRu ? 'Купить VPS' : 'Buy VPS',
 
@@ -258,16 +259,19 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                   <span className="text-white">{t.features[4]}</span>
                 </li>
               </ul>
-              <button
-                type="button"
-                onClick={() => {
-                  if (state === 'presentation') setState('signup')
-                }}
-                disabled={state !== 'presentation'}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
-              >
-                {t.deployButton} →
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (state === 'presentation') setState('signup')
+                  }}
+                  disabled={state !== 'presentation'}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
+                >
+                  {t.deployButton} →
+                </button>
+                <p className="text-xs text-white/50 text-center leading-relaxed">{t.deployHint}</p>
+              </div>
             </div>
           </div>
 
