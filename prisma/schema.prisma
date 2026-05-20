@@ -22,6 +22,7 @@ model User {
   vpsReserves   VpsReserve[]
   purchases     Purchase[]
   sponsorships  Sponsorship[]
+  partner       Partner?
 }
 
 model Account {
@@ -124,6 +125,16 @@ model Sponsorship {
   user                 User      @relation(fields: [userId], references: [id])
 
   @@index([tier, status])
+}
+
+model Partner {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  slug      String   @unique // auto-generated, e.g. happy-fox-42 — future personal subdomain
+  status    String   @default("active") // active | suspended (auto-approve at registration)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VpsReserve {

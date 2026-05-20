@@ -1,3 +1,5 @@
+import { PartnersCta } from './partners-cta'
+
 export default async function PartnersPage({
   params,
 }: {
@@ -38,10 +40,9 @@ export default async function PartnersPage({
     payoutsNoteBody: 'Никакой статистики выплат внутри Fractera-кабинета не будет. Деньги вам платит ваш VPS-поставщик, и историю выплат вы видите в его собственном кабинете. Мы можем показать клики и регистрации, которые прошли через ваш поддомен, виджет или MCP — это нужно для понимания эффективности вашего контента. Сами комиссии — на стороне поставщика.',
 
     joinTitle: 'Готовы стать партнёром?',
-    joinBody: 'Регистрация партнёрского кабинета сейчас на стадии активной разработки. Если вы создаёте контент о разработке, AI или self-hosted-инфраструктуре — напишите нам, мы откроем ранний доступ.',
-    joinButton: 'Запросить ранний доступ',
-    joinEmail: 'admin@fractera.ai',
-    joinNote: 'Ответим в течение 1–2 рабочих дней.',
+    joinBody: 'Регистрация занимает 30 секунд. Достаточно согласиться с политикой сотрудничества — мы сразу активируем ваш партнёрский кабинет и отправляем письмо с подробностями.',
+    joinButton: 'Зарегистрироваться как партнёр',
+    joinNote: 'Аккаунт Fractera нужен — если ещё не вошли, откроется окно входа.',
   } : {
     badge: 'Partner Program',
     h1: 'Fractera Partner Cabinet',
@@ -74,10 +75,9 @@ export default async function PartnersPage({
     payoutsNoteBody: 'There will be no payout statistics inside the Fractera cabinet. Money is paid to you by the VPS provider, and you see the payout history in their own dashboard. We can show clicks and signups that came through your subdomain, widget, or MCP — useful for understanding what content works. The commissions themselves stay on the provider side.',
 
     joinTitle: 'Ready to become a partner?',
-    joinBody: 'Partner cabinet signup is under active development. If you create content about software development, AI, or self-hosted infrastructure — write to us, we will open early access.',
-    joinButton: 'Request early access',
-    joinEmail: 'admin@fractera.ai',
-    joinNote: 'Reply within 1–2 business days.',
+    joinBody: 'Sign-up takes 30 seconds. Just agree to the cooperation policy — your partner cabinet is activated immediately and a welcome email is sent.',
+    joinButton: 'Register as a partner',
+    joinNote: 'A Fractera account is required — if you are not signed in, the sign-in window will open.',
   }
 
   const breadcrumb = {
@@ -134,16 +134,11 @@ export default async function PartnersPage({
           <p className="text-sm text-white/75 leading-relaxed">{t.payoutsNoteBody}</p>
         </div>
 
-        {/* Join — early access */}
+        {/* Join — instant signup */}
         <div className="flex flex-col gap-5 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-8 items-start">
           <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.joinTitle}</h2>
           <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.joinBody}</p>
-          <a
-            href={`mailto:${t.joinEmail}?subject=${encodeURIComponent(isRu ? 'Заявка на партнёрский кабинет Fractera' : 'Fractera Partner Cabinet — early access')}`}
-            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
-          >
-            {t.joinButton} → <span className="font-mono text-sm font-normal">{t.joinEmail}</span>
-          </a>
+          <PartnersCta lang={lang} label={t.joinButton} />
           <p className="text-sm text-white/50">{t.joinNote}</p>
         </div>
 

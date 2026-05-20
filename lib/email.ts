@@ -299,3 +299,54 @@ export async function sendCancellationEmail(to: string) {
     `,
   })
 }
+
+export async function sendPartnerWelcomeEmail(to: string, slug: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: 'Your Fractera Partner cabinet is active',
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#111">
+        <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111">
+          Welcome to the Fractera Partner Program
+        </h1>
+
+        <p style="margin:0 0 20px;color:#333;line-height:1.7;font-size:15px">
+          Your partner cabinet is now active. Below is your personal partner identifier — keep it safe; you will use it when configuring your affiliate links and (later) when configuring the embeddable widget and MCP activation.
+        </p>
+
+        <div style="background:linear-gradient(135deg,#f3f0ff 0%,#ede4ff 100%);border:1px solid #c4b5fd;border-radius:14px;padding:20px;margin:24px 0">
+          <p style="margin:0 0 8px;font-size:11px;color:#6d28d9;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Your partner ID</p>
+          <p style="margin:0;font-family:monospace;font-size:20px;font-weight:700;color:#1f2937;letter-spacing:0.5px">${slug}</p>
+        </div>
+
+        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">Widget snippet</h2>
+        <p style="margin:0 0 16px;color:#333;line-height:1.7;font-size:14px">
+          The embeddable signup widget is under active development. Once it ships, you will be able to copy a ready-to-paste snippet from your partner cabinet at <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard → Partner cabinet. The snippet will look approximately like this:
+        </p>
+
+        <pre style="background:#0b0b0d;color:#a7f3d0;font-family:monospace;font-size:12px;border-radius:10px;padding:16px;overflow:auto;line-height:1.5;margin:0 0 16px"><code>&lt;iframe
+  src="https://embed.fractera.ai/signup?ref=${slug}"
+  width="100%" height="640"
+  style="border:0; border-radius:16px"
+&gt;&lt;/iframe&gt;</code></pre>
+
+        <p style="margin:0 0 24px;color:#666;line-height:1.6;font-size:13px">
+          The widget will surface a call-to-action button labelled with your hosting provider name and linking to your affiliate URL — both you configure in the cabinet once it ships.
+        </p>
+
+        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">What to do next</h2>
+        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
+          <li>Open <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard (top-right corner of the page after signing in) → tab <strong>«Partner cabinet»</strong>.</li>
+          <li>Apply for an affiliate program with any VPS provider you want to recommend (Contabo's program is documented at <a href="https://contabo.com/en/affiliate-program/" style="color:#6c47ff;font-weight:600">contabo.com/en/affiliate-program/</a> — but any host with an affiliate program works).</li>
+          <li>Once approved by the provider, connect your affiliate link in the cabinet — that will happen as soon as link management ships (next development step).</li>
+        </ul>
+
+        <p style="margin:24px 0 0;color:#666;font-size:13px;line-height:1.6">
+          Questions? Reply directly to this email — it goes to admin@fractera.ai.
+        </p>
+      </div>
+    `,
+  })
+}
