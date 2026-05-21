@@ -246,32 +246,38 @@ soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PA
 # (Swagger) and Company Brain in admin shows 404/Swagger instead of the React UI.
 # Build the webui from the uv checkout and copy dist/ into api/webui/ where
 # lightrag_server.py looks for it (Path(__file__).parent / 'webui' — line ~164).
-soft_step "build_lightrag_webui" "Company Brain UI build" 'set -e
+# NOTE on shell discipline below: this body is run by `eval "$cmd"` inside
+# soft_step(), which executes in the CURRENT shell (not a subshell). That
+# means an `exit 0` here would terminate the entire bootstrap.sh, not just
+# this step (precisely the bug that froze deploys at 57% in v5847cbe).
+# Same hazard for `set -e` — it would leak into the parent shell. Use only
+# if/elif/else control flow; let soft_step's `|| true` handle errors.
+soft_step "build_lightrag_webui" "Company Brain UI build" '
 SITE=$(ls -d /root/.local/share/uv/tools/lightrag-hku/lib/python*/site-packages/lightrag/api 2>/dev/null | head -1)
 SRC=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag_webui 2>/dev/null | head -1)
 if [ -z "$SITE" ] || [ -z "$SRC" ]; then
-  echo "  ! lightrag api dir or webui sources not found — skipping" ; exit 0
-fi
-if [ -d "$SITE/webui" ] && [ -f "$SITE/webui/index.html" ]; then
-  echo "  webui already built — skipping" ; exit 0
-fi
-# bun installer needs unzip; not in the minimal Ubuntu image.
-apt-get install -y -qq unzip >/dev/null 2>&1 || true
-command -v bun >/dev/null 2>&1 || { curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 ; }
-export PATH="$HOME/.bun/bin:$PATH"
-cd "$SRC"
-bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
-bun run build >/dev/null 2>&1 || true
-# vite is configured to emit to ../lightrag/api/webui/ relative to lightrag_webui/,
-# which lands inside the uv-archive snapshot (NOT the live tool install). Copy
-# from the archive to the running site-packages so lightrag_server.py finds it.
-ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
-if [ -n "$ARCHIVE_WEBUI" ] && [ -f "$ARCHIVE_WEBUI/index.html" ]; then
-  mkdir -p "$SITE/webui"
-  cp -r "$ARCHIVE_WEBUI"/. "$SITE/webui/"
-  echo "  webui copied to $SITE/webui"
+  echo "  ! lightrag api dir or webui sources not found — skipping"
+elif [ -d "$SITE/webui" ] && [ -f "$SITE/webui/index.html" ]; then
+  echo "  webui already built — skipping"
 else
-  echo "  ! bun build did not produce webui assets — Company Brain will fall back to Swagger"
+  # bun installer needs unzip; not in the minimal Ubuntu image.
+  apt-get install -y -qq unzip >/dev/null 2>&1 || true
+  command -v bun >/dev/null 2>&1 || { curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 ; }
+  export PATH="$HOME/.bun/bin:$PATH"
+  cd "$SRC"
+  bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
+  bun run build >/dev/null 2>&1 || true
+  # vite is configured to emit to ../lightrag/api/webui/ relative to lightrag_webui/,
+  # which lands inside the uv-archive snapshot (NOT the live tool install). Copy
+  # from the archive to the running site-packages so lightrag_server.py finds it.
+  ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
+  if [ -n "$ARCHIVE_WEBUI" ] && [ -f "$ARCHIVE_WEBUI/index.html" ]; then
+    mkdir -p "$SITE/webui"
+    cp -r "$ARCHIVE_WEBUI"/. "$SITE/webui/"
+    echo "  webui copied to $SITE/webui"
+  else
+    echo "  ! bun build did not produce webui assets — Company Brain will fall back to Swagger"
+  fi
 fi' || true
 soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/Fractera/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser --branch v2026.5.16 || true"
 soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"

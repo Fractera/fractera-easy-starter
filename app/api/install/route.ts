@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deployToServer } from '@/lib/deploy'
+import { wipeServer } from '@/lib/wipe-script'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { initProgress, appendStep } from '@/lib/kv'
+import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail } from '@/lib/email'
 
 export const maxDuration = 300
@@ -59,7 +60,22 @@ export async function POST(req: NextRequest) {
     await sendInstallStartedEmail(userEmail)
   }
 
-  // Step 2: SSH + upload bootstrap + launch (initProgress is idempotent — won't wipe email_start step)
+  // Step 2: wipe any previous installation BEFORE bootstrap runs. See
+  // lib/wipe-script.ts for why this is mandatory (idempotency-check
+  // soft_step bodies in bootstrap.sh silently skip work when stale
+  // artifacts exist, causing 2-hour-frozen-at-57% deploys).
+  await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
+  try {
+    await wipeServer(ip, login, password)
+    await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    const wipeErr = `WIPE_FAILED: could not clean previous installation — ${errMsg}`
+    await failProgress(session_id, wipeErr)
+    return NextResponse.json({ error: wipeErr, recovery: 'mcp' }, { status: 500 })
+  }
+
+  // Step 3: SSH + upload bootstrap + launch (initProgress is idempotent — won't wipe email_start step)
   await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap })
 
   return NextResponse.json({ session_id, status: 'installing' })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
+import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
 
@@ -77,6 +78,37 @@ export async function POST(req: NextRequest) {
   if (session.email) {
     await appendStep(sessionId, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
     try { await sendInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install] start email failed', err) }
+  }
+
+  // Wipe any previous installation BEFORE bootstrap runs. Required because
+  // bootstrap.sh's soft_step bodies have idempotency checks that misbehave
+  // when partial leftovers exist (e.g. cached LightRAG webui dir triggers
+  // a `exit 0` that kills the whole script). Failing here is fatal — we
+  // refuse to deploy onto a server we couldn't clean, because the failure
+  // mode is silent and 2-hours-stuck-at-57%.
+  await appendStep(sessionId, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
+  try {
+    await wipeServer(ip, login, password)
+    await appendStep(sessionId, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('[embed/install] wipeServer failed', err)
+    // Mark error with a recognizable prefix so embed-flow's deploy-error UI
+    // can render an MCP-retry hint instead of a generic "try again" — the
+    // user can re-launch deploy via the Fractera MCP tool, which will run
+    // the same wipe path (likely passing on a retry after transient SSH
+    // hiccups, or surfacing a real diagnosable error).
+    const wipeErr = `WIPE_FAILED: could not clean previous installation — ${errMsg}`
+    try {
+      await failProgress(sessionId, wipeErr)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
+    } catch (writeErr) {
+      console.error('[embed/install] failProgress write error', writeErr)
+    }
+    if (session.email) {
+      try { await sendDeployFailedEmail(session.email, wipeErr) } catch (mailErr) { console.error('[embed/install] sendDeployFailedEmail failed', mailErr) }
+    }
+    return NextResponse.json({ sessionId, status: 'error', recovery: 'mcp' })
   }
 
   // AWAIT the deploy — must not be fire-and-forget. On Vercel the serverless

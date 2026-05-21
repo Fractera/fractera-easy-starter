@@ -1,38 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Client } from 'ssh2'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { deleteDnsRecord } from '@/lib/cloudflare'
+import { wipeServer } from '@/lib/wipe-script'
 
-export const maxDuration = 60
+export const maxDuration = 120
 
-const DESTROY_SCRIPT = `
-pm2 delete all 2>/dev/null || true
-rm -rf /opt/fractera
-rm -rf /etc/fractera
-rm -rf /root/.gemini /root/.claude /root/.config/openai /root/.openai /root/.config/qwen-code /root/.qwen /root/.config/kimi-cli /root/.kimi /root/.local/share/kimi-cli /root/.local/share/kimi 2>/dev/null || true
-rm -f /etc/nginx/sites-enabled/fractera
-rm -f /etc/nginx/sites-available/fractera
-nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
-echo "DESTROYED"
-`
-
-async function sshDestroy(ip: string, login: string, password: string) {
-  return new Promise<void>((resolve, reject) => {
-    const ssh = new Client()
-    ssh.on('ready', () => {
-      ssh.exec(DESTROY_SCRIPT, (err, stream) => {
-        if (err) { reject(err); ssh.end(); return }
-        stream.on('close', () => { ssh.end(); resolve() })
-        stream.on('data', () => {})
-        stream.stderr.on('data', () => {})
-      })
-    })
-    ssh.on('error', reject)
-    ssh.connect({ host: ip, port: 22, username: login, password, readyTimeout: 20000 })
-  })
-}
-
+// Server delete = wipe + DNS cleanup + DB status update.
+//
+// IMPORTANT: failures are surfaced, NOT swallowed. The previous version
+// did `await sshDestroy(...).catch(() => {})` and unconditionally marked
+// the row offline — so a half-deleted server vanished from the UI but
+// stayed alive on the VPS, and the next redeploy stepped on its leftovers
+// (the root cause of the 2-hour-frozen-at-57% bug). Now: if wipe fails,
+// we keep the row visible so the user knows the action didn't complete
+// and can retry via the Fractera MCP tool.
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) {
@@ -56,12 +38,31 @@ export async function POST(req: NextRequest) {
   const login = 'root'
   const password = serverToken.serverPassword
 
-  // SSH cleanup — fire-and-forget if server is already gone
+  // 1. Wipe the VPS. If we don't have SSH credentials we cannot wipe —
+  // proceed with DNS + DB cleanup so the row at least disappears.
   if (ip && password) {
-    await sshDestroy(ip, login, password).catch(() => {})
+    try {
+      await wipeServer(ip, login, password)
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      // Record the failure on the row so the user sees what happened.
+      // Status stays as-is — not marked offline — so the entry remains
+      // visible and the user can trigger an MCP-driven retry.
+      await db.serverToken.update({
+        where: { id: serverToken.id },
+        data: { deployError: `WIPE_FAILED: ${errMsg}` },
+      }).catch(() => {})
+      return NextResponse.json({
+        error: `Could not clean the server: ${errMsg}`,
+        recovery: 'mcp',
+      }, { status: 502 })
+    }
   }
 
-  // DNS cleanup for all 4 subdomains
+  // 2. DNS cleanup for all 5 subdomains. bootstrap.sh registers
+  // {root, auth, admin, data, lightrag, hermes} — the prior version of
+  // this endpoint only deleted 4 of them, leaving lightrag + hermes
+  // as orphan A records pointing at a freed IP.
   if (serverToken.subdomain) {
     const base = serverToken.subdomain.replace(/\.fractera\.ai$/, '')
     await Promise.all([
@@ -69,16 +70,18 @@ export async function POST(req: NextRequest) {
       deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
       deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
       deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`lightrag.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`hermes.${base}.fractera.ai`).catch(() => {}),
     ])
   }
 
-  // Mark server as offline
+  // 3. Mark server as offline (only reached if wipe succeeded above).
   await db.serverToken.update({
     where: { id: serverToken.id },
-    data: { status: 'offline' },
+    data: { status: 'offline', deployError: null },
   })
 
-  // Cancel free (self-hosted) subscription when its server is deleted.
+  // 4. Cancel free (self-hosted) subscription when its server is deleted.
   // Paid subscriptions (monthly, annual, trial) are kept — the user paid for them
   // and may redeploy. Only the free plan has no value without an active server.
   await db.subscription.updateMany({

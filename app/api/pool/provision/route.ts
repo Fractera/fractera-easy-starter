@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
-import { initProgress } from '@/lib/kv'
+import { wipeServer } from '@/lib/wipe-script'
+import { initProgress, failProgress } from '@/lib/kv'
 
 export const maxDuration = 300
 
@@ -46,6 +47,26 @@ export async function POST(req: NextRequest) {
   })
 
   await initProgress(deploySessionId)
+
+  // Wipe before bootstrap — see lib/wipe-script.ts. Pool VPS are reused
+  // across users, so a leftover install from a previous tenant must be
+  // wiped, not trusted.
+  try {
+    await wipeServer(reserve.ip, reserve.login, reserve.password)
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    const wipeErr = `WIPE_FAILED: could not clean previous installation — ${errMsg}`
+    await failProgress(deploySessionId, wipeErr).catch(() => {})
+    await db.vpsReserve.update({
+      where: { id: vpsReserveId },
+      data: { status: 'available', provisioningServerTokenId: null },
+    }).catch(() => {})
+    await db.serverToken.update({
+      where: { id: tempToken.id },
+      data: { status: 'error', deployError: wipeErr },
+    }).catch(() => {})
+    return NextResponse.json({ error: 'Wipe failed', detail: errMsg, recovery: 'mcp' }, { status: 500 })
+  }
 
   try {
     await deployToServer({
