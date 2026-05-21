@@ -13,7 +13,7 @@ export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }:
   lang: string
 }) {
   const isRu = lang === 'ru'
-  const { data: session } = useSession()
+  const { data: session, update: updateSession } = useSession()
   const [submitting, setSubmitting] = useState(false)
   const [partner, setPartner] = useState<Partner | null>(null)
   const [agreed, setAgreed] = useState(false)
@@ -90,6 +90,14 @@ export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }:
       const data = await res.json()
       setPartner(data.partner)
       toast.success(t.toast, { duration: 8000 })
+      // Force NextAuth to re-run the server-side session() callback so
+      // session.user.partnerSlug picks up the freshly-created Partner row.
+      // Without this, opening the dashboard cabinet right after registration
+      // shows "you are not registered" — the cabinet reads partnerSlug from
+      // a stale cached session that was created before the Partner existed.
+      // updateSession() is awaited so the parent's onRegistered() (router.refresh)
+      // runs against a fresh session on the next render.
+      try { await updateSession() } catch { /* best effort */ }
       // Tell the parent page to refresh — it renders the emerald
       // "Congratulations" banner from a server component (DB lookup), so
       // without a refresh it stays on the pre-registration CTA until the
