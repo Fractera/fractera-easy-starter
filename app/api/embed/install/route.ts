@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -102,6 +102,14 @@ export async function POST(req: NextRequest) {
       await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
     } catch (writeErr) {
       console.error('[embed/install] failProgress write error', writeErr)
+    }
+    // Notify the user — they may have closed the widget waiting for a result.
+    if (session.email) {
+      try {
+        await sendDeployFailedEmail(session.email, errMsg)
+      } catch (mailErr) {
+        console.error('[embed/install] sendDeployFailedEmail failed', mailErr)
+      }
     }
     // Still return the sessionId — the widget's progress poller will read the
     // failProgress error from KV and switch to its deploy-error state.

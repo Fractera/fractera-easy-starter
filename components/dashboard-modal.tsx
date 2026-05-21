@@ -350,11 +350,13 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
     pending: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
     active:  'text-green-400  bg-green-400/10  border-green-400/20',
     offline: 'text-gray-500   bg-white/[0.03]  border-white/10',
+    error:   'text-red-400    bg-red-400/10    border-red-400/20',
   }
   const statusLabel: Record<string, string> = {
     pending: 'Deploying',
     active:  'Active',
     offline: 'Offline',
+    error:   'Failed',
   }
 
   const color = statusColors[server.status] ?? statusColors.offline
@@ -369,8 +371,8 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
       )}
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <p className={`text-base font-bold font-mono truncate ${server.status === 'offline' ? 'text-white/40' : 'text-white'}`}>
-            {server.subdomain}
+          <p className={`text-base font-bold font-mono truncate ${server.status === 'offline' || server.status === 'error' ? 'text-white/40' : 'text-white'}`}>
+            {server.subdomain || (server.status === 'error' ? (server.serverIp ?? 'Deployment failed') : server.subdomain)}
           </p>
           {expiry && server.status !== 'offline' && (
             <p className="text-sm text-white font-medium">
@@ -470,6 +472,32 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
                 <CredentialRow label="Password" value={server.serverPassword} secret onCopied={handleCopied} />
               )}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Failed / offline servers — let the user clear the dead entry */}
+      {(server.status === 'error' || server.status === 'offline') && (
+        <div className="flex flex-col gap-2">
+          {server.status === 'error' && (
+            <p className="text-xs text-red-300/80 leading-relaxed">
+              Deployment did not complete. Delete this entry and start a new
+              deployment from the home page.
+            </p>
+          )}
+          {!showDelete ? (
+            <button
+              onClick={() => setShowDelete(true)}
+              className="self-start text-sm text-white hover:text-red-400 transition-colors font-medium"
+            >
+              Delete server
+            </button>
+          ) : (
+            <DeleteConfirm
+              serverId={server.id}
+              onDeleted={() => { setShowDelete(false); onRefresh() }}
+              onCancel={() => setShowDelete(false)}
+            />
           )}
         </div>
       )}

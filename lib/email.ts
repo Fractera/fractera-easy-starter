@@ -359,3 +359,47 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
     `,
   })
 }
+
+export async function sendDeployFailedEmail(to: string, errorMessage?: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: 'Your Fractera deployment did not complete',
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
+        <h2 style="margin:0 0 12px">Deployment did not complete</h2>
+        <p style="margin:0 0 16px;color:#333;line-height:1.6">
+          We started setting up your Fractera server, but the deployment ran
+          into a problem and could not finish. Your server is <strong>not
+          ready</strong> — the URL we mentioned in the previous email will not
+          work.
+        </p>
+
+        ${errorMessage ? `
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">What went wrong</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#b91c1c;font-family:monospace;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;line-height:1.5;word-break:break-word">${errorMessage}</p>
+        ` : ''}
+
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">How to recover</p>
+        <ol style="margin:0 0 20px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
+          <li>
+            Open your dashboard at
+            <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a>
+            (sign in with <strong>${to}</strong>) &rarr; <strong>Servers</strong>,
+            delete the failed deployment, and start a new one from the home page.
+          </li>
+          <li>
+            Or use the <strong>MCP-assisted deployment</strong>: an AI agent can
+            inspect the failure and finish the setup of the server you already
+            started.
+          </li>
+        </ol>
+
+        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">
+          Need help? Reply directly to this email — it goes to admin@fractera.ai.
+        </p>
+      </div>
+    `,
+  })
+}

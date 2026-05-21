@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendDeployFailedEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -51,6 +51,17 @@ export async function POST(req: NextRequest) {
           where: { id: poolServer.id },
           data: { status: 'available' },
         })
+      }
+    }
+
+    // Notify the user their deployment failed — they may have closed the site
+    // and are waiting for the domain promised in the install-started email.
+    // Pool provisioning sessions (pool-*) have no end-user — skip those.
+    if (token?.user?.email && !session_id.startsWith('pool-')) {
+      try {
+        await sendDeployFailedEmail(token.user.email, errMsg)
+      } catch (e) {
+        console.error('[progress] sendDeployFailedEmail failed', e)
       }
     }
 
