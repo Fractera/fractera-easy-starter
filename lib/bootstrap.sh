@@ -349,10 +349,19 @@ ENVEOF
 if [ -d "/root/.hermes" ]; then
   cat > /root/.hermes/config.yaml <<HERMESEOF
 model:
-  provider: openrouter
-  model: deepseek/deepseek-r1:free
-  fallback_provider: openai
-  fallback_model: gpt-4o-mini
+  # Subscription-first: default to OpenAI Codex (ChatGPT subscription).
+  # The user signs in via OAuth at hermes.<sub>.fractera.ai/env on first
+  # admin-panel visit; until then this provider has no credentials and
+  # the agent will refuse to run — which is the intended UX (sign in,
+  # don't fall back to a paid API key the user didn't agree to).
+  provider: openai-codex
+  model: gpt-5.3-codex
+  # Anthropic Claude Code is an equally valid subscription; the user can
+  # sign in there too and switch the active provider in the Hermes /env
+  # panel. We don't set it as fallback because both providers go through
+  # the same credential_pool — first match wins.
+  fallback_provider: anthropic
+  fallback_model: claude-opus-4.7
 
 memory:
   provider: lightrag-memory
