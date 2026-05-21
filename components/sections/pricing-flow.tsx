@@ -173,7 +173,12 @@ export function PricingFlow() {
       {/* ── Pricing ── */}
       {(
         <div className="w-full max-w-4xl flex flex-col gap-6">
-          <div id="pricing" className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          {/* `items-stretch` (default for grid) — both columns share the tallest
+              column's height. Combined with `lg:mt-auto` on the providers block
+              below, this pins the Contabo card to the bottom of the left column
+              on desktop, aligned with the bottom edge of the install card on the
+              right. On mobile the columns stack so no alignment is needed. */}
+          <div id="pricing" className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Left: description + where-to-buy-servers block */}
             <div className="flex flex-col gap-6 items-start text-left">
               <div className="flex flex-col gap-3">
@@ -184,8 +189,10 @@ export function PricingFlow() {
                 <p className="text-base text-white/60">{content.pricingHeader.description}</p>
               </div>
 
-              {/* Server providers — compact one-line chips */}
-              <div className="flex flex-col gap-3 w-full pt-4 border-t border-white/10">
+              {/* Server providers — compact one-line chips. `lg:mt-auto` pushes
+                  the block to the bottom of the column so it aligns with the
+                  install card on the right (which is the natural floor on lg+). */}
+              <div className="flex flex-col gap-3 w-full pt-4 border-t border-white/10 lg:mt-auto">
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.serverSection.label}</p>
                   <h3 className="text-base font-bold font-serif text-white">{content.serverSection.h2}</h3>
