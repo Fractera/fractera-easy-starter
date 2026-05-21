@@ -372,8 +372,13 @@ LLM_MODEL=gpt-4o-mini
 EMBEDDING_BINDING=openai
 EMBEDDING_BINDING_HOST=https://api.openai.com/v1
 EMBEDDING_BINDING_API_KEY=
-EMBEDDING_MODEL=text-embedding-3-large
-EMBEDDING_DIM=3072
+# 3-small chosen over 3-large: embeddings dominate Company Brain cost
+# (every chunk gets embedded vs. one LLM call per chunk), and -small
+# is ~7x cheaper with quality difference imperceptible for the typical
+# partner workload. Dim must match the model: 1536 for -small, 3072
+# for -large. Mismatched dim crashes LightRAG indexing.
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIM=1536
 CORS_ORIGINS=http://localhost:3002
 ENVEOF
 
