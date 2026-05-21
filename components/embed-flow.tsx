@@ -128,6 +128,9 @@ function getTexts(lang: Lang) {
       : 'We could not connect to your server or run the install. The most common cause is a typo in the IP or password. Check the data and try again.',
     errorRetry: isRu ? 'Изменить данные и повторить' : 'Edit data and retry',
     errorDetails: isRu ? 'Сообщение от сервера' : 'Server message',
+    errorMcpPre: isRu ? 'или ' : 'or ',
+    errorMcpLink: isRu ? 'запустите развёртывание через AI-агента (MCP)' : 'launch deployment via an AI agent (MCP)',
+    errorMcpPost: isRu ? ' — он сможет сам устранить ошибку.' : ' — it can fix the error itself.',
   }
 }
 
@@ -617,6 +620,11 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             >
               {t.errorRetry} →
             </button>
+            <p className="text-xs text-white/40 leading-relaxed">
+              {t.errorMcpPre}
+              <a href={`https://fractera.ai/${lang}/partners`} target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">{t.errorMcpLink}</a>
+              {t.errorMcpPost}
+            </p>
           </div>
         </Overlay>
       )}

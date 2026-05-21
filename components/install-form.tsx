@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useHeroContent } from '@/lib/i18n/context'
+import { useLang } from '@/lib/i18n/use-lang'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
 
@@ -15,6 +16,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   onInstallingChange?: (installing: boolean) => void
   onWhiteLabel?: (serverTokenId: string) => void
 } = {}) {
+  const lang = useLang()
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
@@ -386,6 +388,18 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               >
                 {t.tryAgain}
               </button>
+              <p className="text-xs text-white/40 leading-relaxed">
+                {lang === 'ru' ? 'или ' : 'or '}
+                <a
+                  href={`/${lang}/partners`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-violet-400 hover:text-violet-300 transition-colors"
+                >
+                  {lang === 'ru' ? 'запустите развёртывание через AI-агента (MCP)' : 'launch deployment via an AI agent (MCP)'}
+                </a>
+                {lang === 'ru' ? ' — он сможет сам устранить ошибку.' : ' — it can fix the error itself.'}
+              </p>
             </div>
           )}
 
