@@ -241,6 +241,38 @@ soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/Fractera/LightRAG.git@v1.4.16' || true"
+# v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
+# from the repo). Without this step lightrag-server falls back to a 307 to /docs
+# (Swagger) and Company Brain in admin shows 404/Swagger instead of the React UI.
+# Build the webui from the uv checkout and copy dist/ into api/webui/ where
+# lightrag_server.py looks for it (Path(__file__).parent / 'webui' — line ~164).
+soft_step "build_lightrag_webui" "Company Brain UI build" 'set -e
+SITE=$(ls -d /root/.local/share/uv/tools/lightrag-hku/lib/python*/site-packages/lightrag/api 2>/dev/null | head -1)
+SRC=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag_webui 2>/dev/null | head -1)
+if [ -z "$SITE" ] || [ -z "$SRC" ]; then
+  echo "  ! lightrag api dir or webui sources not found — skipping" ; exit 0
+fi
+if [ -d "$SITE/webui" ] && [ -f "$SITE/webui/index.html" ]; then
+  echo "  webui already built — skipping" ; exit 0
+fi
+# bun installer needs unzip; not in the minimal Ubuntu image.
+apt-get install -y -qq unzip >/dev/null 2>&1 || true
+command -v bun >/dev/null 2>&1 || { curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 ; }
+export PATH="$HOME/.bun/bin:$PATH"
+cd "$SRC"
+bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
+bun run build >/dev/null 2>&1 || true
+# vite is configured to emit to ../lightrag/api/webui/ relative to lightrag_webui/,
+# which lands inside the uv-archive snapshot (NOT the live tool install). Copy
+# from the archive to the running site-packages so lightrag_server.py finds it.
+ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
+if [ -n "$ARCHIVE_WEBUI" ] && [ -f "$ARCHIVE_WEBUI/index.html" ]; then
+  mkdir -p "$SITE/webui"
+  cp -r "$ARCHIVE_WEBUI"/. "$SITE/webui/"
+  echo "  webui copied to $SITE/webui"
+else
+  echo "  ! bun build did not produce webui assets — Company Brain will fall back to Swagger"
+fi' || true
 soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/Fractera/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser --branch v2026.5.16 || true"
 soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
 soft_step "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
