@@ -406,8 +406,13 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           {/* Steps list — fixed 400px viewport with vertical scroll so the
               install card doesn't grow with every reported step. New steps
               are appended at the bottom; we don't auto-scroll because the
-              user usually wants to read the most-recent progress. */}
-          <div className="flex flex-col gap-1.5 mt-2 max-h-[400px] overflow-y-auto pr-1">
+              user usually wants to read the most-recent progress.
+              Inline style (not Tailwind max-h-[400px]) — JIT-compiled
+              arbitrary values were silently dropped in a previous build. */}
+          <div
+            className="flex flex-col gap-1.5 mt-2 pr-1 overflow-y-auto"
+            style={{ maxHeight: 400 }}
+          >
             {steps.map(step => (
               <div key={step.id} className="flex items-center gap-3">
                 <span className={`text-sm transition-colors duration-500 ${
