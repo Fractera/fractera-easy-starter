@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { PartnerRegistrationDrawer } from '@/components/partner-registration-drawer'
@@ -8,6 +9,7 @@ import { PartnerRegistrationDrawer } from '@/components/partner-registration-dra
 export function PartnersCta({ lang, label }: { lang: string; label: string }) {
   const { data: session } = useSession()
   const { openModal } = useAuthModal()
+  const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   function handleClick() {
@@ -27,7 +29,12 @@ export function PartnersCta({ lang, label }: { lang: string; label: string }) {
       >
         {label} →
       </button>
-      <PartnerRegistrationDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} />
+      <PartnerRegistrationDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onRegistered={() => router.refresh()}
+        lang={lang}
+      />
     </>
   )
 }

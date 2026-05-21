@@ -6,9 +6,10 @@ import { toast } from 'sonner'
 
 type Partner = { id: string; slug: string; status: string; createdAt: string }
 
-export function PartnerRegistrationDrawer({ open, onClose, lang }: {
+export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }: {
   open: boolean
   onClose: () => void
+  onRegistered?: () => void
   lang: string
 }) {
   const isRu = lang === 'ru'
@@ -89,6 +90,12 @@ export function PartnerRegistrationDrawer({ open, onClose, lang }: {
       const data = await res.json()
       setPartner(data.partner)
       toast.success(t.toast, { duration: 8000 })
+      // Tell the parent page to refresh — it renders the emerald
+      // "Congratulations" banner from a server component (DB lookup), so
+      // without a refresh it stays on the pre-registration CTA until the
+      // user reloads. The drawer's success state still shows immediately;
+      // refresh runs in the background.
+      onRegistered?.()
     } catch {
       toast.error(isRu ? 'Не удалось зарегистрировать. Попробуйте позже.' : 'Registration failed. Please try again later.')
     } finally {
