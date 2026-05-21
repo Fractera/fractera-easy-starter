@@ -12,13 +12,18 @@ export const maxDuration = 300
 // (iframe third-party cookies are not reliable, so we use a localStorage
 // token issued at signup time).
 export async function POST(req: NextRequest) {
-  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown }
+  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown }
   try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
 
   const token = typeof body.token === 'string' ? body.token : ''
   const ip = typeof body.ip === 'string' ? body.ip.trim() : ''
   const password = typeof body.password === 'string' ? body.password : ''
   const login = typeof body.login === 'string' && body.login.trim() ? body.login.trim() : 'root'
+  // The widget generates the session id client-side so it can start polling
+  // /api/progress immediately, without awaiting this whole request.
+  const clientSessionId = typeof body.sessionId === 'string' && /^embed-\d+-[a-z0-9]+$/.test(body.sessionId)
+    ? body.sessionId
+    : null
 
   if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 })
   if (!ip || !password) return NextResponse.json({ error: 'Missing IP or password' }, { status: 400 })
@@ -49,7 +54,7 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  const sessionId = `embed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const sessionId = clientSessionId ?? `embed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
   const serverToken = await db.serverToken.create({
     data: {

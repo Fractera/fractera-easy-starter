@@ -289,7 +289,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
     }
   }
 
-  async function handleDeploy(e: React.FormEvent) {
+  function handleDeploy(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     if (!ip.trim() || !login.trim() || !password.trim()) {
@@ -300,30 +300,24 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
       setError(t.installKickoffFailed)
       return
     }
-    setBusy(true)
+    // Client-generated session id so the progress poller can start at once.
+    const sessionId = `embed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     try {
-      const res = await fetch('/api/embed/install', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: embedToken, ip: ip.trim(), login: login.trim(), password }),
-      })
-      if (!res.ok) { setError(t.installKickoffFailed); return }
-      const data = await res.json()
-      const sessionId = data.sessionId as string
-      if (!sessionId) { setError(t.installKickoffFailed); return }
-      try {
-        localStorage.setItem(LS_SESSION_ID, sessionId)
-        localStorage.setItem(LS_IP, ip.trim())
-      } catch {}
-      setDeploySessionId(sessionId)
-      setProgress(null)
-      setDeployError(null)
-      setState('deploying')
-    } catch {
-      setError(t.installKickoffFailed)
-    } finally {
-      setBusy(false)
-    }
+      localStorage.setItem(LS_SESSION_ID, sessionId)
+      localStorage.setItem(LS_IP, ip.trim())
+    } catch {}
+    setDeploySessionId(sessionId)
+    setProgress(null)
+    setDeployError(null)
+    setState('deploying')
+    // Fire-and-forget: the server keeps running the SSH upload to completion;
+    // the progress poller tracks the result via /api/progress. Awaiting here
+    // would freeze the UI on 'Starting…' for the whole SSH phase.
+    fetch('/api/embed/install', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: embedToken, ip: ip.trim(), login: login.trim(), password, sessionId }),
+    }).catch(() => {})
   }
 
   function retryFromError() {
