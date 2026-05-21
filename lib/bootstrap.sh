@@ -1083,34 +1083,98 @@ systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Final HTTPS health check — verify all 6 subdomains are reachable ===
-# Cloudflare Total TLS provisioning happens async after DNS registration;
-# certs are usually ready by now but we wait up to 3 min per subdomain.
+# Cloudflare Total TLS provisions edge certs asynchronously after the DNS
+# record exists. Usually ready within 2-5 min, but sometimes the queue
+# stalls on a specific hostname for 15-30 min. Strategy:
+#   1. Parallel check for all 6 with a shared 6-minute window.
+#   2. If anything is still failing — re-register its DNS record (DELETE +
+#      POST via /api/register-subdomain, idempotent upsert) to push the
+#      hostname back into the Total TLS provisioning queue.
+#   3. Second 4-minute window for the bumped subdomains.
+# Only if a subdomain still fails after the bump is the deploy considered
+# broken.
 CURRENT_STEP="https_check"
 CURRENT_LABEL="Verifying HTTPS is working (6 subdomains)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
-check_subdomain() {
+# Probe one subdomain once. Echoes "ok" on a non-5xx response, "fail:<code>"
+# otherwise. Single curl — no retry loop — caller controls cadence.
+probe_subdomain() {
   local domain="$1"
-  for i in $(seq 1 30); do
-    local code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "https://$domain" 2>/dev/null || echo "0")
-    # Accept any non-5xx response — service is reachable
-    if [[ "$code" =~ ^(200|301|302|307|401|403|404)$ ]]; then
-      echo "  ✓ $domain → $code" >> "$LOG_FILE"
-      return 0
-    fi
-    sleep 6
-  done
-  echo "  ✗ $domain → last code: $code" >> "$LOG_FILE"
-  return 1
+  local code
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "https://$domain" 2>/dev/null || echo "000")
+  if [[ "$code" =~ ^(200|301|302|307|401|403|404)$ ]]; then
+    echo "ok:$code"
+  else
+    echo "fail:$code"
+  fi
 }
 
-failed=""
-for sub in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN"; do
-  check_subdomain "$sub" || failed="$failed $sub"
-done
+# Wait_for_subs: poll the given list of subdomains in parallel until all are
+# reachable or the timeout elapses. Echoes the still-failing list (empty
+# on full success). Each iteration takes ~8s (curl --max-time) + 4s sleep.
+wait_for_subs() {
+  local timeout_secs="$1"; shift
+  local deadline=$(( $(date +%s) + timeout_secs ))
+  local pending=("$@")
+  while [ ${#pending[@]} -gt 0 ] && [ "$(date +%s)" -lt "$deadline" ]; do
+    local still=()
+    # Probe everyone in parallel — each writes its result to a temp file.
+    local tmpdir; tmpdir=$(mktemp -d)
+    for sub in "${pending[@]}"; do
+      ( probe_subdomain "$sub" > "$tmpdir/$sub" ) &
+    done
+    wait
+    for sub in "${pending[@]}"; do
+      local r; r=$(cat "$tmpdir/$sub" 2>/dev/null)
+      if [[ "$r" == ok:* ]]; then
+        echo "  ✓ $sub → ${r#ok:}" >> "$LOG_FILE"
+      else
+        still+=("$sub")
+      fi
+    done
+    rm -rf "$tmpdir"
+    pending=("${still[@]}")
+    if [ ${#pending[@]} -gt 0 ] && [ "$(date +%s)" -lt "$deadline" ]; then
+      sleep 4
+    fi
+  done
+  # Echo whatever is still failing (caller will inspect).
+  for sub in "${pending[@]}"; do echo "$sub"; done
+}
 
-if [ -n "$failed" ]; then
-  fail "HTTPS not responding on:$failed"
+ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN")
+
+# Round 1 — give Total TLS up to 6 minutes for all 6 in parallel.
+echo "  HTTPS round 1 (up to 6 min, parallel)" >> "$LOG_FILE"
+mapfile -t failed_round1 < <(wait_for_subs 360 "${ALL_SUBS[@]}")
+
+if [ ${#failed_round1[@]} -gt 0 ]; then
+  echo "  Round 1 incomplete: ${failed_round1[*]} — bumping DNS to re-trigger TLS provisioning" >> "$LOG_FILE"
+  BASE_FOR_BUMP=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
+  for sub in "${failed_round1[@]}"; do
+    # Map full subdomain back to the (prefix.base) form register-subdomain expects.
+    # apex SUBDOMAIN = "<slug>" → use "<slug>" directly; otherwise strip ".fractera.ai".
+    short=$(echo "$sub" | sed 's/\.fractera\.ai//')
+    # /api/register-subdomain is an idempotent upsert: list → DELETE existing → POST new.
+    # The DELETE+POST re-pushes the hostname into the Total TLS provisioning queue.
+    curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
+      -H "Content-Type: application/json" \
+      -H "x-install-secret: $INSTALL_SECRET" \
+      -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$short\"}" \
+      >> "$LOG_FILE" 2>&1 || echo "  ! DNS bump failed for $sub" >> "$LOG_FILE"
+  done
+  # Round 2 — short additional window for the bumped ones.
+  echo "  HTTPS round 2 (up to 4 min, parallel)" >> "$LOG_FILE"
+  mapfile -t failed_final < <(wait_for_subs 240 "${failed_round1[@]}")
+else
+  failed_final=()
+fi
+
+if [ ${#failed_final[@]} -gt 0 ]; then
+  failed_msg=""
+  for sub in "${failed_final[@]}"; do failed_msg="$failed_msg $sub"; done
+  fail "HTTPS not responding on:$failed_msg"
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
