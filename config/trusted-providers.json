@@ -6,6 +6,7 @@
     { "domain": "sprinthost.ru",   "name": "Sprinthost",        "category": "vps" },
     { "domain": "fornex.com",      "name": "Fornex",            "category": "vps" },
     { "domain": "spaceweb.ru",     "name": "Spaceweb",          "category": "vps" },
+    { "domain": "sweb.ru",         "name": "Spaceweb",          "category": "vps" },
     { "domain": "hyperhost.ua",    "name": "Hyperhost",         "category": "vps" },
     { "domain": "xorek.cloud",     "name": "Xorek Cloud",       "category": "vps" },
     { "domain": "hostiman.ru",     "name": "Hostiman",          "category": "vps" },

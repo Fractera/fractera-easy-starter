@@ -651,8 +651,11 @@ function ProgressList({ progress, t }: { progress: ProgressData | null; t: Texts
   const steps = progress.steps ?? []
   const activeStep = steps.length > 0 && !steps[steps.length - 1].done ? steps[steps.length - 1] : null
   const doneCount = steps.filter(s => s.done).length
-  const total = Math.max(doneCount + (activeStep ? 1 : 0), steps.length, 1)
-  const percent = Math.min(100, Math.round((doneCount / Math.max(total, 1)) * 100))
+  // Fixed denominator — the bootstrap pipeline reports ~44 steps. Dividing by
+  // the count of steps seen so far showed 100% when only the first step
+  // (the email-sent marker) had arrived. Capped at 99% while deploying.
+  const EXPECTED_STEPS = 44
+  const percent = Math.min(99, Math.round((doneCount / EXPECTED_STEPS) * 100))
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
