@@ -1,10 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { PartnerRegistrationDrawer } from '@/components/partner-registration-drawer'
+
+// Marker so the partner-page can re-open the drawer after the visitor
+// signs in. AuthModal does not call back into the page — it just lands
+// the user back on /partners — and the natural read of "I already
+// clicked, take me into the flow" is to resume, not require a second
+// click on the same button.
+const RESUME_DRAWER_KEY = 'fractera_partner_resume_drawer'
 
 export function PartnersCta({ lang, label }: { lang: string; label: string }) {
   const { data: session } = useSession()
@@ -12,8 +19,23 @@ export function PartnersCta({ lang, label }: { lang: string; label: string }) {
   const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
+  // After a sign-in round-trip we land here as an authenticated user; if
+  // the marker is set, open the drawer automatically and consume it.
+  useEffect(() => {
+    if (!session?.user) return
+    try {
+      if (sessionStorage.getItem(RESUME_DRAWER_KEY) === '1') {
+        sessionStorage.removeItem(RESUME_DRAWER_KEY)
+        setDrawerOpen(true)
+      }
+    } catch {
+      // sessionStorage unavailable — fall back to the original two-click flow.
+    }
+  }, [session?.user])
+
   function handleClick() {
     if (!session?.user) {
+      try { sessionStorage.setItem(RESUME_DRAWER_KEY, '1') } catch {}
       openModal('partner')
       return
     }
