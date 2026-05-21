@@ -68,10 +68,42 @@ step() {
   CURRENT_LABEL="$2"
   local cmd="$3"
   report "$CURRENT_STEP" "$CURRENT_LABEL" false
-  if ! eval "$cmd" >> "$LOG_FILE" 2>&1; then
-    fail "command failed (exit $?)"
+  eval "$cmd" >> "$LOG_FILE" 2>&1
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    fail "command failed (exit $rc)"
   fi
   report "$CURRENT_STEP" "$CURRENT_LABEL" true
+}
+
+# npm-aware step: retries once on transient races (ENOTEMPTY, EACCES,
+# EBUSY) that occasionally happen when npm rmdir's a directory while
+# another worker still holds files inside. On retry we nuke node_modules
+# and start fresh so half-extracted packages don't confuse npm.
+step_npm() {
+  CURRENT_STEP="$1"
+  CURRENT_LABEL="$2"
+  local cmd="$3"
+  local prefix="$4"  # path passed to npm --prefix, or empty for root
+  report "$CURRENT_STEP" "$CURRENT_LABEL" false
+  for attempt in 1 2; do
+    eval "$cmd" >> "$LOG_FILE" 2>&1
+    local rc=$?
+    if [ "$rc" -eq 0 ]; then
+      report "$CURRENT_STEP" "$CURRENT_LABEL" true
+      return 0
+    fi
+    if [ "$attempt" -lt 2 ] && grep -qE 'ENOTEMPTY|EACCES|EBUSY' "$LOG_FILE"; then
+      echo "  ⚠ npm transient race detected — wiping node_modules and retrying" >> "$LOG_FILE"
+      if [ -n "$prefix" ]; then
+        rm -rf "$prefix/node_modules" "$prefix/package-lock.json" 2>/dev/null || true
+      else
+        rm -rf node_modules package-lock.json 2>/dev/null || true
+      fi
+      continue
+    fi
+    fail "command failed (exit $rc)"
+  done
 }
 
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
@@ -165,8 +197,8 @@ echo "$DEPLOYED_BRANCH" > /opt/fractera/DEPLOYED_BRANCH
 echo "=== DEPLOYED: branch=$DEPLOYED_BRANCH commit=$DEPLOYED_COMMIT ===" >> "$LOG_FILE"
 
 
-step "deps_root"   "Installing dependencies (1/6)" "npm install"
-step "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app"
+step_npm "deps_root"   "Installing dependencies (1/6)" "npm install" ""
+step_npm "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app" "app"
 
 # Install native binaries for Tailwind v4
 ARCH=$(uname -m)
@@ -180,13 +212,13 @@ elif [ "$ARCH" = "aarch64" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms"
-step "deps_auth"        "Installing dependencies (4/6)" \
-  "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth"
-step "deps_bridges_app" "Installing dependencies (5/6)" \
-  "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app"
-step "deps_data"        "Installing dependencies (6/6)" \
-  "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data"
+step_npm "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms" "bridges/platforms"
+step_npm "deps_auth"        "Installing dependencies (4/6)" \
+  "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth" "services/auth"
+step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
+  "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app" "bridges/app"
+step_npm "deps_data"        "Installing dependencies (6/6)" \
+  "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data" "services/data"
 log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
