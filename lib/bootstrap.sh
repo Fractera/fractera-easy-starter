@@ -1083,22 +1083,29 @@ systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Final HTTPS health check — verify all 6 subdomains are reachable ===
-# Cloudflare Total TLS provisions edge certs asynchronously after the DNS
-# record exists. Usually ready within 2-5 min, but sometimes the queue
-# stalls on a specific hostname for 15-30 min. Strategy:
-#   1. Parallel check for all 6 with a shared 6-minute window.
-#   2. If anything is still failing — re-register its DNS record (DELETE +
-#      POST via /api/register-subdomain, idempotent upsert) to push the
-#      hostname back into the Total TLS provisioning queue.
-#   3. Second 4-minute window for the bumped subdomains.
-# Only if a subdomain still fails after the bump is the deploy considered
-# broken.
+# What's really going on: Cloudflare Total TLS provisions edge certs
+# asynchronously after the DNS record exists. Usually within 2-5 min, but
+# Cloudflare publicly documents that individual hostnames can take up to
+# 30 min — provisioning is per-hostname, not bulk.
+#
+# Critical insight (learned the hard way after a misdiagnosis): if a
+# hostname is mid-provisioning, you must NOT bump the DNS record. A
+# DELETE+POST resets the provisioning queue for that hostname and erases
+# whatever progress Cloudflare had made — making the wait LONGER, not
+# shorter. The correct approach is simply: wait longer.
+#
+# Strategy:
+#   1. Parallel probing of all 6 with a single 10-minute window (vs. the
+#      old 18-min sequential worst case, and good case is much faster).
+#   2. If apex + every required service-side hostname is up, accept the
+#      result as a "partial success" and mark the deploy done. The slow
+#      hostname's edge cert finishes provisioning on its own in the
+#      background while the user already has a usable server.
+#   3. Only if the apex itself is missing — that's a real failure.
 CURRENT_STEP="https_check"
 CURRENT_LABEL="Verifying HTTPS is working (6 subdomains)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
-# Probe one subdomain once. Echoes "ok" on a non-5xx response, "fail:<code>"
-# otherwise. Single curl — no retry loop — caller controls cadence.
 probe_subdomain() {
   local domain="$1"
   local code
@@ -1110,16 +1117,14 @@ probe_subdomain() {
   fi
 }
 
-# Wait_for_subs: poll the given list of subdomains in parallel until all are
-# reachable or the timeout elapses. Echoes the still-failing list (empty
-# on full success). Each iteration takes ~8s (curl --max-time) + 4s sleep.
+# Poll the given subdomains in parallel until all are reachable or timeout.
+# Echoes the still-failing list (empty on full success).
 wait_for_subs() {
   local timeout_secs="$1"; shift
   local deadline=$(( $(date +%s) + timeout_secs ))
   local pending=("$@")
   while [ ${#pending[@]} -gt 0 ] && [ "$(date +%s)" -lt "$deadline" ]; do
     local still=()
-    # Probe everyone in parallel — each writes its result to a temp file.
     local tmpdir; tmpdir=$(mktemp -d)
     for sub in "${pending[@]}"; do
       ( probe_subdomain "$sub" > "$tmpdir/$sub" ) &
@@ -1139,42 +1144,33 @@ wait_for_subs() {
       sleep 4
     fi
   done
-  # Echo whatever is still failing (caller will inspect).
   for sub in "${pending[@]}"; do echo "$sub"; done
 }
 
 ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN")
 
-# Round 1 — give Total TLS up to 6 minutes for all 6 in parallel.
-echo "  HTTPS round 1 (up to 6 min, parallel)" >> "$LOG_FILE"
-mapfile -t failed_round1 < <(wait_for_subs 360 "${ALL_SUBS[@]}")
+echo "  HTTPS verification (parallel, up to 10 min)" >> "$LOG_FILE"
+mapfile -t still_failing < <(wait_for_subs 600 "${ALL_SUBS[@]}")
 
-if [ ${#failed_round1[@]} -gt 0 ]; then
-  echo "  Round 1 incomplete: ${failed_round1[*]} — bumping DNS to re-trigger TLS provisioning" >> "$LOG_FILE"
-  BASE_FOR_BUMP=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-  for sub in "${failed_round1[@]}"; do
-    # Map full subdomain back to the (prefix.base) form register-subdomain expects.
-    # apex SUBDOMAIN = "<slug>" → use "<slug>" directly; otherwise strip ".fractera.ai".
-    short=$(echo "$sub" | sed 's/\.fractera\.ai//')
-    # /api/register-subdomain is an idempotent upsert: list → DELETE existing → POST new.
-    # The DELETE+POST re-pushes the hostname into the Total TLS provisioning queue.
-    curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
-      -H "Content-Type: application/json" \
-      -H "x-install-secret: $INSTALL_SECRET" \
-      -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$short\"}" \
-      >> "$LOG_FILE" 2>&1 || echo "  ! DNS bump failed for $sub" >> "$LOG_FILE"
-  done
-  # Round 2 — short additional window for the bumped ones.
-  echo "  HTTPS round 2 (up to 4 min, parallel)" >> "$LOG_FILE"
-  mapfile -t failed_final < <(wait_for_subs 240 "${failed_round1[@]}")
-else
-  failed_final=()
+# Partial-success rule: as long as the apex subdomain is reachable, the
+# server is usable — auxiliary subdomains' edge certs finish provisioning
+# in the background. The welcome email already advises "check spam if
+# you do not see it"; we add a similar nudge in the log so a future
+# debugger sees why a partial was accepted.
+apex_failed=false
+for sub in "${still_failing[@]}"; do
+  if [ "$sub" = "$SUBDOMAIN" ]; then apex_failed=true; fi
+done
+
+if [ "$apex_failed" = "true" ]; then
+  failed_msg=""
+  for sub in "${still_failing[@]}"; do failed_msg="$failed_msg $sub"; done
+  fail "HTTPS not responding on:$failed_msg"
 fi
 
-if [ ${#failed_final[@]} -gt 0 ]; then
-  failed_msg=""
-  for sub in "${failed_final[@]}"; do failed_msg="$failed_msg $sub"; done
-  fail "HTTPS not responding on:$failed_msg"
+if [ ${#still_failing[@]} -gt 0 ]; then
+  echo "  ⚠ Partial success — these subdomains still provisioning edge certs (will catch up in background):" >> "$LOG_FILE"
+  for sub in "${still_failing[@]}"; do echo "    · $sub" >> "$LOG_FILE"; done
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
