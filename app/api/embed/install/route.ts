@@ -74,17 +74,22 @@ export async function POST(req: NextRequest) {
     try { await sendInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install] start email failed', err) }
   }
 
-  // Fire-and-forget the actual deploy, but route any SSH/upload errors that
-  // happen *before* bootstrap.sh starts pinging back through failProgress so
-  // the widget's progress poller sees them. Bootstrap-side errors are
-  // already routed via POST /api/progress { error }.
-  deployToServer({
-    ip,
-    login,
-    password,
-    session_id: sessionId,
-    serverToken: serverToken.token,
-  }).catch(async err => {
+  // AWAIT the deploy — must not be fire-and-forget. On Vercel the serverless
+  // function is frozen the moment the HTTP response is returned, so a detached
+  // promise gets its SSH connection killed mid-upload and bootstrap.sh is
+  // never written to the target. deployToServer only SSHes in, uploads
+  // bootstrap.sh and launches it detached (setsid ... &) — it resolves in a
+  // few seconds, well within maxDuration. bootstrap.sh then runs independently
+  // on the target and reports its steps via POST /api/progress.
+  try {
+    await deployToServer({
+      ip,
+      login,
+      password,
+      session_id: sessionId,
+      serverToken: serverToken.token,
+    })
+  } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)
     console.error('[embed/install] deployToServer failed', err)
     try {
@@ -93,7 +98,10 @@ export async function POST(req: NextRequest) {
     } catch (writeErr) {
       console.error('[embed/install] failProgress write error', writeErr)
     }
-  })
+    // Still return the sessionId — the widget's progress poller will read the
+    // failProgress error from KV and switch to its deploy-error state.
+    return NextResponse.json({ sessionId, status: 'error' })
+  }
 
   // EmbedSession.status stays at 'installing' — the existing ServerToken
   // lifecycle / /api/progress callbacks drive the actual deployment state.
