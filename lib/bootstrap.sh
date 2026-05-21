@@ -50,11 +50,16 @@ report() {
   return 0
 }
 
-# Send error and exit
+# Send error and exit. --max-time is critical here: without it, a slow or
+# unreachable Vercel function leaves bash blocked inside curl for the
+# default ~75s connect timeout, and during that block the UI just keeps
+# showing the last-known % with no error overlay. With --max-time the
+# error post is bounded — if Vercel doesn't respond, we still exit
+# promptly and the UI's poller eventually times out the session.
 fail() {
   local message="$1"
   local last_log=$(tail -c 800 "$LOG_FILE" 2>/dev/null | tr '"' "'" | tr '\n' ' ' | head -c 700)
-  curl -s -X POST "$PROGRESS_URL" \
+  curl -s --max-time 30 -X POST "$PROGRESS_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
     -d "{\"session_id\":\"$SESSION_ID\",\"error\":\"Step '$CURRENT_LABEL' failed: $message. Last log: $last_log\"}" \
@@ -62,13 +67,14 @@ fail() {
   exit 1
 }
 
-# Run a step. Args: id, label, command
+# Run a step. Args: id, label, command. Body runs in a subshell —
+# see the comment on soft_step() below for the full reasoning.
 step() {
   CURRENT_STEP="$1"
   CURRENT_LABEL="$2"
   local cmd="$3"
   report "$CURRENT_STEP" "$CURRENT_LABEL" false
-  eval "$cmd" >> "$LOG_FILE" 2>&1
+  ( eval "$cmd" ) >> "$LOG_FILE" 2>&1
   local rc=$?
   if [ "$rc" -ne 0 ]; then
     fail "command failed (exit $rc)"
@@ -87,7 +93,8 @@ step_npm() {
   local prefix="$4"  # path passed to npm --prefix, or empty for root
   report "$CURRENT_STEP" "$CURRENT_LABEL" false
   for attempt in 1 2; do
-    eval "$cmd" >> "$LOG_FILE" 2>&1
+    # Subshell — see comment on soft_step() below.
+    ( eval "$cmd" ) >> "$LOG_FILE" 2>&1
     local rc=$?
     if [ "$rc" -eq 0 ]; then
       report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -222,12 +229,24 @@ step_npm "deps_data"        "Installing dependencies (6/6)" \
 log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
+# IMPORTANT: the body runs in a SUBSHELL via `( eval ... )`. This isolates
+# parent shell state from anything `cmd` might do. Bash's plain `eval`
+# executes the string in the current shell, which means `cd`, `exit`,
+# `set -e`, `umask`, `trap`, `IFS=…` etc. all leak out and silently break
+# later steps. Two real incidents we hit before adding the subshell:
+#   1. `exit 0` early-skip inside build_lightrag_webui terminated the
+#      whole bootstrap.sh — script froze at 57%.
+#   2. `cd "$SRC"` inside the same step left CWD pointing at the LightRAG
+#      uv cache; the next `npm run build --prefix app` looked for
+#      lightrag_webui/app/package.json — froze at 77%.
+# The subshell makes these classes of bugs impossible to recur regardless
+# of what future soft_step authors write in their bodies.
 soft_step() {
   local id="$1"
   local label="$2"
   local cmd="$3"
   report "$id" "Installing $label" false
-  if eval "$cmd" >> "$LOG_FILE" 2>&1; then
+  if ( eval "$cmd" ) >> "$LOG_FILE" 2>&1; then
     report "$id" "$label" true
   else
     echo "[skip] $label installation failed, continuing" >> "$LOG_FILE"
