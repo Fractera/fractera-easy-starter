@@ -115,8 +115,7 @@ export function SiteHeader() {
                               {partnerCabinetLabel}
                             </button>
                           )}
-                          {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Purchases скрыта */}
-                          {false && (
+                          {/* Purchases — restored: White Label (Fractera-branding removal) is still sold */}
                           <button
                             type="button"
                             onClick={() => { setMenuOpen(false); openPurchases() }}
@@ -129,7 +128,6 @@ export function SiteHeader() {
                             </svg>
                             Purchases
                           </button>
-                          )}
                           <div className="h-px bg-white/20 my-1" />
                         </>
                       )}
