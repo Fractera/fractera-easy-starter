@@ -116,7 +116,10 @@ function getTexts(lang: Lang) {
         ? `Your server is live: ${subdomain}. Full details are in your email.`
         : 'Your server is ready. Full URLs and credentials are in your email.',
     doneHint: isRu ? 'Проверьте папку «Спам», если письма не во входящих.' : 'Check the spam folder if the email is not in your inbox.',
-    openDashboard: isRu ? 'Открыть Dashboard на fractera.ai' : 'Open Dashboard at fractera.ai',
+    yourApp: isRu ? 'Ваше приложение' : 'Your app',
+    controlPanel: isRu ? 'Панель управления приложением' : 'Control panel',
+    allServersPre: isRu ? 'Все ваши серверы — на ' : 'All your servers are at ',
+    allServersMid: isRu ? ', войдите с email ' : ' — sign in with email ',
 
     // Deploy error
     errorTitle: isRu ? 'Развёртывание не удалось' : 'Deployment failed',
@@ -562,14 +565,32 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             </div>
             <p className="text-sm text-white/70 leading-relaxed">{t.doneBody(progress?.subdomain ?? null)}</p>
             <p className="text-xs text-amber-300/80">{t.doneHint}</p>
-            <a
-              href={progress?.subdomain ? `https://${progress.subdomain}` : 'https://fractera.ai'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
-            >
-              {t.openDashboard} ↗
-            </a>
+            {progress?.subdomain && (
+              <div className="flex flex-col gap-2">
+                <a
+                  href={`https://${progress.subdomain}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  {t.yourApp} ↗
+                </a>
+                <a
+                  href={`https://admin.${progress.subdomain}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 border border-violet-500/60 hover:border-violet-400 hover:bg-violet-500/10 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  {t.controlPanel} ↗
+                </a>
+              </div>
+            )}
+            <p className="text-xs text-white/40 leading-relaxed">
+              {t.allServersPre}
+              <a href="https://fractera.ai" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">fractera.ai</a>
+              {t.allServersMid}
+              <strong className="text-white/65">{submittedEmail}</strong>
+            </p>
           </div>
         </Overlay>
       )}

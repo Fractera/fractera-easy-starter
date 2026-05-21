@@ -63,6 +63,15 @@ export async function sendWelcomeEmail(
         <h2 style="margin:0 0 12px">Your server is live!</h2>
         <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All 7 services are running.</p>
 
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin:0 0 20px">
+          <p style="margin:0 0 6px;font-size:11px;color:#1e40af;text-transform:uppercase;letter-spacing:1px;font-weight:600">Your account & server history</p>
+          <p style="margin:0;font-size:13px;color:#444;line-height:1.5">
+            All your servers are listed in your dashboard at
+            <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a>
+            — sign in with <strong>${to}</strong>.
+          </p>
+        </div>
+
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">AI Platforms (5 tools)</p>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8">
           ${AI_PLATFORMS.map(p => `<li style="margin:4px 0">${p}</li>`).join('\n')}
