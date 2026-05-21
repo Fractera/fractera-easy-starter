@@ -28,7 +28,16 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
 
   if (!open) return null
 
-  const callbackUrl = pendingPlan ? `/?pending_plan=${pendingPlan}` : '/'
+  // 'partner' is NOT a Stripe plan — it just means "the user was on /partners
+  // when they hit Sign in". Returning ?pending_plan=partner to '/' would land
+  // them on pricing-flow.tsx which opens a Stripe Checkout Drawer with a bogus
+  // planId. Instead, route back to /partners; the second click of the same
+  // button now finds session.user and opens the partner registration drawer.
+  const callbackUrl = pendingPlan === 'partner'
+    ? '/partners'
+    : pendingPlan
+      ? `/?pending_plan=${pendingPlan}`
+      : '/'
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()
