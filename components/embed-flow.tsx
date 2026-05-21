@@ -103,6 +103,8 @@ function getTexts(lang: Lang) {
       ? 'Установка занимает несколько минут. Можно не закрывать это окно — мы покажем результат прямо здесь. Подробности также придут на email.'
       : 'Setup takes a few minutes. You can leave this window open — we will show you the result here. Details will also arrive by email.',
     deployingActive: isRu ? 'Сейчас:' : 'Now:',
+    dashboardInfoPre: isRu ? 'Больше информации — в личном кабинете для ' : 'More info in your dashboard for ',
+    dashboardInfoMid: isRu ? ' на ' : ' at ',
 
     // Deploy done
     doneTitle: isRu ? 'Развёртывание завершено' : 'Deployment complete',
@@ -551,6 +553,12 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             </div>
             <p className="text-sm text-white/70 leading-relaxed">{t.deployingBody}</p>
             <ProgressList progress={progress} t={t} />
+            <p className="text-xs text-white/40 leading-relaxed">
+              {t.dashboardInfoPre}
+              <strong className="text-white/65">{submittedEmail}</strong>
+              {t.dashboardInfoMid}
+              <a href="https://fractera.ai" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">fractera.ai</a>
+            </p>
           </div>
         </Overlay>
       )}
