@@ -100,11 +100,13 @@ function getTexts(lang: Lang) {
     // Deploying (with progress)
     deployingTitle: isRu ? 'Развёртывание идёт' : 'Deployment in progress',
     deployingBody: isRu
-      ? 'Установка занимает несколько минут. Можно не закрывать это окно — мы покажем результат прямо здесь. Подробности также придут на email.'
-      : 'Setup takes a few minutes. You can leave this window open — we will show you the result here. Details will also arrive by email.',
+      ? 'Установка занимает несколько минут. Это окно можно закрыть — деплой продолжится на сервере, результат придёт на email. После закрытия вы сможете запустить развёртывание ещё одного сервера.'
+      : 'Setup takes a few minutes. You can close this window — the deploy keeps running on the server and the result arrives by email. After closing, you can launch deployment for another server.',
     deployingActive: isRu ? 'Сейчас:' : 'Now:',
     dashboardInfoPre: isRu ? 'Больше информации — в личном кабинете для ' : 'More info in your dashboard for ',
     dashboardInfoMid: isRu ? ' на ' : ' at ',
+    deployAnother: isRu ? 'Развернуть ещё один сервер' : 'Deploy another server',
+    closeModal: isRu ? 'Закрыть' : 'Close',
 
     // Deploy done
     doneTitle: isRu ? 'Развёртывание завершено' : 'Deployment complete',
@@ -330,6 +332,24 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
     setState('post-activation')
   }
 
+  // Dismiss any deployment modal (deploying / deploy-done / deploy-error).
+  // The deploy keeps running server-side; user receives email with the result.
+  // Closing just unlocks the UI so they can deploy another server. Clearing
+  // LS_SESSION_ID/LS_IP prevents the previous session's modal from re-appearing
+  // on next visit.
+  function dismissDeploymentModal() {
+    setProgress(null)
+    setDeployError(null)
+    setDeploySessionId(null)
+    setIp('')
+    setPassword('')
+    try {
+      localStorage.removeItem(LS_SESSION_ID)
+      localStorage.removeItem(LS_IP)
+    } catch {}
+    setState('post-activation')
+  }
+
   function cancelToPresentation() {
     setError(null)
     setState('presentation')
@@ -540,7 +560,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
 
       {/* ── DEPLOYING (with progress polling) ── */}
       {state === 'deploying' && (
-        <Overlay>
+        <Overlay onClose={dismissDeploymentModal}>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="inline-block w-5 h-5 border-2 border-violet-500/40 border-t-violet-300 rounded-full animate-spin" />
@@ -554,13 +574,20 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
               {t.dashboardInfoMid}
               <a href="https://fractera.ai" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">fractera.ai</a>
             </p>
+            <button
+              type="button"
+              onClick={dismissDeploymentModal}
+              className="self-start text-xs font-semibold text-white/60 hover:text-white border border-white/20 px-3 py-1.5 rounded transition-colors"
+            >
+              {t.closeModal}
+            </button>
           </div>
         </Overlay>
       )}
 
       {/* ── DEPLOY DONE ── */}
       {state === 'deploy-done' && (
-        <Overlay>
+        <Overlay onClose={dismissDeploymentModal}>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="text-emerald-400 text-2xl leading-none">✓</span>
@@ -594,13 +621,20 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
               {t.allServersMid}
               <strong className="text-white/65">{submittedEmail}</strong>
             </p>
+            <button
+              type="button"
+              onClick={dismissDeploymentModal}
+              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              {t.deployAnother} →
+            </button>
           </div>
         </Overlay>
       )}
 
       {/* ── DEPLOY ERROR ── */}
       {state === 'deploy-error' && (
-        <Overlay>
+        <Overlay onClose={dismissDeploymentModal}>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="text-red-400 text-2xl leading-none">✗</span>
