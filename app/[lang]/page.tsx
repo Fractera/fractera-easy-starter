@@ -63,27 +63,29 @@ export default async function HomePage({
           <ContentProvider value={content}>
             <section className="flex flex-col gap-32 items-start w-full">
 
-              <Hero />
-              <LoopShowcase />
-              <DoublePresentation />
-              <PlatformsGrid />
-              <ProblemSection />
+              <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
+              <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
+              <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
+              <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>
+              <div id="problem" className="w-full scroll-mt-16"><ProblemSection /></div>
 
-              <Suspense fallback={null}>
-                <PricingFlow />
-              </Suspense>
+              <div id="pricing" className="w-full scroll-mt-16">
+                <Suspense fallback={null}>
+                  <PricingFlow />
+                </Suspense>
+              </div>
 
               <div className="w-full max-w-4xl">
                 <PlatformSelector />
               </div>
 
-              <FeaturesGrid />
+              <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <FractеraPromo />
-              <SponsorshipSection />
+              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
               <BlackBoxSection />
-              <FaqSection />
+              <div id="faq" className="w-full scroll-mt-16"><FaqSection /></div>
 
-              <div className="mb-32 w-full flex justify-center">
+              <div id="cases" className="mb-32 w-full flex justify-center scroll-mt-16">
                 <FractеraTestimonial />
               </div>
 

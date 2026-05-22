@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 @keyframes sliderProgress {
   from { width: 0% }
   to   { width: 100% }

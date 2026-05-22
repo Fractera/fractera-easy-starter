@@ -7,7 +7,7 @@ export function BlackBoxSection() {
   const bb = content.blackBox
 
   return (
-    <div className="w-full max-w-4xl flex flex-col gap-10">
+    <div id="black-box" className="w-full max-w-4xl flex flex-col gap-10 scroll-mt-24">
 
       {/* Top — badge, h2, subhead */}
       <div className="flex flex-col gap-4 items-start text-left md:items-center md:text-center">

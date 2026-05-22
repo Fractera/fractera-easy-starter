@@ -3,10 +3,19 @@
 import { usePathname } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/language-switcher'
 
-const FOOTER_LABELS: Record<string, {
-  privacy: string; terms: string; refund: string; cookies: string
-  partners: string; cookieSettings: string; rights: string
-}> = {
+type FooterLabels = {
+  privacy: string
+  terms: string
+  refund: string
+  cookies: string
+  partners: string
+  cookieSettings: string
+  rights: string
+  tocLabel: string
+  toc: { id: string; label: string }[]
+}
+
+const FOOTER_LABELS: Record<string, FooterLabels> = {
   ru: {
     privacy: 'Политика конфиденциальности',
     terms: 'Условия использования',
@@ -15,6 +24,19 @@ const FOOTER_LABELS: Record<string, {
     partners: 'Партнёрская программа',
     cookieSettings: 'Настройки куки',
     rights: 'Все права защищены.',
+    tocLabel: 'Содержание сайта',
+    toc: [
+      { id: 'hero', label: 'Главная' },
+      { id: 'ai-coding', label: 'AI-разработка' },
+      { id: 'platforms', label: 'AI-платформы' },
+      { id: 'problem', label: 'Проблема и решение' },
+      { id: 'pricing', label: 'Тарифы' },
+      { id: 'features', label: 'Возможности' },
+      { id: 'sponsors', label: 'Поддержать' },
+      { id: 'black-box', label: 'Fractera Black Box' },
+      { id: 'faq', label: 'Вопросы и ответы' },
+      { id: 'cases', label: 'Кейсы' },
+    ],
   },
   en: {
     privacy: 'Privacy Policy',
@@ -24,6 +46,19 @@ const FOOTER_LABELS: Record<string, {
     partners: 'Partner Program',
     cookieSettings: 'Cookie Settings',
     rights: 'All rights reserved.',
+    tocLabel: 'Site contents',
+    toc: [
+      { id: 'hero', label: 'Top' },
+      { id: 'ai-coding', label: 'AI coding' },
+      { id: 'platforms', label: 'AI platforms' },
+      { id: 'problem', label: 'Problem & solution' },
+      { id: 'pricing', label: 'Pricing' },
+      { id: 'features', label: 'Features' },
+      { id: 'sponsors', label: 'Sponsor us' },
+      { id: 'black-box', label: 'Fractera Black Box' },
+      { id: 'faq', label: 'FAQ' },
+      { id: 'cases', label: 'Cases' },
+    ],
   },
 }
 
@@ -59,6 +94,22 @@ export function SiteFooter() {
           >
             {t.cookieSettings}
           </button>
+        </div>
+
+        {/* Table of contents — animated scroll to landing sections */}
+        <div className="flex flex-col gap-3 border-t border-white/20 pt-6">
+          <p className="text-xs font-mono font-bold text-white/50 uppercase tracking-widest">{t.tocLabel}</p>
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75 font-medium">
+            {t.toc.map(item => (
+              <a
+                key={item.id}
+                href={`/${lang}#${item.id}`}
+                className="hover:text-violet-400 transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-white border-t border-white/20 pt-6">
