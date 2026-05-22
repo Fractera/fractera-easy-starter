@@ -2,7 +2,7 @@ import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer } from '@/lib/deploy'
-import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendDeployFailedEmail, sendMcpRecoveryTokenEmail } from '@/lib/email'
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -265,13 +265,20 @@ export async function handleToolCall(
       }
     }
 
+    // Best-effort: send the recovery-token follow-up email. The install-started
+    // email (sent earlier) does NOT carry the token because the ServerToken
+    // row did not exist at that point — only now do we have it.
+    try { await sendMcpRecoveryTokenEmail(email, serverToken.token) } catch (err) {
+      console.error('[mcp:register_and_deploy] recovery-token email failed', err)
+    }
+
     return {
       status: 'installing',
       session_id,
       server_token: serverToken.token,
       dashboard_url: `https://fractera.ai/dashboard`,
       message:
-        'Registration and deploy launched. Tell the user the deploy is running (5-10 min). Now poll check_status(session_id) every 25-30 seconds and stream each newly-completed step to the user. Remind the user to save server_token in case they need recovery later.',
+        'Registration and deploy launched. In your next reply you MUST tell the user three things: (1) the deploy takes 7-17 minutes (usually around 10); (2) they can close this chat at any time — the deploy continues on the server and the final URL arrives by email; (3) show them the server_token and ask them to keep it. Then start polling check_status(session_id) every 25-30 seconds and stream each newly-completed bootstrap step to the user.',
     }
   }
 
