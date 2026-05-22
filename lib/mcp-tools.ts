@@ -1,3 +1,4 @@
+import { after } from 'next/server'
 import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
@@ -260,85 +261,79 @@ export async function handleToolCall(
       },
     })
 
-    // 4. Init progress + welcome-start email (best effort — email failure must
-    // not block the deploy launch).
-    //
-    // IMPORTANT: everything below runs SYNCHRONOUSLY inside the request
-    // lifecycle. We tried backgrounding wipe+deploy via `void (async ...)()`
-    // to make the MCP response snappier — that completely broke MCP deploys
-    // because Vercel freezes serverless functions the moment the HTTP
-    // response is returned. The "background" task never ran. Keep wipe +
-    // deployToServer awaited.
-    //
-    // The total latency (30-60s) is acceptable: main flow /api/install does
-    // the exact same thing and has worked in production for hundreds of
-    // deploys. The "slow response triggers AI retry" problem is handled by
-    // the IP-idempotency guard above + the hard rule in mcp-prompt.ts.
+    // 4. Init progress + 2 emails (instant). Everything below this block runs
+    // SYNCHRONOUSLY before we return the MCP response — must complete in <60s
+    // because Claude.ai / Codex MCP clients hard-cut a tool call at ~60s.
+    // Heavy work (wipe + SSH/SFTP upload) is moved to after() below.
     await initProgress(session_id)
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
+    // Mark wipe_start now (done:false) so the very next check_status reports
+    // "wipe in progress" rather than "no work scheduled".
+    await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
     console.log(`${TAG} progress initialised — sending start + recovery-token emails`)
-    // Both emails go out NOW, before the long wipe+SSH work, so they ALWAYS
-    // arrive even if Vercel kills the function later. Previously the
-    // recovery-token email was sent at the very end of register_and_deploy —
-    // after wipe (30s) + deployToServer (5-30s SFTP) — and observed to be
-    // dropped intermittently because the runtime was near maxDuration or
-    // Resend was slow. Order here: install-started first (transactional
-    // confirmation), then recovery-token (session_id + server_token).
     try { await sendInstallStartedEmail(email) } catch (err) { console.error(`${TAG} install-started email failed`, err) }
     try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) { console.error(`${TAG} recovery-token email failed`, err) }
 
-    // 5. Wipe (mandatory before bootstrap — see lib/wipe-script.ts for why)
-    console.log(`${TAG} wipe start`)
-    await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
-    try {
-      await wipeServer(ip, login, password)
-      await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
-      console.log(`${TAG} wipe done`)
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err)
-      console.error(`${TAG} wipe failed:`, errMsg)
-      const wipeErr = `WIPE_FAILED: ${errMsg}`
-      await failProgress(session_id, wipeErr)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
-      try { await sendDeployFailedEmail(email, wipeErr, serverToken.token) } catch {}
-      return {
-        status: 'error',
-        message: `Could not connect to the server (${errMsg}). Most likely the IP or password is wrong. Ask the user to double-check both and call retry_deploy(server_token, ip=..., password=...) with the corrected values.`,
-        session_id,
-        server_token: serverToken.token,
-      }
-    }
+    // 5. Schedule wipe + deploy AFTER the HTTP response is sent.
+    //
+    // Why next/server `after()` and not `void (async ...)()`:
+    //   - Vercel serverless functions freeze the moment the response is
+    //     returned. An unawaited promise (`void (async ...)()`) is killed
+    //     mid-execution — we saw this in commit 57fcc48 → reverted in fab8928.
+    //   - `after()` is the Next.js-supported way to keep work alive past the
+    //     response. Vercel honors it via the platform-level waitUntil() and
+    //     keeps the function running up to maxDuration (300s for this route).
+    //
+    // All failures inside the after() body are surfaced via the same
+    // channels the main-flow deploy uses: failProgress() sets status='error'
+    // in Redis, ServerToken.status='error', sendDeployFailedEmail() fires.
+    // The agent / dashboard / UI poller all see the failure on their next
+    // check_status / progress fetch.
+    const bgTag = `[mcp:bg ${ip} ${session_id.slice(-7)}]`
+    after(async () => {
+      console.log(`${bgTag} background work started`)
+      try {
+        try {
+          await wipeServer(ip, login, password)
+          await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+          console.log(`${bgTag} wipe done`)
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          console.error(`${bgTag} wipe failed:`, errMsg)
+          const wipeErr = `WIPE_FAILED: ${errMsg}`
+          await failProgress(session_id, wipeErr)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
+          try { await sendDeployFailedEmail(email, wipeErr, serverToken.token) } catch {}
+          return
+        }
 
-    // 6. Launch bootstrap. deployToServer SSHes in, uploads bootstrap.sh, and
-    // launches it detached via `setsid ... &` — resolves quickly (~5 seconds).
-    // The bootstrap then runs ~5-10 minutes ON THE CUSTOMER'S SERVER and
-    // reports steps via /api/progress. The customer's server is what runs
-    // the slow work, not this Vercel function.
-    console.log(`${TAG} deployToServer start`)
-    try {
-      await deployToServer({
-        ip,
-        login,
-        password,
-        session_id,
-        serverToken: serverToken.token,
-      })
-      console.log(`${TAG} deployToServer done — bootstrap uploaded and launched`)
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err)
-      console.error(`${TAG} deployToServer failed:`, errMsg)
-      await failProgress(session_id, errMsg)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
-      try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
-      return {
-        status: 'error',
-        message: `Deploy launch failed: ${errMsg}. Offer the user to retry with retry_deploy(server_token).`,
-        session_id,
-        server_token: serverToken.token,
+        try {
+          await deployToServer({
+            ip,
+            login,
+            password,
+            session_id,
+            serverToken: serverToken.token,
+          })
+          console.log(`${bgTag} deployToServer done — bootstrap uploaded and launched`)
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          console.error(`${bgTag} deployToServer failed:`, errMsg)
+          await failProgress(session_id, errMsg)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+          try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
+        }
+      } catch (err) {
+        // Outer safety net — anything not caught above must still leave the
+        // ServerToken + Redis in a sane state, not status='installing' forever.
+        const errMsg = err instanceof Error ? err.message : String(err)
+        console.error(`${bgTag} outer catch:`, errMsg)
+        try { await failProgress(session_id, errMsg) } catch {}
+        try {
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+        } catch {}
       }
-    }
-
-    // (recovery-token email already sent before wipe — see step 4 above)
+    })
 
     return {
       status: 'installing',
