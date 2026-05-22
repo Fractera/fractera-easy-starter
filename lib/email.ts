@@ -360,7 +360,7 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
   })
 }
 
-export async function sendDeployFailedEmail(to: string, errorMessage?: string) {
+export async function sendDeployFailedEmail(to: string, errorMessage?: string, serverToken?: string) {
   await resend.emails.send({
     from: FROM,
     to,
@@ -390,11 +390,19 @@ export async function sendDeployFailedEmail(to: string, errorMessage?: string) {
             delete the failed deployment, and start a new one from the home page.
           </li>
           <li>
-            Or use the <strong>MCP-assisted deployment</strong>: an AI agent can
-            inspect the failure and finish the setup of the server you already
-            started.
+            Or use the <strong>MCP-assisted recovery</strong>: paste the
+            server_token below into an AI agent that has the
+            <a href="https://fractera.ai/en/partners#mcp" style="color:#6c47ff;font-weight:600">Fractera MCP</a>
+            enabled (Claude Code, Codex, Gemini CLI). The agent will call
+            <code>retry_deploy</code> and finish the setup of the server you
+            already started.
           </li>
         </ol>
+
+        ${serverToken ? `
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your server_token</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">${serverToken}</p>
+        ` : ''}
 
         <p style="margin:0;color:#666;font-size:13px;line-height:1.6">
           Need help? Reply directly to this email — it goes to admin@fractera.ai.

@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       console.error('[embed/install] failProgress write error', writeErr)
     }
     if (session.email) {
-      try { await sendDeployFailedEmail(session.email, wipeErr) } catch (mailErr) { console.error('[embed/install] sendDeployFailedEmail failed', mailErr) }
+      try { await sendDeployFailedEmail(session.email, wipeErr, serverToken.token) } catch (mailErr) { console.error('[embed/install] sendDeployFailedEmail failed', mailErr) }
     }
     return NextResponse.json({ sessionId, status: 'error', recovery: 'mcp' })
   }
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
     // Notify the user — they may have closed the widget waiting for a result.
     if (session.email) {
       try {
-        await sendDeployFailedEmail(session.email, errMsg)
+        await sendDeployFailedEmail(session.email, errMsg, serverToken.token)
       } catch (mailErr) {
         console.error('[embed/install] sendDeployFailedEmail failed', mailErr)
       }

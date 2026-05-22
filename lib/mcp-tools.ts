@@ -1,4 +1,8 @@
 import { MAIN_PROVIDERS, EXTENDED_PROVIDERS } from '@/providers.config'
+import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
+import { db } from '@/lib/db'
+import { wipeServer } from '@/lib/wipe-script'
+import { deployToServer } from '@/lib/deploy'
 
 export const MCP_TOOLS = [
   {
@@ -36,7 +40,7 @@ export const MCP_TOOLS = [
   },
   {
     name: 'get_subdomain',
-    description: 'Returns the assigned subdomain once installation is complete. Poll this after user confirms the install command has finished running.',
+    description: 'Returns the assigned subdomain once installation is complete. Poll this after the user confirms the install command has finished running. Returns status: pending while installing, complete with subdomain when done.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -50,7 +54,7 @@ export const MCP_TOOLS = [
   },
   {
     name: 'check_status',
-    description: 'Check the current installation status. Call this every 20-30 seconds after installation starts to get progress updates. Returns current step and whether installation is complete.',
+    description: 'Check the current installation status. Call this every 20-30 seconds after installation starts to get progress updates. Returns current step, the list of completed steps, and whether installation is complete or failed.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -60,6 +64,32 @@ export const MCP_TOOLS = [
         },
       },
       required: ['session_id'],
+    },
+  },
+  {
+    name: 'retry_deploy',
+    description: 'Retry a failed deployment. Pass the server_token the user got from the failure email or dashboard. The tool wipes the previous broken installation and runs a fresh deploy on the same server. Returns a new session_id — poll progress with check_status. Use this when the user reports a failed deploy or pasted a server_token.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        server_token: {
+          type: 'string',
+          description: 'The unique server token the user received in the deploy-failure email or dashboard. Acts as the authorisation for this retry.',
+        },
+        ip: {
+          type: 'string',
+          description: 'Optional — only pass if the user discovered the original IP was wrong (e.g. typo). Otherwise the stored IP is used.',
+        },
+        login: {
+          type: 'string',
+          description: 'Optional — Linux user, defaults to root.',
+        },
+        password: {
+          type: 'string',
+          description: 'Optional — only pass if the user discovered the original password was wrong. Otherwise the stored password is used.',
+        },
+      },
+      required: ['server_token'],
     },
   },
 ]
@@ -77,7 +107,13 @@ function buildOptions(providers: typeof MAIN_PROVIDERS) {
   ]
 }
 
-export function handleToolCall(name: string, args: Record<string, string | boolean>, baseUrl: string): unknown {
+export async function handleToolCall(
+  name: string,
+  args: Record<string, unknown>,
+  baseUrl: string,
+): Promise<unknown> {
+  void baseUrl
+
   if (name === 'get_hosting_options') {
     const extended = args.extended === true || args.extended === 'true'
     const options = buildOptions(extended ? EXTENDED_PROVIDERS : MAIN_PROVIDERS)
@@ -88,7 +124,8 @@ export function handleToolCall(name: string, args: Record<string, string | boole
   }
 
   if (name === 'generate_install_command') {
-    const { provider, session_id } = args as Record<string, string>
+    const provider = String(args.provider ?? '')
+    const session_id = String(args.session_id ?? '')
 
     if (provider === 'existing') {
       const scriptUrl = `https://fractera.ai/api/script?provider=existing&session_id=${session_id}`
@@ -108,30 +145,155 @@ export function handleToolCall(name: string, args: Record<string, string | boole
   }
 
   if (name === 'get_subdomain') {
+    const session_id = String(args.session_id ?? '')
+    if (!session_id) return { status: 'error', message: 'Missing session_id' }
+    const progress = await getProgress(session_id)
+    if (!progress) {
+      return {
+        status: 'unknown',
+        message: 'No installation found for this session_id. It may have expired (TTL 1h while installing, 24h after completion) or never existed.',
+      }
+    }
+    if (progress.status === 'done' && progress.subdomain) {
+      return { status: 'complete', subdomain: progress.subdomain, url: `https://${progress.subdomain}` }
+    }
+    if (progress.status === 'error') {
+      return { status: 'error', message: progress.error ?? 'Unknown deploy error' }
+    }
     return {
       status: 'pending',
-      message: 'The subdomain will be assigned automatically when the install script finishes. Ask the user if they see "FRACTERA_READY:" at the end of the terminal output.',
+      message: 'Installation is still running. Keep checking with check_status until status becomes "done".',
     }
   }
 
   if (name === 'check_status') {
-    const { session_id } = args as Record<string, string>
-    // During testing: simulate progressive status based on time
-    // In production: this will read from KV store updated by /api/register
+    const session_id = String(args.session_id ?? '')
+    if (!session_id) return { status: 'error', message: 'Missing session_id' }
+    const progress = await getProgress(session_id)
+    if (!progress) {
+      return {
+        status: 'unknown',
+        message: 'No installation found for this session_id. It may have expired or never existed. If the user is sure they deployed, ask them to re-check the failure email for the correct session_id or server_token.',
+      }
+    }
+    const steps = progress.steps ?? []
+    const doneCount = steps.filter(s => s.done).length
+    const lastStep = steps[steps.length - 1]
     return {
       session_id,
-      status: 'installing',
-      message: 'Installation is in progress. Keep checking every 20-30 seconds. When status becomes "complete", the domain will be ready.',
-      steps: [
-        { step: 'System update', done: true },
-        { step: 'Node.js 20 install', done: true },
-        { step: 'PM2 install', done: true },
-        { step: 'Fractera clone', done: false },
-        { step: 'Dependencies install', done: false },
-        { step: 'Services start', done: false },
-        { step: 'Domain registration', done: false },
-      ],
-      hint: 'Tell the user: "Установка идёт, всё хорошо! Я проверю снова через 30 секунд."',
+      status: progress.status,
+      subdomain: progress.subdomain ?? null,
+      error: progress.error ?? null,
+      step_count: steps.length,
+      done_count: doneCount,
+      current_step: lastStep ? { label: lastStep.label, done: lastStep.done } : null,
+      steps,
+      hint:
+        progress.status === 'done'
+          ? `Installation complete. Subdomain: ${progress.subdomain}. Tell the user.`
+          : progress.status === 'error'
+            ? `Installation failed with: ${progress.error}. Ask the user if they want to retry — if yes, call retry_deploy with the server_token.`
+            : 'Installation in progress. Keep polling every 20-30 seconds.',
+    }
+  }
+
+  if (name === 'retry_deploy') {
+    const server_token = String(args.server_token ?? '').trim()
+    if (!server_token) {
+      return { status: 'error', message: 'Missing server_token. Ask the user to paste the token from the failure email or their dashboard.' }
+    }
+
+    const record = await db.serverToken.findUnique({
+      where: { token: server_token },
+      select: {
+        id: true,
+        status: true,
+        serverIp: true,
+        serverPassword: true,
+        subscriptionId: true,
+      },
+    })
+    if (!record) {
+      return { status: 'error', message: 'No server found for this token. Double-check the token from the failure email.' }
+    }
+    if (record.status === 'active') {
+      return { status: 'already_active', message: 'This server is already active and running. No retry needed.' }
+    }
+    if (!record.serverIp) {
+      return { status: 'error', message: 'No server IP on record for this token. Ask the user to provide the IP manually via the install form.' }
+    }
+
+    const ipOverride = typeof args.ip === 'string' && args.ip.trim() ? args.ip.trim() : null
+    const passwordOverride = typeof args.password === 'string' && args.password.trim() ? args.password.trim() : null
+    const loginOverride = typeof args.login === 'string' && args.login.trim() ? args.login.trim() : 'root'
+
+    const ip = ipOverride ?? record.serverIp
+    const password = passwordOverride ?? record.serverPassword
+    if (!password) {
+      return { status: 'error', message: 'No server password on record. Ask the user to provide the root password as the "password" argument.' }
+    }
+
+    const newSessionId = `mcp-retry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    await initProgress(newSessionId)
+    await appendStep(newSessionId, { id: 'retry_start', label: 'MCP retry initiated', done: true, ts: Date.now() })
+
+    try {
+      await db.serverToken.update({
+        where: { id: record.id },
+        data: { deploySessionId: newSessionId, status: 'pending', deployError: null },
+      })
+    } catch (err) {
+      console.error('[mcp:retry_deploy] failed to update ServerToken', err)
+    }
+
+    await appendStep(newSessionId, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
+    try {
+      await wipeServer(ip, loginOverride, password)
+      await appendStep(newSessionId, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await failProgress(newSessionId, `WIPE_FAILED: ${errMsg}`)
+      try {
+        await db.serverToken.update({
+          where: { id: record.id },
+          data: { status: 'error', deployError: `WIPE_FAILED: ${errMsg}` },
+        })
+      } catch {}
+      return {
+        status: 'error',
+        message: `Wipe failed: ${errMsg}. The most common cause is wrong credentials. Ask the user to provide fresh ip/login/password and call retry_deploy again with those values.`,
+        session_id: newSessionId,
+      }
+    }
+
+    try {
+      await deployToServer({
+        ip,
+        login: loginOverride,
+        password,
+        session_id: newSessionId,
+        serverToken: server_token,
+      })
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await failProgress(newSessionId, errMsg)
+      try {
+        await db.serverToken.update({
+          where: { id: record.id },
+          data: { status: 'error', deployError: errMsg },
+        })
+      } catch {}
+      return {
+        status: 'error',
+        message: `Deploy launch failed: ${errMsg}.`,
+        session_id: newSessionId,
+      }
+    }
+
+    return {
+      status: 'retry_started',
+      session_id: newSessionId,
+      message: 'Retry deploy started. Poll check_status with this session_id every 20-30 seconds until status becomes "done" or "error".',
     }
   }
 

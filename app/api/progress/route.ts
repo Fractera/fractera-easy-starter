@@ -14,6 +14,22 @@ export async function GET(req: NextRequest) {
     if (!progress) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
+    // When deploy failed, surface the ServerToken so the UI can show it for
+    // MCP recovery (user pastes it into their AI agent). Cheap lookup — only
+    // runs on terminal error states, not on every poll during install.
+    if (progress.status === 'error') {
+      try {
+        const token = await db.serverToken.findFirst({
+          where: { deploySessionId: session_id },
+          select: { token: true },
+        })
+        if (token) {
+          return NextResponse.json({ ...progress, server_token: token.token })
+        }
+      } catch (e) {
+        console.error('[progress] server_token lookup failed', e)
+      }
+    }
     return NextResponse.json(progress)
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Redis error', detail: String(e) }, { status: 500 })
@@ -59,7 +75,7 @@ export async function POST(req: NextRequest) {
     // Pool provisioning sessions (pool-*) have no end-user — skip those.
     if (token?.user?.email && !session_id.startsWith('pool-')) {
       try {
-        await sendDeployFailedEmail(token.user.email, errMsg)
+        await sendDeployFailedEmail(token.user.email, errMsg, token.token)
       } catch (e) {
         console.error('[progress] sendDeployFailedEmail failed', e)
       }

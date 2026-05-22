@@ -33,6 +33,7 @@ type ProgressData = {
   steps: ProgressStep[]
   subdomain?: string
   error?: string
+  server_token?: string
 }
 
 const POLL_ACTIVATION_MS = 3000
@@ -137,6 +138,14 @@ function getTexts(lang: Lang) {
     errorMcpPre: isRu ? 'или ' : 'or ',
     errorMcpLink: isRu ? 'запустите развёртывание через AI-агента (MCP)' : 'launch deployment via an AI agent (MCP)',
     errorMcpPost: isRu ? ' — он сможет сам устранить ошибку.' : ' — it can fix the error itself.',
+    mcpRecoveryTitle: isRu ? 'Восстановление через AI-агента' : 'Recover via AI agent',
+    mcpRecoveryBody: isRu
+      ? 'Скопируйте этот server_token и вставьте его в чат с AI-агентом (Claude Code, Codex, Gemini CLI), у которого подключён Fractera MCP. Агент сам запустит retry_deploy и доведёт развёртывание до конца.'
+      : 'Copy this server_token and paste it into your AI agent (Claude Code, Codex, Gemini CLI) with the Fractera MCP enabled. The agent will call retry_deploy and finish the deployment for you.',
+    mcpRecoveryTokenLabel: isRu ? 'Ваш server_token' : 'Your server_token',
+    mcpRecoveryCopy: isRu ? 'Скопировать' : 'Copy',
+    mcpRecoveryCopied: isRu ? 'Скопировано' : 'Copied',
+    mcpRecoveryLearn: isRu ? 'Что такое Fractera MCP →' : 'What is Fractera MCP →',
 
     // Signup modal
     signupTitle: isRu ? 'Бесплатная регистрация' : 'Free sign-up',
@@ -724,11 +733,37 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
             >
               {t.errorRetry} →
             </button>
-            <p className="text-xs text-white/40 leading-relaxed">
-              {t.errorMcpPre}
-              <a href={`https://fractera.ai/${lang}/partners`} target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">{t.errorMcpLink}</a>
-              {t.errorMcpPost}
-            </p>
+            {progress?.server_token && (
+              <div className="flex flex-col gap-2 rounded-xl border border-violet-500/30 bg-violet-500/[0.04] p-4 mt-2">
+                <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.mcpRecoveryTitle}</p>
+                <p className="text-xs text-white/70 leading-relaxed">{t.mcpRecoveryBody}</p>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-mono font-bold text-violet-300 uppercase tracking-widest">{t.mcpRecoveryTokenLabel}</label>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 text-xs font-mono text-violet-200 bg-black/40 border border-white/15 rounded px-2 py-1.5 break-all select-all">
+                      {progress.server_token}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(progress.server_token ?? '').catch(() => {})
+                      }}
+                      className="shrink-0 text-xs font-semibold text-white/70 hover:text-white border border-white/20 hover:border-white/40 px-2 py-1.5 rounded transition-colors"
+                    >
+                      {t.mcpRecoveryCopy}
+                    </button>
+                  </div>
+                </div>
+                <a
+                  href={`https://fractera.ai/${lang}/partners#mcp`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="self-start text-xs text-violet-300 hover:text-violet-200 transition-colors"
+                >
+                  {t.mcpRecoveryLearn}
+                </a>
+              </div>
+            )}
           </div>
         </Overlay>
       )}

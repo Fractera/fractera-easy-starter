@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { MCP_TOOLS, handleToolCall } from '@/lib/mcp-tools'
 import { MCP_SYSTEM_PROMPT } from '@/lib/mcp-prompt'
 
+// retry_deploy SSHes into the customer's server (wipe + bootstrap upload),
+// so this route needs the full serverless duration window.
+export const maxDuration = 300
+
 export async function GET(req: NextRequest) {
   const baseUrl = `https://${req.headers.get('host')}`
 
@@ -38,14 +42,27 @@ export async function POST(req: NextRequest) {
 
   if (method === 'tools/call') {
     const { name, arguments: args } = params
-    const result = handleToolCall(name, args || {}, baseUrl)
-    return NextResponse.json({
-      jsonrpc: '2.0',
-      id: body.id,
-      result: {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-      },
-    })
+    try {
+      const result = await handleToolCall(name, args || {}, baseUrl)
+      return NextResponse.json({
+        jsonrpc: '2.0',
+        id: body.id,
+        result: {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        },
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error(`[mcp] tool ${name} threw`, err)
+      return NextResponse.json({
+        jsonrpc: '2.0',
+        id: body.id,
+        result: {
+          content: [{ type: 'text', text: JSON.stringify({ status: 'error', message }, null, 2) }],
+          isError: true,
+        },
+      })
+    }
   }
 
   if (method === 'initialize') {
