@@ -2,7 +2,7 @@ import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer } from '@/lib/deploy'
-import { sendInstallStartedEmail, sendDeployFailedEmail, sendMcpRecoveryTokenEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -268,7 +268,7 @@ export async function handleToolCall(
     // Best-effort: send the recovery-token follow-up email. The install-started
     // email (sent earlier) does NOT carry the token because the ServerToken
     // row did not exist at that point — only now do we have it.
-    try { await sendMcpRecoveryTokenEmail(email, serverToken.token) } catch (err) {
+    try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) {
       console.error('[mcp:register_and_deploy] recovery-token email failed', err)
     }
 

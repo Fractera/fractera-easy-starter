@@ -4,7 +4,7 @@ import { wipeServer } from '@/lib/wipe-script'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -58,6 +58,15 @@ export async function POST(req: NextRequest) {
   if (userEmail) {
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
     await sendInstallStartedEmail(userEmail)
+    // Best-effort recovery-token follow-up. The install-started email above
+    // does not carry the token because the ServerToken row may not exist for
+    // existing-token paths; but if we DO have a token now, send the recovery
+    // email so the user can re-engage via MCP later if anything breaks.
+    if (tokenForBootstrap) {
+      try { await sendRecoveryTokenEmail(userEmail, tokenForBootstrap) } catch (err) {
+        console.error('[install] recovery-token email failed', err)
+      }
+    }
   }
 
   // Step 2: wipe any previous installation BEFORE bootstrap runs. See

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -78,6 +78,10 @@ export async function POST(req: NextRequest) {
   if (session.email) {
     await appendStep(sessionId, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
     try { await sendInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install] start email failed', err) }
+    // Best-effort follow-up with the recovery token for MCP retry path.
+    try { await sendRecoveryTokenEmail(session.email, serverToken.token) } catch (err) {
+      console.error('[embed/install] recovery-token email failed', err)
+    }
   }
 
   // Wipe any previous installation BEFORE bootstrap runs. Required because

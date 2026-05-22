@@ -360,13 +360,13 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
   })
 }
 
-// Sent right after register_and_deploy launches a deploy via MCP. This is a
-// MCP-only email: it gives the user the recovery_token + Fractera MCP URL so
-// they can re-engage an AI agent if anything goes wrong. The first install-
-// started email (sendInstallStartedEmail) does NOT carry the recovery_token
-// because the ServerToken row does not exist yet at that point — we have to
-// follow up.
-export async function sendMcpRecoveryTokenEmail(to: string, serverToken: string) {
+// Sent right after a ServerToken is created — by ANY deploy path (main /api/install,
+// embed /api/embed/install, or MCP register_and_deploy). The install-started email
+// is sent BEFORE the ServerToken row exists, so it cannot carry the recovery token —
+// this follow-up closes that gap. The token unlocks MCP retry_deploy if anything
+// breaks later. Best-effort: callers wrap in try/catch and never fail the deploy
+// because of an email send error.
+export async function sendRecoveryTokenEmail(to: string, serverToken: string) {
   await resend.emails.send({
     from: FROM,
     to,
