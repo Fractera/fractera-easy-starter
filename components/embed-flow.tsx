@@ -107,6 +107,9 @@ function getTexts(lang: Lang) {
     dashboardInfoMid: isRu ? ' на ' : ' at ',
     deployAnother: isRu ? 'Развернуть ещё один сервер' : 'Deploy another server',
     closeModal: isRu ? 'Закрыть' : 'Close',
+    saveTokenNote: isRu
+      ? 'Сохраните server_token — пригодится для восстановления через AI-агента, если деплой прервётся:'
+      : 'Save the server_token below — it lets you recover the deploy via an AI agent if anything breaks:',
 
     // Deploy done
     doneTitle: isRu ? 'Развёртывание завершено' : 'Deployment complete',
@@ -140,6 +143,9 @@ function getTexts(lang: Lang) {
     mcpRecoveryTokenLabel: isRu ? 'Ваш server_token' : 'Your server_token',
     mcpRecoveryCopy: isRu ? 'Скопировать' : 'Copy',
     mcpRecoveryLearn: isRu ? 'Что такое Fractera MCP →' : 'What is Fractera MCP →',
+    mcpHelpHint: isRu
+      ? '* Никогда не использовали MCP? Просто спросите ваш AI-агент (Claude, Codex, Gemini): «как мне подключить Fractera MCP?» — он подскажет настройку в своём интерфейсе, занимает ~15 секунд.'
+      : '* Never used MCP before? Just ask your AI agent (Claude, Codex, Gemini): "how do I connect Fractera MCP to you?" — it will walk you through setup in its own interface, takes ~15 seconds.',
   }
 }
 
@@ -576,6 +582,21 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             </div>
             <p className="text-sm text-white/70 leading-relaxed">{t.deployingBody}</p>
             <ProgressList progress={progress} t={t} />
+            {progress?.server_token && (
+              <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
+                <p className="text-[11px] text-white/55 leading-relaxed">{t.saveTokenNote}</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-[11px] font-mono text-violet-200 break-all select-all">{progress.server_token}</code>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(progress.server_token ?? '').catch(() => {})}
+                    className="shrink-0 text-[10px] font-semibold text-white/60 hover:text-white border border-white/15 hover:border-white/40 px-2 py-0.5 rounded transition-colors"
+                  >
+                    {t.mcpRecoveryCopy}
+                  </button>
+                </div>
+              </div>
+            )}
             <p className="text-xs text-white/40 leading-relaxed">
               {t.dashboardInfoPre}
               <strong className="text-white/65">{submittedEmail}</strong>
@@ -691,6 +712,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                 >
                   {t.mcpRecoveryLearn}
                 </a>
+                <p className="text-[11px] text-amber-300/80 leading-relaxed mt-1">{t.mcpHelpHint}</p>
               </div>
             )}
           </div>

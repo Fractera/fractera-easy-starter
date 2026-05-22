@@ -14,10 +14,11 @@ export async function GET(req: NextRequest) {
     if (!progress) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
-    // When deploy failed, surface the ServerToken so the UI can show it for
-    // MCP recovery (user pastes it into their AI agent). Cheap lookup — only
-    // runs on terminal error states, not on every poll during install.
-    if (progress.status === 'error') {
+    // Surface the ServerToken on every poll so the UI can show it during the
+    // deploy (not only on error). The user saves it for future MCP recovery.
+    // Lookup is cheap and only runs for sessions that have a known progress
+    // record. Skip pool-* sessions — those have no end-user ServerToken.
+    if (!session_id.startsWith('pool-')) {
       try {
         const token = await db.serverToken.findFirst({
           where: { deploySessionId: session_id },

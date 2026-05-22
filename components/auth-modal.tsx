@@ -33,11 +33,16 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
   // them on pricing-flow.tsx which opens a Stripe Checkout Drawer with a bogus
   // planId. Instead, route back to /partners; the second click of the same
   // button now finds session.user and opens the partner registration drawer.
+  // 'black_box' is the Fractera Black Box B2B inquiry CTA — after auth we
+  // return to the landing with a marker the BlackBoxSection reads to auto-open
+  // its inquiry drawer.
   const callbackUrl = pendingPlan === 'partner'
     ? '/partners'
-    : pendingPlan
-      ? `/?pending_plan=${pendingPlan}`
-      : '/'
+    : pendingPlan === 'black_box'
+      ? '/?black_box=1#black-box'
+      : pendingPlan
+        ? `/?pending_plan=${pendingPlan}`
+        : '/'
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()

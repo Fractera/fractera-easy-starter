@@ -360,6 +360,60 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
   })
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c))
+}
+
+type BlackBoxInquiry = {
+  email: string
+  name?: string
+  company?: string
+  area?: string
+  country?: string
+  companyDoes?: string
+  aiTask?: string
+  telegram?: string
+  lang?: string
+}
+
+export async function sendBlackBoxInquiryEmail(inquiry: BlackBoxInquiry) {
+  const rows: [string, string | undefined][] = [
+    ['Email', inquiry.email],
+    ['Name', inquiry.name],
+    ['Company', inquiry.company],
+    ['Area of activity', inquiry.area],
+    ['Country', inquiry.country],
+    ['What the company does', inquiry.companyDoes],
+    ['AI task they want to solve', inquiry.aiTask],
+    ['Telegram', inquiry.telegram],
+    ['UI language at submission', inquiry.lang],
+  ]
+  const rowsHtml = rows
+    .filter(([, v]) => v && v.trim())
+    .map(([label, v]) => `
+      <tr>
+        <td style="padding:8px 12px;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #eee;vertical-align:top;white-space:nowrap">${escapeHtml(label)}</td>
+        <td style="padding:8px 12px;font-size:14px;color:#111;border-bottom:1px solid #eee;white-space:pre-wrap;line-height:1.5">${escapeHtml((v ?? '').trim())}</td>
+      </tr>
+    `).join('\n')
+
+  await resend.emails.send({
+    from: FROM,
+    to: 'admin@fractera.ai',
+    replyTo: inquiry.email,
+    subject: `Black Box inquiry — ${inquiry.company?.trim() || inquiry.email}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#111">
+        <h2 style="margin:0 0 6px">Fractera Black Box — new consultation inquiry</h2>
+        <p style="margin:0 0 16px;color:#666;font-size:13px">Reply directly to this email — it goes to the inquirer (${escapeHtml(inquiry.email)}).</p>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee">
+          ${rowsHtml}
+        </table>
+      </div>
+    `,
+  })
+}
+
 export async function sendDeployFailedEmail(to: string, errorMessage?: string, serverToken?: string) {
   await resend.emails.send({
     from: FROM,

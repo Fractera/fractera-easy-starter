@@ -81,8 +81,8 @@ export default async function HomePage({
 
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <FractеraPromo />
-              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
               <BlackBoxSection />
+              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
               <div id="faq" className="w-full scroll-mt-16"><FaqSection /></div>
 
               <div id="cases" className="mb-32 w-full flex justify-center scroll-mt-16">
