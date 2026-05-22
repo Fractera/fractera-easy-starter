@@ -5,7 +5,7 @@ import { StartPhrase } from '@/components/start-phrase'
 import { OpenClaudeButton } from '@/components/open-claude-button'
 import { StepsCarousel } from '@/components/steps-carousel'
 
-const MCP_URL = 'https://fractera.ai/api/mcp'
+const MCP_URL = 'https://www.fractera.ai/api/mcp'
 
 export function ClaudeCodeSetup() {
   return (

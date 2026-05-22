@@ -9,7 +9,7 @@ export const install: InstallPart = {
     description:
       'Building and managing a production server through an AI agent inside your chat has never been this seamless. Connect Claude, Codex, or Gemini to the Fractera MCP server — deploy infrastructure, monitor installation, and launch new environments without leaving your conversation. You can also use the MCP server to diagnose and resolve any deployment issues directly from your AI chat.',
     serverUrlLabel: 'Fractera MCP server URL',
-    serverUrl: 'https://fractera.ai/api/mcp',
+    serverUrl: 'https://www.fractera.ai/api/mcp',
     copy: 'Copy',
     copied: 'Copied',
     helpHint:

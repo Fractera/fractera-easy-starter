@@ -392,7 +392,7 @@ export async function sendRecoveryTokenEmail(to: string, serverToken: string) {
         <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">${escapeHtml(serverToken)}</p>
 
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Fractera MCP server URL</p>
-        <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">https://fractera.ai/api/mcp</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">https://www.fractera.ai/api/mcp</p>
 
         <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">How to use it (only if you need to)</p>
         <ol style="margin:0 0 20px;padding-left:20px;line-height:1.7;color:#1f2937;font-size:14px">
@@ -403,7 +403,7 @@ export async function sendRecoveryTokenEmail(to: string, serverToken: string) {
           </li>
           <li style="margin-bottom:8px">
             Tell the agent in plain language: <em>&ldquo;Please connect the
-            MCP server at https://fractera.ai/api/mcp. Once connected, retry
+            MCP server at https://www.fractera.ai/api/mcp. Once connected, retry
             my Fractera deploy with this recovery token: ${escapeHtml(serverToken.slice(0, 12))}&hellip;&rdquo;</em>
             The agent will walk you through the 15-second connector
             setup inside its own interface, then call our <code>retry_deploy</code>
@@ -530,7 +530,7 @@ export async function sendDeployFailedEmail(to: string, errorMessage?: string, s
             already started.
             <br/>
             <span style="display:inline-block;margin-top:6px;color:#d97706;font-size:12px">
-              * Never used MCP? Copy this URL and ask your AI agent to connect it: <strong>https://fractera.ai/api/mcp</strong> — setup takes ~15 seconds.
+              * Never used MCP? Copy this URL and ask your AI agent to connect it: <strong>https://www.fractera.ai/api/mcp</strong> — setup takes ~15 seconds.
             </span>
           </li>
         </ol>
