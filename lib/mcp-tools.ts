@@ -1,80 +1,82 @@
-import { MAIN_PROVIDERS, EXTENDED_PROVIDERS } from '@/providers.config'
 import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer } from '@/lib/deploy'
+import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
+
+// Default partner-VPS recommendation surfaced when the user says they don't
+// have a server yet. Static for now; future MCP-per-partner URLs (e.g.
+// fractera.ai/api/mcp?ref=<slug>) will override this via baseUrl / args.
+const DEFAULT_VPS_PROVIDER = {
+  name: 'Contabo',
+  price: '~€3.60/mo',
+  url: 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd',
+  os: 'Ubuntu 24.04',
+  specs: '4 vCPU / 6 GB RAM',
+}
 
 export const MCP_TOOLS = [
   {
-    name: 'get_hosting_options',
-    description: 'Returns list of VPS hosting providers with prices and recommendations. Pass extended=true to get the full list.',
+    name: 'register_and_deploy',
+    description:
+      'Register a new Fractera user and start the deployment of their server in one atomic call. Use this AFTER you have collected the user\'s email (entered twice for typo protection), server IP, and root password. Creates the User row (or reuses an existing one with the same email), creates a free Subscription, creates a ServerToken, wipes any previous installation on the target server, and launches bootstrap. Returns session_id (for check_status polling) and server_token (so the user can recover via retry_deploy if anything breaks).',
     inputSchema: {
       type: 'object',
       properties: {
-        extended: {
-          type: 'boolean',
-          description: 'If true, returns the full list of all supported providers',
+        email: {
+          type: 'string',
+          description: 'The email the user typed (and confirmed by re-typing). Welcome / failure emails go here.',
+        },
+        ip: {
+          type: 'string',
+          description: 'IPv4 address of the user\'s VPS, e.g. 185.10.20.30.',
+        },
+        password: {
+          type: 'string',
+          description: 'Root password for the VPS.',
+        },
+        login: {
+          type: 'string',
+          description: 'Optional — defaults to "root". Override only if the VPS provider gave a non-root username.',
         },
       },
-      required: [],
+      required: ['email', 'ip', 'password'],
     },
   },
   {
-    name: 'generate_install_command',
-    description: 'Generates a one-line curl command for the user to run on their server',
+    name: 'check_status',
+    description:
+      'Check the current installation progress. Call this every 20-30 seconds after register_and_deploy or retry_deploy returns. Returns the current step, the list of completed steps (~44 total in a full bootstrap), and whether installation is done or failed.',
     inputSchema: {
       type: 'object',
       properties: {
-        provider: {
-          type: 'string',
-          enum: ['hetzner', 'digitalocean', 'oracle', 'existing'],
-          description: 'The VPS provider the user chose, or "existing" if they already have a server',
-        },
-        session_id: {
-          type: 'string',
-          description: 'Unique session identifier for this installation',
-        },
-      },
-      required: ['provider', 'session_id'],
-    },
-  },
-  {
-    name: 'get_subdomain',
-    description: 'Returns the assigned subdomain once installation is complete. Poll this after the user confirms the install command has finished running. Returns status: pending while installing, complete with subdomain when done.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        session_id: {
-          type: 'string',
-          description: 'The session_id used during installation',
-        },
+        session_id: { type: 'string', description: 'The session_id returned by register_and_deploy or retry_deploy.' },
       },
       required: ['session_id'],
     },
   },
   {
-    name: 'check_status',
-    description: 'Check the current installation status. Call this every 20-30 seconds after installation starts to get progress updates. Returns current step, the list of completed steps, and whether installation is complete or failed.',
+    name: 'get_subdomain',
+    description:
+      'Return the assigned subdomain (and full HTTPS URL) once installation is complete. Poll this once after check_status reports status="done".',
     inputSchema: {
       type: 'object',
       properties: {
-        session_id: {
-          type: 'string',
-          description: 'The session_id used during installation',
-        },
+        session_id: { type: 'string', description: 'The session_id used during installation.' },
       },
       required: ['session_id'],
     },
   },
   {
     name: 'retry_deploy',
-    description: 'Retry a failed deployment. Pass the server_token the user got from the failure email or dashboard. The tool wipes the previous broken installation and runs a fresh deploy on the same server. Returns a new session_id — poll progress with check_status. Use this when the user reports a failed deploy or pasted a server_token.',
+    description:
+      'Retry a failed deployment using a server_token (from the failure email, the deploy-progress UI, or the dashboard). Wipes the previous broken install and runs a fresh deploy on the SAME server. Returns a new session_id — poll with check_status. Use this when the user reports a failed deploy or pastes a server_token.',
     inputSchema: {
       type: 'object',
       properties: {
         server_token: {
           type: 'string',
-          description: 'The unique server token the user received in the deploy-failure email or dashboard. Acts as the authorisation for this retry.',
+          description: 'The unique server token the user received in the deploy-failure email, the active deploy UI, or the dashboard. Acts as the authorisation for this retry.',
         },
         ip: {
           type: 'string',
@@ -92,20 +94,17 @@ export const MCP_TOOLS = [
       required: ['server_token'],
     },
   },
+  {
+    name: 'get_vps_recommendation',
+    description:
+      'Return a single recommended VPS provider for users who do not yet have a server. Call this ONLY when the user explicitly says they have no server. The user buys the VPS at this provider and comes back with IP + password.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
 ]
-
-const SPECIAL_OPTIONS = [
-  { number: 0, provider: 'show_more', name: 'Show more options', url: null, price: null, specs: null, note: 'See all supported providers' },
-  { number: 0, provider: 'existing', name: 'I already have a server', url: null, price: null, specs: null, note: 'Connect your existing Linux VPS (Ubuntu 22.04+)' },
-]
-
-function buildOptions(providers: typeof MAIN_PROVIDERS) {
-  return [
-    ...providers.map((p, i) => ({ number: i + 1, ...p })),
-    { ...SPECIAL_OPTIONS[0], number: providers.length + 1 },
-    { ...SPECIAL_OPTIONS[1], number: providers.length + 2 },
-  ]
-}
 
 export async function handleToolCall(
   name: string,
@@ -114,45 +113,20 @@ export async function handleToolCall(
 ): Promise<unknown> {
   void baseUrl
 
-  if (name === 'get_hosting_options') {
-    const extended = args.extended === true || args.extended === 'true'
-    const options = buildOptions(extended ? EXTENDED_PROVIDERS : MAIN_PROVIDERS)
+  if (name === 'get_vps_recommendation') {
     return {
-      disclaimer: 'Prices are approximate and may differ from the provider\'s current rates. Always check the provider\'s website for up-to-date pricing.',
-      options,
-    }
-  }
-
-  if (name === 'generate_install_command') {
-    const provider = String(args.provider ?? '')
-    const session_id = String(args.session_id ?? '')
-
-    if (provider === 'existing') {
-      const scriptUrl = `https://fractera.ai/api/script?provider=existing&session_id=${session_id}`
-      return {
-        command: `curl -fsSL "${scriptUrl}" | sudo bash`,
-        session_id,
-        note: 'The user already has a server. Ask them for: 1) the server IP address, 2) confirm it runs Ubuntu 22.04+ with root or sudo access. Then tell them to open their terminal (SSH or provider console) and run this command.',
-      }
-    }
-
-    const scriptUrl = `https://fractera.ai/api/script?provider=${provider}&session_id=${session_id}`
-    return {
-      command: `curl -fsSL "${scriptUrl}" | sudo bash`,
-      session_id,
-      note: 'IMPORTANT: Before showing this command, first explain to the user HOW to open their server terminal (use the provider-specific instructions from Step 8). Only then show the command and tell them to copy-paste it and press Enter. Installation takes about 5 minutes.',
+      provider: DEFAULT_VPS_PROVIDER,
+      note:
+        'Recommend Contabo as the default VPS. Tell the user the price and what to order (Ubuntu 24.04, 4 vCPU / 6 GB RAM). Ask them to come back with the server IP and the root password.',
     }
   }
 
   if (name === 'get_subdomain') {
-    const session_id = String(args.session_id ?? '')
+    const session_id = String(args.session_id ?? '').trim()
     if (!session_id) return { status: 'error', message: 'Missing session_id' }
     const progress = await getProgress(session_id)
     if (!progress) {
-      return {
-        status: 'unknown',
-        message: 'No installation found for this session_id. It may have expired (TTL 1h while installing, 24h after completion) or never existed.',
-      }
+      return { status: 'unknown', message: 'No installation found for this session_id. It may have expired or never existed.' }
     }
     if (progress.status === 'done' && progress.subdomain) {
       return { status: 'complete', subdomain: progress.subdomain, url: `https://${progress.subdomain}` }
@@ -160,20 +134,17 @@ export async function handleToolCall(
     if (progress.status === 'error') {
       return { status: 'error', message: progress.error ?? 'Unknown deploy error' }
     }
-    return {
-      status: 'pending',
-      message: 'Installation is still running. Keep checking with check_status until status becomes "done".',
-    }
+    return { status: 'pending', message: 'Installation is still running. Keep checking with check_status until status becomes "done".' }
   }
 
   if (name === 'check_status') {
-    const session_id = String(args.session_id ?? '')
+    const session_id = String(args.session_id ?? '').trim()
     if (!session_id) return { status: 'error', message: 'Missing session_id' }
     const progress = await getProgress(session_id)
     if (!progress) {
       return {
         status: 'unknown',
-        message: 'No installation found for this session_id. It may have expired or never existed. If the user is sure they deployed, ask them to re-check the failure email for the correct session_id or server_token.',
+        message: 'No installation found for this session_id. It may have expired (TTL 1h while installing, 24h after completion).',
       }
     }
     const steps = progress.steps ?? []
@@ -192,15 +163,122 @@ export async function handleToolCall(
         progress.status === 'done'
           ? `Installation complete. Subdomain: ${progress.subdomain}. Tell the user.`
           : progress.status === 'error'
-            ? `Installation failed with: ${progress.error}. Ask the user if they want to retry — if yes, call retry_deploy with the server_token.`
-            : 'Installation in progress. Keep polling every 20-30 seconds.',
+            ? `Installation failed: ${progress.error}. Offer the user to retry — if they agree, call retry_deploy with the server_token.`
+            : 'Installation in progress. Keep polling every 20-30 seconds. Stream each newly-completed step to the user so they see continuous progress.',
+    }
+  }
+
+  if (name === 'register_and_deploy') {
+    const email = String(args.email ?? '').trim().toLowerCase()
+    const ip = String(args.ip ?? '').trim()
+    const password = String(args.password ?? '')
+    const login = (typeof args.login === 'string' && args.login.trim()) ? args.login.trim() : 'root'
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { status: 'error', message: 'Invalid email. Ask the user to type a valid email twice for confirmation.' }
+    }
+    if (!ip) return { status: 'error', message: 'Missing IP address. Ask the user for their server IP (four groups of digits, e.g. 185.10.20.30).' }
+    if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server.' }
+
+    // 1. User row — find-or-create by email
+    const user = await db.user.upsert({
+      where: { email },
+      update: {},
+      create: { email },
+    })
+
+    // 2. Free Subscription — reuse existing free if any, else create
+    let sub = await db.subscription.findFirst({
+      where: { userId: user.id, planId: 'free', status: { not: 'cancelled' } },
+    })
+    if (!sub) {
+      sub = await db.subscription.create({
+        data: {
+          userId: user.id,
+          stripeCustomerId: 'free',
+          status: 'active',
+          planId: 'free',
+          currentPeriodEnd: new Date('2099-01-01'),
+        },
+      })
+    }
+
+    // 3. New session id + ServerToken
+    const session_id = `mcp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const serverToken = await db.serverToken.create({
+      data: {
+        userId: user.id,
+        subscriptionId: sub.id,
+        status: 'pending',
+        deploySessionId: session_id,
+        serverIp: ip,
+        serverPassword: password,
+      },
+    })
+
+    // 4. Init progress + welcome-start email (best effort — email failure must
+    // not block the deploy launch)
+    await initProgress(session_id)
+    await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
+    try { await sendInstallStartedEmail(email) } catch (err) { console.error('[mcp:register_and_deploy] install-started email failed', err) }
+
+    // 5. Wipe (mandatory before bootstrap — see lib/wipe-script.ts for why)
+    await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
+    try {
+      await wipeServer(ip, login, password)
+      await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      const wipeErr = `WIPE_FAILED: ${errMsg}`
+      await failProgress(session_id, wipeErr)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
+      try { await sendDeployFailedEmail(email, wipeErr, serverToken.token) } catch {}
+      return {
+        status: 'error',
+        message: `Could not connect to the server (${errMsg}). Most likely the IP or password is wrong. Ask the user to double-check both and call retry_deploy(server_token, ip=..., password=...) with the corrected values.`,
+        session_id,
+        server_token: serverToken.token,
+      }
+    }
+
+    // 6. Launch bootstrap. deployToServer SSHes in, uploads bootstrap.sh, and
+    // launches it detached — resolves quickly. The bootstrap then runs ~5-10
+    // minutes on the customer's server and reports steps via /api/progress.
+    try {
+      await deployToServer({
+        ip,
+        login,
+        password,
+        session_id,
+        serverToken: serverToken.token,
+      })
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await failProgress(session_id, errMsg)
+      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+      try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
+      return {
+        status: 'error',
+        message: `Deploy launch failed: ${errMsg}. Offer the user to retry with retry_deploy(server_token).`,
+        session_id,
+        server_token: serverToken.token,
+      }
+    }
+
+    return {
+      status: 'installing',
+      session_id,
+      server_token: serverToken.token,
+      dashboard_url: `https://fractera.ai/dashboard`,
+      message:
+        'Registration and deploy launched. Tell the user the deploy is running (5-10 min). Now poll check_status(session_id) every 25-30 seconds and stream each newly-completed step to the user. Remind the user to save server_token in case they need recovery later.',
     }
   }
 
   if (name === 'retry_deploy') {
     const server_token = String(args.server_token ?? '').trim()
     if (!server_token) {
-      return { status: 'error', message: 'Missing server_token. Ask the user to paste the token from the failure email or their dashboard.' }
+      return { status: 'error', message: 'Missing server_token. Ask the user to paste the token from the failure email, the deploy UI or the dashboard.' }
     }
 
     const record = await db.serverToken.findUnique({
@@ -210,7 +288,8 @@ export async function handleToolCall(
         status: true,
         serverIp: true,
         serverPassword: true,
-        subscriptionId: true,
+        userId: true,
+        user: { select: { email: true } },
       },
     })
     if (!record) {
@@ -220,7 +299,7 @@ export async function handleToolCall(
       return { status: 'already_active', message: 'This server is already active and running. No retry needed.' }
     }
     if (!record.serverIp) {
-      return { status: 'error', message: 'No server IP on record for this token. Ask the user to provide the IP manually via the install form.' }
+      return { status: 'error', message: 'No server IP on record. Ask the user to provide the IP via the "ip" argument.' }
     }
 
     const ipOverride = typeof args.ip === 'string' && args.ip.trim() ? args.ip.trim() : null
@@ -230,7 +309,7 @@ export async function handleToolCall(
     const ip = ipOverride ?? record.serverIp
     const password = passwordOverride ?? record.serverPassword
     if (!password) {
-      return { status: 'error', message: 'No server password on record. Ask the user to provide the root password as the "password" argument.' }
+      return { status: 'error', message: 'No server password on record. Ask the user to provide the root password via the "password" argument.' }
     }
 
     const newSessionId = `mcp-retry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -259,9 +338,12 @@ export async function handleToolCall(
           data: { status: 'error', deployError: `WIPE_FAILED: ${errMsg}` },
         })
       } catch {}
+      if (record.user?.email) {
+        try { await sendDeployFailedEmail(record.user.email, `WIPE_FAILED: ${errMsg}`, server_token) } catch {}
+      }
       return {
         status: 'error',
-        message: `Wipe failed: ${errMsg}. The most common cause is wrong credentials. Ask the user to provide fresh ip/login/password and call retry_deploy again with those values.`,
+        message: `Wipe failed: ${errMsg}. The most common cause is wrong credentials. Ask the user to confirm ip + password and call retry_deploy again with fresh values.`,
         session_id: newSessionId,
       }
     }
@@ -283,6 +365,9 @@ export async function handleToolCall(
           data: { status: 'error', deployError: errMsg },
         })
       } catch {}
+      if (record.user?.email) {
+        try { await sendDeployFailedEmail(record.user.email, errMsg, server_token) } catch {}
+      }
       return {
         status: 'error',
         message: `Deploy launch failed: ${errMsg}.`,
@@ -293,7 +378,8 @@ export async function handleToolCall(
     return {
       status: 'retry_started',
       session_id: newSessionId,
-      message: 'Retry deploy started. Poll check_status with this session_id every 20-30 seconds until status becomes "done" or "error".',
+      server_token,
+      message: 'Retry deploy started. Poll check_status(session_id) every 25-30 seconds until status becomes "done" or "error".',
     }
   }
 
