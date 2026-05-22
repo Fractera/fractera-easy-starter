@@ -14,6 +14,7 @@ import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
+import { BlackBoxSection } from '@/components/sections/black-box'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 
 function buildFaqSchema(lang: string) {
@@ -79,6 +80,7 @@ export default async function HomePage({
               <FeaturesGrid />
               <FractеraPromo />
               <SponsorshipSection />
+              <BlackBoxSection />
               <FaqSection />
 
               <div className="mb-32 w-full flex justify-center">

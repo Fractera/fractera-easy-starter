@@ -39,13 +39,16 @@ export default async function PartnersPage({
       },
       {
         title: 'Активация сервера через AI-агента (MCP)',
-        text: 'Партнёр рекомендует пользователю развернуть Fractera через AI-агента — Claude Code, Codex, Gemini CLI или другого. На первом шаге MCP-инструмент запрашивает идентификатор партнёра. После ввода — пользователь получает вашу партнёрскую ссылку для оплаты VPS у поставщика. После покупки сервера пользователь возвращается в того же AI-агента и продолжает настройку — без переключения контекста.',
+        text: 'Если у пользователя что-то пошло не так — упал деплой или он не хочет вводить IP вручную — единая ссылка на MCP Fractera открывает развёртывание через любого AI-агента (Claude Code, Codex, Gemini CLI). Никаких отдельных MCP-серверов на каждого партнёра: партнёрская атрибуция уже зафиксирована в момент клика по реферальной кнопке хостинга — благодаря 45-day cookie провайдера. На партнёрской странице ссылка на MCP появляется только после того, как пользователь хотя бы раз перешёл на сайт одного из подключённых вами хостингов.',
       },
     ],
 
     howTitle: 'Как работает партнёрка',
     howBody: 'Партнёрская программа — это договор между вами и VPS-поставщиком (например, Contabo или любой другой хостинг с affiliate-программой). Fractera не участвует в денежной транзакции: выплаты идут напрямую от поставщика вам, по его тарифам и графику. Мы даём инфраструктуру вокруг — поддомен, кабинет, виджет, MCP — благодаря которой вы можете рекомендовать любого провайдера так, чтобы это конвертировалось в реальные клики и регистрации.',
     howFootnote: '* Например, Contabo выплачивает от 20 до 55 € за каждого нового клиента в зависимости от выбранной им конфигурации сервера. Однако сначала вы должны зарегистрироваться на cj.com как publisher — Contabo, как и более 3000 других брендов, ведёт свою партнёрку через эту сеть. Onboarding в CJ — один раз: tax forms, payment info, описание property — после чего весь каталог программ открывается для подачи заявок (каждый бренд одобряет вас отдельно, но повторять регистрацию не нужно). Поэтому час, потраченный на CJ, окупается доступом к одному из крупнейших каталогов affiliate-программ в мире.',
+
+    attributionTitle: 'Вы зарабатываете, даже если пользователь не купил VPS прямо сейчас',
+    attributionBody: 'Достаточно того, что пользователь перешёл по вашей реферальной ссылке на страницу хостинга — даже если он не купил VPS прямо сейчас и закрыл вкладку. Большинство партнёрских программ (включая Contabo через CJ Affiliate) фиксируют клик в 45-day cookie на стороне хостинга. Если этот пользователь совершит любую покупку у хостинга в течение 45 дней — пусть даже для другого, не связанного с Fractera проекта — комиссия будет начислена вам. Это означает: вы зарабатываете не только на тех, кто прямо сейчас разворачивает Fractera, а на всём трафике, который однажды касался вашей рекомендации.',
 
     payoutsNoteTitle: 'Важно про выплаты',
     payoutsNoteBody: 'Никакой статистики выплат внутри Fractera-кабинета не будет. Деньги вам платит ваш VPS-поставщик, и историю выплат вы видите в его собственном кабинете. Мы можем показать клики и регистрации, которые прошли через ваш поддомен, виджет или MCP — это нужно для понимания эффективности вашего контента. Сами комиссии — на стороне поставщика.',
@@ -82,13 +85,16 @@ export default async function PartnersPage({
       },
       {
         title: 'AI-agent server activation (MCP)',
-        text: 'Recommend that the user deploys Fractera through an AI agent — Claude Code, Codex, Gemini CLI, or any other. The MCP tool asks for your partner ID as its first step. Once entered, the user receives your affiliate link to buy the VPS from the provider. After purchase, the user returns to the same AI agent and continues setup — without leaving the context.',
+        text: 'If something goes wrong for the user — a failed deploy, or they prefer not to type the IP manually — a single Fractera MCP link unlocks deployment through any AI agent (Claude Code, Codex, Gemini CLI). No per-partner MCP servers: partner attribution is already locked in the moment the user clicks one of your affiliate hosting buttons, thanks to the provider\'s 45-day cookie. On the partner page the MCP link appears only after the user has visited at least one of your connected hosting providers.',
       },
     ],
 
     howTitle: 'How the partner program works',
     howBody: 'The affiliate program is a contract between you and a VPS provider (for example, Contabo or any other host with an affiliate program). Fractera does not participate in the financial transaction: payouts come directly from the provider to you, on their terms and schedule. We provide the surrounding infrastructure — the mirror, the cabinet, the widget, the MCP — that lets you recommend any provider in a way that actually converts into clicks and signups.',
     howFootnote: '* For example, Contabo pays 20–55 € per new customer, depending on the server configuration they pick. But first you need to register on cj.com as a publisher — Contabo, like 3,000+ other brands, runs its affiliate program through that network. CJ onboarding happens once: tax forms, payment info, property description — after which the whole catalogue is open for applications (each brand still approves you separately, but you never repeat the signup). The hour you spend on CJ is repaid by access to one of the largest affiliate-program catalogues in the world.',
+
+    attributionTitle: 'You earn even if the user does not buy a VPS right now',
+    attributionBody: 'It is enough that the user clicked through your affiliate link to a hosting page — even if they did not buy a VPS this minute and closed the tab. Most affiliate programs (including Contabo via CJ Affiliate) lock the click in a 45-day cookie on the hosting side. If that same user makes any purchase from that hosting provider within 45 days — even for an unrelated project that has nothing to do with Fractera — the commission is credited to you. This means you earn not only from people who deploy Fractera right now, but from every visitor whose attention your recommendation ever touched.',
 
     payoutsNoteTitle: 'A note on payouts',
     payoutsNoteBody: 'There will be no payout statistics inside the Fractera cabinet. Money is paid to you by the VPS provider, and you see the payout history in their own dashboard. We can show clicks and signups that came through your subdomain, widget, or MCP — useful for understanding what content works. The commissions themselves stay on the provider side.',
@@ -139,7 +145,11 @@ export default async function PartnersPage({
           <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.featuresTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {t.features.map((f, i) => (
-              <div key={i} className="flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/[0.02] p-6">
+              <div
+                key={i}
+                id={i === 3 ? 'mcp' : undefined}
+                className="flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/[0.02] p-6 scroll-mt-24"
+              >
                 <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">0{i + 1}</p>
                 <h3 className="text-lg font-bold text-white leading-snug">{f.title}</h3>
                 <p className="text-sm text-white/65 leading-relaxed">{f.text}</p>
@@ -153,6 +163,12 @@ export default async function PartnersPage({
           <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.howTitle}</h2>
           <p className="text-base text-white/70 leading-relaxed">{t.howBody}</p>
           <p className="text-sm text-orange-400/80 leading-relaxed border-t border-orange-500/20 pt-4">{t.howFootnote}</p>
+        </div>
+
+        {/* 45-day attribution */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-6">
+          <h2 className="text-base font-bold text-emerald-300 uppercase tracking-widest font-mono">{t.attributionTitle}</h2>
+          <p className="text-sm text-white/75 leading-relaxed">{t.attributionBody}</p>
         </div>
 
         {/* Payouts note */}

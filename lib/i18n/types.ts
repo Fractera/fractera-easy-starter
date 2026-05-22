@@ -94,6 +94,22 @@ export type SiteContent = {
   featuresHeader: { label: string; h2: string; description: string }
   featureList: { title: string; description: string; badge: string }[]
   promoSection: { h2: string; description: string; githubButton: string }
+  blackBox: {
+    label: string
+    h2: string
+    subhead: string
+    imageAlt: string
+    intro: string
+    pillarsTitle: string
+    pillars: { title: string; text: string }[]
+    pricingLabel: string
+    pricingBody: string
+    limitedLabel: string
+    limitedBody: string
+    ctaTitle: string
+    ctaBody: string
+    ctaButton: string
+  }
   faqHeader: { label: string; h2: string; description: string }
   faqItems: FaqItem[]
   testimonial: { blogButton: string; casesButton: string; marketplaceButton: string }

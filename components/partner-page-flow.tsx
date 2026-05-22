@@ -42,6 +42,7 @@ const LS_STATE = 'fractera_partner_state'
 const LS_EMAIL = 'fractera_partner_email'
 const LS_SESSION_ID = 'fractera_partner_session_id'
 const LS_IP = 'fractera_partner_ip'
+const LS_HOSTING_CLICKED = 'fractera_partner_hosting_clicked'
 
 function getTexts(lang: Lang) {
   const isRu = lang === 'ru'
@@ -156,6 +157,18 @@ function getTexts(lang: Lang) {
 
     primaryBadge: '★',
     open: '↗',
+
+    // Block 4 — MCP deployment fallback
+    mcpBlockLabel: isRu ? 'Развёртывание через AI-агента' : 'AI-agent deployment',
+    mcpBlockTitle: isRu ? 'Что делать, если деплой не получился' : 'What to do if deploy fails',
+    mcpBlockBody: isRu
+      ? 'Если развёртывание не сработало или вы не хотите вводить IP и пароль вручную — единая ссылка ниже открывает развёртывание Fractera через любого AI-агента (Claude Code, Codex, Gemini CLI). Партнёрская комиссия по-прежнему будет начислена партнёру, к которому вы пришли — 45-day cookie хостинга уже зафиксировал клик.'
+      : 'If the deploy failed, or you would rather not type the IP and password manually, the link below opens Fractera deployment through any AI agent (Claude Code, Codex, Gemini CLI). The partner commission still goes to the partner that brought you here — the hosting 45-day cookie has already locked in the click.',
+    mcpBlockInactive: isRu ? 'Открыть развёртывание через MCP' : 'Open deployment via MCP',
+    mcpBlockActive: isRu ? 'Открыть развёртывание через MCP →' : 'Open deployment via MCP →',
+    mcpBlockTooltip: isRu
+      ? 'Ссылка появится после того как вы перейдёте хотя бы на один из партнёрских хостингов выше.'
+      : 'The link unlocks after you visit at least one of the partner hosting providers above.',
   }
 }
 
@@ -178,6 +191,15 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
   const [progress, setProgress] = useState<ProgressData | null>(null)
   const [deployError, setDeployError] = useState<string | null>(null)
 
+  // Block 4 — MCP link unlocks after any hosting click (attribution is
+  // already locked in the provider's 45-day cookie at that point).
+  const [mcpUnlocked, setMcpUnlocked] = useState(false)
+
+  const markHostingClicked = useCallback(() => {
+    try { localStorage.setItem(LS_HOSTING_CLICKED, '1') } catch {}
+    setMcpUnlocked(true)
+  }, [])
+
   const activationPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const progressPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -194,10 +216,12 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
       const savedEmail = localStorage.getItem(LS_EMAIL)
       const savedSessionId = localStorage.getItem(LS_SESSION_ID)
       const savedIp = localStorage.getItem(LS_IP)
+      const savedHostingClicked = localStorage.getItem(LS_HOSTING_CLICKED)
       if (savedToken) setEmbedToken(savedToken)
       if (savedEmail) setSubmittedEmail(savedEmail)
       if (savedSessionId) setDeploySessionId(savedSessionId)
       if (savedIp) setIp(savedIp)
+      if (savedHostingClicked === '1') setMcpUnlocked(true)
       if (savedState && savedState !== 'presentation' && savedState !== 'signup') {
         setStateRaw(savedState)
       }
@@ -368,6 +392,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
                         href={link.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer sponsored"
+                        onClick={markHostingClicked}
                         className="group w-full flex items-center justify-between gap-3 rounded-xl border border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/[0.06] hover:bg-emerald-500/[0.10] px-5 py-3.5 transition-all"
                       >
                         <span className="flex items-center gap-2">
@@ -493,6 +518,32 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
               {item}
             </div>
           ))}
+        </div>
+
+        {/* Block 4 — MCP deployment fallback */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-violet-500/30 bg-violet-500/[0.04] p-6">
+          <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.mcpBlockLabel}</p>
+          <h2 className="text-lg md:text-xl font-bold text-white font-serif leading-snug">{t.mcpBlockTitle}</h2>
+          <p className="text-sm text-white/70 leading-relaxed">{t.mcpBlockBody}</p>
+          {mcpUnlocked ? (
+            <a
+              href={`https://fractera.ai/${lang}/partners#mcp`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="self-start inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              {t.mcpBlockActive}
+            </a>
+          ) : (
+            <span
+              title={t.mcpBlockTooltip}
+              aria-disabled="true"
+              className="self-start inline-flex items-center gap-2 bg-white/[0.04] text-white/40 border border-white/15 px-5 py-2.5 rounded-xl text-sm cursor-not-allowed select-none"
+            >
+              {t.mcpBlockInactive}
+              <span className="text-xs text-amber-300/70" aria-hidden="true">🔒</span>
+            </span>
+          )}
         </div>
       </div>
 
