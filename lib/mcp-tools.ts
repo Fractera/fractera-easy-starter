@@ -276,8 +276,16 @@ export async function handleToolCall(
     // the IP-idempotency guard above + the hard rule in mcp-prompt.ts.
     await initProgress(session_id)
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    console.log(`${TAG} progress initialised — sending install-started email`)
+    console.log(`${TAG} progress initialised — sending start + recovery-token emails`)
+    // Both emails go out NOW, before the long wipe+SSH work, so they ALWAYS
+    // arrive even if Vercel kills the function later. Previously the
+    // recovery-token email was sent at the very end of register_and_deploy —
+    // after wipe (30s) + deployToServer (5-30s SFTP) — and observed to be
+    // dropped intermittently because the runtime was near maxDuration or
+    // Resend was slow. Order here: install-started first (transactional
+    // confirmation), then recovery-token (session_id + server_token).
     try { await sendInstallStartedEmail(email) } catch (err) { console.error(`${TAG} install-started email failed`, err) }
+    try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) { console.error(`${TAG} recovery-token email failed`, err) }
 
     // 5. Wipe (mandatory before bootstrap — see lib/wipe-script.ts for why)
     console.log(`${TAG} wipe start`)
@@ -330,11 +338,7 @@ export async function handleToolCall(
       }
     }
 
-    // Best-effort: send the recovery-token follow-up email now that the
-    // ServerToken exists.
-    try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) {
-      console.error('[mcp:register_and_deploy] recovery-token email failed', err)
-    }
+    // (recovery-token email already sent before wipe — see step 4 above)
 
     return {
       status: 'installing',
@@ -342,7 +346,26 @@ export async function handleToolCall(
       server_token: serverToken.token,
       dashboard_url: `https://fractera.ai/dashboard`,
       message:
-        'Registration and deploy launched. In your next reply you MUST tell the user three things: (1) the deploy takes 7-17 minutes (usually around 10); (2) they can close this chat at any time — the deploy continues on the server and the final URL arrives by email; (3) show them the server_token and ask them to keep it. Then start polling check_status(session_id) every 25-30 seconds and stream each newly-completed bootstrap step to the user.',
+        `Registration accepted. The bootstrap is now running on the customer's VPS — it takes 8 to 14 minutes (usually around 10).\n\n` +
+        `WRITE YOUR REPLY TO THE USER EXACTLY LIKE THIS (translate to the user's language; keep the two identifiers verbatim inside code blocks; do not paraphrase or shorten):\n\n` +
+        `---\n` +
+        `Your deploy is running. Here are your two identifiers — save them; they are also being emailed to you right now:\n\n` +
+        `\`\`\`\n` +
+        `SESSION_ID:   ${session_id}\n` +
+        `SERVER_TOKEN: ${serverToken.token}\n` +
+        `\`\`\`\n\n` +
+        `All updates from here onward go to your email:\n` +
+        `- A confirmation email has just been sent.\n` +
+        `- A second email with these identifiers (recovery token) is on its way — check it now, including spam.\n` +
+        `- A welcome email with the final HTTPS URL of your server will arrive in 8-14 minutes.\n` +
+        `- If anything fails, a failure email will arrive with the same recovery token.\n\n` +
+        `You can safely close this chat. Bootstrap continues server-side and does not depend on this conversation.\n\n` +
+        `If you want to come back later and check progress from here, just paste the SESSION_ID above and ask "what's the status" — I will check it once and report.\n` +
+        `---\n\n` +
+        `IMPORTANT RULES FOR THE AGENT (you):\n` +
+        `1. Do NOT poll check_status automatically. The user's email is the source of truth. Polling 8-14 minutes of progress is wasted bandwidth and chat context — the user does not need it.\n` +
+        `2. Only call check_status when the user explicitly asks (e.g. "what's the status", "did it finish", "any progress"). Then make ONE call with the SESSION_ID and report. Do NOT enter a polling loop.\n` +
+        `3. Do NOT call register_and_deploy again. The deploy is already running. A retry only after the user explicitly reports a failure email AND wants to redo it — and then use retry_deploy(server_token), not register_and_deploy.`,
     }
   }
 
