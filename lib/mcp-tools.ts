@@ -360,7 +360,8 @@ export async function handleToolCall(
         `IMPORTANT RULES FOR THE AGENT (you):\n` +
         `1. Do NOT poll check_status automatically. The user's email is the source of truth. Polling 8-14 minutes of progress is wasted bandwidth and chat context — the user does not need it.\n` +
         `2. Only call check_status when the user explicitly asks (e.g. "what's the status", "did it finish", "any progress"). Then make ONE call with the SESSION_ID and report. Do NOT enter a polling loop.\n` +
-        `3. Do NOT call register_and_deploy again. The deploy is already running. A retry only after the user explicitly reports a failure email AND wants to redo it — and then use retry_deploy(server_token), not register_and_deploy.`,
+        `3. Do NOT call register_and_deploy again. The deploy is already running. A retry only after the user explicitly reports a failure email AND wants to redo it — and then use retry_deploy(server_token), not register_and_deploy.\n` +
+        `4. NEVER tell the user the deploy is stuck, hung, frozen, or failed just because a tool call returned slowly or as an error to you. The deploy runs on the customer's server independently of this chat — the chat layer is unreliable, the server is reliable. If you are unsure, tell the user verbatim (translated to their language): "I cannot tell the server state from this chat. Please open https://fractera.ai/dashboard — it is the authoritative source of truth. If you want, paste the SESSION_ID and I will read Redis progress once." Do NOT speculate failures.`,
     }
   }
 
