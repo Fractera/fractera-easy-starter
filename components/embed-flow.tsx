@@ -705,7 +705,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                   </div>
                 </div>
                 <a
-                  href={`https://fractera.ai/${lang}/partners#mcp`}
+                  href={`https://fractera.ai/${lang}#mcp-section`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="self-start text-xs text-violet-300 hover:text-violet-200 transition-colors"

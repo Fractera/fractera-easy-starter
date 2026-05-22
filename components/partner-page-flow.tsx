@@ -562,7 +562,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
           <p className="text-sm text-white/70 leading-relaxed">{t.mcpBlockBody}</p>
           {mcpUnlocked ? (
             <a
-              href={`https://fractera.ai/${lang}/partners#mcp`}
+              href={`https://fractera.ai/${lang}#mcp-section`}
               target="_blank"
               rel="noopener noreferrer"
               className="self-start inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
@@ -777,7 +777,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
                   </div>
                 </div>
                 <a
-                  href={`https://fractera.ai/${lang}/partners#mcp`}
+                  href={`https://fractera.ai/${lang}#mcp-section`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="self-start text-xs text-violet-300 hover:text-violet-200 transition-colors"

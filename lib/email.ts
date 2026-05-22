@@ -450,6 +450,10 @@ export async function sendDeployFailedEmail(to: string, errorMessage?: string, s
             enabled (Claude Code, Codex, Gemini CLI). The agent will call
             <code>retry_deploy</code> and finish the setup of the server you
             already started.
+            <br/>
+            <span style="display:inline-block;margin-top:6px;color:#d97706;font-size:12px">
+              * Never used MCP? Copy this URL and ask your AI agent to connect it: <strong>https://fractera.ai/api/mcp</strong> — setup takes ~15 seconds.
+            </span>
           </li>
         </ol>
 
