@@ -180,6 +180,45 @@ export async function handleToolCall(
     if (!ip) return { status: 'error', message: 'Missing IP address. Ask the user for their server IP (four groups of digits, e.g. 185.10.20.30).' }
     if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server.' }
 
+    // Idempotency guard. If the agent calls this tool twice for the same IP
+    // (e.g. it thought the first call timed out and retried), do NOT launch a
+    // second parallel bootstrap — two bootstraps on the same VPS race for
+    // apt/npm/nginx and reliably kill each other. Find any non-terminal
+    // ServerToken for this IP whose progress was updated recently and return
+    // its identifiers instead.
+    const recentTokens = await db.serverToken.findMany({
+      where: {
+        serverIp: ip,
+        status: { in: ['pending', 'provisioning', 'queued'] },
+        deploySessionId: { not: null },
+      },
+      select: { token: true, deploySessionId: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    })
+    for (const candidate of recentTokens) {
+      if (!candidate.deploySessionId) continue
+      const progress = await getProgress(candidate.deploySessionId)
+      if (!progress) continue
+      if (progress.status === 'installing') {
+        const lastTs = progress.steps?.length ? progress.steps[progress.steps.length - 1].ts : 0
+        const ageMs = Date.now() - lastTs
+        // 20-min freshness window. Bootstrap reports at least once every few
+        // minutes; if the last step is older than 20 min, the deploy is dead
+        // and we should let the retry path through.
+        if (ageMs < 20 * 60 * 1000) {
+          return {
+            status: 'installing',
+            session_id: candidate.deploySessionId,
+            server_token: candidate.token,
+            dashboard_url: 'https://fractera.ai/dashboard',
+            message:
+              'A deploy is already running for this server (started recently). Returning the existing session_id and server_token — do NOT call register_and_deploy again. Poll check_status(session_id) every 25-30 seconds and stream progress to the user.',
+          }
+        }
+      }
+    }
+
     // 1. User row — find-or-create by email
     const user = await db.user.upsert({
       where: { email },
@@ -216,61 +255,69 @@ export async function handleToolCall(
       },
     })
 
-    // 4. Init progress + welcome-start email (best effort — email failure must
-    // not block the deploy launch)
+    // 4. Init progress synchronously so the very next check_status() call
+    // already finds something in Redis — important because the AI agent will
+    // start polling immediately after we return.
     await initProgress(session_id)
-    await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    try { await sendInstallStartedEmail(email) } catch (err) { console.error('[mcp:register_and_deploy] install-started email failed', err) }
+    await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: false, ts: Date.now() })
 
-    // 5. Wipe (mandatory before bootstrap — see lib/wipe-script.ts for why)
-    await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
-    try {
-      await wipeServer(ip, login, password)
-      await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err)
-      const wipeErr = `WIPE_FAILED: ${errMsg}`
-      await failProgress(session_id, wipeErr)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
-      try { await sendDeployFailedEmail(email, wipeErr, serverToken.token) } catch {}
-      return {
-        status: 'error',
-        message: `Could not connect to the server (${errMsg}). Most likely the IP or password is wrong. Ask the user to double-check both and call retry_deploy(server_token, ip=..., password=...) with the corrected values.`,
-        session_id,
-        server_token: serverToken.token,
+    // 5. Kick off the heavy lifting (emails + wipe + deployToServer) in the
+    // background. We DELIBERATELY do not await this — the previous version
+    // blocked the MCP response for 30-60s while wipe+SSH ran, which made
+    // AI agents (Claude.ai included) decide the call had timed out and
+    // call register_and_deploy AGAIN. That spawned parallel bootstraps on
+    // the same VPS, which kill each other in apt/npm contention.
+    //
+    // Failures inside the background path are surfaced via Redis progress
+    // (failProgress) + ServerToken.status='error' + sendDeployFailedEmail —
+    // the same channels the UI already polls. The AI agent will see them on
+    // its next check_status() call.
+    void (async () => {
+      try {
+        try { await sendInstallStartedEmail(email) } catch (err) { console.error('[mcp:register_and_deploy] install-started email failed', err) }
+        try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) {
+          console.error('[mcp:register_and_deploy] recovery-token email failed', err)
+        }
+        await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
+
+        await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
+        try {
+          await wipeServer(ip, login, password)
+          await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          const wipeErr = `WIPE_FAILED: ${errMsg}`
+          await failProgress(session_id, wipeErr)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
+          try { await sendDeployFailedEmail(email, wipeErr, serverToken.token) } catch {}
+          return
+        }
+
+        try {
+          await deployToServer({
+            ip,
+            login,
+            password,
+            session_id,
+            serverToken: serverToken.token,
+          })
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          await failProgress(session_id, errMsg)
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+          try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
+        }
+      } catch (err) {
+        // Last-resort catch — anything else that escapes lands here so we
+        // mark progress as error rather than leaving it 'installing' forever.
+        const errMsg = err instanceof Error ? err.message : String(err)
+        console.error('[mcp:register_and_deploy] background failure', err)
+        try { await failProgress(session_id, errMsg) } catch {}
+        try {
+          await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
+        } catch {}
       }
-    }
-
-    // 6. Launch bootstrap. deployToServer SSHes in, uploads bootstrap.sh, and
-    // launches it detached — resolves quickly. The bootstrap then runs ~5-10
-    // minutes on the customer's server and reports steps via /api/progress.
-    try {
-      await deployToServer({
-        ip,
-        login,
-        password,
-        session_id,
-        serverToken: serverToken.token,
-      })
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err)
-      await failProgress(session_id, errMsg)
-      await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
-      try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
-      return {
-        status: 'error',
-        message: `Deploy launch failed: ${errMsg}. Offer the user to retry with retry_deploy(server_token).`,
-        session_id,
-        server_token: serverToken.token,
-      }
-    }
-
-    // Best-effort: send the recovery-token follow-up email. The install-started
-    // email (sent earlier) does NOT carry the token because the ServerToken
-    // row did not exist at that point — only now do we have it.
-    try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) {
-      console.error('[mcp:register_and_deploy] recovery-token email failed', err)
-    }
+    })()
 
     return {
       status: 'installing',
@@ -278,7 +325,7 @@ export async function handleToolCall(
       server_token: serverToken.token,
       dashboard_url: `https://fractera.ai/dashboard`,
       message:
-        'Registration and deploy launched. In your next reply you MUST tell the user three things: (1) the deploy takes 7-17 minutes (usually around 10); (2) they can close this chat at any time — the deploy continues on the server and the final URL arrives by email; (3) show them the server_token and ask them to keep it. Then start polling check_status(session_id) every 25-30 seconds and stream each newly-completed bootstrap step to the user.',
+        'Registration accepted. Deploy is starting in the background — do NOT call register_and_deploy again for any reason, even if you are not sure the call succeeded; this response IS the success. In your next reply you MUST tell the user three things: (1) the deploy takes 7-17 minutes (usually around 10); (2) they can close this chat at any time — the deploy continues on the server and the final URL arrives by email; (3) show them the server_token and ask them to keep it. Then start polling check_status(session_id) every 25-30 seconds and stream each newly-completed bootstrap step to the user. The first 1-2 polls may show only the "Confirmation email" step — that is normal, the wipe and SSH setup take ~30 seconds before bootstrap kicks in.',
     }
   }
 
