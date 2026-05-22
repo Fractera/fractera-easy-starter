@@ -99,7 +99,14 @@ function useDeployProgress(sessionId: string | null) {
         const data = await res.json()
         if (data.steps) {
           const done = data.steps.filter((s: { done: boolean }) => s.done).length
-          setPercent(Math.round((done / 44) * 100))
+          // 44 is the historical estimate of bootstrap.sh's reportable steps;
+          // the actual count drifts upward as new soft_steps land (wipe_start,
+          // build_lightrag_webui, install_hermes_theme, etc.) and we don't
+          // want this UI to ever require a bootstrap edit. Cap at 99 during
+          // deploy and let `status === 'done'` swap the card into the success
+          // state — the percent number stops being shown after that.
+          const raw = Math.round((done / 44) * 100)
+          setPercent(Math.min(99, raw))
         }
         if (data.status === 'done' || data.status === 'error') clearInterval(iv)
       } catch {}
