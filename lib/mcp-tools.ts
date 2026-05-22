@@ -173,6 +173,8 @@ export async function handleToolCall(
     const ip = String(args.ip ?? '').trim()
     const password = String(args.password ?? '')
     const login = (typeof args.login === 'string' && args.login.trim()) ? args.login.trim() : 'root'
+    const TAG = `[mcp:reg ${ip}]`
+    console.log(`${TAG} called email=${email} login=${login}`)
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return { status: 'error', message: 'Invalid email. Ask the user to type a valid email twice for confirmation.' }
@@ -186,6 +188,7 @@ export async function handleToolCall(
     // apt/npm/nginx and reliably kill each other. Find any non-terminal
     // ServerToken for this IP whose progress was updated recently and return
     // its identifiers instead.
+    console.log(`${TAG} idempotency check`)
     const recentTokens = await db.serverToken.findMany({
       where: {
         serverIp: ip,
@@ -207,6 +210,7 @@ export async function handleToolCall(
         // minutes; if the last step is older than 20 min, the deploy is dead
         // and we should let the retry path through.
         if (ageMs < 20 * 60 * 1000) {
+          console.log(`${TAG} idempotent return — active session ${candidate.deploySessionId} age=${ageMs}ms`)
           return {
             status: 'installing',
             session_id: candidate.deploySessionId,
@@ -244,6 +248,7 @@ export async function handleToolCall(
 
     // 3. New session id + ServerToken
     const session_id = `mcp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    console.log(`${TAG} session_id=${session_id} — creating ServerToken`)
     const serverToken = await db.serverToken.create({
       data: {
         userId: user.id,
@@ -271,15 +276,19 @@ export async function handleToolCall(
     // the IP-idempotency guard above + the hard rule in mcp-prompt.ts.
     await initProgress(session_id)
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    try { await sendInstallStartedEmail(email) } catch (err) { console.error('[mcp:register_and_deploy] install-started email failed', err) }
+    console.log(`${TAG} progress initialised — sending install-started email`)
+    try { await sendInstallStartedEmail(email) } catch (err) { console.error(`${TAG} install-started email failed`, err) }
 
     // 5. Wipe (mandatory before bootstrap — see lib/wipe-script.ts for why)
+    console.log(`${TAG} wipe start`)
     await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
     try {
       await wipeServer(ip, login, password)
       await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+      console.log(`${TAG} wipe done`)
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)
+      console.error(`${TAG} wipe failed:`, errMsg)
       const wipeErr = `WIPE_FAILED: ${errMsg}`
       await failProgress(session_id, wipeErr)
       await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: wipeErr } })
@@ -297,6 +306,7 @@ export async function handleToolCall(
     // The bootstrap then runs ~5-10 minutes ON THE CUSTOMER'S SERVER and
     // reports steps via /api/progress. The customer's server is what runs
     // the slow work, not this Vercel function.
+    console.log(`${TAG} deployToServer start`)
     try {
       await deployToServer({
         ip,
@@ -305,8 +315,10 @@ export async function handleToolCall(
         session_id,
         serverToken: serverToken.token,
       })
+      console.log(`${TAG} deployToServer done — bootstrap uploaded and launched`)
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)
+      console.error(`${TAG} deployToServer failed:`, errMsg)
       await failProgress(session_id, errMsg)
       await db.serverToken.update({ where: { id: serverToken.id }, data: { status: 'error', deployError: errMsg } })
       try { await sendDeployFailedEmail(email, errMsg, serverToken.token) } catch {}
