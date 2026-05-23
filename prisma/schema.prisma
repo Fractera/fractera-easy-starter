@@ -175,6 +175,54 @@ model PartnerLink {
   @@index([partnerId])
 }
 
+// B2B inquiry from the landing Black Box section. Each row is a single
+// submission. status drives a mini-CRM funnel; history records every status
+// change + free-form note as separate rows so the admin can audit the
+// conversation timeline.
+model BlackBoxInquiry {
+  id           String                  @id @default(cuid())
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  email        String
+  name         String?
+  company      String?
+  area         String?
+  country      String?
+  companyDoes  String?
+  aiTask       String?
+  telegram     String?
+  lang         String?
+  status       String                  @default("new") // new | first_contact | negotiation | partner | lost
+  history      BlackBoxHistoryEntry[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BlackBoxHistoryEntry {
+  id        String          @id @default(cuid())
+  inquiryId String
+  createdAt DateTime        @default(now())
+  status    String          // status at the time of the entry (snapshot, not FK)
+  note      String          @db.Text
+  inquiry   BlackBoxInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId])
+}
+
+// Whitelist of hosting providers shown on partner-page (`forPage` PartnerLinks
+// require their domain to match an entry here). Mutable via the admin UI.
+// Seeded on first request from config/trusted-providers.json so the existing
+// list keeps working without manual data entry.
+model TrustedHosting {
+  id        String   @id @default(cuid())
+  domain    String   @unique // lowercase, no scheme/path
+  name      String           // display label
+  category  String   @default("vps") // vps | aff-network | other
+  createdAt DateTime @default(now())
+  createdBy String?  // admin email, optional
+}
+
 model VpsReserve {
   id                        String    @id @default(cuid())
   ip                        String
