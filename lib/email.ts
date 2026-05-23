@@ -93,57 +93,71 @@ export async function sendWelcomeEmail(
     to,
     subject: 'Your Fractera server is ready',
     html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-        <h2 style="margin:0 0 12px">Your server is live!</h2>
-        <p style="margin:0 0 16px">Your Fractera coding environment is fully deployed. All 7 services are running.</p>
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a">
 
-        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin:0 0 20px">
-          <p style="margin:0 0 6px;font-size:11px;color:#1e40af;text-transform:uppercase;letter-spacing:1px;font-weight:600">Your account & server history</p>
-          <p style="margin:0;font-size:13px;color:#444;line-height:1.5">
-            All your servers are listed in your dashboard at
-            <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a>
-            — sign in with <strong>${to}</strong>.
-          </p>
+        <!-- Hero -->
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="display:inline-block;background:#10b981;color:#fff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">✓ Live</div>
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;line-height:1.2">Your Fractera server is live</h1>
+          <p style="margin:0;color:#666;font-size:15px;line-height:1.5">Open your workspace below to start coding with AI.</p>
         </div>
 
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">AI Platforms (5 tools)</p>
-        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8">
-          ${AI_PLATFORMS.map(p => `<li style="margin:4px 0">${p}</li>`).join('\n')}
-        </ul>
+        <!-- Primary CTA -->
+        <div style="text-align:center;margin:28px 0">
+          <a href="https://admin.${subdomain}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">admin.${subdomain}</p>
+        </div>
 
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your URLs</p>
-        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:8px">
-          <tr><td style="padding:5px 0;color:#666;width:120px">App</td><td><a href="https://${subdomain}" style="color:#6c47ff;font-weight:600">https://${subdomain}</a></td></tr>
-          <tr><td style="padding:5px 0;color:#666">Workspace</td><td><a href="https://admin.${subdomain}" style="color:#6c47ff;font-weight:600">https://admin.${subdomain}</a></td></tr>
-          <tr><td style="padding:5px 0;color:#666">File storage</td><td style="font-size:13px;color:#555;font-family:monospace">data.${subdomain}</td></tr>
+        <!-- The 3 main destinations -->
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
+              <a href="https://${subdomain}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Hermes — your AI orchestrator</div>
+              <a href="https://hermes.${subdomain}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">hermes.${subdomain}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Speak to Hermes from Telegram or chat. It delegates work to the right AI for each step.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Company Brain</div>
+              <a href="https://lightrag.${subdomain}/" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Your private knowledge base. Feed it docs, query it from any AI tool on the workspace.</div>
+            </td>
+          </tr>
         </table>
 
-        <div style="background:#f7f4ff;border:1px solid #e0d5ff;border-radius:10px;padding:16px;margin:20px 0">
-          <p style="margin:0 0 6px;font-size:11px;color:#7c5cd1;text-transform:uppercase;letter-spacing:1px;font-weight:600">Company Brain</p>
-          <p style="margin:0 0 10px;font-size:13px;color:#444;line-height:1.5">Your AI knowledge base is running. Feed it documentation, query it from the workspace.</p>
-          <a href="https://lightrag.${subdomain}/webui/" style="color:#6c47ff;font-weight:600;font-size:13px">https://lightrag.${subdomain}/webui/</a>
-        </div>
-
-        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin:20px 0">
-          <p style="margin:0 0 6px;font-size:11px;color:#16a34a;text-transform:uppercase;letter-spacing:1px;font-weight:600">Hermes Orchestration Agent</p>
-          <p style="margin:0 0 10px;font-size:13px;color:#444;line-height:1.5">Your AI orchestration layer is running. Delegate complex multi-step tasks across all 5 platforms from one place.</p>
-          <a href="https://hermes.${subdomain}" style="color:#16a34a;font-weight:600;font-size:13px">https://hermes.${subdomain}</a>
+        <!-- Account note -->
+        <div style="margin:24px 0 8px;padding:12px 14px;background:#f5f3ff;border-left:3px solid #6c47ff;border-radius:4px">
+          <div style="font-size:13px;color:#444;line-height:1.5">
+            Manage all your servers at <a href="https://www.fractera.ai/dashboard" style="color:#6c47ff;font-weight:600;text-decoration:none">fractera.ai/dashboard</a> — sign in with <strong>${to}</strong>.
+          </div>
         </div>
 
         ${credentials ? `
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">SSH credentials</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">
-          <tr><td style="padding:5px 0;color:#666;width:80px">IP</td><td style="font-weight:600;font-family:monospace">${credentials.ip}</td></tr>
-          <tr><td style="padding:5px 0;color:#666">Login</td><td style="font-weight:600;font-family:monospace">root</td></tr>
-          <tr><td style="padding:5px 0;color:#666">Password</td><td style="font-weight:600;font-family:monospace">${credentials.password}</td></tr>
-        </table>
-        <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
-          You have full root access to your VPS. Use these credentials to connect via SSH,
-          install additional software, or integrate third-party services — entirely at your
-          own discretion and responsibility. Fractera manages only its own pipeline services
-          and does not control anything else on the server.
-        </p>
+        <!-- SSH — collapsed-looking, deprioritized -->
+        <div style="margin-top:32px;padding-top:20px;border-top:1px solid #eee">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px">Server access (advanced)</div>
+          <p style="margin:0 0 10px;font-size:12px;color:#666;line-height:1.5">For terminal access to the underlying VPS — install extra software, integrate third-party services, etc. Treat this like a password to your computer.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;background:#fafafa;border:1px solid #eee;border-radius:8px;padding:0">
+            <tr><td style="padding:8px 12px;color:#888;width:80px;border-bottom:1px solid #f0f0f0">IP</td><td style="padding:8px 12px;font-family:monospace;border-bottom:1px solid #f0f0f0">${credentials.ip}</td></tr>
+            <tr><td style="padding:8px 12px;color:#888;border-bottom:1px solid #f0f0f0">User</td><td style="padding:8px 12px;font-family:monospace;border-bottom:1px solid #f0f0f0">root</td></tr>
+            <tr><td style="padding:8px 12px;color:#888">Password</td><td style="padding:8px 12px;font-family:monospace">${credentials.password}</td></tr>
+          </table>
+        </div>
         ` : ''}
+
+        <!-- AI platforms — minor footnote -->
+        <p style="margin:24px 0 0;font-size:11px;color:#aaa;text-align:center;line-height:1.6">
+          Powered by ${AI_PLATFORMS.join(' · ')}
+        </p>
+
       </div>
     `,
   })
