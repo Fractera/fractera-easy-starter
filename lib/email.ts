@@ -259,6 +259,92 @@ export async function sendInstallStartedEmail(to: string) {
   })
 }
 
+export async function sendLightInstallStartedEmail(to: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: 'Fractera Light — your backend is being installed',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#111">
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Installation started</h2>
+        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+          We're setting up <strong>Fractera Light</strong> on your server.
+          This usually takes <strong>10–12 minutes</strong>.
+        </p>
+
+        <p style="margin:0 0 6px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px">What's being installed</p>
+        <ul style="margin:0 0 20px;padding-left:20px;color:#444;line-height:2;font-size:14px">
+          <li><strong>App</strong> — your landing page + protected dashboard</li>
+          <li><strong>Auth</strong> — login, registration, roles, guest access</li>
+          <li><strong>Data</strong> — file & media storage (SQLite + local storage)</li>
+        </ul>
+
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-bottom:20px">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#166534">When it's done you'll get</p>
+          <ul style="margin:0;padding-left:18px;color:#166534;font-size:13px;line-height:1.8">
+            <li>Your public site URL</li>
+            <li>Admin panel URL — sign in to manage your site</li>
+            <li>Cloudflare HTTPS on both</li>
+          </ul>
+        </div>
+
+        <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
+          You can watch live progress at
+          <a href="https://fractera.ai/light" style="color:#0ea5e9">fractera.ai/light</a>
+          — the install bar on the page updates in real time.
+        </p>
+      </div>
+    `,
+  })
+}
+
+export async function sendLightWelcomeEmail(to: string, subdomain: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: 'Your Fractera Light backend is live',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a">
+
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="display:inline-block;background:#10b981;color:#fff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">✓ Live</div>
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;line-height:1.2">Your Fractera Light backend is live</h1>
+          <p style="margin:0;color:#666;font-size:15px;line-height:1.5">Sign in to the admin panel to manage your site.</p>
+        </div>
+
+        <div style="text-align:center;margin:28px 0">
+          <a href="https://admin.${subdomain}" style="display:inline-block;background:#0ea5e9;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open admin panel →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">admin.${subdomain}</p>
+        </div>
+
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Your public site</div>
+              <a href="https://${subdomain}" style="color:#0ea5e9;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Landing page visible to your visitors.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin panel</div>
+              <a href="https://admin.${subdomain}" style="color:#0ea5e9;font-weight:600;font-size:14px;text-decoration:none">https://admin.${subdomain}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Create your admin account on first visit. Role-based access is pre-configured.</div>
+            </td>
+          </tr>
+        </table>
+
+        <div style="margin:24px 0 8px;padding:12px 14px;background:#f0f9ff;border-left:3px solid #0ea5e9;border-radius:4px">
+          <div style="font-size:13px;color:#444;line-height:1.5">
+            Git sync is built in — use the pull / push buttons in the admin panel to sync your code with the server.
+          </div>
+        </div>
+
+      </div>
+    `,
+  })
+}
+
 export async function sendInstallProgressEmail(to: string) {
   await sendEmail({
     from: FROM,

@@ -4,7 +4,7 @@ import { wipeServer } from '@/lib/wipe-script'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail } from '@/lib/email'
+import { sendLightInstallStartedEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   await initProgress(session_id)
   if (userEmail) {
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    await sendInstallStartedEmail(userEmail)
+    await sendLightInstallStartedEmail(userEmail)
   }
 
   await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })

@@ -147,20 +147,22 @@ export function InstallFormLight({ onSubdomainReady }: {
       <div className="flex flex-col gap-4 w-full max-w-xl">
         <div className="flex items-center gap-2">
           <span className="text-green-600 text-lg">✓</span>
-          <p className="text-base font-semibold text-gray-900">Your site is ready</p>
+          <p className="text-base font-semibold text-gray-900">Your backend is live</p>
         </div>
-        <div className="flex flex-col gap-2 bg-green-50 border border-green-200 rounded-xl p-5">
+        <div className="flex flex-col gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
           <a href={`https://${subdomain}`} target="_blank" rel="noopener noreferrer"
-            className="text-sm font-semibold text-green-700 hover:text-green-600 transition-colors">
-            ↗ {subdomain} <span className="text-gray-500 font-normal">— your site</span>
+            className="flex flex-col gap-0.5 group">
+            <span className="text-sm font-semibold text-green-700 group-hover:text-green-600 transition-colors">
+              ↗ {subdomain}
+            </span>
+            <span className="text-xs text-gray-500">Your public site</span>
           </a>
-          <a href={`https://auth.${subdomain}`} target="_blank" rel="noopener noreferrer"
-            className="text-sm font-semibold text-green-700 hover:text-green-600 transition-colors">
-            ↗ auth.{subdomain} <span className="text-gray-500 font-normal">— login / register</span>
-          </a>
-          <a href={`https://data.${subdomain}`} target="_blank" rel="noopener noreferrer"
-            className="text-sm font-semibold text-green-700 hover:text-green-600 transition-colors">
-            ↗ data.{subdomain} <span className="text-gray-500 font-normal">— media storage</span>
+          <a href={`https://admin.${subdomain}`} target="_blank" rel="noopener noreferrer"
+            className="flex flex-col gap-0.5 group">
+            <span className="text-sm font-semibold text-green-700 group-hover:text-green-600 transition-colors">
+              ↗ admin.{subdomain}
+            </span>
+            <span className="text-xs text-gray-500">Admin panel — sign in to manage your site</span>
           </a>
         </div>
       </div>

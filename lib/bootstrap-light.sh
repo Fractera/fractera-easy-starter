@@ -128,7 +128,7 @@ CURRENT_STEP="register_subdomains"
 CURRENT_LABEL="Registering service subdomains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth data; do
+for PREFIX in auth admin data; do
   curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
@@ -290,6 +290,24 @@ server {
     }
 }
 
+# admin — same app as main, separate subdomain for admin bookmarking
+server {
+    listen 80;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+
 # data
 server {
     listen 80;
@@ -404,7 +422,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "data.$SUBDOMAIN"; do
+for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN"; do
   RESOLVED=""
   for i in $(seq 1 60); do
     RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
@@ -502,6 +520,26 @@ server {
     }
 }
 
+# admin — HTTPS (same app as main)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+
 # data — HTTPS
 server {
     listen 443 ssl;
@@ -579,7 +617,7 @@ wait_for_subs() {
   for sub in "${pending[@]}"; do echo "$sub"; done
 }
 
-ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "data.$SUBDOMAIN")
+ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN")
 
 echo "  HTTPS verification (parallel, up to 10 min)" >> "$LOG_FILE"
 mapfile -t still_failing < <(wait_for_subs 600 "${ALL_SUBS[@]}")
