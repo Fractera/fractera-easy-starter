@@ -5,7 +5,7 @@ import { invalidateTrustedHostingsCache, TRUSTED_PROVIDERS_FALLBACK } from '@/li
 
 const VALID_CATEGORIES = ['vps', 'aff-network', 'other']
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await auth()
   if (session?.user?.email !== 'admin@fractera.ai') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
@@ -14,8 +14,7 @@ export async function GET() {
   // the static fallback list (the same logic the runtime trusted-check uses
   // when reading via getEntries(), but the admin endpoint bypasses that and
   // reads the DB directly, so we replicate the seed inline here).
-  let rows = await db.trustedHosting.findMany({ orderBy: { name: 'asc' } })
-  if (rows.length === 0) {
+  const seedIfEmpty = async () => {
     try {
       await db.trustedHosting.createMany({
         data: TRUSTED_PROVIDERS_FALLBACK.map(p => ({
@@ -25,13 +24,34 @@ export async function GET() {
         })),
         skipDuplicates: true,
       })
-      rows = await db.trustedHosting.findMany({ orderBy: { name: 'asc' } })
       invalidateTrustedHostingsCache()
     } catch (err) {
       console.error('[admin/hostings] seed failed', err)
     }
   }
-  return NextResponse.json({ total: rows.length, rows })
+  const initialCount = await db.trustedHosting.count()
+  if (initialCount === 0) await seedIfEmpty()
+
+  const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
+  const category = req.nextUrl.searchParams.get('category')?.trim() ?? ''
+
+  const where: Record<string, unknown> = {}
+  if (q) {
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { domain: { contains: q, mode: 'insensitive' } },
+    ]
+  }
+  if (category && VALID_CATEGORIES.includes(category)) where.category = category
+
+  // The `total` is the full filtered count from this query — also report
+  // the overall total so the admin UI can show "X of Y" when filters are
+  // applied.
+  const [rows, overall] = await Promise.all([
+    db.trustedHosting.findMany({ where, orderBy: { name: 'asc' } }),
+    db.trustedHosting.count(),
+  ])
+  return NextResponse.json({ total: rows.length, overall, rows })
 }
 
 export async function POST(req: NextRequest) {

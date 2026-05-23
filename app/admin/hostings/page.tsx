@@ -15,6 +15,7 @@ const CATEGORIES = ['vps', 'aff-network', 'other']
 
 export default function HostingsPage() {
   const [rows, setRows] = useState<Row[]>([])
+  const [overall, setOverall] = useState(0)
   const [loading, setLoading] = useState(false)
   const [domain, setDomain] = useState('')
   const [name, setName] = useState('')
@@ -23,16 +24,24 @@ export default function HostingsPage() {
   const [err, setErr] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
 
+  // Filters
+  const [q, setQ] = useState('')
+  const [filterCategory, setFilterCategory] = useState('')
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/hostings')
+      const url = new URL('/api/admin/hostings', window.location.origin)
+      if (q.trim()) url.searchParams.set('q', q.trim())
+      if (filterCategory) url.searchParams.set('category', filterCategory)
+      const res = await fetch(url.toString())
       if (res.ok) {
         const d = await res.json()
         setRows(d.rows ?? [])
+        setOverall(d.overall ?? 0)
       }
     } finally { setLoading(false) }
-  }, [])
+  }, [q, filterCategory])
 
   useEffect(() => { load() }, [load])
 
@@ -71,16 +80,54 @@ export default function HostingsPage() {
 
   function fmt(d: string) { return new Date(d).toLocaleString('ru-RU') }
 
+  const isFiltered = q.trim().length > 0 || filterCategory.length > 0
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-bold">Trusted hostings (whitelist)</h1>
-        <div className="text-sm text-white/55">Total: <strong className="text-white">{rows.length}</strong></div>
+        <div className="text-sm text-white/55">
+          {isFiltered ? (
+            <>Showing <strong className="text-white">{rows.length}</strong> of <strong className="text-white">{overall}</strong></>
+          ) : (
+            <>Total: <strong className="text-white">{rows.length}</strong></>
+          )}
+        </div>
       </div>
 
       <p className="text-sm text-white/55 max-w-3xl">
         Domains in this list are allowed on partner mirror pages (`partners.fractera.ai/&lt;slug&gt;`). The partner-cabinet widget tab does NOT restrict by whitelist — that's the partner's blog and their content responsibility.
       </p>
+
+      <form onSubmit={e => { e.preventDefault(); load() }} className="flex flex-wrap gap-2">
+        <input
+          type="text"
+          value={q}
+          onChange={e => setQ(e.target.value)}
+          placeholder="search name / domain…"
+          className="flex-1 min-w-[200px] bg-white/[0.04] border border-white/15 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70"
+        />
+        <select
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          className="bg-white/[0.04] border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500/70"
+        >
+          <option value="">all categories</option>
+          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+          Search
+        </button>
+        {isFiltered && (
+          <button
+            type="button"
+            onClick={() => { setQ(''); setFilterCategory('') }}
+            className="text-sm font-semibold text-white/65 hover:text-white border border-white/20 px-3 py-2 rounded-lg"
+          >
+            Clear
+          </button>
+        )}
+      </form>
 
       <form onSubmit={add} className="rounded-xl border border-white/15 bg-white/[0.02] p-4 flex flex-col gap-3">
         <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">Add hosting</p>
