@@ -30,7 +30,7 @@ const COOKIES_CONTENT: Record<string, {
       },
       analytics: {
         title: 'Аналитические куки',
-        p1: 'Мы используем Google Analytics 4 (идентификатор отслеживания G-W78YGT6XLJ) для понимания того, как посетители взаимодействуют с лендингом fractera.ai. Google устанавливает куки `_ga` и `_ga_*` со сроком действия до 2 лет, содержащие анонимный идентификатор посетителя. Эти куки загружаются только после того, как вы нажали «Accept» в баннере куки; если вы выбрали «Decline», аналитические куки не устанавливаются. Аналитика не используется на customer-серверах (admin / auth / data / lightrag / hermes субдомены), в Dashboard, на странице партнёрской регистрации и в embed-виджете для блогов.',
+        p1: 'Мы используем Google Analytics 4 (идентификатор отслеживания G-W78YGT6XLJ) для понимания того, как посетители взаимодействуют с лендингом fractera.ai. Тег Google загружается с Google Consent Mode v2: до того как вы нажали «Accept», `analytics_storage` стоит в `denied` — это значит, что куки `_ga` / `_ga_*` НЕ устанавливаются и cross-session идентификатор не записывается. Google в этом режиме получает только агрегированные обезличенные пинги. После «Accept» куки начинают записываться (срок действия до 2 лет). Если вы выбрали «Decline» или сбросили баннер — `denied` остаётся, и аналитика так и работает в cookie-less режиме. Аналитика не подключается на customer-серверах (admin / auth / data / lightrag / hermes субдомены), в Dashboard, на странице партнёрской регистрации и в embed-виджете для блогов.',
       },
     },
     s3: {
@@ -66,7 +66,7 @@ const COOKIES_CONTENT: Record<string, {
       },
       analytics: {
         title: 'Analytics Cookies',
-        p1: 'We use Google Analytics 4 (tracking ID G-W78YGT6XLJ) to understand how visitors interact with the fractera.ai landing pages. Google sets `_ga` and `_ga_*` cookies with up to a 2-year lifetime, containing an anonymous visitor ID. These cookies are loaded only after you click "Accept" in the cookie banner — if you click "Decline", no analytics cookies are set. Analytics is NOT used on customer servers (admin / auth / data / lightrag / hermes subdomains), in the Dashboard, on the partner registration page, or inside the embed widget shown on partner blogs.',
+        p1: 'We use Google Analytics 4 (tracking ID G-W78YGT6XLJ) to understand how visitors interact with the fractera.ai landing pages. The Google tag loads in Google Consent Mode v2: before you click "Accept", `analytics_storage` is set to `denied` — meaning the `_ga` / `_ga_*` cookies are NOT set and no cross-session identifier is stored. Google receives only aggregated cookieless pings in this state. After "Accept", cookies start being written (up to 2-year lifetime). If you click "Decline" or reset the banner, `denied` stays and analytics continues running in cookieless mode. Analytics is NOT loaded on customer servers (admin / auth / data / lightrag / hermes subdomains), in the Dashboard, on the partner registration page, or inside the embed widget shown on partner blogs.',
       },
     },
     s3: {

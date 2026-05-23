@@ -31,9 +31,13 @@ export function CookieBanner() {
             type="button"
             onClick={() => {
               localStorage.setItem('fractera-cookie-consent', 'accepted')
-              // Lets GoogleAnalytics + any future consent-gated script load
-              // immediately in this tab, without a page reload.
-              window.dispatchEvent(new Event('cookie-consent-changed'))
+              // Google Consent Mode v2 — flip analytics_storage to granted.
+              // Until this fires, GA runs in cookieless ping mode (no _ga
+              // cookies). gtag is exposed on window by components/google-analytics.tsx.
+              const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+              if (typeof w.gtag === 'function') {
+                w.gtag('consent', 'update', { analytics_storage: 'granted' })
+              }
               setVisible(false)
             }}
             className="text-sm font-semibold text-black bg-white hover:bg-white/90 px-4 py-2 rounded-lg transition-colors"
@@ -44,7 +48,10 @@ export function CookieBanner() {
             type="button"
             onClick={() => {
               localStorage.setItem('fractera-cookie-consent', 'rejected')
-              window.dispatchEvent(new Event('cookie-consent-changed'))
+              const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+              if (typeof w.gtag === 'function') {
+                w.gtag('consent', 'update', { analytics_storage: 'denied' })
+              }
               setVisible(false)
             }}
             className="text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 px-4 py-2 rounded-lg transition-colors"
