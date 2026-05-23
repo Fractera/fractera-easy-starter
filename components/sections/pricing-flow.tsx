@@ -272,8 +272,8 @@ export function PricingFlow() {
             </div>
             )}
 
-            {/* Free card */}
-            <div id="light-card" className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60"
+            {/* `flex-1` — карточка тянется на высоту колонки; внутренний `<ul flex-1>` прижимает action к низу. */}
+            <div id="light-card" className="flex-1 flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60"
               style={{ animation: 'shimmerBorderGreen 3s ease-in-out infinite', border: '1px solid rgba(52,211,153,0.7)' }}>
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
