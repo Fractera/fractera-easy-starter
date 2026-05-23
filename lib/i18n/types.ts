@@ -158,10 +158,31 @@ export type SiteMeta = {
 // workflow — only the prod side is now under your full control.
 // Lives at /[lang]/light. See reports/research/light-seo-keymap-2026-05.md.
 export type LightContent = {
-  hero: { h1: string; description: string; ctaPrimary: string; ctaSecondary: string }
-  benefitsHeader: { h2: string; description: string }
+  hero: {
+    badge: string
+    eyebrow: string
+    h1: string
+    description: string
+    ctaPrimary: string
+    ctaSecondary: string
+  }
+  benefitsHeader: { label: string; h2: string; description: string }
   benefits: { h3: string; text: string }[]
+  howItWorks: {
+    label: string
+    h2: string
+    description: string
+    steps: { title: string; text: string }[]
+  }
+  extrasCta: {
+    label: string
+    h2: string
+    description: string
+    cta: string
+    href: string
+  }
   audience: {
+    label: string
     h2: string
     description: string
     fits: string[]
@@ -169,9 +190,9 @@ export type LightContent = {
     fitsLabel: string
     notFitsLabel: string
   }
-  problem: { h2: string; description: string; items: { h3: string; text: string }[] }
-  howItWorks: { h2: string; description: string; steps: { title: string; text: string }[] }
+  problem: { label: string; h2: string; description: string; items: { h3: string; text: string }[] }
   comparison: {
+    label: string
     h2: string
     description: string
     productLabel: string
@@ -179,14 +200,15 @@ export type LightContent = {
     rows: { feature: string; values: (boolean | string)[] }[]
   }
   deploy: {
+    label: string
     h2: string
     description: string
-    providerLabel: string
-    providers: { name: string; tagline: string; price: string }[]
+    vpsHint: string
     cta: string
     ctaHint: string
   }
   faq: {
+    label: string
     h2: string
     items: {
       q: string
@@ -196,5 +218,5 @@ export type LightContent = {
       trail?: string[]
     }[]
   }
-  ctaFooter: { h2: string; description: string; cta: string }
+  ctaFooter: { label: string; h2: string; description: string; cta: string }
 }

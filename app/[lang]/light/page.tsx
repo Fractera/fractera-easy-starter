@@ -6,6 +6,7 @@ import { LightHero } from '@/components/sections/light/hero-light'
 import { LightAudience } from '@/components/sections/light/audience-light'
 import { LightProblem } from '@/components/sections/light/problem-light'
 import { LightHowItWorks } from '@/components/sections/light/how-it-works-light'
+import { LightExtrasCta } from '@/components/sections/light/extras-cta-light'
 import { LightComparison } from '@/components/sections/light/comparison-light'
 import { LightDeploy } from '@/components/sections/light/deploy-light'
 import { LightFaq } from '@/components/sections/light/faq-light'
@@ -137,6 +138,7 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
       <main className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-20">
         <LightHero content={content} />
         <LightHowItWorks content={content} />
+        <LightExtrasCta content={content} />
         <LightAudience content={content} />
         <LightProblem content={content} />
         <LightComparison content={content} />

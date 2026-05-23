@@ -9,7 +9,12 @@ export function LightFaq({ content }: { content: LightContent }) {
 
   return (
     <section className="flex flex-col gap-6">
-      <h2 className="font-serif font-bold text-slate-900 text-2xl md:text-3xl">{faq.h2}</h2>
+      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
+        <p className="text-xs font-mono font-bold text-sky-700 uppercase tracking-widest">{faq.label}</p>
+        <h2 className="max-w-3xl font-serif font-bold leading-tight text-slate-900 text-2xl md:text-3xl lg:text-4xl">
+          {faq.h2}
+        </h2>
+      </div>
 
       <div className="flex flex-col rounded-2xl border border-slate-300 overflow-hidden divide-y divide-slate-200 bg-white">
         {faq.items.map((item, i) => (
@@ -32,9 +37,7 @@ export function LightFaq({ content }: { content: LightContent }) {
             {open === i && (
               <div className="px-5 pb-5 flex flex-col gap-3">
                 {item.a.map((para, pi) => (
-                  <p key={pi} className="text-[15px] text-slate-700 leading-relaxed">
-                    {para}
-                  </p>
+                  <p key={pi} className="text-[15px] text-slate-700 leading-relaxed">{para}</p>
                 ))}
                 {item.steps && (
                   <ol className="flex flex-col gap-2 mt-1">

@@ -2,13 +2,16 @@ import type { LightContent } from '../../types'
 
 export const light: LightContent = {
   hero: {
+    badge: 'Open Source · Free Forever',
+    eyebrow: 'Fractera Light',
     h1: 'Your Private Backend on a Remote Server — Git-Synced With Your Local AI Dev Machine',
-    description: 'Traditional dev workflow: AI (Claude Code, Codex, Gemini) runs locally on your machine, production runs on your own VPS, both linked by git. The only difference: the remote server, database, auth and storage are now under your full control.',
+    description: 'Traditional dev/prod workflow with AI: Claude Code / Codex / Gemini run locally, the private remote backend (auth+roles, DB, storage, Cloudflare SSL, landing+dashboard) is git-synced with your laptop. Open source, free forever, fully self-hosted.',
     ctaPrimary: 'Deploy on your own server',
     ctaSecondary: 'See how it works',
   },
 
   benefitsHeader: {
+    label: 'What you get',
     h2: 'A Complete Backend Stack on Your Server — Built for Traditional Dev/Prod Workflows With AI',
     description: 'Pre-configured: role-based auth, database, file storage, custom domain, Cloudflare SSL, landing + dashboard with protected routing. Git-sync between local and production — out of the box.',
   },
@@ -16,11 +19,11 @@ export const light: LightContent = {
   benefits: [
     {
       h3: 'Local AI Development Stays Traditional',
-      text: 'Claude Code, Codex, Gemini CLI run on your machine the way you are used to. No changes to your dev workflow. AI generates code locally — production knows nothing about AI and pays nothing for API tokens.',
+      text: 'Claude Code, Codex, Gemini CLI run on your machine the way you are used to. No changes to your dev workflow. AI generates code locally — production knows nothing about AI.',
     },
     {
       h3: 'Git Sync Between Local and Production — Out of the Box',
-      text: 'The cloud project is already wired to a git repository. Your local machine connects to the same repo. Edit locally → push → automatic deploy to production. The same pattern proven in the main Fractera project.',
+      text: 'The cloud project is wired to a git repo. Your local machine connects to the same. Push → automatic deploy to production. The pattern proven in the main Fractera project.',
     },
     {
       h3: 'Pre-Configured Role-Based Auth With Guest Access',
@@ -28,24 +31,73 @@ export const light: LightContent = {
     },
     {
       h3: 'Database and File Storage on Your VPS',
-      text: 'SQLite (WAL) or Postgres + local file storage with media proxy. No Neon, no Supabase, no AWS S3, no vendor lock-in. Full data ownership.',
+      text: 'SQLite (WAL) or Postgres + local file storage with media proxy. No Neon, Supabase, S3 — full data ownership.',
     },
     {
       h3: 'Custom Domain + Cloudflare SSL Automatically',
-      text: 'Cloudflare issues the SSL certificates (not Let’s Encrypt). DDoS protection and CDN included. One step — add a DNS record, the rest just works.',
+      text: 'Cloudflare issues the SSL. DDoS protection and CDN included. One DNS record, the rest just works.',
     },
     {
-      h3: 'Landing Page + Dashboard With Protected Routing',
-      text: 'Included: public landing + protected dashboard with role-based routing already in place. Edit the brand — the structure is ready.',
+      h3: 'Landing + Dashboard With Protected Routing',
+      text: 'Included: public landing + protected dashboard with role-based routing in place. Edit the brand — the structure is ready.',
     },
   ],
 
+  howItWorks: {
+    label: 'How it works',
+    h2: 'From an Empty VPS to Production With Git Sync',
+    description: 'Eight steps from a clean server to an automatic workflow with AI on your local machine.',
+    steps: [
+      {
+        title: 'Get any Ubuntu 24.04 VPS',
+        text: 'Any VPS provider starting from $1/month — your choice. Enough for all Light features.',
+      },
+      {
+        title: 'Run bootstrap-light.sh',
+        text: 'One command. We configure Nginx, Cloudflare SSL, database, role-based auth, storage, and the landing + dashboard.',
+      },
+      {
+        title: 'Connect git locally and remotely',
+        text: 'The cloud project is already wired to a git repo. Connect your local machine to the same repo — dev/prod are now synced.',
+      },
+      {
+        title: 'Sync your GitHub and clone the project locally',
+        text: 'Auth and DB wiring are added automatically. Your local project connects to the remote backend out of the box.',
+      },
+      {
+        title: 'Use AI (Claude Code CLI) to generate your site',
+        text: 'See changes with hot reload, test in the browser. All updates land automatically on the database and object storage on your server.',
+      },
+      {
+        title: 'Use the Settings tab quick-setup',
+        text: 'A ready configuration template — your project is set up in seconds.',
+      },
+      {
+        title: 'SEO is already configured — you do not need to think about it',
+        text: 'Just build your project as usual. The starter template is rich — AI burns fewer tokens because the foundation is already there.',
+      },
+      {
+        title: 'Backups and a copy from GitHub',
+        text: 'Take data backups when needed, or deploy a clean copy of your project from your GitHub repo — without data. Your choice.',
+      },
+    ],
+  },
+
+  extrasCta: {
+    label: 'Need more',
+    h2: 'Need advanced AI right on the server?',
+    description: 'If you need automatic interaction with modern AI agents on the remote server itself — that is the main Fractera. Hermes orchestrator, LightRAG memory, 5 coding platforms. Open source.',
+    cta: 'Go to main Fractera',
+    href: '/',
+  },
+
   audience: {
+    label: 'Who it is for',
     h2: 'Who Fractera Light Is For',
-    description: 'This approach demands more skill than no-code platforms. It is a full traditional dev infrastructure — more powerful, but more demanding.',
+    description: 'This demands more skill than no-code platforms. A full traditional dev infrastructure — more powerful, but more demanding.',
     fitsLabel: 'Good fit',
     fits: [
-      'Developers already comfortable with git (push/pull, branches, merges)',
+      'Developers comfortable with git (push/pull, branches, merges)',
       'Teams that understand the dev/production split',
       'Developers with basic Linux/VPS knowledge (SSH, files, processes)',
       'Those who want to use AI coding locally without cloud-API subscriptions',
@@ -60,6 +112,7 @@ export const light: LightContent = {
   },
 
   problem: {
+    label: 'Why they leave',
     h2: 'The Hidden Costs of Managed Backend Platforms',
     description: 'Predictable bills, full control, no vendor lock-in. Here is what you escape.',
     items: [
@@ -82,75 +135,50 @@ export const light: LightContent = {
     ],
   },
 
-  howItWorks: {
-    h2: 'From an Empty VPS to Production With Git Sync',
-    description: 'One bootstrap command on the server, link your local git — and dev/prod are connected. Then you work locally with AI as usual.',
-    steps: [
-      {
-        title: 'Get any Ubuntu 24.04 VPS',
-        text: 'We recommend the cheapest tier — Hetzner CPX11 from €4/month or Contabo VPS S from €3.60. Enough for all Light features.',
-      },
-      {
-        title: 'Run bootstrap-light.sh',
-        text: 'One command. We configure Nginx, Cloudflare SSL, database, role-based auth, storage, and the landing + dashboard.',
-      },
-      {
-        title: 'Connect git locally and remotely',
-        text: 'The cloud project is already wired to a git repo. Connect your local machine to the same repo — dev/prod are now synced.',
-      },
-      {
-        title: 'Develop locally with AI, push — production updates',
-        text: 'Claude Code, Codex or Gemini run on your machine the traditional way. git push — changes deploy to production automatically.',
-      },
-    ],
-  },
-
   comparison: {
+    label: 'Comparison',
     h2: 'Fractera Light vs Vercel · Supabase · Coolify · PocketBase · Appwrite',
     description: 'How self-hosted Fractera Light stacks up against managed clouds and other self-hosted backends.',
     productLabel: 'Fractera Light',
     competitors: ['Vercel', 'Supabase', 'Coolify', 'PocketBase', 'Appwrite'],
     rows: [
       { feature: 'Self-hosted on your own VPS', values: [true, false, false, true, true, true] },
-      { feature: 'Open source', values: [true, false, 'partial', true, true, true] },
+      { feature: 'Open source · free forever', values: [true, false, 'partial', true, true, true] },
       { feature: 'Auth + DB + storage out of the box', values: [true, 'hosting only', true, false, true, true] },
       { feature: 'Landing + dashboard with role-based routing', values: [true, false, false, false, false, false] },
       { feature: 'Git sync between local and production', values: [true, true, true, 'setup needed', false, 'setup needed'] },
       { feature: 'AI runs locally (no AI on prod)', values: [true, 'n/a', 'n/a', 'n/a', 'n/a', 'n/a'] },
       { feature: 'GDPR / NIS2 friendly defaults', values: [true, 'on EU VPS', 'on EU VPS', true, true, true] },
       { feature: 'Vendor lock-in', values: ['none', 'high', 'high', 'low', 'low', 'low'] },
-      { feature: 'Price', values: ['$5 VPS', 'from $20/mo', 'from $25/mo', '$5 VPS', '$5 VPS', '$5 VPS'] },
+      { feature: 'Price', values: ['VPS from $1', 'from $20/mo', 'from $25/mo', 'VPS from $1', 'VPS from $1', 'VPS from $1'] },
     ],
   },
 
   deploy: {
-    h2: 'Deploy Fractera Light on Your VPS',
-    description: 'Pick a cheap Ubuntu 24.04 VPS — recommendations below. Then one command — and your backend is live in 10 minutes.',
-    providerLabel: 'Recommended VPS providers',
-    providers: [
-      { name: 'Hetzner CPX11', tagline: 'Cheap EU VPS, perfect for self-host', price: 'from €4/mo' },
-      { name: 'Contabo VPS S', tagline: 'Maximum resources for a minimal price', price: 'from €3.60/mo' },
-      { name: 'DigitalOcean Droplet', tagline: 'Global presence, mature infra', price: 'from $6/mo' },
-    ],
+    label: 'Deploy',
+    h2: 'Deploy Fractera Light',
+    description: 'Open source. Free forever. You pay only for your VPS — from $1/mo at any provider.',
+    vpsHint: 'Any Ubuntu 24.04 VPS with 2+ cores and 2+ GB RAM works. Pick a provider yourself — the market is wide open.',
     cta: 'Deploy backend (coming soon)',
-    ctaHint: 'The full install flow ships in step 67 (bootstrap-light.sh). Cheap install pipeline is currently in active development.',
+    ctaHint: 'The full install flow ships in the next step (bootstrap-light.sh). The cheap install pipeline is in active development.',
   },
 
   faq: {
+    label: 'FAQ',
     h2: 'Fractera Light Frequently Asked Questions',
     items: [
       {
         q: 'Where does the AI run — on the server or locally?',
         a: [
           'AI runs locally on your machine the traditional way — Claude Code, Codex, Gemini CLI, just as you are used to.',
-          'The remote server knows nothing about AI: it just stores auth, DB and files. This is a sharp contrast with managed AI platforms that route your entire codebase through their servers and bill you per API call.',
+          'The remote server knows nothing about AI: it stores auth, DB and files. A sharp contrast with managed AI platforms that route your entire codebase through their servers.',
         ],
       },
       {
         q: 'How does git sync between local and production actually work?',
         a: [
-          'Out of the box, the cloud project is already wired to a git repository (GitHub, GitLab, or self-hosted). Your local machine connects to the same repo.',
-          'Edit locally → git push → automatic deploy to production. This is the same pattern proven in the main Fractera project.',
+          'Out of the box, the cloud project is wired to a git repository (GitHub/GitLab/self-hosted). Your local machine connects to the same.',
+          'Edit locally → git push → automatic deploy to production. The same pattern proven in the main Fractera project.',
         ],
         bullets: [
           'Works with GitHub, GitLab, Gitea, or self-hosted git',
@@ -166,9 +194,15 @@ export const light: LightContent = {
         ],
       },
       {
+        q: 'Is it actually free?',
+        a: [
+          'Yes. Open source under a permissive license. You pay only for your VPS — from $1/mo at any provider. No per-seat fees, no bandwidth surprises.',
+        ],
+      },
+      {
         q: 'How is Fractera Light different from Coolify or Dokploy?',
         a: [
-          'Coolify and Dokploy give you a PaaS panel — you still deploy auth, DB, storage and landing yourself, gluing them together.',
+          'Coolify and Dokploy give you a PaaS panel — you still deploy auth, DB, storage and landing yourself.',
           'Fractera Light ships the full brand-ready stack out of the box: one command, ten minutes, production-ready. Plus git-sync between local and prod is wired in by default.',
         ],
       },
@@ -180,18 +214,19 @@ export const light: LightContent = {
         ],
       },
       {
-        q: 'Who is Fractera Light for? What skills do I need?',
+        q: 'Who is this for? What skills do I need?',
         a: [
-          'Best fit: developers comfortable with git (push/pull, branches), familiar with the dev/prod split, with basic Linux/VPS knowledge (SSH, files, processes).',
-          'Not for no-code/low-code users — this is a full dev infrastructure, not a visual builder. More skill-demanding than managed platforms, but more powerful and more sovereign.',
+          'Best fit: developers comfortable with git (push/pull, branches), familiar with the dev/prod split, with basic Linux/VPS knowledge (SSH, files).',
+          'Not for no-code/low-code users — a full dev infrastructure, not a visual builder. More skill-demanding than managed platforms, more powerful and more sovereign.',
         ],
       },
     ],
   },
 
   ctaFooter: {
+    label: 'Get started',
     h2: 'Move Production Under Your Own Control — In 10 Minutes',
-    description: 'Local AI development + git sync + your private backend. No bills surprises, no vendor lock-in, no cloud anchoring your stack.',
+    description: 'Open source. Free forever. Local AI development + git sync + your private backend.',
     cta: 'Deploy Fractera Light',
   },
 }
