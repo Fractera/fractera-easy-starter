@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
+import { GoogleAnalytics } from '@/components/google-analytics'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
 
@@ -176,6 +177,7 @@ export default async function LangLayout({
       {children}
       <SiteFooter />
       <CookieBanner />
+      <GoogleAnalytics />
       <Toaster position="top-center" theme="dark" />
     </>
   )

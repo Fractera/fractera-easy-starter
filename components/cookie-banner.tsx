@@ -31,6 +31,9 @@ export function CookieBanner() {
             type="button"
             onClick={() => {
               localStorage.setItem('fractera-cookie-consent', 'accepted')
+              // Lets GoogleAnalytics + any future consent-gated script load
+              // immediately in this tab, without a page reload.
+              window.dispatchEvent(new Event('cookie-consent-changed'))
               setVisible(false)
             }}
             className="text-sm font-semibold text-black bg-white hover:bg-white/90 px-4 py-2 rounded-lg transition-colors"
@@ -41,6 +44,7 @@ export function CookieBanner() {
             type="button"
             onClick={() => {
               localStorage.setItem('fractera-cookie-consent', 'rejected')
+              window.dispatchEvent(new Event('cookie-consent-changed'))
               setVisible(false)
             }}
             className="text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 px-4 py-2 rounded-lg transition-colors"
