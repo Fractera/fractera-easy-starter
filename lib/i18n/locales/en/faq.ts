@@ -166,6 +166,6 @@ export const faqItems: FaqItem[] = [
       'White Label status is tied to the server — it does not carry over automatically to a new deployment.',
       'Your free (self-hosted) subscription is cancelled automatically when the server is deleted.',
     ],
-    trail: ['If you deleted your server by mistake and need to restore White Label without paying again, contact support@fractera.ai'],
+    trail: ['If you deleted your server by mistake and need to restore White Label without paying again, contact admin@fractera.ai'],
   }, */
 ]

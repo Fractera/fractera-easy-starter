@@ -44,7 +44,7 @@ const COOKIES_CONTENT: Record<string, {
     s5: {
       title: '5. Контакт',
       p1: 'Если у вас есть вопросы об использовании нами куки, свяжитесь с нами по адресу',
-      email: 'privacy@fractera.ai',
+      email: 'admin@fractera.ai',
     },
   },
   en: {
@@ -80,7 +80,7 @@ const COOKIES_CONTENT: Record<string, {
     s5: {
       title: '5. Contact',
       p1: 'If you have questions about our use of cookies, please contact us at',
-      email: 'privacy@fractera.ai',
+      email: 'admin@fractera.ai',
     },
   },
 }

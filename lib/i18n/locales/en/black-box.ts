@@ -43,6 +43,6 @@ export const blackBox: BlackBoxPart = {
     ctaTitle: 'Apply for a founder consultation',
     ctaBody:
       'Tell us about your business, the current AI stack you use (if any), and what work you would hand to Hermes first if it were on your desk tomorrow. A short conversation with the Fractera founder is the first step — no commitment, no pitch deck, just a working session to see whether Black Box belongs in your office.',
-    ctaButton: 'Email blackbox@fractera.ai',
+    ctaButton: 'Email admin@fractera.ai',
   },
 }

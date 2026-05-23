@@ -282,7 +282,7 @@ function ApplyWhiteLabel({ purchaseId, alreadyApplied }: { purchaseId: string; a
       <p className="text-xs text-red-400">Could not reach server automatically.</p>
       {errorMsg && <p className="text-xs text-white/30 font-mono truncate">{errorMsg}</p>}
       <p className="text-xs text-white/40">
-        The branding may already be removed. Contact <span className="text-white/60">support@fractera.ai</span> if it&apos;s still visible.
+        The branding may already be removed. Contact <span className="text-white/60">admin@fractera.ai</span> if it&apos;s still visible.
       </p>
       <button onClick={apply} className="text-xs text-white/50 hover:text-white transition-colors text-left">
         Try again
