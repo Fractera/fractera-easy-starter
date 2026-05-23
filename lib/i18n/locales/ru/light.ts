@@ -4,15 +4,15 @@ export const light: LightContent = {
   hero: {
     badge: 'Open Source · Бесплатно навсегда',
     eyebrow: 'Fractera Light',
-    h1: 'Свой приватный backend на удалённом сервере — синхронизирован с локальной AI-разработкой через git',
-    description: 'Традиционный workflow с AI: Claude Code / Codex / Gemini на локальной машине, продакшен — на вашем VPS, всё связано git. Удалённый сервер, БД, авторизация и хранилище — под вашим полным контролем. Open source, бесплатно навсегда, доступен в РФ без VPN.',
+    h1: 'Self-hosted backend на VPS — ваш приватный Vercel + Supabase + Clerk + S3',
+    description: 'Уходи с Vercel: разверни собственный backend (авторизация, БД, хранилище, домен, HTTPS) на своём VPS от $1/мес за 10 минут. Open source, без vendor lock-in, доступен в РФ без VPN.',
     ctaPrimary: 'Развернуть на своём сервере',
     ctaSecondary: 'Посмотреть, как это работает',
   },
 
   benefitsHeader: {
     label: 'Что внутри',
-    h2: 'Полный backend-стек на вашем сервере — для традиционной dev/prod разработки с AI',
+    h2: 'Brand-ready backend на собственном сервере',
     description: 'Всё преднастроено: авторизация с ролями, БД, хранилище, домен, Cloudflare SSL, landing + dashboard с защищённой маршрутизацией. Git-синхронизация — из коробки.',
   },
 
@@ -26,26 +26,26 @@ export const light: LightContent = {
       text: 'Облачный проект связан с git-репозиторием. Локальная машина — с тем же. Push → автоматический деплой на продакшен. Паттерн проверен в основном проекте Fractera.',
     },
     {
-      h3: 'Преднастроенная авторизация с ролями и гостевым доступом',
-      text: 'Готовая система ролей, гостевой доступ, защищённая маршрутизация. Привязывайте любой OAuth-провайдер (Google, GitHub, Yandex, VK, кастомный SSO).',
+      h3: 'Преднастроенная авторизация: роли, гостевой доступ, любой OAuth',
+      text: 'Готовая система ролей, гостевой доступ, защищённая маршрутизация. Привязывайте любой OAuth-провайдер (Google, GitHub, Yandex, VK, кастомный SSO) — это ваш выбор.',
     },
     {
-      h3: 'База данных и файловое хранилище на вашем VPS',
-      text: 'SQLite (WAL) или Postgres + локальное файловое хранилище с media-прокси. Без Neon, Supabase, S3 — полное владение данными.',
+      h3: 'База данных SQLite / Postgres + файловое хранилище на вашем VPS',
+      text: 'SQLite (WAL) или Postgres + локальное файловое хранилище с media-прокси. Без Neon, без Supabase, без AWS S3, ноль egress fees. Полное владение данными.',
     },
     {
-      h3: 'Свой домен + Cloudflare SSL автоматически',
+      h3: 'Свой домен + автоматический HTTPS через Cloudflare',
       text: 'Сертификаты выдаёт Cloudflare. DDoS-защита и CDN включены. Одна DNS-запись — и всё работает.',
     },
     {
-      h3: 'Landing + dashboard с защищённой маршрутизацией',
+      h3: 'Landing-страница + dashboard с защищённой маршрутизацией',
       text: 'В комплекте: публичный landing + закрытый dashboard с ролевой моделью и защищёнными маршрутами. Редактируйте под свой бренд — структура готова.',
     },
   ],
 
   howItWorks: {
     label: 'Как это работает',
-    h2: 'От пустого VPS до продакшена с git-синхронизацией',
+    h2: 'От пустого VPS до production backend за 10 минут',
     description: 'Восемь шагов от чистого сервера до автоматического workflow с AI на локальной машине.',
     steps: [
       {
@@ -113,7 +113,7 @@ export const light: LightContent = {
 
   problem: {
     label: 'Почему уходят',
-    h2: 'Скрытые проблемы managed-платформ — особенно остро в РФ',
+    h2: 'Скрытые проблемы managed backend-платформ в РФ',
     description: 'Доступ без VPN, предсказуемые счета, отсутствие vendor lock-in, 152-ФЗ. Вот от чего вы уходите.',
     items: [
       {
@@ -125,11 +125,11 @@ export const light: LightContent = {
         text: 'Санкции и отказы платёжных систем — прямые транзакции из РФ часто отклоняются, а сохранённые подписки перестают работать без предупреждения.',
       },
       {
-        h3: 'Vendor lock-in: миграция с Amvera / ONREZA / RelaxDev — недели работы',
+        h3: 'Vendor lock-in: миграция с Amvera/ONREZA — это недели работы',
         text: 'Managed РФ-PaaS — та же зависимость, только от другой компании. Self-hosted = миграция между VPS-провайдерами за час.',
       },
       {
-        h3: '152-ФЗ compliance: managed РФ-PaaS — та же зависимость, только от ONREZA',
+        h3: '152-ФЗ compliance: managed РФ-PaaS — это та же зависимость, только от ONREZA',
         text: 'Свой VPS в РФ = 152-ФЗ по умолчанию. Полная гибкость выбора региона. Не привязаны к одному провайдеру.',
       },
     ],
@@ -137,7 +137,7 @@ export const light: LightContent = {
 
   comparison: {
     label: 'Сравнение',
-    h2: 'Fractera Light vs Vercel · Supabase · Coolify · Amvera · ONREZA',
+    h2: 'Fractera Light vs Amvera vs ONREZA vs RelaxDev vs Vercel',
     description: 'Чем self-hosted Fractera Light отличается от managed-облаков и других self-hosted PaaS.',
     productLabel: 'Fractera Light',
     competitors: ['Vercel', 'Supabase', 'Coolify', 'Amvera', 'ONREZA'],
@@ -156,8 +156,8 @@ export const light: LightContent = {
 
   deploy: {
     label: 'Развернуть',
-    h2: 'Развернуть Fractera Light',
-    description: 'Open source. Бесплатно навсегда. Платите только за свой VPS — от $1/мес у любого провайдера.',
+    h2: 'Self-hosted backend: бесплатно навсегда, open source',
+    description: 'Платите только за свой VPS — от $1/мес у любого провайдера. Без per-seat, без скрытых счетов, без vendor lock-in.',
     vpsHint: 'Любой Ubuntu 24.04 VPS с 2+ ядрами и 2+ ГБ RAM подойдёт. Выбирайте провайдера сами — рынок широкий.',
     cta: 'Развернуть backend (скоро)',
     ctaHint: 'Полный install-flow запускается в следующем шаге (bootstrap-light.sh). Сейчас идёт работа над дешёвым install-pipeline.',
@@ -166,6 +166,10 @@ export const light: LightContent = {
   faq: {
     label: 'FAQ',
     h2: 'Часто задаваемые вопросы о Fractera Light',
+    // H3-fragments внутри items соответствуют ЧАСТИ 5 keymap'а:
+    // - «Доступна ли Fractera Light в России? Зависит ли от блокировок РКН?»
+    // - «Чем Fractera Light отличается от Amvera / ONREZA / RelaxDev?»
+    // - «Соответствует ли Fractera Light требованиям 152-ФЗ?»
     items: [
       {
         q: 'Где работает AI — на сервере или локально?',
@@ -200,14 +204,14 @@ export const light: LightContent = {
         ],
       },
       {
-        q: 'Доступна ли в РФ? Зависит ли от блокировок Роскомнадзора?',
+        q: 'Доступна ли Fractera Light в России? Зависит ли от блокировок РКН?',
         a: [
           'Да, полностью доступна. Fractera Light = ваш собственный сервер на вашем домене — не Vercel и не Netlify.',
           'РКН блокирует vercel.app поддомены. Ваш домен (например, mycompany.ru) — не зависит от этих блокировок.',
         ],
       },
       {
-        q: 'Чем отличается от Amvera / ONREZA / RelaxDev?',
+        q: 'Чем Fractera Light отличается от Amvera / ONREZA / RelaxDev?',
         a: [
           'Amvera, ONREZA и RelaxDev — managed-only платформы. Вы зависите от их инфраструктуры, цен, доступности.',
           'Fractera Light — open-source, self-hosted на вашем VPS любого провайдера. Без vendor lock-in.',
@@ -225,8 +229,8 @@ export const light: LightContent = {
 
   ctaFooter: {
     label: 'Начать',
-    h2: 'Перенесите продакшен под свой контроль — за 10 минут',
-    description: 'Open source. Бесплатно навсегда. Локальная AI-разработка + git-синхронизация + ваш приватный backend.',
+    h2: 'Уходи с Vercel за 10 минут — бесплатно навсегда, open-source',
+    description: 'Локальная AI-разработка + git-синхронизация + ваш приватный backend. Без блокировок, без оплаты картами, без vendor lock-in.',
     cta: 'Развернуть Fractera Light',
   },
 }

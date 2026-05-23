@@ -4,15 +4,15 @@ export const light: LightContent = {
   hero: {
     badge: 'Open Source · Free Forever',
     eyebrow: 'Fractera Light',
-    h1: 'Your Private Backend on a Remote Server — Git-Synced With Your Local AI Dev Machine',
-    description: 'Traditional dev/prod workflow with AI: Claude Code / Codex / Gemini run locally, the private remote backend (auth+roles, DB, storage, Cloudflare SSL, landing+dashboard) is git-synced with your laptop. Open source, free forever, fully self-hosted.',
+    h1: 'Self-Hosted Backend-as-a-Service — Your Private Vercel + Supabase + Clerk + S3',
+    description: 'Stop paying the Vercel tax. Deploy a complete backend (auth, database, storage, custom domain, HTTPS) on your own VPS from $1/mo in 10 minutes. Open source, no vendor lock-in.',
     ctaPrimary: 'Deploy on your own server',
     ctaSecondary: 'See how it works',
   },
 
   benefitsHeader: {
     label: 'What you get',
-    h2: 'A Complete Backend Stack on Your Server — Built for Traditional Dev/Prod Workflows With AI',
+    h2: 'The Brand-Ready Self-Hosted Backend Stack',
     description: 'Pre-configured: role-based auth, database, file storage, custom domain, Cloudflare SSL, landing + dashboard with protected routing. Git-sync between local and production — out of the box.',
   },
 
@@ -26,26 +26,26 @@ export const light: LightContent = {
       text: 'The cloud project is wired to a git repo. Your local machine connects to the same. Push → automatic deploy to production. The pattern proven in the main Fractera project.',
     },
     {
-      h3: 'Pre-Configured Role-Based Auth With Guest Access',
+      h3: 'Pre-Configured Auth: Roles, Guest Access, Any OAuth Provider',
       text: 'User roles, guest access, protected routing — ready out of the box. Attach any OAuth provider (Google, GitHub, Yandex, custom SSO) — your choice.',
     },
     {
-      h3: 'Database and File Storage on Your VPS',
-      text: 'SQLite (WAL) or Postgres + local file storage with media proxy. No Neon, Supabase, S3 — full data ownership.',
+      h3: 'SQLite / Postgres Database + File Storage on Your VPS',
+      text: 'SQLite (WAL) or Postgres + local file storage with media proxy. No Neon, no Supabase, no AWS S3, zero egress fees. Full data ownership.',
     },
     {
-      h3: 'Custom Domain + Cloudflare SSL Automatically',
-      text: 'Cloudflare issues the SSL. DDoS protection and CDN included. One DNS record, the rest just works.',
+      h3: 'Custom Domain + Automatic HTTPS via Cloudflare',
+      text: 'Cloudflare issues the SSL certificates. DDoS protection and CDN included. One DNS record — the rest just works.',
     },
     {
-      h3: 'Landing + Dashboard With Protected Routing',
+      h3: 'Default Landing Page You Can Edit — Brand-Ready Out-of-Box',
       text: 'Included: public landing + protected dashboard with role-based routing in place. Edit the brand — the structure is ready.',
     },
   ],
 
   howItWorks: {
     label: 'How it works',
-    h2: 'From an Empty VPS to Production With Git Sync',
+    h2: 'From Empty VPS to Production Backend in 10 Minutes',
     description: 'Eight steps from a clean server to an automatic workflow with AI on your local machine.',
     steps: [
       {
@@ -114,6 +114,11 @@ export const light: LightContent = {
   problem: {
     label: 'Why they leave',
     h2: 'The Hidden Costs of Managed Backend Platforms',
+    // H3 fragments below match keymap PART 4 exactly:
+    // - "Bandwidth Markup: Vercel Charges $0.15/GB, Hetzner Charges $0.01/GB"
+    // - "Vendor Lock-In: Migrating Off Supabase Is a Multi-Week Project"
+    // - "Compliance Friction: GDPR + NIS2 + Data Residency on Foreign Clouds"
+    // - "Surprise Bills: $20/month Plans That Become $700 Overnight"
     description: 'Predictable bills, full control, no vendor lock-in. Here is what you escape.',
     items: [
       {
@@ -137,7 +142,7 @@ export const light: LightContent = {
 
   comparison: {
     label: 'Comparison',
-    h2: 'Fractera Light vs Vercel · Supabase · Coolify · PocketBase · Appwrite',
+    h2: 'Fractera Light vs Vercel + Supabase + Coolify + PocketBase',
     description: 'How self-hosted Fractera Light stacks up against managed clouds and other self-hosted backends.',
     productLabel: 'Fractera Light',
     competitors: ['Vercel', 'Supabase', 'Coolify', 'PocketBase', 'Appwrite'],
@@ -156,8 +161,8 @@ export const light: LightContent = {
 
   deploy: {
     label: 'Deploy',
-    h2: 'Deploy Fractera Light',
-    description: 'Open source. Free forever. You pay only for your VPS — from $1/mo at any provider.',
+    h2: 'Deploy Self-Hosted Backend: Free Forever, Open Source',
+    description: 'You pay only for your VPS — from $1/mo at any provider. No per-seat fees, no hidden bills, no vendor lock-in.',
     vpsHint: 'Any Ubuntu 24.04 VPS with 2+ cores and 2+ GB RAM works. Pick a provider yourself — the market is wide open.',
     cta: 'Deploy backend (coming soon)',
     ctaHint: 'The full install flow ships in the next step (bootstrap-light.sh). The cheap install pipeline is in active development.',
@@ -200,7 +205,7 @@ export const light: LightContent = {
         ],
       },
       {
-        q: 'How is Fractera Light different from Coolify or Dokploy?',
+        q: 'How Is Fractera Light Different From Coolify or Dokploy?',
         a: [
           'Coolify and Dokploy give you a PaaS panel — you still deploy auth, DB, storage and landing yourself.',
           'Fractera Light ships the full brand-ready stack out of the box: one command, ten minutes, production-ready. Plus git-sync between local and prod is wired in by default.',
@@ -225,8 +230,8 @@ export const light: LightContent = {
 
   ctaFooter: {
     label: 'Get started',
-    h2: 'Move Production Under Your Own Control — In 10 Minutes',
-    description: 'Open source. Free forever. Local AI development + git sync + your private backend.',
+    h2: 'Exit the Cloud in 10 Minutes — Free Open-Source Forever',
+    description: 'Local AI development + git sync + your private backend. No surprise bills, no vendor lock-in, no cloud anchoring your stack.',
     cta: 'Deploy Fractera Light',
   },
 }

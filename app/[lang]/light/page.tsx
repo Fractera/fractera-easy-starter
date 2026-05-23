@@ -13,8 +13,8 @@ import { LightFaq } from '@/components/sections/light/faq-light'
 import { LightCtaFooter } from '@/components/sections/light/cta-footer-light'
 
 const META_EN = {
-  title: 'Fractera Light — Private Backend Git-Synced With Your Local AI Dev Machine',
-  description: 'Traditional dev/prod workflow with AI: Claude Code / Codex / Gemini run locally, the private remote backend (auth+roles, DB, storage, Cloudflare SSL, landing+dashboard) is git-synced with your laptop. Open source.',
+  title: 'Fractera Light — Self-Hosted Backend-as-a-Service in 10 Minutes',
+  description: 'Stop paying the Vercel tax. Deploy a complete backend (auth, database, storage, custom domain, HTTPS) on your own VPS from $1/mo in 10 minutes. Open source. No vendor lock-in.',
   keywords: [
     'self-hosted backend as a service',
     'self-hosted Vercel alternative',
@@ -35,8 +35,8 @@ const META_EN = {
 }
 
 const META_RU = {
-  title: 'Fractera Light — приватный backend, синхронизированный с локальной AI-разработкой через git',
-  description: 'Традиционный dev/prod workflow с AI: Claude Code / Codex / Gemini работают локально, приватный удалённый backend (auth с ролями, БД, хранилище, Cloudflare SSL, landing+dashboard) связан с вашей машиной через git. Доступен в РФ.',
+  title: 'Fractera Light — self-hosted backend на VPS за 10 минут (open source)',
+  description: 'Уходи с Vercel — заблокирован в РФ. Разверни собственный backend (авторизация, БД, хранилище, домен, HTTPS) на своём VPS от $1/мес за 10 минут. Open-source альтернатива Amvera, ONREZA, RelaxDev.',
   keywords: [
     'self-hosted backend на VPS',
     'git синхронизация локали и продакшена',
