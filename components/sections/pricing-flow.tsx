@@ -279,7 +279,7 @@ export function PricingFlow() {
                 <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
                   {content.planLabels.ownServer}
                 </span>
-                <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
+                <h3 className="text-xl font-bold text-white mt-1">Fractera Free</h3>
                 <p className="text-sm text-emerald-300/70 font-medium">{content.planLabels.freeInstall}</p>
               </div>
               <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">

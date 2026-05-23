@@ -151,3 +151,18 @@ export type SiteMeta = {
   ogDescription: string
   organizationDescription: string
 }
+
+// Fractera Light — separate product (stripped backend-as-a-service, no AI).
+// Lives at /[lang]/light. See reports/research/light-seo-keymap-2026-05.md.
+export type LightContent = {
+  hero: { h1: string; description: string; ctaPrimary: string; ctaSecondary: string }
+  benefitsHeader: { h2: string; description: string }
+  benefits: { h3: string; text: string }[]
+  problem: { h2: string; description: string; items: { h3: string; text: string }[] }
+  howItWorks: { h2: string; description: string; steps: { title: string; text: string }[] }
+  pricing: { h2: string; description: string; cardTitle: string; cardSub: string; features: string[]; cta: string }
+  vpsProviders: { h3: string; description: string }
+  comparison: { h2: string; description: string; note: string }
+  faq: { h2: string; items: { q: string; a: string }[] }
+  ctaFooter: { h2: string; description: string; cta: string }
+}

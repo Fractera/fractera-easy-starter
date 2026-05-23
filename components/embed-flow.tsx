@@ -411,7 +411,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
             <div id="light-card" className="flex flex-col gap-4 rounded-2xl p-6 bg-gradient-to-br from-emerald-950/70 via-emerald-900/30 to-black/60 border border-emerald-500/60 h-full">
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">{t.freeBadge}</span>
-                <h3 className="text-xl font-bold text-white mt-1">Fractera Light</h3>
+                <h3 className="text-xl font-bold text-white mt-1">Fractera Free</h3>
                 <p className="text-sm text-emerald-300/70 font-medium">{t.freeSub}</p>
               </div>
               <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">

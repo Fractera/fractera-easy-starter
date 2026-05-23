@@ -120,8 +120,8 @@ const softwareApplicationSchema = {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
-      name: 'Fractera Light',
-      description: 'Free forever open-source self-hosting on your own VPS.',
+      name: 'Fractera Free',
+      description: 'Free forever — BYO-install of the full Fractera AI stack on your own VPS, open source.',
     },
     {
       '@type': 'Offer',

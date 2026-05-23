@@ -28,10 +28,21 @@ export function SiteHeader() {
   return (
     <header className="w-full border-b border-white/40 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <Image src="/fractera-logo.jpg" alt="Fractera" width={28} height={28} className="rounded" />
-          <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Image src="/fractera-logo.jpg" alt="Fractera" width={28} height={28} className="rounded" />
+            <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
+          </Link>
+          <span className="text-white/30 text-sm select-none" aria-hidden="true">|</span>
+          <Link
+            href={`/${lang}/light`}
+            className={`text-sm font-semibold tracking-tight transition-colors ${
+              pathname.includes('/light') ? 'text-sky-300' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            Light
+          </Link>
+        </div>
 
         <div className="flex items-center gap-3">
           {status === 'loading' && (
