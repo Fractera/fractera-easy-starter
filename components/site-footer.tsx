@@ -115,7 +115,10 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-white border-t border-white/20 pt-6">
-          <span>© {new Date().getFullYear()} Fractera. {t.rights}</span>
+          <div className="flex flex-col gap-1">
+            <span>© {new Date().getFullYear()} Fractera, Inc. {t.rights}</span>
+            <span className="text-xs text-white/45">1111B S Governors Ave STE 45122, Dover, DE 19904, USA</span>
+          </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <div className="flex items-center gap-1">

@@ -1,4 +1,4 @@
-import { LEGAL } from '@/config/legal'
+import { LEGAL, legalAddressBlock } from '@/config/legal'
 import { getLegal } from '@/lib/i18n/legal'
 
 export default async function PrivacyPage({
@@ -100,8 +100,9 @@ export default async function PrivacyPage({
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">{t.s11.title}</h2>
             <p>
-              {LEGAL.companyName}<br />
-              {LEGAL.companyState}, {LEGAL.companyCountry}<br />
+              {legalAddressBlock().map((line, i) => (
+                <span key={i}>{line}<br /></span>
+              ))}
               EIN: {LEGAL.ein}
             </p>
             <p>
