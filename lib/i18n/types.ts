@@ -4,6 +4,10 @@ export type FaqItem = {
   steps?: string[]
   bullets?: string[]
   trail?: string[]
+  // Optional CTA-button at the bottom of the open FAQ item. Used to drive
+  // readers from a question (e.g. "How do I earn with Fractera?") to the
+  // relevant landing area (e.g. /[lang]/partners).
+  cta?: { label: string; href: string }
 }
 
 export type SiteContent = {

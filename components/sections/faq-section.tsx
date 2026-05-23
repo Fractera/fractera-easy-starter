@@ -57,6 +57,14 @@ export function FaqSection() {
                 {item.trail?.map((para, pi) => (
                   <p key={pi} className={`text-[15px] leading-relaxed ${pi === item.trail!.length - 1 ? 'text-violet-400 font-semibold' : 'text-white'}`}>{para}</p>
                 ))}
+                {item.cta && (
+                  <a
+                    href={item.cta.href}
+                    className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors"
+                  >
+                    {item.cta.label} →
+                  </a>
+                )}
               </div>
             )}
           </div>

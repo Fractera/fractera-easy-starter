@@ -132,30 +132,32 @@ export const faqItems: FaqItem[] = [
   {
     q: 'Do you have a referral program?',
     a: [
-      'Yes — the Fractera Partner Program. The model is straightforward: Contabo VPS referrals.',
-      "Apply as an affiliate at Contabo. Contabo is a trusted, long-standing hosting provider — note that they don't issue affiliate links instantly: they review the page where your link will be hosted and require basic legal details about your company. Once approved, submit the link to us via the Partners page and we place it in the recommended servers block of the landing page. Each new user pays out 20 € for our recommended configuration, or 30 €+ for higher-tier servers — full payout details on the Contabo affiliate site.",
+      'Yes — the Fractera Partner Program. The model is simple and provider-agnostic: you recommend Fractera deployment, your readers buy a VPS from any host with an affiliate program, the host pays you directly.',
+      "Fractera doesn't pick the provider for you and doesn't restrict your choice. You decide who to work with: Hetzner, DigitalOcean, Vultr, Hostinger, RuVDS, Timeweb, Contabo — dozens of hosts run affiliate programs. Direct programs (RuVDS, Timeweb, Hostinger) approve in a day and pay up to 30–40% of the customer's first payment. Affiliate-network programs (Contabo via CJ.com, others via Admitad) pay a fixed amount per new customer but take a few days to approve.",
+      'The Fractera cabinet works with any affiliate link — we provide the infrastructure (mirror page, embed widget, MCP, cabinet), the host pays the commission.',
     ],
     trail: [
-      'To join, see the Partners page for the full process.',
       'For questions: admin@fractera.ai',
     ],
+    cta: { label: 'Open the Partners page', href: '/partners' },
   },
   {
     q: 'How do I earn with Fractera?',
     a: [
-      'Your income from partnership is closer and simpler than you might imagine. A short approval process at Contabo, then passive payouts for as long as your content keeps attracting viewers.',
+      'Your income from partnership is closer and simpler than you might imagine. One approval at any hosting provider, then passive payouts for as long as your content keeps bringing readers.',
     ],
     steps: [
-      'Apply as an affiliate at Contabo via their affiliate program page. They will ask for the URL where the affiliate link will live and basic legal details — review usually takes a few business days.',
-      'Once Contabo approves you, copy your affiliate link.',
-      'Open the Partner Program tab on the Partners page, create your partner account, and submit your Contabo link.',
-      'You receive a personal mirror of the Fractera landing page, with your Contabo link replacing ours.',
-      'Recommend Fractera through your blog, YouTube channel, social posts — anywhere developers gather.',
-      'Any visitor who follows your link and buys a Contabo server triggers a payout — 20 € for the recommended configuration, 30 €+ for higher-tier servers — paid by Contabo directly to you. Fractera is never in the middle.',
+      'Pick a host with an affiliate program. Direct programs are faster: apply on the provider\'s own site (Hetzner, RuVDS, Timeweb, Hostinger and others each have their own affiliate cabinet). Affiliate networks (CJ.com for Contabo, Admitad for several providers) are slower but unlock a catalogue of 3000+ brands through a single registration.',
+      'Get your affiliate link once approved by the provider.',
+      'Open the Fractera partners page, create your partner cabinet, add your affiliate link (or multiple links from different providers — the cabinet supports several at once).',
+      'Receive your personal Fractera landing mirror, an embed widget for your blog, and a single MCP link for AI agents. Your links replace the defaults in the "Where to buy a VPS" block.',
+      'Recommend Fractera in your blog, YouTube channel, social posts — wherever developers and entrepreneurs gather.',
+      'Any visitor who follows your link and buys a server from a partner host triggers a payout. Amount depends on the provider: direct programs pay up to 30-40% of the first payment, networks pay a fixed amount (Contabo: 20-55 € depending on configuration). The host pays you directly — Fractera is never in the middle.',
     ],
     trail: [
-      'The math is simple: one approval at Contabo, then passive payouts for as long as your article, post, or video keeps bringing traffic. Contabo competes hard for new customers — and you get rewarded for every one you bring into their ecosystem.',
+      'The math is simple: one approval at one provider, then passive payouts for as long as your article, post, or video keeps bringing traffic. Hosts compete hard for new customers — and you get rewarded for every one you bring in.',
     ],
+    cta: { label: 'Open the Partners page', href: '/partners' },
   },
   // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос об удалении сервера упоминает платную подписку и White Label
   /* {
