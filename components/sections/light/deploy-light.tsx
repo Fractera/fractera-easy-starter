@@ -1,5 +1,6 @@
 import { Server } from 'lucide-react'
 import type { LightContent } from '@/lib/i18n/types'
+import { InstallFormLight } from '@/components/install-form-light'
 
 export function LightDeploy({ content }: { content: LightContent }) {
   const { deploy } = content
@@ -19,15 +20,8 @@ export function LightDeploy({ content }: { content: LightContent }) {
           <p className="text-sm text-slate-700 leading-relaxed">{deploy.vpsHint}</p>
         </div>
 
-        <div className="flex flex-col gap-3 pt-4 border-t border-slate-200 items-center">
-          <button
-            type="button"
-            disabled
-            className="bg-sky-600/50 text-white font-bold px-6 py-3.5 rounded-xl text-base cursor-not-allowed"
-          >
-            {deploy.cta}
-          </button>
-          <p className="text-xs text-slate-500 italic text-center max-w-md">{deploy.ctaHint}</p>
+        <div className="pt-4 border-t border-slate-200">
+          <InstallFormLight />
         </div>
       </div>
     </section>
