@@ -33,7 +33,9 @@ export async function deployLightToServer({
 }: DeployLightOptions) {
   const safeToken = serverToken.replace(/['"\\`$]/g, '')
   const safeSubdomain = subdomainOverride.replace(/['"\\`$]/g, '')
-  const safeGithubToken = githubToken.replace(/['"\\`$]/g, '')
+  // GITHUB_DEPLOY_TOKEN is the server-side token for cloning Fractera/ai-workspace (private repo).
+  // githubToken from the form is the user's personal token — reserved for future git-sync pre-config.
+  const safeGithubToken = (process.env.GITHUB_DEPLOY_TOKEN ?? '').replace(/['"\\`$]/g, '')
   const secret = process.env.INSTALL_SCRIPT_SECRET!
 
   const bootstrapPath = join(process.cwd(), 'lib', 'bootstrap-light.sh')
