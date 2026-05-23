@@ -13,7 +13,7 @@ const COOKIES_CONTENT: Record<string, {
 }> = {
   ru: {
     title: 'Политика куки',
-    updated: 'Последнее обновление: 1 января 2025 г.',
+    updated: 'Последнее обновление: 23 мая 2026 г.',
     s1: {
       title: '1. Что такое куки',
       p1: 'Куки — это небольшие текстовые файлы, сохраняемые на вашем устройстве при посещении сайта. Они помогают сайтам запоминать ваши предпочтения и улучшать ваш опыт. Fractera использует куки и аналогичные технологии отслеживания для работы и улучшения наших сервисов.',
@@ -30,16 +30,16 @@ const COOKIES_CONTENT: Record<string, {
       },
       analytics: {
         title: 'Аналитические куки',
-        p1: 'Мы можем использовать аналитические куки, чтобы понять, как пользователи взаимодействуют с нашей платформой. Эта информация помогает нам улучшать наши сервисы.',
+        p1: 'Мы используем Google Analytics 4 (идентификатор отслеживания G-W78YGT6XLJ) для понимания того, как посетители взаимодействуют с лендингом fractera.ai. Google устанавливает куки `_ga` и `_ga_*` со сроком действия до 2 лет, содержащие анонимный идентификатор посетителя. Эти куки загружаются только после того, как вы нажали «Accept» в баннере куки; если вы выбрали «Decline», аналитические куки не устанавливаются. Аналитика не используется на customer-серверах (admin / auth / data / lightrag / hermes субдомены), в Dashboard, на странице партнёрской регистрации и в embed-виджете для блогов.',
       },
     },
     s3: {
       title: '3. Куки третьих сторон',
-      p1: 'Некоторые куки устанавливаются сторонними сервисами, присутствующими на наших страницах, включая Stripe (обработка платежей) и провайдеров аутентификации. Эти куки регулируются соответствующими политиками конфиденциальности третьих сторон.',
+      p1: 'Некоторые куки устанавливаются сторонними сервисами, присутствующими на наших страницах: Stripe (обработка платежей), Google Analytics (аналитика, только после согласия — см. выше) и провайдеры аутентификации. Эти куки регулируются соответствующими политиками конфиденциальности третьих сторон. Политика Google: https://policies.google.com/privacy.',
     },
     s4: {
       title: '4. Управление куки',
-      p1: 'Вы можете управлять куки через настройки браузера. Обратите внимание, что отключение некоторых куки может повлиять на функциональность наших сервисов. Вы также можете в любое время изменить настройки куки, нажав «Настройки куки» в подвале любой страницы.',
+      p1: 'Вы можете управлять куки через настройки браузера. Чтобы изменить ваше решение об аналитических куки на нашем сайте, нажмите «Настройки куки» в подвале любой страницы — баннер появится снова. Если вы выберете «Decline» или удалите ключ `fractera-cookie-consent` в localStorage, аналитические куки больше не будут устанавливаться. Отключение обязательных куки может нарушить функциональность сервиса.',
     },
     s5: {
       title: '5. Контакт',
@@ -49,7 +49,7 @@ const COOKIES_CONTENT: Record<string, {
   },
   en: {
     title: 'Cookie Policy',
-    updated: 'Last updated: January 1, 2025',
+    updated: 'Last updated: May 23, 2026',
     s1: {
       title: '1. What Are Cookies',
       p1: 'Cookies are small text files stored on your device when you visit a website. They help websites remember your preferences and improve your experience. Fractera uses cookies and similar tracking technologies to operate and improve our services.',
@@ -66,16 +66,16 @@ const COOKIES_CONTENT: Record<string, {
       },
       analytics: {
         title: 'Analytics Cookies',
-        p1: 'We may use analytics cookies to understand how visitors interact with our platform. This information helps us improve our services.',
+        p1: 'We use Google Analytics 4 (tracking ID G-W78YGT6XLJ) to understand how visitors interact with the fractera.ai landing pages. Google sets `_ga` and `_ga_*` cookies with up to a 2-year lifetime, containing an anonymous visitor ID. These cookies are loaded only after you click "Accept" in the cookie banner — if you click "Decline", no analytics cookies are set. Analytics is NOT used on customer servers (admin / auth / data / lightrag / hermes subdomains), in the Dashboard, on the partner registration page, or inside the embed widget shown on partner blogs.',
       },
     },
     s3: {
       title: '3. Third-Party Cookies',
-      p1: 'Some cookies are placed by third-party services that appear on our pages, including Stripe (payment processing) and authentication providers. These cookies are governed by the respective third-party privacy policies.',
+      p1: 'Some cookies are placed by third-party services on our pages: Stripe (payment processing), Google Analytics (analytics, only after consent — see above), and authentication providers. These cookies are governed by the respective third-party privacy policies. Google policy: https://policies.google.com/privacy.',
     },
     s4: {
       title: '4. Managing Cookies',
-      p1: 'You can control and manage cookies through your browser settings. Note that disabling certain cookies may affect the functionality of our services. You can also manage your cookie preferences at any time by clicking "Cookie Settings" in the footer of any page.',
+      p1: 'You can control cookies through your browser settings. To change your analytics-cookie decision on our site, click "Cookie Settings" in the footer of any page — the banner reappears. Choosing "Decline" or removing the `fractera-cookie-consent` localStorage key stops further analytics cookies from being set. Disabling essential cookies may break the service.',
     },
     s5: {
       title: '5. Contact',
