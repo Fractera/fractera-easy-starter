@@ -3,42 +3,49 @@ import { notFound } from 'next/navigation'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getLight } from '@/lib/i18n/locales'
 import { LightHero } from '@/components/sections/light/hero-light'
+import { LightAudience } from '@/components/sections/light/audience-light'
 import { LightProblem } from '@/components/sections/light/problem-light'
 import { LightHowItWorks } from '@/components/sections/light/how-it-works-light'
 import { LightComparison } from '@/components/sections/light/comparison-light'
+import { LightDeploy } from '@/components/sections/light/deploy-light'
 import { LightFaq } from '@/components/sections/light/faq-light'
 import { LightCtaFooter } from '@/components/sections/light/cta-footer-light'
 
 const META_EN = {
-  title: 'Fractera Light — Self-Hosted Backend-as-a-Service in 10 Minutes',
-  description: 'Stop paying the Vercel tax. Deploy a complete backend (auth, database, storage, custom domain, HTTPS) on your own $5 VPS in 10 minutes. Open source. No AI. No vendor lock-in.',
+  title: 'Fractera Light — Private Backend Git-Synced With Your Local AI Dev Machine',
+  description: 'Traditional dev/prod workflow with AI: Claude Code / Codex / Gemini run locally, the private remote backend (auth+roles, DB, storage, Cloudflare SSL, landing+dashboard) is git-synced with your laptop. Open source.',
   keywords: [
     'self-hosted backend as a service',
     'self-hosted Vercel alternative',
     'self-hosted Supabase alternative',
+    'git sync local production',
+    'private remote backend',
+    'role-based auth out of the box',
+    'Cloudflare SSL self-hosted',
+    'landing page with dashboard',
     'Vercel tax',
     'leave Vercel',
     'cloud repatriation',
     'sovereign PaaS',
-    'self-hosted backend without AI',
     'NIS2 GDPR self-hosted backend',
-    'brand-ready backend stack',
     'open source PaaS',
     'Coolify alternative brand-ready',
   ],
 }
 
 const META_RU = {
-  title: 'Fractera Light — self-hosted backend на VPS за 10 минут (open source)',
-  description: 'Уходи с Vercel — заблокирован в РФ. Разверни собственный backend (авторизация, БД, хранилище, домен, HTTPS) на своём VPS за 10 минут. Open-source альтернатива Amvera, ONREZA, RelaxDev. Без AI, без vendor lock-in.',
+  title: 'Fractera Light — приватный backend, синхронизированный с локальной AI-разработкой через git',
+  description: 'Традиционный dev/prod workflow с AI: Claude Code / Codex / Gemini работают локально, приватный удалённый backend (auth с ролями, БД, хранилище, Cloudflare SSL, landing+dashboard) связан с вашей машиной через git. Доступен в РФ.',
   keywords: [
     'self-hosted backend на VPS',
+    'git синхронизация локали и продакшена',
     'аналог Vercel в России',
     'альтернатива Vercel свой сервер',
     'альтернатива Amvera',
     'альтернатива ONREZA',
+    'преднастроенная авторизация с ролями',
+    'Cloudflare SSL свой VPS',
     'Supabase на своём сервере',
-    'self-hosted backend без AI',
     '152-ФЗ compliance self-hosted',
     'частное облако для разработчика',
     'уйти с Vercel',
@@ -92,7 +99,7 @@ function buildJsonLd(lang: string) {
     applicationCategory: 'DeveloperApplication',
     applicationSubCategory: 'Backend-as-a-Service',
     operatingSystem: 'Linux (Ubuntu 24.04 VPS)',
-    description: 'Self-hosted backend-as-a-service: authentication, database, file storage, custom domain, HTTPS — deployed on your own VPS in 10 minutes. Open source, no AI, no vendor lock-in.',
+    description: 'Private remote backend (auth with roles, database, file storage, custom domain, Cloudflare SSL, landing + dashboard with role-based routing) — git-synced with your local AI-powered dev machine. Open source, deployed on your own VPS.',
     url,
     downloadUrl: 'https://github.com/Fractera/fractera-easy-starter',
     offers: [{
@@ -129,9 +136,11 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
 
       <main className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-20">
         <LightHero content={content} />
-        <LightProblem content={content} />
         <LightHowItWorks content={content} />
+        <LightAudience content={content} />
+        <LightProblem content={content} />
         <LightComparison content={content} />
+        <LightDeploy content={content} />
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
       </main>

@@ -7,7 +7,7 @@ export function LightCtaFooter({ content }: { content: LightContent }) {
       <h2 className="font-serif font-bold text-2xl md:text-3xl">{ctaFooter.h2}</h2>
       <p className="text-base text-sky-50 max-w-2xl">{ctaFooter.description}</p>
       <a
-        href="#how-it-works"
+        href="#deploy"
         className="mt-2 bg-white text-sky-700 hover:bg-sky-50 font-bold px-6 py-3 rounded-xl text-base transition-colors shadow-lg"
       >
         {ctaFooter.cta} →

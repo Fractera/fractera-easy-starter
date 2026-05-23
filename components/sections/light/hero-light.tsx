@@ -12,13 +12,13 @@ export function LightHero({ content }: { content: LightContent }) {
         <p className="text-base md:text-lg text-slate-700 max-w-3xl">{hero.description}</p>
         <div className="flex flex-wrap gap-3 pt-2">
           <a
-            href="#how-it-works"
+            href="#deploy"
             className="bg-sky-600 hover:bg-sky-500 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors shadow-lg shadow-sky-500/30"
           >
             {hero.ctaPrimary} →
           </a>
           <a
-            href="#how-it-works"
+            href="#deploy"
             className="border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold px-6 py-3 rounded-xl text-base transition-colors"
           >
             {hero.ctaSecondary}

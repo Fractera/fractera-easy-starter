@@ -152,17 +152,49 @@ export type SiteMeta = {
   organizationDescription: string
 }
 
-// Fractera Light — separate product (stripped backend-as-a-service, no AI).
+// Fractera Light — separate product. Private remote backend (auth+roles, DB,
+// storage, Cloudflare SSL, landing+dashboard with role-based routing) that
+// syncs to your local AI-powered dev machine via git. Traditional dev/prod
+// workflow — only the prod side is now under your full control.
 // Lives at /[lang]/light. See reports/research/light-seo-keymap-2026-05.md.
 export type LightContent = {
   hero: { h1: string; description: string; ctaPrimary: string; ctaSecondary: string }
   benefitsHeader: { h2: string; description: string }
   benefits: { h3: string; text: string }[]
+  audience: {
+    h2: string
+    description: string
+    fits: string[]
+    notFits: string[]
+    fitsLabel: string
+    notFitsLabel: string
+  }
   problem: { h2: string; description: string; items: { h3: string; text: string }[] }
   howItWorks: { h2: string; description: string; steps: { title: string; text: string }[] }
-  pricing: { h2: string; description: string; cardTitle: string; cardSub: string; features: string[]; cta: string }
-  vpsProviders: { h3: string; description: string }
-  comparison: { h2: string; description: string; note: string }
-  faq: { h2: string; items: { q: string; a: string }[] }
+  comparison: {
+    h2: string
+    description: string
+    productLabel: string
+    competitors: string[]
+    rows: { feature: string; values: (boolean | string)[] }[]
+  }
+  deploy: {
+    h2: string
+    description: string
+    providerLabel: string
+    providers: { name: string; tagline: string; price: string }[]
+    cta: string
+    ctaHint: string
+  }
+  faq: {
+    h2: string
+    items: {
+      q: string
+      a: string[]
+      steps?: string[]
+      bullets?: string[]
+      trail?: string[]
+    }[]
+  }
   ctaFooter: { h2: string; description: string; cta: string }
 }
