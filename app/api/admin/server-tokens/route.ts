@@ -101,6 +101,28 @@ export async function DELETE(req: NextRequest) {
     if (!token.serverIp || !token.serverPassword) {
       return NextResponse.json({ error: 'no credentials on record — cannot SSH wipe; falling back to soft is recommended' }, { status: 400 })
     }
+    // Cross-tenant safety: refuse to wipe a physical VPS that still hosts
+    // ANOTHER ServerToken in a non-deleted state. This prevents the very
+    // real scenario where multiple ServerTokens point to the same IP
+    // (common in dev: developer redeploys to the same test VPS many times,
+    // each redeploy gets a new ServerToken row but the same serverIp).
+    // wipeServer() works by IP, so without this guard wiping ANY of those
+    // rows physically destroys the install that the LATEST row depends on.
+    const otherActive = await db.serverToken.findMany({
+      where: {
+        id: { not: token.id },
+        serverIp: token.serverIp,
+        status: { notIn: ['deleted'] },
+      },
+      select: { id: true, subdomain: true, status: true, createdAt: true },
+    })
+    if (otherActive.length > 0) {
+      return NextResponse.json({
+        error: 'cross-tenant-conflict',
+        message: 'Hard wipe refused: other ServerToken rows still point to this IP. Wipe would destroy the install that those rows depend on. Soft-delete them first or use soft delete here.',
+        conflicts: otherActive,
+      }, { status: 409 })
+    }
     // 1. SSH wipe on the customer's VPS.
     try {
       await wipeServer(token.serverIp, 'root', token.serverPassword)
