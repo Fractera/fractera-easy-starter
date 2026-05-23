@@ -286,16 +286,26 @@ else
   cd "$SRC"
   bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
   bun run build >/dev/null 2>&1 || true
-  # vite is configured to emit to ../lightrag/api/webui/ relative to lightrag_webui/,
-  # which lands inside the uv-archive snapshot (NOT the live tool install). Copy
-  # from the archive to the running site-packages so lightrag_server.py finds it.
+  # vite is configured to emit to ../lightrag/api/webui/ relative to
+  # lightrag_webui/. There are TWO places we may find a usable dist:
+  #   1) uv-archive snapshot — vite-emitted target (best case)
+  #   2) the git-checkout itself ships a pre-built webui under
+  #      lightrag/api/webui/ — present when bun build silently fails
+  #      (exit 0 but no output, observed in production on 2026-05-23).
+  # Try the archive first, fall back to the checkout, and finally fall back
+  # to the source tree next to the checkout (some snapshots have it).
+  CHECKOUT_WEBUI=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag/api/webui 2>/dev/null | head -1)
   ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
-  if [ -n "$ARCHIVE_WEBUI" ] && [ -f "$ARCHIVE_WEBUI/index.html" ]; then
-    mkdir -p "$SITE/webui"
-    cp -r "$ARCHIVE_WEBUI"/. "$SITE/webui/"
-    echo "  webui copied to $SITE/webui"
-  else
-    echo "  ! bun build did not produce webui assets — Company Brain will fall back to Swagger"
+  for CANDIDATE in "$ARCHIVE_WEBUI" "$CHECKOUT_WEBUI"; do
+    if [ -n "$CANDIDATE" ] && [ -f "$CANDIDATE/index.html" ]; then
+      mkdir -p "$SITE/webui"
+      cp -r "$CANDIDATE"/. "$SITE/webui/"
+      echo "  webui copied to $SITE/webui from $CANDIDATE"
+      break
+    fi
+  done
+  if [ ! -f "$SITE/webui/index.html" ]; then
+    echo "  ! no webui dist found in archive or checkout — Company Brain will 307 to Swagger (blocked by nginx)"
   fi
 fi' || true
 soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/Fractera/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser --branch v2026.5.16 || true"
@@ -701,8 +711,15 @@ server {
         return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
     }
 
-    # Hermes dashboard (admin/config UI)
+    # Hermes dashboard (admin/config UI) — auth-gated. Without this gate the
+    # dashboard is publicly reachable on hermes.SUB.fractera.ai/ and any
+    # visitor can drive the customer's Hermes orchestration agent (which
+    # consumes their AI subscriptions). Security regression: previously
+    # only /chat/ was protected.
     location / {
+        auth_request /auth-verify;
+        error_page 401 = @chat_login_redirect;
+
         proxy_pass http://127.0.0.1:9119;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -719,15 +736,34 @@ server {
     }
 }
 
-# lightrag — Company Brain WebUI
+# lightrag — Company Brain WebUI — auth-gated. Without these guards the
+# customer's knowledge base (which may hold OpenAI keys typed into the
+# onboarding form and uploaded documents) is publicly reachable on
+# lightrag.SUB.fractera.ai/. Security regression caught in production.
 server {
     listen 80;
     server_name lightrag.SUBDOMAIN_PLACEHOLDER;
+
+    # Internal auth check — same pattern as hermes block above (cookie shared
+    # across .SUB.fractera.ai via COOKIE_DOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+    location @login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
 
     location ~ ^/(docs|redoc|openapi\.json)$ {
         return 404;
     }
 
+    # /health stays public — used by check_lightrag_health() in bootstrap.sh
+    # and by uptime monitors. Returns a constant 200 without touching the app.
     location = /health {
         default_type application/json;
         return 200 '{"status":"healthy","auth_mode":"disabled"}';
@@ -738,6 +774,9 @@ server {
     }
 
     location / {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+
         proxy_pass http://127.0.0.1:9621;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
