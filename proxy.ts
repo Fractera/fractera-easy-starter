@@ -97,10 +97,35 @@ export function proxy(request: NextRequest): NextResponse {
     return withLangCookie(res, firstSegment)
   }
 
-  // Detect and redirect
+  // Detect lang.
   const lang = detectLang(request)
+
+  // SEO: keep the bare root `/` REWRITING (not redirecting) to `/${DEFAULT_LANGUAGE}`
+  // when the chosen lang IS the default. Crawlers and direct backlinks to
+  // fractera.ai/ get real HTML at the root, not a 307 that drops PageRank.
+  // For non-default detected languages, redirect to /<lang>/ as before.
+  if (pathname === '/' || pathname === '') {
+    if (lang === DEFAULT_LANGUAGE) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${DEFAULT_LANGUAGE}`
+      const res = NextResponse.rewrite(url)
+      res.headers.set('x-lang', lang)
+      // Hint to crawlers + caches that the served HTML at `/` IS the
+      // canonical English page (see metadata generateMetadata for the
+      // matching <link rel="canonical">).
+      res.headers.set('Vary', 'Cookie, Accept-Language')
+      return withLangCookie(res, lang)
+    }
+    // Non-default detected lang — redirect so the URL shown matches the
+    // content. (e.g. Russian Accept-Language → /ru.)
+    const url = request.nextUrl.clone()
+    url.pathname = `/${lang}`
+    return withLangCookie(NextResponse.redirect(url), lang)
+  }
+
+  // Non-root path without lang prefix — redirect as before.
   const url = request.nextUrl.clone()
-  url.pathname = `/${lang}${pathname === '/' ? '' : pathname}`
+  url.pathname = `/${lang}${pathname}`
   return withLangCookie(NextResponse.redirect(url), lang)
 }
 

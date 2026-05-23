@@ -6,7 +6,7 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
 import { GoogleAnalytics } from '@/components/google-analytics'
-import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS } from '@/config/translations/translations.config'
+import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
 
 export async function generateMetadata({
@@ -16,14 +16,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params
   const m = getMeta(lang)
+  // The default language lives at the bare root (https://www.fractera.ai/)
+  // — proxy.ts rewrites '/' to '/<DEFAULT_LANGUAGE>' internally, so
+  // both URLs serve the same HTML. Canonical + OG point at the root so
+  // search engines treat them as one document instead of dupes.
+  const isDefault = lang === DEFAULT_LANGUAGE
+  const ogUrl = isDefault ? 'https://www.fractera.ai/' : `https://www.fractera.ai/${lang}`
 
   return {
     title: m.title,
     description: m.description,
-    metadataBase: new URL('https://fractera.ai'),
+    metadataBase: new URL('https://www.fractera.ai'),
     openGraph: {
       type: 'website',
-      url: `https://fractera.ai/${lang}`,
+      url: ogUrl,
       siteName: 'Fractera',
       title: m.ogTitle,
       description: m.ogDescription,
@@ -56,11 +62,17 @@ export async function generateMetadata({
     keywords: m.keywords,
     robots: { index: true, follow: true },
     alternates: {
-      canonical: `https://fractera.ai/${lang}`,
+      canonical: isDefault ? 'https://www.fractera.ai/' : `https://www.fractera.ai/${lang}`,
       languages: {
-        'x-default': 'https://fractera.ai/en',
+        // x-default and the default-language entry both point at the bare
+        // root so Google understands `/` IS the English content (not a
+        // 30x stub) and treats `/en` as an internal alias.
+        'x-default': 'https://www.fractera.ai/',
+        [DEFAULT_LANGUAGE]: 'https://www.fractera.ai/',
         ...Object.fromEntries(
-          SUPPORTED_LANGS.map(l => [l, `https://fractera.ai/${l}`])
+          SUPPORTED_LANGS
+            .filter(l => l !== DEFAULT_LANGUAGE)
+            .map(l => [l, `https://www.fractera.ai/${l}`])
         ),
       },
     },

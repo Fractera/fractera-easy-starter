@@ -9,8 +9,8 @@ export default async function CasesPage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://fractera.ai' },
-      { '@type': 'ListItem', position: 2, name: 'Cases', item: `https://fractera.ai/${lang}/cases` },
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
+      { '@type': 'ListItem', position: 2, name: 'Cases', item: `https://www.fractera.ai/${lang}/cases` },
     ],
   }
 

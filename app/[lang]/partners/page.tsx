@@ -116,8 +116,8 @@ export default async function PartnersPage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://fractera.ai' },
-      { '@type': 'ListItem', position: 2, name: isRu ? 'Партнёры' : 'Partners', item: `https://fractera.ai/${lang}/partners` },
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai' },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'Партнёры' : 'Partners', item: `https://www.fractera.ai/${lang}/partners` },
     ],
   }
 

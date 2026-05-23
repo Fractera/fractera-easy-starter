@@ -99,8 +99,8 @@ export default async function SponsorsPage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://fractera.ai' },
-      { '@type': 'ListItem', position: 2, name: t.badge, item: `https://fractera.ai/${lang}/sponsors` },
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
+      { '@type': 'ListItem', position: 2, name: t.badge, item: `https://www.fractera.ai/${lang}/sponsors` },
     ],
   }
 

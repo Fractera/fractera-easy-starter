@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://fractera.ai"),
+  metadataBase: new URL("https://www.fractera.ai"),
 };
 
 export default async function RootLayout({

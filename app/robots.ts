@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/debug', '/admin'],
     },
-    sitemap: 'https://fractera.ai/sitemap.xml',
+    sitemap: 'https://www.fractera.ai/sitemap.xml',
   }
 }
