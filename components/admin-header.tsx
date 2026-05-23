@@ -15,6 +15,7 @@ const TABS = [
   { href: '/admin/servers',     label: 'Servers' },
   { href: '/admin/deployments', label: 'Deployments' },
   { href: '/admin/hostings',    label: 'Hostings' },
+  { href: '/admin/tools',       label: 'Tools' },
 ]
 
 export function AdminHeader({ email }: { email: string | null }) {
