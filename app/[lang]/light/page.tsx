@@ -84,8 +84,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       siteName: 'Fractera',
       title: m.title,
       description: m.description,
+      images: [{ url: '/fractera-snipet.png', width: 1200, height: 630, alt: m.title }],
     },
-    twitter: { card: 'summary_large_image', title: m.title, description: m.description },
+    twitter: {
+      card: 'summary_large_image',
+      title: m.title,
+      description: m.description,
+      images: ['/fractera-snipet.png'],
+    },
     robots: { index: true, follow: true },
   }
 }
