@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { invalidateTrustedHostingsCache } from '@/lib/trusted-providers'
+import { invalidateTrustedHostingsCache, TRUSTED_PROVIDERS_FALLBACK } from '@/lib/trusted-providers'
 
 const VALID_CATEGORIES = ['vps', 'aff-network', 'other']
 
@@ -10,7 +10,27 @@ export async function GET() {
   if (session?.user?.email !== 'admin@fractera.ai') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
-  const rows = await db.trustedHosting.findMany({ orderBy: { name: 'asc' } })
+  // Auto-seed on first admin visit: if the table is empty, populate from
+  // the static fallback list (the same logic the runtime trusted-check uses
+  // when reading via getEntries(), but the admin endpoint bypasses that and
+  // reads the DB directly, so we replicate the seed inline here).
+  let rows = await db.trustedHosting.findMany({ orderBy: { name: 'asc' } })
+  if (rows.length === 0) {
+    try {
+      await db.trustedHosting.createMany({
+        data: TRUSTED_PROVIDERS_FALLBACK.map(p => ({
+          domain: p.domain.toLowerCase(),
+          name: p.name,
+          category: p.category,
+        })),
+        skipDuplicates: true,
+      })
+      rows = await db.trustedHosting.findMany({ orderBy: { name: 'asc' } })
+      invalidateTrustedHostingsCache()
+    } catch (err) {
+      console.error('[admin/hostings] seed failed', err)
+    }
+  }
   return NextResponse.json({ total: rows.length, rows })
 }
 

@@ -9,8 +9,10 @@ const TABS = [
   { href: '/admin/sponsors-1',  label: '$1 sponsors' },
   { href: '/admin/sponsors-5',  label: '$5 sponsors' },
   { href: '/admin/sponsors-20', label: '$20 sponsors' },
+  { href: '/admin/whitelabel',  label: 'White-label' },
   { href: '/admin/blackbox',    label: 'Black Box' },
   { href: '/admin/partners',    label: 'Partners' },
+  { href: '/admin/servers',     label: 'Servers' },
   { href: '/admin/deployments', label: 'Deployments' },
   { href: '/admin/hostings',    label: 'Hostings' },
 ]
