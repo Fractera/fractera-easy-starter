@@ -22,13 +22,15 @@ export function ElonTrillion() {
         </p>
       </div>
 
-      {/* 16:9 image — YouTube screenshot */}
-      <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/15 bg-gradient-to-b from-neutral-900 to-black">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/Ilon_mask.png"
-          alt={`${t.author} — ${t.source}`}
-          className="w-full h-full object-cover"
+      {/* 16:9 YouTube embed — starts at the cited moment */}
+      <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black">
+        <iframe
+          src="https://www.youtube.com/embed/BYXbuik3dgA?start=4119"
+          title={`${t.author} — ${t.source}`}
+          className="w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
         />
       </div>
 
@@ -56,7 +58,7 @@ export function ElonTrillion() {
             </p>
           </blockquote>
 
-          <figcaption className="mt-6 flex flex-col items-center gap-5">
+          <figcaption className="mt-6 flex justify-center">
             <div className="flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/Ilon_mask_logo.jpg" alt={`${t.author} photo`} width={30} height={30} className="mr-2.5 rounded-full" />
@@ -67,15 +69,6 @@ export function ElonTrillion() {
                 </cite>
               </span>
             </div>
-
-            <a
-              href={t.videoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-violet-500/40 bg-violet-500/[0.06] text-sm font-medium text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/60 transition-colors"
-            >
-              {t.watchButton} →
-            </a>
           </figcaption>
         </figure>
       </div>
