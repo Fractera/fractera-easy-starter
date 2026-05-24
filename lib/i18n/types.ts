@@ -220,3 +220,15 @@ export type LightContent = {
   }
   ctaFooter: { label: string; h2: string; description: string; cta: string }
 }
+
+// Cookie consent banner. Kept in locale files (not hardcoded) so future
+// per-country compliance text (GDPR/CCPA/...) can be expressed by adding
+// a new locale entry without touching the component.
+// `message` uses a literal {policy} placeholder which the banner replaces
+// with a link whose visible text is `policyLinkLabel`.
+export type CookieBannerContent = {
+  message: string
+  policyLinkLabel: string
+  accept: string
+  decline: string
+}

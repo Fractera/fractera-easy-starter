@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { getCookie } from '@/lib/i18n/locales'
 
 export function CookieBanner() {
   const pathname = usePathname() ?? ''
@@ -19,12 +20,17 @@ export function CookieBanner() {
   if (pathname.includes('/embed')) return null
   if (!visible) return null
 
+  const lang = pathname.split('/')[1] || 'en'
+  const t = getCookie(lang)
+  const [beforeLink, afterLink] = t.message.split('{policy}')
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/20 bg-neutral-950/98 backdrop-blur-sm">
       <div className="max-w-5xl mx-auto px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <p className="text-sm text-white/70 leading-relaxed">
-          We use cookies to provide and improve our services. By continuing to use Fractera, you agree to our{' '}
-          <a href="/cookies" className="text-white underline hover:no-underline">Cookie Policy</a>.
+          {beforeLink}
+          <a href={`/${lang}/cookies`} className="text-white underline hover:no-underline">{t.policyLinkLabel}</a>
+          {afterLink}
         </p>
         <div className="flex gap-3 shrink-0">
           <button
@@ -42,7 +48,7 @@ export function CookieBanner() {
             }}
             className="text-sm font-semibold text-black bg-white hover:bg-white/90 px-4 py-2 rounded-lg transition-colors"
           >
-            Accept
+            {t.accept}
           </button>
           <button
             type="button"
@@ -56,7 +62,7 @@ export function CookieBanner() {
             }}
             className="text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 px-4 py-2 rounded-lg transition-colors"
           >
-            Decline
+            {t.decline}
           </button>
         </div>
       </div>
