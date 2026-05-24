@@ -172,10 +172,12 @@ elif [ "$ARCH" = "aarch64" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step_npm "deps_auth" "Installing dependencies (3/4)" \
+step_npm "deps_auth" "Installing dependencies (3/5)" \
   "npm install --prefix $INSTALL_DIR/services/auth && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/auth" "$INSTALL_DIR/services/auth"
-step_npm "deps_data" "Installing dependencies (4/4)" \
+step_npm "deps_data" "Installing dependencies (4/5)" \
   "npm install --prefix $INSTALL_DIR/services/data && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/data && npm rebuild sharp --prefix $INSTALL_DIR/services/data" "$INSTALL_DIR/services/data"
+step_npm "deps_bridges_app" "Installing dependencies (5/5)" \
+  "npm install --prefix $INSTALL_DIR/bridges/app && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/bridges/app" "$INSTALL_DIR/bridges/app"
 
 # === Secrets (3: AUTH_SECRET, DEPLOY_SECRET, DATA_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -205,6 +207,7 @@ source "$SECRETS_FILE"
 cat > "$INSTALL_DIR/app/.env.local" <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
+NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
@@ -216,7 +219,16 @@ COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
-ALLOWED_ORIGINS=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
+ENVEOF
+
+cat > "$INSTALL_DIR/bridges/app/.env.local" <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_AUTH_URL=
+NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
+DEPLOY_SECRET=$DEPLOY_SECRET
+APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -229,15 +241,17 @@ ENVEOF
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Build (2: app + auth) ===
-step "build_app"  "Building app (production)"  "npm run build --prefix $INSTALL_DIR/app"
-step "build_auth" "Building auth (production)" "npm run build --prefix $INSTALL_DIR/services/auth"
+step "build_app"         "Building app (production)"   "npm run build --prefix $INSTALL_DIR/app"
+step "build_auth"        "Building auth (production)"  "npm run build --prefix $INSTALL_DIR/services/auth"
+step "build_bridges_app" "Building admin (production)" "npm run build --prefix $INSTALL_DIR/bridges/app"
 
 # === PM2: 3 processes ===
-pm2 delete fractera-light-app fractera-light-auth fractera-light-data >> "$LOG_FILE" 2>&1 || true
+pm2 delete fractera-light-app fractera-light-auth fractera-light-data fractera-light-admin >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"  "Starting app service"  "cd $INSTALL_DIR/app && pm2 start npm --name fractera-light-app -- run start && cd $INSTALL_DIR"
-step "start_auth" "Starting auth service" "cd $INSTALL_DIR/services/auth && pm2 start npm --name fractera-light-auth -- run start && cd $INSTALL_DIR"
-step "start_data" "Starting data service" "cd $INSTALL_DIR/services/data && pm2 start node --name fractera-light-data -- server.js && cd $INSTALL_DIR"
+step "start_app"   "Starting app service"   "cd $INSTALL_DIR/app && pm2 start npm --name fractera-light-app -- run start && cd $INSTALL_DIR"
+step "start_auth"  "Starting auth service"  "cd $INSTALL_DIR/services/auth && pm2 start npm --name fractera-light-auth -- run start && cd $INSTALL_DIR"
+step "start_data"  "Starting data service"  "cd $INSTALL_DIR/services/data && pm2 start node --name fractera-light-data -- server.js && cd $INSTALL_DIR"
+step "start_admin" "Starting admin service" "cd $INSTALL_DIR/bridges/app && pm2 start npm --name fractera-light-admin -- run start && cd $INSTALL_DIR"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving process configuration"
@@ -290,13 +304,13 @@ server {
     }
 }
 
-# admin — same app as main, separate subdomain for admin bookmarking
+# admin
 server {
     listen 80;
     server_name admin.SUBDOMAIN_PLACEHOLDER;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -374,6 +388,7 @@ source "$SECRETS_FILE"
 cat > "$INSTALL_DIR/app/.env.local" <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
 NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 DEPLOY_SECRET=$DEPLOY_SECRET
@@ -386,7 +401,16 @@ COOKIE_DOMAIN=.$SUBDOMAIN
 COOKIE_SECURE=true
 NEXTAUTH_URL=https://auth.$SUBDOMAIN
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
-ALLOWED_ORIGINS=https://$SUBDOMAIN
+ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
+ENVEOF
+
+cat > "$INSTALL_DIR/bridges/app/.env.local" <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+DEPLOY_SECRET=$DEPLOY_SECRET
+APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -409,13 +433,14 @@ echo "ENV VALIDATION PASSED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs ===
-step "rebuild_app"  "Rebuilding app with domain"  "npm run build --prefix $INSTALL_DIR/app"
-step "rebuild_auth" "Rebuilding auth with domain" "npm run build --prefix $INSTALL_DIR/services/auth"
+step "rebuild_app"         "Rebuilding app with domain"   "npm run build --prefix $INSTALL_DIR/app"
+step "rebuild_auth"        "Rebuilding auth with domain"  "npm run build --prefix $INSTALL_DIR/services/auth"
+step "rebuild_bridges_app" "Rebuilding admin with domain" "npm run build --prefix $INSTALL_DIR/bridges/app"
 
 CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-pm2 restart fractera-light-app fractera-light-auth fractera-light-data >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+pm2 restart fractera-light-app fractera-light-auth fractera-light-data fractera-light-admin >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Wait for DNS propagation ===
@@ -520,7 +545,7 @@ server {
     }
 }
 
-# admin — HTTPS (same app as main)
+# admin — HTTPS
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -528,7 +553,7 @@ server {
     include /etc/nginx/cf-ssl.conf;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

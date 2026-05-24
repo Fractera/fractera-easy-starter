@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail, sendDeployFailedEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendDeployFailedEmail, sendLightWelcomeEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -103,13 +103,17 @@ export async function POST(req: NextRequest) {
           // If ping hasn't arrived yet (status still 'pending'), send welcome email as fallback.
           // If status is already 'active', ping route already sent it — skip to avoid duplicate.
           if (token.status === 'pending') {
-            sendWelcomeEmail(
-              token.user.email,
-              subdomain,
-              token.serverIp && token.serverPassword
-                ? { ip: token.serverIp, password: token.serverPassword }
-                : undefined
-            ).catch(console.error)
+            if (session_id.startsWith('light-')) {
+              sendLightWelcomeEmail(token.user.email, subdomain).catch(console.error)
+            } else {
+              sendWelcomeEmail(
+                token.user.email,
+                subdomain,
+                token.serverIp && token.serverPassword
+                  ? { ip: token.serverIp, password: token.serverPassword }
+                  : undefined
+              ).catch(console.error)
+            }
           }
         }
       }
