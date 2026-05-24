@@ -17,11 +17,14 @@ export const hero: HeroPart = {
   elonTrillion: {
     label: '$1,000,000,000,000',
     h2: 'Fractera is built so you can reach this trillion-dollar opportunity',
-    quote: "Take something as simple as, say, customer service. If you have to integrate with the APIs of existing corporations—many of which don't even have an API, so you've got to make one, and you've got to wade through legacy software—that's extremely slow. However, if AI can simply take whatever is given to the outsourced customer service company that they already use and do customer service using the apps that they already use, then you can make tremendous headway in customer service, which is, I think, 1% of the world economy or something like that. It's close to a trillion dollars all in, for customer service. And there's no barriers to entry.",
+    description:
+      "In February 2026, Elon Musk pointed at where the biggest AI money sits today: inside businesses that have neither a website nor an API. That's exactly who Fractera is built for.",
+    quote:
+      "If AI can simply take whatever is given to the outsourced customer service company that they already use and do customer service using the apps that they already use, then you can make tremendous headway in customer service, which is, I think, 1% of the world economy or something like that. It's close to a trillion dollars all in, for customer service.",
     author: 'Elon Musk',
     source: 'Dwarkesh Patel interview, February 2026',
     watchButton: 'Watch the moment on YouTube',
-    videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=3720s',
+    videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=4119s',
   },
   deployButton: 'Deploy My Server',
 

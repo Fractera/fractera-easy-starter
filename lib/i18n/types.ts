@@ -24,6 +24,7 @@ export type SiteContent = {
   elonTrillion: {
     label: string
     h2: string
+    description: string
     quote: string
     author: string
     source: string
