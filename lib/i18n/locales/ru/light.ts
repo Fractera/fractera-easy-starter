@@ -1,5 +1,8 @@
 import type { LightContent } from '../../types'
 
+const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
+  ?? 'https://www.dpbolvw.net/click-101384625-13954545'
+
 export const light: LightContent = {
   hero: {
     badge: 'Open Source · Бесплатно навсегда',
@@ -161,6 +164,32 @@ export const light: LightContent = {
     vpsHint: 'Любой Ubuntu 24.04 VPS с 2+ ядрами и 2+ ГБ RAM подойдёт. Выбирайте провайдера сами — рынок широкий.',
     cta: 'Развернуть backend (скоро)',
     ctaHint: 'Полный install-flow запускается в следующем шаге (bootstrap-light.sh). Сейчас идёт работа над дешёвым install-pipeline.',
+    ownServerBadge: 'Свой сервер',
+    freeInstall: 'Бесплатная установка · open source',
+    planFeatures: [
+      'Преднастроенная авторизация + БД + хранилище',
+      'Свой домен + автоматический HTTPS',
+      'Landing + dashboard с ролевой маршрутизацией',
+      'Git-синхронизация локали и продакшена',
+      'Open source · self-hosted на вашем VPS',
+    ],
+    signInButton: 'Войти, чтобы установить',
+    signInPrompt: 'Войдите, чтобы начать установку — деньги не списываются.',
+    trustItems: ['Ваш сервер', 'Ваши данные', 'Ваш домен'],
+    disclaimer: '* Сразу после установки смените пароль доступа к VPS. Fractera не получает контроль над вашим кодом, и доступа к вашим серверам у нас нет. Это ваше ПО на вашем VPS, которое Fractera помогает установить — и ничего более.',
+    serverSection: {
+      label: 'Где купить VPS',
+      h2: 'Рекомендуемый Ubuntu 24.04 VPS для Fractera Light',
+      description: 'Fractera Light устанавливается на любой Ubuntu 24.04 VPS с 2+ ядрами и 2+ ГБ RAM. Contabo даёт лучшее соотношение цены и ресурсов под нашу нагрузку.',
+      providers: [
+        { name: 'Contabo', tagline: 'Мощный VPS по непревзойдённой цене.', url: CONTABO_URL, price: 'от €3.60/мес' },
+      ],
+    },
+    domainSection: {
+      label: 'Установка идёт',
+      h2: 'Ваш backend поднимается',
+      description: 'Следите за установкой в реальном времени. Как только пройдёт HTTPS-проверка — URL ниже станет кликабельным.',
+    },
   },
 
   faq: {

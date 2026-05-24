@@ -225,6 +225,20 @@ export type LightContent = {
     vpsHint: string
     cta: string
     ctaHint: string
+    ownServerBadge: string
+    freeInstall: string
+    planFeatures: string[]
+    signInButton: string
+    signInPrompt: string
+    trustItems: [string, string, string]
+    disclaimer: string
+    serverSection: {
+      label: string
+      h2: string
+      description: string
+      providers: { name: string; tagline: string; url: string; price?: string }[]
+    }
+    domainSection: { label: string; h2: string; description: string }
   }
   faq: {
     label: string

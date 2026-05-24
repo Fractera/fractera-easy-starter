@@ -44,8 +44,9 @@ const LIGHT_STEPS: Step[] = [
   { id: 'https_check',        label: 'Verifying HTTPS is working',         done: false },
 ]
 
-export function InstallFormLight({ onSubdomainReady }: {
+export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
   onSubdomainReady?: (subdomain: string) => void
+  onInstallingChange?: (installing: boolean) => void
 } = {}) {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
@@ -69,6 +70,7 @@ export function InstallFormLight({ onSubdomainReady }: {
   async function handleInstall() {
     if (!ip || !password) return
     setInstalling(true)
+    onInstallingChange?.(true)
     setSteps(LIGHT_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
     setActiveStep('connect')
@@ -119,12 +121,15 @@ export function InstallFormLight({ onSubdomainReady }: {
           clearInterval(pollRef.current!)
           setSubdomain(progress.subdomain)
           setInstalling(false)
+          onInstallingChange?.(false)
           onSubdomainReady?.(progress.subdomain)
         }
 
         if (progress.status === 'error') {
           clearInterval(pollRef.current!)
           setInstallError(progress.error ?? 'Installation failed')
+          setInstalling(false)
+          onInstallingChange?.(false)
           toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
         }
       } catch {

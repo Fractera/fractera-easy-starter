@@ -1,5 +1,8 @@
 import type { LightContent } from '../../types'
 
+const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
+  ?? 'https://www.dpbolvw.net/click-101384625-13954545'
+
 export const light: LightContent = {
   hero: {
     badge: 'Open Source · Free Forever',
@@ -166,6 +169,32 @@ export const light: LightContent = {
     vpsHint: 'Any Ubuntu 24.04 VPS with 2+ cores and 2+ GB RAM works. Pick a provider yourself — the market is wide open.',
     cta: 'Deploy backend (coming soon)',
     ctaHint: 'The full install flow ships in the next step (bootstrap-light.sh). The cheap install pipeline is in active development.',
+    ownServerBadge: 'Own Server',
+    freeInstall: 'Free install · open source',
+    planFeatures: [
+      'Pre-configured auth + database + file storage',
+      'Custom domain + automatic HTTPS',
+      'Landing page + dashboard with role-based routing',
+      'Git sync between local and production',
+      'Open source · self-hosted on your own VPS',
+    ],
+    signInButton: 'Sign in to install',
+    signInPrompt: 'Sign in to start the install — you will not be charged.',
+    trustItems: ['Your server', 'Your data', 'Your domain'],
+    disclaimer: '* Immediately after install completes, change your VPS password. Fractera does not gain control over your code, and access to your server is not available to us. This is your software on your VPS, which Fractera helps install — and nothing more.',
+    serverSection: {
+      label: 'Where to buy a VPS',
+      h2: 'Recommended Ubuntu 24.04 VPS for Fractera Light',
+      description: 'Fractera Light installs on any Ubuntu 24.04 VPS with 2+ cores and 2+ GB RAM. Contabo offers the best price-to-resource ratio for our workload.',
+      providers: [
+        { name: 'Contabo', tagline: 'High-resource VPS at unbeatable prices.', url: CONTABO_URL, price: 'from €3.60/mo' },
+      ],
+    },
+    domainSection: {
+      label: 'Live deployment',
+      h2: 'Your Backend Is Coming Online',
+      description: 'Watch the install in real time. As soon as HTTPS verification passes, the URL below becomes clickable.',
+    },
   },
 
   faq: {

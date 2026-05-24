@@ -10,7 +10,7 @@ import { LightProblem } from '@/components/sections/light/problem-light'
 import { LightHowItWorks } from '@/components/sections/light/how-it-works-light'
 import { LightExtrasCta } from '@/components/sections/light/extras-cta-light'
 import { LightComparison } from '@/components/sections/light/comparison-light'
-import { LightDeploy } from '@/components/sections/light/deploy-light'
+import { LightPricingFlow } from '@/components/sections/light/pricing-flow-light'
 import { LightFaq } from '@/components/sections/light/faq-light'
 import { LightCtaFooter } from '@/components/sections/light/cta-footer-light'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
@@ -154,7 +154,7 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
         <LightAudience content={content} />
         <LightProblem content={content} />
         <LightComparison content={content} />
-        <LightDeploy content={content} />
+        <LightPricingFlow content={content} />
         <LightExtrasCta content={content} />
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
