@@ -28,3 +28,7 @@ export function getLight(lang: string): LightContent {
 export function getCookie(lang: string): CookieBannerContent {
   return COOKIE[lang] ?? COOKIE.en
 }
+
+export function getAllCookies(): Record<string, CookieBannerContent> {
+  return COOKIE
+}
