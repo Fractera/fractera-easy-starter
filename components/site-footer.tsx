@@ -158,6 +158,7 @@ export function SiteFooter() {
                 </svg>
               </a>
             </div>
+            <LanguageSwitcher />
           </div>
         </div>
 
