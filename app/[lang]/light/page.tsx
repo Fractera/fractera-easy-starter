@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getLight } from '@/lib/i18n/locales'
+import { getContent } from '@/lib/i18n/content'
+import { ContentProvider } from '@/components/content-provider'
 import { LightHero } from '@/components/sections/light/hero-light'
 import { LightAudience } from '@/components/sections/light/audience-light'
 import { LightProblem } from '@/components/sections/light/problem-light'
@@ -11,6 +13,9 @@ import { LightComparison } from '@/components/sections/light/comparison-light'
 import { LightDeploy } from '@/components/sections/light/deploy-light'
 import { LightFaq } from '@/components/sections/light/faq-light'
 import { LightCtaFooter } from '@/components/sections/light/cta-footer-light'
+import { FractеraPromo } from '@/components/sections/fractera-promo'
+import { BlackBoxSection } from '@/components/sections/black-box'
+import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 
 const META_EN = {
   title: 'Fractera Light — Self-Hosted Backend-as-a-Service in 10 Minutes',
@@ -134,6 +139,7 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
   if (!SUPPORTED_LANGS.includes(lang)) notFound()
 
   const content = getLight(lang)
+  const mainContent = getContent(lang)
   const { softwareApp, breadcrumb } = buildJsonLd(lang)
 
   return (
@@ -151,6 +157,12 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
         <LightDeploy content={content} />
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
+
+        <ContentProvider value={mainContent}>
+          <FractеraPromo />
+          <BlackBoxSection />
+          <SponsorshipSection />
+        </ContentProvider>
       </main>
     </>
   )
