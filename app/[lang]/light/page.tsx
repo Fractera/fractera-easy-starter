@@ -41,22 +41,22 @@ const META_EN = {
 }
 
 const META_RU = {
-  title: 'Fractera Light — self-hosted backend на VPS за 10 минут (open source)',
-  description: 'Уходи с Vercel — заблокирован в РФ. Разверни собственный backend (авторизация, БД, хранилище, домен, HTTPS) на своём VPS от $1/мес за 10 минут. Open-source альтернатива Amvera, ONREZA, RelaxDev.',
+  title: 'Fractera Light — self-hosted backend на собственном VPS за 10 минут (open source)',
+  description: 'Хватит платить Vercel-наценку. Разверни собственный backend (авторизация, БД, хранилище, домен, HTTPS) на своём VPS от $1/мес за 10 минут. Open source, без vendor lock-in.',
   keywords: [
     'self-hosted backend на VPS',
+    'свой приватный backend',
     'git синхронизация локали и продакшена',
-    'аналог Vercel в России',
     'альтернатива Vercel свой сервер',
-    'альтернатива Amvera',
-    'альтернатива ONREZA',
+    'альтернатива Supabase свой сервер',
     'преднастроенная авторизация с ролями',
     'Cloudflare SSL свой VPS',
-    'Supabase на своём сервере',
-    '152-ФЗ compliance self-hosted',
-    'частное облако для разработчика',
-    'уйти с Vercel',
-    'open source PaaS Россия',
+    'open source PaaS',
+    'Coolify альтернатива',
+    'PocketBase альтернатива',
+    'независимая инфраструктура разработчика',
+    'private remote backend',
+    'data sovereignty',
   ],
 }
 
