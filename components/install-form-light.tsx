@@ -46,8 +46,6 @@ export function InstallFormLight({ onSubdomainReady }: {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
-  const [githubToken, setGithubToken] = useState('')
-  const [showGithub, setShowGithub] = useState(false)
   const [installing, setInstalling] = useState(false)
   const [steps, setSteps] = useState<Step[]>(LIGHT_STEPS)
   const [subdomain, setSubdomain] = useState('')
@@ -81,7 +79,7 @@ export function InstallFormLight({ onSubdomainReady }: {
     fetch('/api/install/light', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, login, password, session_id, githubToken: githubToken || undefined }),
+      body: JSON.stringify({ ip, login, password, session_id }),
     }).catch(() => {})
 
     let prevDoneCount = 0
@@ -201,29 +199,6 @@ export function InstallFormLight({ onSubdomainReady }: {
               className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white"
             />
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowGithub(v => !v)}
-            className="self-start text-xs text-gray-500 hover:text-gray-700 transition-colors underline underline-offset-2"
-          >
-            {showGithub ? '− Hide GitHub token' : '+ Connect GitHub repository (optional)'}
-          </button>
-
-          {showGithub && (
-            <div className="flex flex-col gap-2">
-              <input
-                type="password"
-                placeholder="GitHub personal access token"
-                value={githubToken}
-                onChange={e => setGithubToken(e.target.value)}
-                className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white"
-              />
-              <p className="text-xs text-gray-400 px-1">
-                Enables git pull / push from the admin panel. Requires read + write access to your repo.
-              </p>
-            </div>
-          )}
 
           <button
             onClick={handleInstall}
