@@ -12,6 +12,7 @@ import { ProblemSection } from '@/components/sections/problem-section'
 import { PricingFlow } from '@/components/sections/pricing-flow'
 import { LightPitch } from '@/components/sections/light-pitch'
 import { PlatformSelector } from '@/components/platform-selector'
+import { DeployButton } from '@/components/deploy-button'
 import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
@@ -67,10 +68,15 @@ export default async function HomePage({
 
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
               <ElonTrillion />
+              <DeployButton />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
+              <DeployButton />
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
+              <DeployButton />
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>
+              <DeployButton />
               <div id="problem" className="w-full scroll-mt-16"><ProblemSection /></div>
+              <DeployButton />
 
               <div id="pricing" className="w-full scroll-mt-16">
                 <Suspense fallback={null}>
@@ -85,10 +91,14 @@ export default async function HomePage({
               </div>
 
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
+              <DeployButton />
               <FractеraPromo />
               <BlackBoxSection />
+              <DeployButton />
               <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
+              <DeployButton />
               <div id="faq" className="w-full scroll-mt-16"><FaqSection /></div>
+              <DeployButton />
 
               <div id="cases" className="mb-32 w-full flex justify-center scroll-mt-16">
                 <FractеraTestimonial />
