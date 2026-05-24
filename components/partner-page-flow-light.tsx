@@ -348,7 +348,7 @@ export function PartnerPageFlowLight({ partner, lang }: { partner: PartnerData; 
       return
     }
     // Client-generated session id so the progress poller can start at once.
-    const sessionId = `embed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const sessionId = `light-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     try {
       localStorage.setItem(LS_SESSION_ID, sessionId)
       localStorage.setItem(LS_IP, ip.trim())

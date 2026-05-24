@@ -4,13 +4,16 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 const TEMPLATES = [
-  { key: 'welcome',           label: 'Welcome — server is live',         desc: 'Main deploy-success email with primary CTA, three destination cards, SSH credentials block.' },
-  { key: 'install_started',   label: 'Install started — confirmation',   desc: 'Sent right after a paid deploy begins.' },
-  { key: 'recovery_token',    label: 'Recovery token — safety net',      desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL.' },
-  { key: 'deploy_failed',     label: 'Deploy failed — with recovery',    desc: 'Sent when bootstrap fails. Includes error text + MCP retry path.' },
-  { key: 'queued',            label: 'Queued — pool is empty (Path B)',  desc: 'Sent when the user paid but no server was ready in the pool.' },
-  { key: 'expiry_warning',    label: 'Expiry warning — 7 days left',     desc: 'Sent 7 days before the Stripe subscription expires.' },
-  { key: 'black_box_inquiry', label: 'Black Box inquiry — admin notify', desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
+  { key: 'welcome',                label: 'Welcome — server is live',              desc: 'Main deploy-success email with primary CTA, three destination cards, SSH credentials block.' },
+  { key: 'install_started',        label: 'Install started — confirmation',        desc: 'Sent right after a paid deploy begins.' },
+  { key: 'install_progress',       label: 'Install progress — middle of deploy',   desc: 'Sent once mid-bootstrap when dependencies finished installing (~30%).' },
+  { key: 'recovery_token',         label: 'Recovery token — safety net',           desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL.' },
+  { key: 'deploy_failed',          label: 'Deploy failed — with recovery',         desc: 'Sent when bootstrap fails. Includes error text + MCP retry path.' },
+  { key: 'queued',                 label: 'Queued — pool is empty (Path B)',       desc: 'Sent when the user paid but no server was ready in the pool.' },
+  { key: 'expiry_warning',         label: 'Expiry warning — 7 days left',          desc: 'Sent 7 days before the Stripe subscription expires.' },
+  { key: 'black_box_inquiry',      label: 'Black Box inquiry — admin notify',      desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
+  { key: 'light_install_started',  label: 'Light — install started',               desc: 'Light variant of install-started. No Hermes/LightRAG/coding agents mentioned.' },
+  { key: 'light_welcome',          label: 'Light — server is live',                desc: 'Light deploy-success email. Admin panel + public site + git sync hint — no Hermes, no Company Brain, no 5 platforms.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']

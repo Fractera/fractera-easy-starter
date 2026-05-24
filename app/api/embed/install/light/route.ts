@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const login = typeof body.login === 'string' && body.login.trim() ? body.login.trim() : 'root'
   // The widget generates the session id client-side so it can start polling
   // /api/progress immediately, without awaiting this whole request.
-  const clientSessionId = typeof body.sessionId === 'string' && /^embed-\d+-[a-z0-9]+$/.test(body.sessionId)
+  const clientSessionId = typeof body.sessionId === 'string' && /^light-\d+-[a-z0-9]+$/.test(body.sessionId)
     ? body.sessionId
     : null
 
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  const sessionId = clientSessionId ?? `embed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const sessionId = clientSessionId ?? `light-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
   const serverToken = await db.serverToken.create({
     data: {

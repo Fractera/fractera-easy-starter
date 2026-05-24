@@ -3,14 +3,18 @@ import { auth } from '@/lib/auth'
 import {
   sendWelcomeEmail,
   sendInstallStartedEmail,
+  sendInstallProgressEmail,
   sendDeployFailedEmail,
   sendRecoveryTokenEmail,
   sendQueuedEmail,
   sendExpiryWarningEmail,
   sendBlackBoxInquiryEmail,
+  sendLightInstallStartedEmail,
+  sendLightWelcomeEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
+const SAMPLE_LIGHT_SUBDOMAIN = 'light-bright-owl-54.fractera.ai'
 const SAMPLE_TOKEN = 'cmphj5xtp0004l8049ut8i4j4-demo'
 const SAMPLE_IP = '109.199.105.213'
 const SAMPLE_PASSWORD = 'demo-pass-Julia711'
@@ -18,11 +22,14 @@ const SAMPLE_PASSWORD = 'demo-pass-Julia711'
 type TemplateKey =
   | 'welcome'
   | 'install_started'
+  | 'install_progress'
   | 'recovery_token'
   | 'deploy_failed'
   | 'queued'
   | 'expiry_warning'
   | 'black_box_inquiry'
+  | 'light_install_started'
+  | 'light_welcome'
 
 async function dispatch(template: TemplateKey, to: string) {
   switch (template) {
@@ -30,6 +37,8 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendWelcomeEmail(to, SAMPLE_SUBDOMAIN, { ip: SAMPLE_IP, password: SAMPLE_PASSWORD })
     case 'install_started':
       return sendInstallStartedEmail(to)
+    case 'install_progress':
+      return sendInstallProgressEmail(to)
     case 'recovery_token':
       return sendRecoveryTokenEmail(to, SAMPLE_TOKEN)
     case 'deploy_failed':
@@ -38,6 +47,10 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendQueuedEmail(to)
     case 'expiry_warning':
       return sendExpiryWarningEmail(to, 7, SAMPLE_SUBDOMAIN)
+    case 'light_install_started':
+      return sendLightInstallStartedEmail(to)
+    case 'light_welcome':
+      return sendLightWelcomeEmail(to, SAMPLE_LIGHT_SUBDOMAIN)
     case 'black_box_inquiry':
       return sendBlackBoxInquiryEmail({
         email: to,

@@ -9,6 +9,7 @@ PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/light"
 REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
 PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
+LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
 INSTALL_SECRET="$2"
 GITHUB_TOKEN="${3:-}"
 SERVER_TOKEN="${4:-}"
@@ -20,6 +21,18 @@ SECRETS_FILE="/etc/fractera-light/secrets.env"
 CURRENT_STEP=""
 CURRENT_LABEL=""
 INSTALL_START=$(date +%s)
+
+log_email() {
+  [ -z "$SERVER_TOKEN" ] && return
+  local step="$1" label="$2" percent="$3"
+  local elapsed=$(( $(date +%s) - INSTALL_START ))
+  local elapsed_str="${elapsed}s"
+  curl -s -X POST "$LOG_URL" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $SERVER_TOKEN" \
+    -d "{\"step\":\"$step\",\"label\":\"$label\",\"percent\":$percent,\"elapsed\":\"$elapsed_str\"}" \
+    > /dev/null 2>&1 &
+}
 
 report() {
   local id="$1"
@@ -178,6 +191,8 @@ step_npm "deps_data" "Installing dependencies (4/5)" \
   "npm install --prefix $INSTALL_DIR/services/data && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/data && npm rebuild sharp --prefix $INSTALL_DIR/services/data" "$INSTALL_DIR/services/data"
 step_npm "deps_bridges_app" "Installing dependencies (5/5)" \
   "npm install --prefix $INSTALL_DIR/bridges/app && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/bridges/app" "$INSTALL_DIR/bridges/app"
+
+log_email "deps_data" "All dependencies installed" 30
 
 # === Secrets (3: AUTH_SECRET, DEPLOY_SECRET, DATA_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -465,6 +480,8 @@ for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN
 done
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+log_email "get_cf_cert" "Waiting for DNS + activating HTTPS" 85
+
 # === Download Cloudflare Origin Certificate ===
 CURRENT_STEP="get_cf_cert"
 CURRENT_LABEL="Downloading Cloudflare SSL certificate"
@@ -714,6 +731,8 @@ for _attempt in 1 2 3 4 5; do
   [ "$_code" = "200" ] && break
   sleep 10
 done
+
+log_email "complete" "Server is ready! SSL installed, all services running" 100
 
 echo "=== Fractera Light bootstrap finished: $(date) ===" >> "$LOG_FILE"
 echo "FRACTERA_LIGHT_READY: https://$SUBDOMAIN"
