@@ -120,7 +120,6 @@ export function SiteFooter() {
             <span className="text-xs text-white/45">1111B S Governors Ave STE 45122, Dover, DE 19904, USA</span>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
             <div className="flex items-center gap-1">
               <a
                 href="https://github.com/Fractera/ai-workspace"
