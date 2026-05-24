@@ -6,7 +6,7 @@
 
 SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
-REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register"
+REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/light"
 REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
 PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 INSTALL_SECRET="$2"
