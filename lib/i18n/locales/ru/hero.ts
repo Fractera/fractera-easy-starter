@@ -1,12 +1,19 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits'
+  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'description'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch'
 >
 
 export const hero: HeroPart = {
+  heroBadge: 'Open Source — бесплатно навсегда',
   heroTitle: 'Open-Source AI-инфраструктура на вашем VPS — в один клик',
+  lightPitch: {
+    label: 'Альтернатива',
+    h2: 'Не нужна полная AI-автоматизация? Возьми только backend',
+    body: 'Fractera Light — голый backend на твоём VPS: роль-базед авторизация, БД (SQLite или Postgres), файловое хранилище, домен и HTTPS — за 10 минут от $1/мес. Без Hermes, без пяти AI-платформ, без LightRAG. Если ищешь self-hosted замену Vercel/Netlify и хочешь сразу готовое окружение, в котором останется только писать код, — Light это именно про это.',
+    cta: 'Узнать про Fractera Light',
+  },
   deployButton: 'Развернуть мой сервер',
 
   description:

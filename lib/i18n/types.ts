@@ -11,9 +11,16 @@ export type FaqItem = {
 }
 
 export type SiteContent = {
+  heroBadge: string
   heroTitle: string
   deployButton: string
   description: string
+  lightPitch: {
+    label: string
+    h2: string
+    body: string
+    cta: string
+  }
   featureItems: { title: string; text: string }[]
   heroBenefitsHeader: { h2: string }
   heroBenefits: { title: string; text: string }[]

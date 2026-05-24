@@ -19,7 +19,7 @@ export function Hero() {
         <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-3xl mx-auto">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-            <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">Open Source</span>
+            <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
           </div>
           <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
           <h1
