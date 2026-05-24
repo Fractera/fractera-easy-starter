@@ -19,20 +19,19 @@ export function LightPricingFlow({ content }: { content: LightContent }) {
 
   return (
     <section id="deploy" className="w-full flex flex-col gap-8">
-      {/* Section header */}
-      <div className="flex flex-col gap-3 items-start text-left md:items-center md:text-center">
-        <p className="text-xs font-mono font-bold text-sky-700 uppercase tracking-widest">{deploy.label}</p>
-        <h2 className="max-w-3xl font-serif font-bold leading-tight text-slate-900 text-2xl md:text-3xl lg:text-4xl">
-          {deploy.h2}
-        </h2>
-        <p className="max-w-2xl text-base text-slate-600">{deploy.description}</p>
-      </div>
-
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
 
-        {/* Left: VPS hint + provider chips */}
+        {/* Left: header + VPS hint + provider chips */}
         <div className="flex flex-col gap-6 items-start text-left">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-mono font-bold text-sky-700 uppercase tracking-widest">{deploy.label}</p>
+            <h2 className="font-serif font-bold leading-tight text-slate-900 text-2xl md:text-3xl lg:text-4xl">
+              {deploy.h2}
+            </h2>
+            <p className="text-base text-slate-600">{deploy.description}</p>
+          </div>
+
           <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl p-5">
             <ServerIcon className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
             <p className="text-sm text-slate-700 leading-relaxed">{deploy.vpsHint}</p>
