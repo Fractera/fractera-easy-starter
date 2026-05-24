@@ -151,11 +151,14 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
       <main className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-20">
         <LightHero content={content} />
         <LightHowItWorks content={content} />
-        <LightExtrasCta content={content} />
+        <ContentProvider value={mainContent}>
+          <LoopShowcase />
+        </ContentProvider>
         <LightAudience content={content} />
         <LightProblem content={content} />
         <LightComparison content={content} />
         <LightDeploy content={content} />
+        <LightExtrasCta content={content} />
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
 
