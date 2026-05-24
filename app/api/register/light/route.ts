@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createDnsRecord } from '@/lib/cloudflare'
 import { generateSubdomain } from '@/lib/subdomain'
 
-// Light-specific subdomain registration. Mirrors /api/register but wraps
-// the generated name with a `light-` prefix so Light deployments live at
-// e.g. `light-pure-deer-75.fractera.ai`. The shared /api/register endpoint
-// (frozen infrastructure) is left untouched on purpose.
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-install-secret')
   if (secret !== process.env.INSTALL_SCRIPT_SECRET) {
