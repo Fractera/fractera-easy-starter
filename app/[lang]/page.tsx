@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
+import { ElonTrillion } from '@/components/sections/elon-trillion'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
@@ -65,6 +66,7 @@ export default async function HomePage({
             <section className="flex flex-col gap-32 items-start w-full">
 
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
+              <ElonTrillion />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>

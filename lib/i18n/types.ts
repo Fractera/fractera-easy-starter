@@ -21,6 +21,15 @@ export type SiteContent = {
     body: string
     cta: string
   }
+  elonTrillion: {
+    label: string
+    h2: string
+    quote: string
+    author: string
+    source: string
+    watchButton: string
+    videoUrl: string
+  }
   featureItems: { title: string; text: string }[]
   heroBenefitsHeader: { h2: string }
   heroBenefits: { title: string; text: string }[]

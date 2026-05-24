@@ -2,7 +2,7 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroBadge' | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
 >
 
 export const hero: HeroPart = {
@@ -13,6 +13,15 @@ export const hero: HeroPart = {
     h2: 'Не нужна полная AI-автоматизация? Возьми только backend',
     body: 'Fractera Light — голый backend на твоём VPS: роль-базед авторизация, БД (SQLite или Postgres), файловое хранилище, домен и HTTPS — за 10 минут от $1/мес. Без Hermes, без пяти AI-платформ, без LightRAG. Если ищешь self-hosted замену Vercel/Netlify и хочешь сразу готовое окружение, в котором останется только писать код, — Light это именно про это.',
     cta: 'Узнать про Fractera Light',
+  },
+  elonTrillion: {
+    label: '$1 000 000 000 000',
+    h2: 'Fractera построена, чтобы вы могли дотянуться до этого триллиона',
+    quote: 'Возьмём что-нибудь простое — например, клиентский сервис. Если нужно интегрироваться с API существующих компаний — у многих из которых API даже нет, и его сперва придётся сделать, продираясь через legacy-софт, — это страшно медленно. Но если AI просто берёт то же, что отдают аутсорсу, и обслуживает клиента теми же приложениями, которыми пользуются люди, — можно мгновенно захватить рынок клиентского сервиса. А это около 1% мировой экономики. Близко к триллиону долларов. И никакого барьера входа.',
+    author: 'Илон Маск',
+    source: 'Интервью Dwarkesh Patel, февраль 2026',
+    watchButton: 'Смотреть момент на YouTube',
+    videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=3720s',
   },
   deployButton: 'Развернуть мой сервер',
 

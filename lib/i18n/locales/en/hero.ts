@@ -2,7 +2,7 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroBadge' | 'heroTitle' | 'deployButton' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
 >
 
 export const hero: HeroPart = {
@@ -13,6 +13,15 @@ export const hero: HeroPart = {
     h2: "Don't need full AI automation? Take just the backend",
     body: "Fractera Light is the bare backend on your VPS: role-based auth, database (SQLite or Postgres), file storage, custom domain and HTTPS — in 10 minutes from $1/mo. No Hermes, no five AI platforms, no LightRAG. If you're looking for a self-hosted alternative to Vercel/Netlify and just want a ready-to-go environment where all that's left to do is write code — Light is exactly that.",
     cta: 'Explore Fractera Light',
+  },
+  elonTrillion: {
+    label: '$1,000,000,000,000',
+    h2: 'Fractera is built so you can reach this trillion-dollar opportunity',
+    quote: "Take something as simple as, say, customer service. If you have to integrate with the APIs of existing corporations—many of which don't even have an API, so you've got to make one, and you've got to wade through legacy software—that's extremely slow. However, if AI can simply take whatever is given to the outsourced customer service company that they already use and do customer service using the apps that they already use, then you can make tremendous headway in customer service, which is, I think, 1% of the world economy or something like that. It's close to a trillion dollars all in, for customer service. And there's no barriers to entry.",
+    author: 'Elon Musk',
+    source: 'Dwarkesh Patel interview, February 2026',
+    watchButton: 'Watch the moment on YouTube',
+    videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=3720s',
   },
   deployButton: 'Deploy My Server',
 
