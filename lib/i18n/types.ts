@@ -119,6 +119,8 @@ export type SiteContent = {
     pricingBody: string
     limitedLabel: string
     limitedBody: string
+    assuranceTitle: string
+    assuranceBody: string
     ctaTitle: string
     ctaBody: string
     ctaButton: string

@@ -95,6 +95,12 @@ export function BlackBoxSection() {
         </div>
       </div>
 
+      {/* Assurance — why we know this is what you need */}
+      <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/[0.02] p-6 md:p-8">
+        <h3 className="text-xl md:text-2xl font-bold font-serif text-white">{bb.assuranceTitle}</h3>
+        <p className="text-sm md:text-base text-white/75 leading-relaxed">{bb.assuranceBody}</p>
+      </div>
+
       {/* CTA */}
       <div className="flex flex-col gap-4 rounded-2xl border border-violet-500/40 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-6 md:p-8 items-start">
         <h3 className="text-xl md:text-2xl font-bold font-serif text-white">{bb.ctaTitle}</h3>
