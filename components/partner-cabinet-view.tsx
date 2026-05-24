@@ -17,7 +17,7 @@ type PartnerLink = {
   createdAt: string
 }
 
-type Surface = 'widget' | 'page'
+type Surface = 'page' | 'widget' | 'page-light' | 'widget-light'
 
 const EMBED_ORIGIN = 'https://fractera.ai'
 const PARTNERS_ORIGIN = 'https://partners.fractera.ai'
@@ -28,6 +28,12 @@ function buildEmbedUrl(lang: Lang, slug: string) {
 function buildPartnerPageUrl(lang: Lang, slug: string) {
   return `${PARTNERS_ORIGIN}/${lang}/${slug}`
 }
+function buildLightEmbedUrl(lang: Lang, slug: string) {
+  return `${EMBED_ORIGIN}/${lang}/embed/light?ref=${slug}`
+}
+function buildLightPartnerPageUrl(lang: Lang, slug: string) {
+  return `${PARTNERS_ORIGIN}/${lang}/light/${slug}`
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 function getTexts(lang: Lang) {
@@ -35,8 +41,10 @@ function getTexts(lang: Lang) {
   return {
     partnerIdLabel: isRu ? 'ID партнёра' : 'Partner ID',
     activeBadge: isRu ? 'Активен' : 'Active',
-    tabWidget: isRu ? 'Виджет' : 'Widget',
-    tabPage: isRu ? 'Страница' : 'Page',
+    tabPage: isRu ? 'Страница Fractera' : 'Page Fractera',
+    tabWidget: isRu ? 'Виджет Fractera' : 'Widget Fractera',
+    tabPageLight: isRu ? 'Страница Fractera Light' : 'Page Fractera Light',
+    tabWidgetLight: isRu ? 'Виджет Fractera Light' : 'Widget Fractera Light',
 
     // Shared link table
     loading: isRu ? 'Загружаем…' : 'Loading…',
@@ -114,7 +122,14 @@ type Texts = ReturnType<typeof getTexts>
 
 export function PartnerCabinetView({ partnerSlug, lang }: { partnerSlug: string; lang: Lang }) {
   const t = getTexts(lang)
-  const [tab, setTab] = useState<Surface>('widget')
+  const [tab, setTab] = useState<Surface>('page')
+
+  const tabs: { id: Surface; label: string }[] = [
+    { id: 'page',         label: t.tabPage },
+    { id: 'widget',       label: t.tabWidget },
+    { id: 'page-light',   label: t.tabPageLight },
+    { id: 'widget-light', label: t.tabWidgetLight },
+  ]
 
   return (
     <div className="flex flex-col gap-4">
@@ -127,29 +142,24 @@ export function PartnerCabinetView({ partnerSlug, lang }: { partnerSlug: string;
         <p className="font-mono text-lg md:text-xl font-bold text-white break-all select-all">{partnerSlug}</p>
       </div>
 
-      {/* Top-level tabs: Widget | Page */}
-      <div className="flex gap-1 p-1 rounded-lg bg-white/[0.03] border border-white/10 self-start">
-        <button
-          type="button"
-          onClick={() => setTab('widget')}
-          className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${tab === 'widget' ? 'bg-violet-500/20 text-violet-200' : 'text-white/60 hover:text-white'}`}
-        >
-          {t.tabWidget}
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('page')}
-          className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${tab === 'page' ? 'bg-violet-500/20 text-violet-200' : 'text-white/60 hover:text-white'}`}
-        >
-          {t.tabPage}
-        </button>
+      {/* Top-level tabs: Page · Widget · Page Light · Widget Light */}
+      <div className="flex flex-wrap gap-1 p-1 rounded-lg bg-white/[0.03] border border-white/10 self-start">
+        {tabs.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${tab === id ? 'bg-violet-500/20 text-violet-200' : 'text-white/60 hover:text-white'}`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {tab === 'widget' ? (
-        <WidgetTab partnerSlug={partnerSlug} t={t} lang={lang} />
-      ) : (
-        <PageTab partnerSlug={partnerSlug} t={t} lang={lang} />
-      )}
+      {tab === 'page'         && <PageTab        partnerSlug={partnerSlug} t={t} lang={lang} />}
+      {tab === 'widget'       && <WidgetTab      partnerSlug={partnerSlug} t={t} lang={lang} />}
+      {tab === 'page-light'   && <PageLightTab   partnerSlug={partnerSlug} t={t} lang={lang} />}
+      {tab === 'widget-light' && <WidgetLightTab partnerSlug={partnerSlug} t={t} lang={lang} />}
     </div>
   )
 }
@@ -230,6 +240,75 @@ function PageTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang
       <PartnerInfoForm t={t} />
 
       {/* Page links manager */}
+      <LinksManager surface="page" t={t} intro={t.pageLinksIntro} />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Widget Fractera Light — same UX as WidgetTab but iframe points at the
+// Light deploy funnel at /<lang>/embed/light. Reuses the same surface="widget"
+// affiliate links (one set of links covers both Fractera and Fractera Light
+// widgets — partner doesn't need to manage them twice).
+function WidgetLightTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang: Lang }) {
+  const snippet = `<iframe\n  src="${buildLightEmbedUrl(lang, partnerSlug)}"\n  width="100%" height="640"\n  style="border:0; border-radius:16px"\n></iframe>`
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(snippet)
+      toast.success(t.copied)
+    } catch {
+      toast.error(t.copyFailed)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{t.snippetLabel}</p>
+          <button
+            type="button"
+            onClick={copy}
+            className="text-xs font-semibold text-white/70 hover:text-white border border-white/15 hover:border-white/40 px-3 py-1 rounded transition-colors"
+          >
+            {t.copy}
+          </button>
+        </div>
+        <pre className="text-xs md:text-sm font-mono text-emerald-300 bg-black/60 border border-white/10 rounded-lg p-4 overflow-x-auto leading-relaxed select-all">{snippet}</pre>
+      </div>
+
+      <LinksManager surface="widget" t={t} intro={t.widgetLinksIntro} />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page Fractera Light — same UX as PageTab but URL points at
+// partners.fractera.ai/<lang>/light/<slug>. Reuses the same partner info
+// form (one company name/email serves both pages) and the same
+// surface="page" whitelist-protected affiliate links.
+function PageLightTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang: Lang }) {
+  const pageUrl = buildLightPartnerPageUrl(lang, partnerSlug)
+
+  async function copyText(text: string) {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success(t.copied)
+    } catch {
+      toast.error(t.copyFailed)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.04] p-4">
+        <p className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest">{t.pageUrlLabel}</p>
+        <UrlRow value={pageUrl} onCopy={copyText} t={t} />
+      </div>
+
+      <PartnerInfoForm t={t} />
+
       <LinksManager surface="page" t={t} intro={t.pageLinksIntro} />
     </div>
   )
