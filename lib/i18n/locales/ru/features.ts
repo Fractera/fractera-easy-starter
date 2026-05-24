@@ -10,16 +10,16 @@ export const features: FeaturesPart = {
   featuresHeader: {
     label: 'Что включено',
     h2: 'Production-Ready full-stack функции разработки',
-    description: 'Fractera Lite покрывает 90% того, что нужно профессиональному приложению. Fractera Pro открывает оставшиеся 10%.',
+    description: 'Fractera Light покрывает 90% того, что нужно профессиональному приложению. Fractera Pro открывает оставшиеся 10%.',
   },
 
   featureList: [
-    { title: 'Голосовые команды AI',     description: 'Отдавайте команды и навигируйте контент голосом. AI-агенты отвечают на естественный ввод в реальном времени.',       badge: 'Lite' },
-    { title: 'Auth из коробки',          description: 'Google OAuth, magic-link и Credentials — с ролями и enterprise-сессиями. Ничего настраивать не нужно.',                badge: 'Lite' },
-    { title: 'База данных и хранилище',  description: 'SQLite с WAL, файловое хранилище и медиа-сервис. Масштабируется без дополнительных подписок.',                        badge: 'Lite' },
-    { title: 'GitHub и рабочий процесс', description: 'GitHub sync, продакшн и локальная разработка в единой панели. Push, pull, deploy — в один клик.',                    badge: 'Lite' },
-    { title: 'Платформы за 50ms',        description: 'Все пять платформ готовы к работе. LightRAG инициализируется при первом запуске. Никакой настройки.',                 badge: 'Lite' },
-    { title: 'Skills Marketplace',       description: 'Покупайте и продавайте AI-воркфлоу в библиотеке сообщества. Делитесь навыками или монетизируйте рецепты автоматизации.', badge: 'Lite' },
+    { title: 'Голосовые команды AI',     description: 'Отдавайте команды и навигируйте контент голосом. AI-агенты отвечают на естественный ввод в реальном времени.',       badge: 'Light' },
+    { title: 'Auth из коробки',          description: 'Google OAuth, magic-link и Credentials — с ролями и enterprise-сессиями. Ничего настраивать не нужно.',                badge: 'Light' },
+    { title: 'База данных и хранилище',  description: 'SQLite с WAL, файловое хранилище и медиа-сервис. Масштабируется без дополнительных подписок.',                        badge: 'Light' },
+    { title: 'GitHub и рабочий процесс', description: 'GitHub sync, продакшн и локальная разработка в единой панели. Push, pull, deploy — в один клик.',                    badge: 'Light' },
+    { title: 'Платформы за 50ms',        description: 'Все пять платформ готовы к работе. LightRAG инициализируется при первом запуске. Никакой настройки.',                 badge: 'Light' },
+    { title: 'Skills Marketplace',       description: 'Покупайте и продавайте AI-воркфлоу в библиотеке сообщества. Делитесь навыками или монетизируйте рецепты автоматизации.', badge: 'Light' },
     { title: 'SEO, PWA и i18n',          description: 'Продакшн SEO, PWA и мультиязычный роутинг — готовы до первого пользователя.',                                         badge: 'Pro'  },
     { title: 'Подсветка элементов',      description: 'Кликните на элемент — получите точный идентификатор для AI. Меньше токенов, быстрее итерации.',                       badge: 'Pro'  },
     { title: 'Hermes AI Agents',         description: 'Готовые агенты с самообучающейся памятью. Мощнейшая AI-технология за секунды — не часы настройки.',                   badge: 'Pro'  },

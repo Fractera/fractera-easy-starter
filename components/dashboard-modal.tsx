@@ -733,7 +733,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                   const periodEnd = !isFree && sub?.currentPeriodEnd
                     ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
                     : null
-                  const planLabel = isFree ? 'Fractera Lite' : sub?.planId
+                  const planLabel = isFree ? 'Fractera Light' : sub?.planId
                     ? sub.planId.charAt(0).toUpperCase() + sub.planId.slice(1)
                     : null
                   const isActive = sub?.status === 'active'

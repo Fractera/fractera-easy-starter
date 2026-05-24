@@ -94,7 +94,7 @@ export const faqItems: FaqItem[] = [
     q: 'Pricing and plans — details',
     a: [
       'Fractera is open-source — you can self-host and run it entirely on your own infrastructure at no cost.',
-      'Deploying with our tools gives you Fractera Lite, which covers roughly 90% of everything you need to build and ship a professional application.',
+      'Deploying with our tools gives you Fractera Light, which covers roughly 90% of everything you need to build and ship a professional application.',
       'Need the fastest path to a live environment? Our hosted plan includes the server, full Fractera Pro, and everything pre-configured — $25/month or $199/year.',
     ],
   }, */
