@@ -148,22 +148,9 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApp) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
 
-      <main className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-20">
+      <main className="max-w-5xl mx-auto px-6 pt-16 flex flex-col gap-20">
         <LightHero content={content} />
         <LightHowItWorks content={content} />
-
-        {/* Dark band — imported from main landing, needs black bg to avoid blending with bg-sky-50 */}
-        <div
-          className="w-screen bg-black text-white py-20 flex flex-col items-center px-6"
-          style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
-        >
-          <div className="w-full max-w-5xl">
-            <ContentProvider value={mainContent}>
-              <LoopShowcase />
-            </ContentProvider>
-          </div>
-        </div>
-
         <LightAudience content={content} />
         <LightProblem content={content} />
         <LightComparison content={content} />
@@ -172,12 +159,15 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
 
-        {/* Dark band — GitHub promo + Black Box + Sponsorship */}
+        {/* Dark band — all imported sections grouped at the bottom, flush with footer */}
         <div
-          className="w-screen bg-black text-white py-20 flex flex-col items-center gap-20 px-6"
+          className="w-screen bg-black text-white pt-20 flex flex-col items-center gap-20 px-6 -mb-px"
           style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
         >
           <ContentProvider value={mainContent}>
+            <div className="w-full max-w-5xl">
+              <LoopShowcase />
+            </div>
             <FractеraPromo />
             <BlackBoxSection />
             <SponsorshipSection />
