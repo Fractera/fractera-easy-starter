@@ -360,7 +360,7 @@ export function PartnerPageFlowLight({ partner, lang }: { partner: PartnerData; 
     // Fire-and-forget: the server keeps running the SSH upload to completion;
     // the progress poller tracks the result via /api/progress. Awaiting here
     // would freeze the UI on 'Starting…' for the whole SSH phase.
-    fetch('/api/embed/install', {
+    fetch('/api/embed/install/light', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: embedToken, ip: ip.trim(), login: login.trim(), password, sessionId }),

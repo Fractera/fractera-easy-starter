@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deployLightToServer } from '@/lib/deploy-light'
-import { wipeServer } from '@/lib/wipe-script'
+import { wipeServerLight } from '@/lib/wipe-script-light'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
   try {
-    await wipeServer(ip, login, password)
+    await wipeServerLight(ip, login, password)
     await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)

@@ -330,7 +330,7 @@ export function EmbedFlowLight({ lang, partnerSlug, providerName, affiliateUrl }
     // completion (Vercel keeps it alive until deployToServer resolves).
     // Awaiting it here would freeze the UI on 'Starting…' for the whole SSH
     // phase. The progress poller tracks the real outcome via /api/progress.
-    fetch('/api/embed/install', {
+    fetch('/api/embed/install/light', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: embedToken, ip: ip.trim(), password, sessionId }),
