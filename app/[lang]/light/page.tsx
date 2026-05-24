@@ -151,9 +151,19 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
       <main className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-20">
         <LightHero content={content} />
         <LightHowItWorks content={content} />
-        <ContentProvider value={mainContent}>
-          <LoopShowcase />
-        </ContentProvider>
+
+        {/* Dark band — imported from main landing, needs black bg to avoid blending with bg-sky-50 */}
+        <div
+          className="w-screen bg-black text-white py-20 flex flex-col items-center px-6"
+          style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
+        >
+          <div className="w-full max-w-5xl">
+            <ContentProvider value={mainContent}>
+              <LoopShowcase />
+            </ContentProvider>
+          </div>
+        </div>
+
         <LightAudience content={content} />
         <LightProblem content={content} />
         <LightComparison content={content} />
@@ -162,11 +172,17 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
         <LightFaq content={content} />
         <LightCtaFooter content={content} />
 
-        <ContentProvider value={mainContent}>
-          <FractеraPromo />
-          <BlackBoxSection />
-          <SponsorshipSection />
-        </ContentProvider>
+        {/* Dark band — GitHub promo + Black Box + Sponsorship */}
+        <div
+          className="w-screen bg-black text-white py-20 flex flex-col items-center gap-20 px-6"
+          style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
+        >
+          <ContentProvider value={mainContent}>
+            <FractеraPromo />
+            <BlackBoxSection />
+            <SponsorshipSection />
+          </ContentProvider>
+        </div>
       </main>
     </>
   )
