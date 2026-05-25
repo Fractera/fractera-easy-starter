@@ -635,7 +635,7 @@ export function EmbedFlowLight({ lang, partnerSlug, providerName, affiliateUrl }
                   {t.yourApp} ↗
                 </a>
                 <a
-                  href={`https://admin.${progress.subdomain}`}
+                  href={`https://${progress.subdomain}/admin`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full inline-flex items-center justify-center gap-2 border border-violet-500/60 hover:border-violet-400 hover:bg-violet-500/10 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"

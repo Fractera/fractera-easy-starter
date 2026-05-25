@@ -7,7 +7,6 @@
 SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/light"
-REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
 PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
 QUOTA_URL="https://fractera-easy-starter.vercel.app/api/quota/check"
@@ -109,7 +108,7 @@ echo "=== Fractera Light bootstrap started: $(date) ===" > "$LOG_FILE"
 
 # === Pre-flight: DNS quota check ===
 # Before doing anything destructive (wipe, apt, deploy), confirm Cloudflare
-# has room for the 4 DNS records this bootstrap will create. If quota is
+# has room for the 1 DNS record this bootstrap will create. If quota is
 # exhausted, abort immediately with a clear error rather than getting half-way
 # through install and dying on Cloudflare's `code:81045 Record quota exceeded`.
 # /api/quota/check is also the place where the warning/critical email is
@@ -167,19 +166,9 @@ else
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-CURRENT_STEP="register_subdomains"
-CURRENT_LABEL="Registering service subdomains"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth admin data; do
-  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
-    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
-done
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
-# Cloudflare Total TLS starts provisioning certs in the background.
+# Service subdomains (auth.X, admin.X, data.X) no longer registered.
+# Path-based routing: all services live under the single 3rd-level domain.
+# DNS record count: 1 per customer instead of 4. CLAUDE.md rule 15.
 
 # === Git clone ===
 if [ -n "$GITHUB_TOKEN" ]; then
@@ -313,12 +302,61 @@ CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera-light <<'NGINXEOF'
-# app — default server
+# Single server block — path-based routing (1 domain per customer).
+# Migration step 72: auth/admin/data no longer have their own subdomains.
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
 
+    # Auth service (port 3001) — /auth/*
+    location /auth/ {
+        rewrite ^/auth/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Admin service (port 3002) — /admin/*
+    location /admin/ {
+        rewrite ^/admin/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    # Data service (port 3300) — /data/*
+    location /data/media/ {
+        rewrite ^/data/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+
+    location /data/ {
+        rewrite ^/data/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Shell / app (port 3000) — catch-all default
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -332,64 +370,6 @@ server {
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
         sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
-    }
-}
-
-# auth
-server {
-    listen 80;
-    server_name auth.SUBDOMAIN_PLACEHOLDER;
-
-    location / {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# admin
-server {
-    listen 80;
-    server_name admin.SUBDOMAIN_PLACEHOLDER;
-
-    location / {
-        proxy_pass http://127.0.0.1:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-}
-
-# data
-server {
-    listen 80;
-    server_name data.SUBDOMAIN_PLACEHOLDER;
-
-    location /media/ {
-        proxy_pass http://127.0.0.1:3300/media/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 500m;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:3300;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 NGINXEOF
@@ -433,9 +413,9 @@ source "$SECRETS_FILE"
 
 cat > "$INSTALL_DIR/app/.env.local" <<ENVEOF
 AUTH_TRUST_HOST=true
-NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
-NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
-NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+NEXT_PUBLIC_AUTH_URL=https://$SUBDOMAIN/auth
+NEXT_PUBLIC_ADMIN_URL=https://$SUBDOMAIN/admin
+NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 DEPLOY_SECRET=$DEPLOY_SECRET
 ENVEOF
@@ -443,18 +423,18 @@ ENVEOF
 cat > "$INSTALL_DIR/services/auth/.env.local" <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
-COOKIE_DOMAIN=.$SUBDOMAIN
+COOKIE_DOMAIN=
 COOKIE_SECURE=true
-NEXTAUTH_URL=https://auth.$SUBDOMAIN
+NEXTAUTH_URL=https://$SUBDOMAIN/auth
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
-ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
+ALLOWED_ORIGINS=https://$SUBDOMAIN
 ENVEOF
 
 cat > "$INSTALL_DIR/bridges/app/.env.local" <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
-NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_AUTH_URL=https://$SUBDOMAIN/auth
 NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
-NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
 NEXT_PUBLIC_PRODUCT=light
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
@@ -462,19 +442,19 @@ ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
-DATA_PUBLIC_URL=https://data.$SUBDOMAIN
+DATA_PUBLIC_URL=https://$SUBDOMAIN/data
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 DATA_SECRET=$DATA_SECRET
 ENVEOF
 
 # Validate critical env vars
-DATA_VAL=$(grep "^DATA_PUBLIC_URL=" "$INSTALL_DIR/services/data/.env" | cut -d'=' -f2)
-AUTH_VAL=$(grep "^NEXT_PUBLIC_AUTH_URL=" "$INSTALL_DIR/app/.env.local" | cut -d'=' -f2)
+DATA_VAL=$(grep "^DATA_PUBLIC_URL=" "$INSTALL_DIR/services/data/.env" | cut -d'=' -f2-)
+AUTH_VAL=$(grep "^NEXT_PUBLIC_AUTH_URL=" "$INSTALL_DIR/app/.env.local" | cut -d'=' -f2-)
 if [ -z "$DATA_VAL" ] || echo "$DATA_VAL" | grep -q "localhost"; then
-  fail "DATA_PUBLIC_URL is empty or localhost — Vercel deploy may not be ready"
+  fail "DATA_PUBLIC_URL is empty or localhost — domain not registered"
 fi
 if [ -z "$AUTH_VAL" ] || echo "$AUTH_VAL" | grep -q "localhost"; then
-  fail "NEXT_PUBLIC_AUTH_URL is empty or localhost — Vercel deploy may not be ready"
+  fail "NEXT_PUBLIC_AUTH_URL is empty or localhost — domain not registered"
 fi
 echo "ENV VALIDATION PASSED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -490,24 +470,22 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-light-app fractera-light-auth fractera-light-data fractera-light-admin >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Wait for DNS propagation ===
+# === Wait for DNS propagation (1 domain only — path-based routing) ===
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN"; do
-  RESOLVED=""
-  for i in $(seq 1 60); do
-    RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
-    if [ -n "$RESOLVED" ]; then
-      break
-    fi
-    sleep 5
-  done
-  if [ -z "$RESOLVED" ]; then
-    fail "DNS did not propagate within 5 minutes: $DOMAIN"
+RESOLVED=""
+for i in $(seq 1 60); do
+  RESOLVED=$(dig +short "$SUBDOMAIN" @1.1.1.1 2>/dev/null | head -1)
+  if [ -n "$RESOLVED" ]; then
+    break
   fi
-  echo "DNS OK: $DOMAIN → $RESOLVED" >> "$LOG_FILE"
+  sleep 5
 done
+if [ -z "$RESOLVED" ]; then
+  fail "DNS did not propagate within 5 minutes: $SUBDOMAIN"
+fi
+echo "DNS OK: $SUBDOMAIN → $RESOLVED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 log_email "get_cf_cert" "Waiting for DNS + activating HTTPS" 85
@@ -554,13 +532,61 @@ server {
     return 301 https://$host$request_uri;
 }
 
-# app — HTTPS
+# Single HTTPS server — path-based routing (step 72 migration)
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name SUBDOMAIN_PLACEHOLDER;
     include /etc/nginx/cf-ssl.conf;
 
+    # Auth service (port 3001) — /auth/*
+    location /auth/ {
+        rewrite ^/auth/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Admin service (port 3002) — /admin/*
+    location /admin/ {
+        rewrite ^/admin/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    # Data service (port 3300) — /data/*
+    location /data/media/ {
+        rewrite ^/data/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+
+    location /data/ {
+        rewrite ^/data/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Shell / app (port 3000) — catch-all default
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -574,70 +600,6 @@ server {
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
         sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
-    }
-}
-
-# auth — HTTPS
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name auth.SUBDOMAIN_PLACEHOLDER;
-    include /etc/nginx/cf-ssl.conf;
-
-    location / {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# admin — HTTPS
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name admin.SUBDOMAIN_PLACEHOLDER;
-    include /etc/nginx/cf-ssl.conf;
-
-    location / {
-        proxy_pass http://127.0.0.1:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-}
-
-# data — HTTPS
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name data.SUBDOMAIN_PLACEHOLDER;
-    include /etc/nginx/cf-ssl.conf;
-
-    location /media/ {
-        proxy_pass http://127.0.0.1:3300/media/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 500m;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:3300;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 NGINXHTTPSEOF
@@ -691,9 +653,9 @@ wait_for_subs() {
   for sub in "${pending[@]}"; do echo "$sub"; done
 }
 
-ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN")
+ALL_SUBS=("$SUBDOMAIN")
 
-echo "  HTTPS verification (parallel, up to 10 min)" >> "$LOG_FILE"
+echo "  HTTPS verification (single domain, up to 10 min)" >> "$LOG_FILE"
 mapfile -t still_failing < <(wait_for_subs 600 "${ALL_SUBS[@]}")
 
 apex_failed=false

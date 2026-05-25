@@ -313,8 +313,8 @@ export async function sendLightWelcomeEmail(to: string, subdomain: string) {
         </div>
 
         <div style="text-align:center;margin:28px 0">
-          <a href="https://admin.${subdomain}" style="display:inline-block;background:#0ea5e9;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open admin panel →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">admin.${subdomain}</p>
+          <a href="https://${subdomain}/admin" style="display:inline-block;background:#0ea5e9;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open admin panel →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${subdomain}/admin</p>
         </div>
 
         <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
@@ -328,7 +328,7 @@ export async function sendLightWelcomeEmail(to: string, subdomain: string) {
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin panel</div>
-              <a href="https://admin.${subdomain}" style="color:#0ea5e9;font-weight:600;font-size:14px;text-decoration:none">https://admin.${subdomain}</a>
+              <a href="https://${subdomain}/admin" style="color:#0ea5e9;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}/admin</a>
               <div style="font-size:12px;color:#888;margin-top:4px">Create your admin account on first visit. Role-based access is pre-configured.</div>
             </td>
           </tr>
