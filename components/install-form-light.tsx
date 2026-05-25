@@ -167,7 +167,7 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
           <a href={`https://${subdomain}/admin`} target="_blank" rel="noopener noreferrer"
             className="flex flex-col gap-0.5 group">
             <span className="text-sm font-semibold text-green-700 group-hover:text-green-600 transition-colors">
-              ↗ admin.{subdomain}
+              ↗ {subdomain}/admin
             </span>
             <span className="text-xs text-gray-500">Admin panel — sign in to manage your site</span>
           </a>

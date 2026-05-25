@@ -252,6 +252,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
+BASE_PATH=/auth
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
@@ -263,6 +264,7 @@ NEXT_PUBLIC_APP_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 NEXT_PUBLIC_PRODUCT=light
 DEPLOY_SECRET=$DEPLOY_SECRET
+BASE_PATH=/admin
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
@@ -311,7 +313,7 @@ server {
 
     # Auth service (port 3001) — /auth/*
     location /auth/ {
-        rewrite ^/auth/(.*) /$1 break;
+        # No rewrite — auth Next.js has basePath=/auth, expects /auth/* paths
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -322,7 +324,7 @@ server {
 
     # Admin service (port 3002) — /admin/*
     location /admin/ {
-        rewrite ^/admin/(.*) /$1 break;
+        # No rewrite — admin Next.js has basePath=/admin, expects /admin/* paths
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -426,6 +428,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=true
 NEXTAUTH_URL=https://$SUBDOMAIN/auth
+BASE_PATH=/auth
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=https://$SUBDOMAIN
 ENVEOF
@@ -437,6 +440,7 @@ NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
 NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
 NEXT_PUBLIC_PRODUCT=light
 DEPLOY_SECRET=$DEPLOY_SECRET
+BASE_PATH=/admin
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
@@ -541,7 +545,7 @@ server {
 
     # Auth service (port 3001) — /auth/*
     location /auth/ {
-        rewrite ^/auth/(.*) /$1 break;
+        # No rewrite — auth Next.js has basePath=/auth, expects /auth/* paths
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -552,7 +556,7 @@ server {
 
     # Admin service (port 3002) — /admin/*
     location /admin/ {
-        rewrite ^/admin/(.*) /$1 break;
+        # No rewrite — admin Next.js has basePath=/admin, expects /admin/* paths
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
