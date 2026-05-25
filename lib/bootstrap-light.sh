@@ -252,7 +252,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
-BASE_PATH=/auth
+BASE_PATH=enabled
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
@@ -264,7 +264,7 @@ NEXT_PUBLIC_APP_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 NEXT_PUBLIC_PRODUCT=light
 DEPLOY_SECRET=$DEPLOY_SECRET
-BASE_PATH=/admin
+BASE_PATH=enabled
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
@@ -305,16 +305,19 @@ CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera-light <<'NGINXEOF'
-# Single server block — path-based routing (1 domain per customer).
-# Migration step 72: auth/admin/data no longer have their own subdomains.
+# Single server block — path-based routing (step 72 migration).
+# - auth (port 3001): no basePath, assetPrefix=/_auth_next
+# - admin (port 3002): basePath=/admin, default assetPrefix
+# - data (port 3300): Express, all paths stripped
+# - app (port 3000): default catch-all
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
 
-    # Auth service (port 3001) — /auth/*
-    location /auth/ {
-        # No rewrite — auth Next.js has basePath=/auth, expects /auth/* paths
+    # Auth assets (Next.js generates /_auth_next/_next/...)
+    location /_auth_next/ {
+        rewrite ^/_auth_next(/.*)?$ $1 break;
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -323,9 +326,44 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Admin service (port 3002) — /admin/*
+    # NextAuth endpoints — auth generates them at root
+    location /api/auth/ {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Admin API endpoints — client calls /api/<ns>/, admin serves /admin/api/<ns>/
+    location ~ ^/api/(db|config|bridges|deploy|data|hermes|rag|admin)(/.*)?$ {
+        rewrite ^/api/(.*)$ /admin/api/$1 break;
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        client_max_body_size 100m;
+    }
+
+    # Auth UI pages — strip /auth/ (auth has no basePath)
+    location /auth/ {
+        rewrite ^/auth/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Admin (Next.js basePath=/admin, no rewrite)
     location /admin/ {
-        # No rewrite — admin Next.js has basePath=/admin, expects /admin/* paths
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -337,7 +375,6 @@ server {
         proxy_read_timeout 86400;
     }
 
-    # Data service (port 3300) — /data/*
     location /data/media/ {
         rewrite ^/data/(.*) /$1 break;
         proxy_pass http://127.0.0.1:3300;
@@ -359,7 +396,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Shell / app (port 3000) — catch-all default
+    # Shell / app (catch-all)
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -372,7 +409,7 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
+        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
 }
 NGINXEOF
@@ -429,7 +466,7 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=true
 NEXTAUTH_URL=https://$SUBDOMAIN
-BASE_PATH=/auth
+BASE_PATH=enabled
 DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=https://$SUBDOMAIN
 ENVEOF
@@ -441,7 +478,7 @@ NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
 NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
 NEXT_PUBLIC_PRODUCT=light
 DEPLOY_SECRET=$DEPLOY_SECRET
-BASE_PATH=/admin
+BASE_PATH=enabled
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 ENVEOF
 
@@ -538,16 +575,15 @@ server {
     return 301 https://$host$request_uri;
 }
 
-# Single HTTPS server — path-based routing (step 72 migration)
+# HTTPS — path-based routing (step 72)
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name SUBDOMAIN_PLACEHOLDER;
     include /etc/nginx/cf-ssl.conf;
 
-    # Auth service (port 3001) — /auth/*
-    location /auth/ {
-        # No rewrite — auth Next.js has basePath=/auth, expects /auth/* paths
+    location /_auth_next/ {
+        rewrite ^/_auth_next(/.*)?$ $1 break;
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -556,9 +592,40 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Admin service (port 3002) — /admin/*
+    location /api/auth/ {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location ~ ^/api/(db|config|bridges|deploy|data|hermes|rag|admin)(/.*)?$ {
+        rewrite ^/api/(.*)$ /admin/api/$1 break;
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        client_max_body_size 100m;
+    }
+
+    location /auth/ {
+        rewrite ^/auth/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location /admin/ {
-        # No rewrite — admin Next.js has basePath=/admin, expects /admin/* paths
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -570,7 +637,6 @@ server {
         proxy_read_timeout 86400;
     }
 
-    # Data service (port 3300) — /data/*
     location /data/media/ {
         rewrite ^/data/(.*) /$1 break;
         proxy_pass http://127.0.0.1:3300;
@@ -592,7 +658,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Shell / app (port 3000) — catch-all default
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -605,7 +670,7 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
+        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
 }
 NGINXHTTPSEOF
