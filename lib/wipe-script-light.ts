@@ -18,6 +18,11 @@ import { Client } from 'ssh2'
 //   - /tmp/fractera-light-* logs and bootstrap copy
 export const WIPE_SCRIPT_LIGHT = `
 pm2 kill 2>/dev/null || true
+systemctl stop pm2-root 2>/dev/null || true
+systemctl disable pm2-root 2>/dev/null || true
+rm -rf /root/.pm2
+rm -f /etc/systemd/system/pm2-root.service
+systemctl daemon-reload 2>/dev/null || true
 rm -rf /opt/fractera /opt/fractera-light /opt/hermes-webui
 rm -rf /etc/fractera /etc/fractera-light
 rm -rf /usr/local/lib/hermes-agent

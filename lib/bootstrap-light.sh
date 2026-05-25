@@ -510,6 +510,10 @@ echo "ENV VALIDATION PASSED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs ===
+# КРИТИЧНО: остановить процессы ДО удаления .next. Иначе внутренний autorestart
+# PM2 ловит работающий процесс с пустым .next (между rm и завершением build) в
+# crash-цикл → ENOENT required-server-files.json → 502 после "done". data без .next.
+pm2 stop fractera-light-app fractera-light-auth fractera-light-admin >> "$LOG_FILE" 2>&1 || true
 rm -rf "$INSTALL_DIR/app/.next" "$INSTALL_DIR/services/auth/.next" "$INSTALL_DIR/bridges/app-light/.next"
 step "rebuild_app"         "Rebuilding app with domain"   "npm run build --prefix $INSTALL_DIR/app"
 step "rebuild_auth"        "Rebuilding auth with domain"  "npm run build --prefix $INSTALL_DIR/services/auth"
