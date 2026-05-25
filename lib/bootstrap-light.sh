@@ -53,6 +53,9 @@ report() {
 
 fail() {
   local message="$1"
+  echo "" >> "$LOG_FILE"
+  echo "=== FAIL [$CURRENT_STEP] $CURRENT_LABEL: $message ===" >> "$LOG_FILE"
+  echo "=== Timestamp: $(date) ===" >> "$LOG_FILE"
   local last_log=$(tail -c 800 "$LOG_FILE" 2>/dev/null | tr '"' "'" | tr '\n' ' ' | head -c 700)
   curl -s --max-time 30 -X POST "$PROGRESS_URL" \
     -H "Content-Type: application/json" \
@@ -123,13 +126,19 @@ else
   if [ -z "$SERVER_IP" ]; then
     fail "could not detect server IP"
   fi
-  RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
+  echo "[register] resolved SERVER_IP=$SERVER_IP" >> "$LOG_FILE"
+  echo "[register] POST $REGISTER_URL" >> "$LOG_FILE"
+  RESPONSE=$(curl -s --max-time 30 -w "\n__HTTP_CODE__:%{http_code}" -X POST "$REGISTER_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
     -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
-  if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
-    fail "domain registration failed: $RESPONSE"
+  HTTP_CODE=$(echo "$RESPONSE" | grep -o '__HTTP_CODE__:[0-9]*' | cut -d: -f2)
+  RESPONSE_BODY=$(echo "$RESPONSE" | sed 's/__HTTP_CODE__:[0-9]*$//')
+  echo "[register] HTTP=$HTTP_CODE body=$RESPONSE_BODY" >> "$LOG_FILE"
+  if ! echo "$RESPONSE_BODY" | grep -q '"subdomain"'; then
+    fail "domain registration failed (HTTP $HTTP_CODE): $RESPONSE_BODY"
   fi
+  RESPONSE="$RESPONSE_BODY"
   SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
   if [ -z "$SUBDOMAIN" ]; then
     fail "could not parse subdomain from response: $RESPONSE"
