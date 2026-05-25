@@ -340,6 +340,25 @@ export async function sendLightWelcomeEmail(to: string, subdomain: string) {
           </div>
         </div>
 
+        <div style="margin:32px 0 0;padding:24px 20px;background:linear-gradient(135deg,#fef9c3 0%,#fef3c7 100%);border:1px solid #fcd34d;border-radius:14px;text-align:center">
+          <p style="margin:0 0 4px;font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Support Fractera</p>
+          <h3 style="margin:0 0 10px;font-size:18px;font-weight:700;color:#78350f">Liked the result? Become a sponsor</h3>
+          <p style="margin:0 0 16px;color:#92400e;font-size:13px;line-height:1.6">
+            Deploying projects like yours is not free for us. Fractera exists thanks to people like you.
+            If you can spare <strong>$1/month</strong>, you will make a real difference for our project.
+          </p>
+          <a href="https://www.fractera.ai/en#sponsors" style="display:inline-block;background:#d97706;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:12px 24px;border-radius:10px">Become a sponsor →</a>
+        </div>
+
+        <div style="margin:20px 0 0;border-top:1px solid #e5e7eb;padding-top:20px;text-align:center">
+          <p style="margin:0 0 4px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;font-weight:600">— or —</p>
+          <p style="margin:0 0 12px;color:#374151;font-size:13px;line-height:1.6">
+            We really value your attention. If you find Fractera useful,
+            please give us a star on GitHub — it helps more people discover the project.
+          </p>
+          <a href="https://github.com/Fractera/ai-workspace" style="display:inline-block;background:#24292f;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:10px 22px;border-radius:10px">Star on GitHub ★</a>
+        </div>
+
       </div>
     `,
   })
