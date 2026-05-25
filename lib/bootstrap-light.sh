@@ -296,6 +296,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 save >> "$LOG_FILE" 2>&1 || true
 pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
+loginctl enable-linger root >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Nginx HTTP config — 3 server blocks ===
