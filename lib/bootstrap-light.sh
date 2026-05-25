@@ -465,6 +465,7 @@ echo "ENV VALIDATION PASSED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs ===
+rm -rf "$INSTALL_DIR/app/.next" "$INSTALL_DIR/services/auth/.next" "$INSTALL_DIR/bridges/app/.next"
 step "rebuild_app"         "Rebuilding app with domain"   "npm run build --prefix $INSTALL_DIR/app"
 step "rebuild_auth"        "Rebuilding auth with domain"  "npm run build --prefix $INSTALL_DIR/services/auth"
 step "rebuild_bridges_app" "Rebuilding admin with domain" "npm run build --prefix $INSTALL_DIR/bridges/app"
