@@ -13,6 +13,8 @@ const TEMPLATES = [
   { key: 'expiry_warning',         label: 'Expiry warning — 7 days left',          desc: 'Sent 7 days before the Stripe subscription expires.' },
   { key: 'black_box_inquiry',      label: 'Black Box inquiry — admin notify',      desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
   { key: 'light_install_started',  label: 'Light — install started',               desc: 'Light variant of install-started. No Hermes/LightRAG/coding agents mentioned.' },
+  { key: 'light_recovery_token',   label: 'Light — recovery token',                desc: 'Light variant of recovery-token. Points to https://www.fractera.ai/api/mcp/light (Light MCP), Light palette.' },
+  { key: 'light_deploy_failed',    label: 'Light — deploy failed',                 desc: 'Light variant of deploy-failed. Points to Light MCP for retry; no Hermes/Brain mentions.' },
   { key: 'light_welcome',          label: 'Light — server is live',                desc: 'Light deploy-success email. Admin panel + public site + git sync hint — no Hermes, no Company Brain, no 5 platforms.' },
 ] as const
 

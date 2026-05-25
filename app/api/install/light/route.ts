@@ -4,7 +4,7 @@ import { wipeServerLight } from '@/lib/wipe-script-light'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendLightInstallStartedEmail } from '@/lib/email'
+import { sendLightInstallStartedEmail, sendLightRecoveryTokenEmail, sendLightDeployFailedEmail } from '@/lib/email'
 
 export const maxDuration = 300
 
@@ -52,7 +52,12 @@ export async function POST(req: NextRequest) {
   await initProgress(session_id)
   if (userEmail) {
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    await sendLightInstallStartedEmail(userEmail)
+    try { await sendLightInstallStartedEmail(userEmail) } catch (err) { console.error('[install/light] start email failed', err) }
+    if (tokenForBootstrap) {
+      try { await sendLightRecoveryTokenEmail(userEmail, tokenForBootstrap) } catch (err) {
+        console.error('[install/light] recovery-token email failed', err)
+      }
+    }
   }
 
   await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
@@ -63,6 +68,11 @@ export async function POST(req: NextRequest) {
     const errMsg = err instanceof Error ? err.message : String(err)
     const wipeErr = `WIPE_FAILED: could not clean previous installation — ${errMsg}`
     await failProgress(session_id, wipeErr)
+    if (userEmail) {
+      try { await sendLightDeployFailedEmail(userEmail, wipeErr, tokenForBootstrap || undefined) } catch (mailErr) {
+        console.error('[install/light] sendLightDeployFailedEmail failed', mailErr)
+      }
+    }
     return NextResponse.json({ error: wipeErr }, { status: 500 })
   }
 

@@ -11,6 +11,8 @@ import {
   sendBlackBoxInquiryEmail,
   sendLightInstallStartedEmail,
   sendLightWelcomeEmail,
+  sendLightRecoveryTokenEmail,
+  sendLightDeployFailedEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
@@ -29,6 +31,8 @@ type TemplateKey =
   | 'expiry_warning'
   | 'black_box_inquiry'
   | 'light_install_started'
+  | 'light_recovery_token'
+  | 'light_deploy_failed'
   | 'light_welcome'
 
 async function dispatch(template: TemplateKey, to: string) {
@@ -49,6 +53,10 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendExpiryWarningEmail(to, 7, SAMPLE_SUBDOMAIN)
     case 'light_install_started':
       return sendLightInstallStartedEmail(to)
+    case 'light_recovery_token':
+      return sendLightRecoveryTokenEmail(to, SAMPLE_TOKEN)
+    case 'light_deploy_failed':
+      return sendLightDeployFailedEmail(to, 'SSH connect failed: timeout connecting to 109.199.105.213:22', SAMPLE_TOKEN)
     case 'light_welcome':
       return sendLightWelcomeEmail(to, SAMPLE_LIGHT_SUBDOMAIN)
     case 'black_box_inquiry':

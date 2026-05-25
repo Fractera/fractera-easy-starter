@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { deployLightToServer } from '@/lib/deploy-light'
 import { wipeServerLight } from '@/lib/wipe-script-light'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendLightInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { sendLightInstallStartedEmail, sendLightDeployFailedEmail, sendLightRecoveryTokenEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     await appendStep(sessionId, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
     try { await sendLightInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install/light] start email failed', err) }
     // Best-effort follow-up with the recovery token for MCP retry path.
-    try { await sendRecoveryTokenEmail(session.email, serverToken.token) } catch (err) {
+    try { await sendLightRecoveryTokenEmail(session.email, serverToken.token) } catch (err) {
       console.error('[embed/install/light] recovery-token email failed', err)
     }
   }
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       console.error('[embed/install/light] failProgress write error', writeErr)
     }
     if (session.email) {
-      try { await sendDeployFailedEmail(session.email, wipeErr, serverToken.token) } catch (mailErr) { console.error('[embed/install/light] sendDeployFailedEmail failed', mailErr) }
+      try { await sendLightDeployFailedEmail(session.email, wipeErr, serverToken.token) } catch (mailErr) { console.error('[embed/install/light] sendLightDeployFailedEmail failed', mailErr) }
     }
     return NextResponse.json({ sessionId, status: 'error', recovery: 'mcp' })
   }
@@ -142,9 +142,9 @@ export async function POST(req: NextRequest) {
     // Notify the user — they may have closed the widget waiting for a result.
     if (session.email) {
       try {
-        await sendDeployFailedEmail(session.email, errMsg, serverToken.token)
+        await sendLightDeployFailedEmail(session.email, errMsg, serverToken.token)
       } catch (mailErr) {
-        console.error('[embed/install/light] sendDeployFailedEmail failed', mailErr)
+        console.error('[embed/install/light] sendLightDeployFailedEmail failed', mailErr)
       }
     }
     // Still return the sessionId — the widget's progress poller will read the
