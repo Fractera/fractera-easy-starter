@@ -4,6 +4,7 @@ import { deployLightToServer } from '@/lib/deploy-light'
 import { wipeServerLight } from '@/lib/wipe-script-light'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendLightInstallStartedEmail, sendLightDeployFailedEmail, sendLightRecoveryTokenEmail } from '@/lib/email'
+import { findActiveDeployForIp } from '@/lib/deploy-lock'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -36,6 +37,15 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (session.status === 'pending' || !session.userId) {
     return NextResponse.json({ error: 'Not activated yet' }, { status: 409 })
+  }
+
+  const activeDeploy = await findActiveDeployForIp(ip)
+  if (activeDeploy) {
+    return NextResponse.json({
+      error: 'Deploy already in progress for this server',
+      existing_session_id: activeDeploy.sessionId,
+      age_seconds: Math.round(activeDeploy.ageMs / 1000),
+    }, { status: 409 })
   }
 
   // Create free subscription + ServerToken so the deploy pipeline can attribute

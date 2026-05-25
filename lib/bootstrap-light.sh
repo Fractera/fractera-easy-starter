@@ -10,6 +10,7 @@ REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/light"
 PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
 QUOTA_URL="https://fractera-easy-starter.vercel.app/api/quota/check"
+CLEANUP_URL="https://fractera-easy-starter.vercel.app/api/register/light/cleanup"
 INSTALL_SECRET="$2"
 GITHUB_TOKEN="${3:-}"
 SERVER_TOKEN="${4:-}"
@@ -57,6 +58,14 @@ fail() {
   echo "=== FAIL [$CURRENT_STEP] $CURRENT_LABEL: $message ===" >> "$LOG_FILE"
   echo "=== Timestamp: $(date) ===" >> "$LOG_FILE"
   local last_log=$(tail -c 800 "$LOG_FILE" 2>/dev/null | tr '"' "'" | tr '\n' ' ' | head -c 700)
+  if [ -n "$SUBDOMAIN" ]; then
+    echo "[fail] cleaning up DNS record for $SUBDOMAIN" >> "$LOG_FILE"
+    curl -s --max-time 15 -X POST "$CLEANUP_URL" \
+      -H "Content-Type: application/json" \
+      -H "x-install-secret: $INSTALL_SECRET" \
+      -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
+      >> "$LOG_FILE" 2>&1 || true
+  fi
   curl -s --max-time 30 -X POST "$PROGRESS_URL" \
     -H "Content-Type: application/json" \
     -H "x-install-secret: $INSTALL_SECRET" \
@@ -85,7 +94,15 @@ step_npm() {
   local prefix="$4"
   report "$CURRENT_STEP" "$CURRENT_LABEL" false
   for attempt in 1 2; do
-    ( eval "$cmd" ) >> "$LOG_FILE" 2>&1
+    ( eval "$cmd" ) >> "$LOG_FILE" 2>&1 &
+    local npm_pid=$!
+    while kill -0 $npm_pid 2>/dev/null; do
+      sleep 15
+      if kill -0 $npm_pid 2>/dev/null; then
+        report "$CURRENT_STEP" "$CURRENT_LABEL" false
+      fi
+    done
+    wait $npm_pid
     local rc=$?
     if [ "$rc" -eq 0 ]; then
       report "$CURRENT_STEP" "$CURRENT_LABEL" true

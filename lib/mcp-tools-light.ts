@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { wipeServerLight } from '@/lib/wipe-script-light'
 import { deployLightToServer } from '@/lib/deploy-light'
 import { sendLightInstallStartedEmail, sendLightDeployFailedEmail, sendLightRecoveryTokenEmail } from '@/lib/email'
+import { findActiveDeployForIp } from '@/lib/deploy-lock'
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -183,44 +184,17 @@ export async function handleToolCallLight(
     if (!ip) return { status: 'error', message: 'Missing IP address. Ask the user for their server IP (four groups of digits, e.g. 185.10.20.30).' }
     if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server.' }
 
-    // Idempotency guard. If the agent calls this tool twice for the same IP
-    // (e.g. it thought the first call timed out and retried), do NOT launch a
-    // second parallel bootstrap — two bootstraps on the same VPS race for
-    // apt/npm/nginx and reliably kill each other. Find any non-terminal
-    // ServerToken for this IP whose progress was updated recently and return
-    // its identifiers instead.
     console.log(`${TAG} idempotency check`)
-    const recentTokens = await db.serverToken.findMany({
-      where: {
-        serverIp: ip,
-        status: { in: ['pending', 'provisioning', 'queued'] },
-        deploySessionId: { not: null },
-      },
-      select: { token: true, deploySessionId: true, createdAt: true },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    })
-    for (const candidate of recentTokens) {
-      if (!candidate.deploySessionId) continue
-      const progress = await getProgress(candidate.deploySessionId)
-      if (!progress) continue
-      if (progress.status === 'installing') {
-        const lastTs = progress.steps?.length ? progress.steps[progress.steps.length - 1].ts : 0
-        const ageMs = Date.now() - lastTs
-        // 20-min freshness window. Bootstrap reports at least once every few
-        // minutes; if the last step is older than 20 min, the deploy is dead
-        // and we should let the retry path through.
-        if (ageMs < 20 * 60 * 1000) {
-          console.log(`${TAG} idempotent return — active session ${candidate.deploySessionId} age=${ageMs}ms`)
-          return {
-            status: 'installing',
-            session_id: candidate.deploySessionId,
-            server_token: candidate.token,
-            dashboard_url: 'https://fractera.ai/dashboard',
-            message:
-              'A deploy is already running for this server (started recently). Returning the existing session_id and server_token — do NOT call register_and_deploy again. Poll check_status(session_id) every 25-30 seconds and stream progress to the user.',
-          }
-        }
+    const activeDeploy = await findActiveDeployForIp(ip)
+    if (activeDeploy) {
+      console.log(`${TAG} idempotent return — active session ${activeDeploy.sessionId} age=${activeDeploy.ageMs}ms`)
+      return {
+        status: 'installing',
+        session_id: activeDeploy.sessionId,
+        server_token: activeDeploy.serverToken,
+        dashboard_url: 'https://fractera.ai/dashboard',
+        message:
+          'A deploy is already running for this server (started recently). Returning the existing session_id and server_token — do NOT call register_and_deploy again. Poll check_status(session_id) every 25-30 seconds and stream progress to the user.',
       }
     }
 

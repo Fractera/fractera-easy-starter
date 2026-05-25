@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createDnsRecord } from '@/lib/cloudflare'
+import { createDnsRecord, findLightDnsRecordByIp } from '@/lib/cloudflare'
 import { generateSubdomain } from '@/lib/subdomain'
 
 export async function POST(req: NextRequest) {
@@ -29,8 +29,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: envErr, code: 'CF_ENV_MISSING' }, { status: 500 })
   }
 
-  const subdomain = `light-${generateSubdomain()}`
+  const existingDomain = await findLightDnsRecordByIp(ip)
+  const subdomain = existingDomain
+    ? existingDomain.replace(/\.fractera\.ai$/, '')
+    : `light-${generateSubdomain()}`
   const fullDomain = `${subdomain}.fractera.ai`
+  if (existingDomain) {
+    console.log(`${TAG} reusing existing subdomain: ${subdomain} for IP ${ip}`)
+  }
 
   try {
     await createDnsRecord(ip, subdomain)
