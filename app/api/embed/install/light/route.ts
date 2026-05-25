@@ -4,7 +4,7 @@ import { deployLightToServer } from '@/lib/deploy-light'
 import { wipeServerLight } from '@/lib/wipe-script-light'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendLightInstallStartedEmail, sendLightDeployFailedEmail, sendLightRecoveryTokenEmail } from '@/lib/email'
-import { findActiveDeployForIp } from '@/lib/deploy-lock'
+import { acquireDeployLock } from '@/lib/deploy-lock'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -39,12 +39,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not activated yet' }, { status: 409 })
   }
 
-  const activeDeploy = await findActiveDeployForIp(ip)
-  if (activeDeploy) {
+  const sessionId = clientSessionId ?? `light-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
+  const lockAcquired = await acquireDeployLock(ip, sessionId)
+  if (!lockAcquired) {
     return NextResponse.json({
       error: 'Deploy already in progress for this server',
-      existing_session_id: activeDeploy.sessionId,
-      age_seconds: Math.round(activeDeploy.ageMs / 1000),
     }, { status: 409 })
   }
 
@@ -64,8 +64,6 @@ export async function POST(req: NextRequest) {
       },
     })
   }
-
-  const sessionId = clientSessionId ?? `light-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
   const serverToken = await db.serverToken.create({
     data: {

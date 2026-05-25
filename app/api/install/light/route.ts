@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendLightInstallStartedEmail, sendLightRecoveryTokenEmail, sendLightDeployFailedEmail } from '@/lib/email'
-import { findActiveDeployForIp } from '@/lib/deploy-lock'
+import { acquireDeployLock } from '@/lib/deploy-lock'
 
 export const maxDuration = 300
 
@@ -16,12 +16,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
   }
 
-  const activeDeploy = await findActiveDeployForIp(ip)
-  if (activeDeploy) {
+  const lockAcquired = await acquireDeployLock(ip, session_id)
+  if (!lockAcquired) {
     return NextResponse.json({
       error: 'Deploy already in progress for this server',
-      existing_session_id: activeDeploy.sessionId,
-      age_seconds: Math.round(activeDeploy.ageMs / 1000),
     }, { status: 409 })
   }
 

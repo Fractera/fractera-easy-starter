@@ -1,5 +1,7 @@
-import { db } from '@/lib/db'
+import { Redis } from '@upstash/redis'
 import { getProgress } from '@/lib/kv'
+
+const kv = Redis.fromEnv()
 
 export interface ActiveDeploy {
   sessionId: string
@@ -8,30 +10,21 @@ export interface ActiveDeploy {
 }
 
 const DEPLOY_FRESHNESS_MS = 20 * 60 * 1000
+const LOCK_TTL_SECONDS = 20 * 60
 
 export async function findActiveDeployForIp(ip: string): Promise<ActiveDeploy | null> {
-  const recentTokens = await db.serverToken.findMany({
-    where: {
-      serverIp: ip,
-      status: { in: ['pending', 'provisioning', 'queued'] },
-      deploySessionId: { not: null },
-    },
-    select: { token: true, deploySessionId: true, createdAt: true },
-    orderBy: { createdAt: 'desc' },
-    take: 5,
-  })
+  const lockKey = `deploy-lock:${ip}`
+  const existingSessionId = await kv.get<string>(lockKey)
 
-  for (const candidate of recentTokens) {
-    if (!candidate.deploySessionId) continue
-    const progress = await getProgress(candidate.deploySessionId)
-    if (!progress) continue
-    if (progress.status === 'installing') {
+  if (existingSessionId) {
+    const progress = await getProgress(existingSessionId)
+    if (progress && progress.status === 'installing') {
       const lastTs = progress.steps?.length ? progress.steps[progress.steps.length - 1].ts : 0
       const ageMs = Date.now() - lastTs
       if (ageMs < DEPLOY_FRESHNESS_MS) {
         return {
-          sessionId: candidate.deploySessionId,
-          serverToken: candidate.token,
+          sessionId: existingSessionId,
+          serverToken: '',
           ageMs,
         }
       }
@@ -39,4 +32,20 @@ export async function findActiveDeployForIp(ip: string): Promise<ActiveDeploy | 
   }
 
   return null
+}
+
+export async function acquireDeployLock(ip: string, sessionId: string): Promise<boolean> {
+  const lockKey = `deploy-lock:${ip}`
+  const result = await kv.set(lockKey, sessionId, { ex: LOCK_TTL_SECONDS, nx: true })
+  if (result === 'OK') return true
+
+  const active = await findActiveDeployForIp(ip)
+  if (active) return false
+
+  await kv.set(lockKey, sessionId, { ex: LOCK_TTL_SECONDS })
+  return true
+}
+
+export async function releaseDeployLock(ip: string): Promise<void> {
+  await kv.del(`deploy-lock:${ip}`)
 }
