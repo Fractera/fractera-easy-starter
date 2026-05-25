@@ -10,6 +10,7 @@ REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/light"
 REGISTER_SUBDOMAIN_URL="https://fractera-easy-starter.vercel.app/api/register-subdomain"
 PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
 LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
+QUOTA_URL="https://fractera-easy-starter.vercel.app/api/quota/check"
 INSTALL_SECRET="$2"
 GITHUB_TOKEN="${3:-}"
 SERVER_TOKEN="${4:-}"
@@ -105,6 +106,26 @@ step_npm() {
 }
 
 echo "=== Fractera Light bootstrap started: $(date) ===" > "$LOG_FILE"
+
+# === Pre-flight: DNS quota check ===
+# Before doing anything destructive (wipe, apt, deploy), confirm Cloudflare
+# has room for the 4 DNS records this bootstrap will create. If quota is
+# exhausted, abort immediately with a clear error rather than getting half-way
+# through install and dying on Cloudflare's `code:81045 Record quota exceeded`.
+# /api/quota/check is also the place where the warning/critical email is
+# triggered (best-effort, idempotent on Vercel side).
+CURRENT_STEP="quota_check"
+CURRENT_LABEL="Checking Cloudflare DNS quota"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+QUOTA_RESP=$(curl -s --max-time 15 -X GET "$QUOTA_URL" -H "x-install-secret: $INSTALL_SECRET")
+QUOTA_STATUS=$(echo "$QUOTA_RESP" | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
+QUOTA_COUNT=$(echo "$QUOTA_RESP" | grep -o '"count":-\?[0-9]*' | head -1 | cut -d':' -f2)
+QUOTA_LIMIT=$(echo "$QUOTA_RESP" | grep -o '"limit":-\?[0-9]*' | head -1 | cut -d':' -f2)
+echo "[quota] status=$QUOTA_STATUS count=$QUOTA_COUNT limit=$QUOTA_LIMIT" >> "$LOG_FILE"
+if [ "$QUOTA_STATUS" = "critical" ]; then
+  fail "Cloudflare DNS quota exhausted ($QUOTA_COUNT/$QUOTA_LIMIT). Deploy aborted before touching the server. Admin has been notified."
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === System packages + Node.js 20 + PM2 ===
 step "apt_update"   "Updating system"           "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"

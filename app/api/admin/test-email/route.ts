@@ -13,6 +13,8 @@ import {
   sendLightWelcomeEmail,
   sendLightRecoveryTokenEmail,
   sendLightDeployFailedEmail,
+  sendDnsQuotaWarningEmail,
+  sendDnsQuotaCriticalEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
@@ -34,6 +36,8 @@ type TemplateKey =
   | 'light_recovery_token'
   | 'light_deploy_failed'
   | 'light_welcome'
+  | 'dns_quota_warning'
+  | 'dns_quota_critical'
 
 async function dispatch(template: TemplateKey, to: string) {
   switch (template) {
@@ -59,6 +63,21 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendLightDeployFailedEmail(to, 'SSH connect failed: timeout connecting to 109.199.105.213:22', SAMPLE_TOKEN)
     case 'light_welcome':
       return sendLightWelcomeEmail(to, SAMPLE_LIGHT_SUBDOMAIN)
+    case 'dns_quota_warning':
+      return sendDnsQuotaWarningEmail(to, {
+        current: 162,
+        limit: 200,
+        planTier: 'Free Website',
+        nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
+      })
+    case 'dns_quota_critical':
+      return sendDnsQuotaCriticalEmail(to, {
+        current: 200,
+        limit: 200,
+        planTier: 'Free Website',
+        blockedDomain: 'light-pure-fox-77.fractera.ai',
+        nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
+      })
     case 'black_box_inquiry':
       return sendBlackBoxInquiryEmail({
         email: to,

@@ -809,3 +809,106 @@ export async function sendLightDeployFailedEmail(to: string, errorMessage?: stri
     `,
   })
 }
+
+type DnsQuotaInfo = {
+  current: number
+  limit: number
+  planTier: string
+  nextTier?: { name: string; limit: number; monthly: string }
+}
+
+// Sent to admin when DNS records in the Cloudflare zone cross the warning
+// threshold (~80%). Bootstrap continues; this is a heads-up so the operator
+// has time to upgrade the plan or run a cleanup BEFORE deploys start to fail.
+export async function sendDnsQuotaWarningEmail(to: string, info: DnsQuotaInfo) {
+  const pct = Math.round((info.current / info.limit) * 100)
+  const remaining = info.limit - info.current
+  const next = info.nextTier
+  await sendEmail({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: `[Fractera] DNS quota warning — ${info.current}/${info.limit} (${pct}%) on ${info.planTier}`,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a">
+        <div style="display:inline-block;background:#f59e0b;color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">⚠ WARNING</div>
+        <h2 style="margin:0 0 12px;font-size:22px;font-weight:700">DNS quota approaching the limit</h2>
+
+        <p style="margin:0 0 16px;color:#333;line-height:1.6">
+          The Cloudflare zone <strong>fractera.ai</strong> is at
+          <strong>${info.current} / ${info.limit}</strong> DNS records (${pct}%) on the
+          <strong>${escapeHtml(info.planTier)}</strong> plan. Only <strong>${remaining} records remain</strong>
+          before new deploys start failing with <code>Record quota exceeded</code>.
+        </p>
+
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin:18px 0">
+          <p style="margin:0 0 4px;font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:1px;font-weight:700">Recommended action</p>
+          <p style="margin:0;color:#451a03;line-height:1.6;font-size:14px">
+            ${next
+              ? `Upgrade Cloudflare to <strong>${escapeHtml(next.name)}</strong> (limit ${next.limit} records, ${escapeHtml(next.monthly)}). Or free up records by deleting test/orphaned servers via the dashboard.`
+              : 'Free up records by deleting test/orphaned servers via the dashboard.'}
+          </p>
+        </div>
+
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">How to verify</p>
+        <ol style="margin:0 0 20px;padding-left:20px;line-height:1.7;color:#1f2937;font-size:14px">
+          <li>Open <a href="https://dash.cloudflare.com" style="color:#f59e0b;font-weight:600">Cloudflare dashboard</a> → zone <strong>fractera.ai</strong> → DNS → Records.</li>
+          <li>The count shown at the top of the page should match this email's number.</li>
+          <li>Records modified within the last 24 hours are usually the most recent test deploys.</li>
+        </ol>
+
+        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">
+          Automatic alert from the deploy pipeline. Bootstrap is still running for current deploys — but plan the upgrade before the count hits ${info.limit}.
+        </p>
+      </div>
+    `,
+  })
+}
+
+// Sent to admin when DNS records hit (or exceed) the plan limit. Deploys
+// are blocked at this point — the bootstrap's first-step quota check
+// aborts before reaching `/api/register*`, which would have returned
+// `code:81045 Record quota exceeded` from Cloudflare and left the user
+// with a half-done install.
+export async function sendDnsQuotaCriticalEmail(to: string, info: DnsQuotaInfo & { blockedDomain?: string }) {
+  const next = info.nextTier
+  await sendEmail({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: `[Fractera] DNS quota EXHAUSTED — deploys are blocked (${info.current}/${info.limit} on ${info.planTier})`,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a">
+        <div style="display:inline-block;background:#dc2626;color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">✕ CRITICAL</div>
+        <h2 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#b91c1c">DNS quota exhausted — deploys blocked</h2>
+
+        <p style="margin:0 0 16px;color:#333;line-height:1.6">
+          The Cloudflare zone <strong>fractera.ai</strong> has reached its DNS record limit:
+          <strong>${info.current} / ${info.limit}</strong> on the <strong>${escapeHtml(info.planTier)}</strong> plan.
+          New deploys are being rejected by the bootstrap's first-step quota check and will
+          return <code>Record quota exceeded</code> from Cloudflare if forced.
+        </p>
+
+        ${info.blockedDomain ? `
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px 16px;margin:18px 0">
+          <p style="margin:0 0 4px;font-size:11px;color:#991b1b;text-transform:uppercase;letter-spacing:1px;font-weight:700">Last blocked deploy</p>
+          <p style="margin:0;color:#7f1d1d;line-height:1.6;font-size:13px;font-family:monospace">${escapeHtml(info.blockedDomain)}</p>
+        </div>
+        ` : ''}
+
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;margin:18px 0">
+          <p style="margin:0 0 4px;font-size:11px;color:#0369a1;text-transform:uppercase;letter-spacing:1px;font-weight:700">Required action</p>
+          <ol style="margin:0;padding-left:20px;color:#0c4a6e;line-height:1.7;font-size:14px">
+            <li>${next ? `<strong>Upgrade Cloudflare to ${escapeHtml(next.name)}</strong> (${next.limit} records, ${escapeHtml(next.monthly)}) — fastest unblock.` : 'No higher plan available — only manual cleanup remaining.'}</li>
+            <li><strong>OR</strong> run cleanup: <code>POST /api/admin/cleanup-all?execute=true</code> (admin@fractera.ai only) to delete orphaned test DNS records.</li>
+            <li><strong>OR</strong> manually delete records via Cloudflare dashboard → zone <strong>fractera.ai</strong> → DNS → Records.</li>
+          </ol>
+        </div>
+
+        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">
+          Until quota is freed, every <code>register_and_deploy</code> / <code>/api/install</code> / <code>/api/embed/install</code> / Light variant will fail at the first step. No user-facing damage — clear error returned, no partial server install.
+        </p>
+      </div>
+    `,
+  })
+}

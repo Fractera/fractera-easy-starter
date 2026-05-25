@@ -16,6 +16,8 @@ const TEMPLATES = [
   { key: 'light_recovery_token',   label: 'Light — recovery token',                desc: 'Light variant of recovery-token. Points to https://www.fractera.ai/api/mcp/light (Light MCP), Light palette.' },
   { key: 'light_deploy_failed',    label: 'Light — deploy failed',                 desc: 'Light variant of deploy-failed. Points to Light MCP for retry; no Hermes/Brain mentions.' },
   { key: 'light_welcome',          label: 'Light — server is live',                desc: 'Light deploy-success email. Admin panel + public site + git sync hint — no Hermes, no Company Brain, no 5 platforms.' },
+  { key: 'dns_quota_warning',      label: 'DNS quota — warning (80%+)',            desc: 'Sent to admin@fractera.ai when Cloudflare DNS record count crosses ~80% of plan limit. Amber palette. Sample: 160/200 on Free Website.' },
+  { key: 'dns_quota_critical',     label: 'DNS quota — CRITICAL (100%)',           desc: 'Sent to admin@fractera.ai when DNS quota is exhausted; bootstrap aborts. Red palette. Sample: 200/200 on Free Website.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']
