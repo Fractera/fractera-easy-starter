@@ -8,12 +8,12 @@ type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 const LIGHT_STEPS: Step[] = [
   { id: 'connect',             label: 'Connecting to server',              done: false },
   { id: 'wipe_start',         label: 'Cleaning previous installation',     done: false },
+  { id: 'quota_check',        label: 'Checking DNS quota',                 done: false },
   { id: 'apt_update',         label: 'Updating system',                    done: false },
   { id: 'apt_install',        label: 'Installing base tools',              done: false },
   { id: 'node_install',       label: 'Installing Node.js 20',              done: false },
   { id: 'pm2',                label: 'Installing PM2',                     done: false },
   { id: 'register',           label: 'Registering your domain',            done: false },
-  { id: 'register_subdomains',label: 'Registering service subdomains',     done: false },
   { id: 'clone',              label: 'Downloading Fractera Light',         done: false },
   { id: 'deps_root',          label: 'Installing dependencies (1/4)',      done: false },
   { id: 'deps_app',           label: 'Installing dependencies (2/4)',      done: false },
