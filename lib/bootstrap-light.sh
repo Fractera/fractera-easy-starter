@@ -209,7 +209,7 @@ step_npm "deps_auth" "Installing dependencies (3/5)" \
 step_npm "deps_data" "Installing dependencies (4/5)" \
   "npm install --prefix $INSTALL_DIR/services/data && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/data && npm rebuild sharp --prefix $INSTALL_DIR/services/data" "$INSTALL_DIR/services/data"
 step_npm "deps_bridges_app" "Installing dependencies (5/5)" \
-  "npm install --prefix $INSTALL_DIR/bridges/app && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/bridges/app" "$INSTALL_DIR/bridges/app"
+  "npm install --prefix $INSTALL_DIR/bridges/app-light && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/bridges/app-light" "$INSTALL_DIR/bridges/app-light"
 
 log_email "deps_data" "All dependencies installed" 30
 
@@ -257,7 +257,7 @@ DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
 
-cat > "$INSTALL_DIR/bridges/app/.env.local" <<ENVEOF
+cat > "$INSTALL_DIR/bridges/app-light/.env.local" <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_APP_URL=
@@ -280,15 +280,18 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 # === Build (2: app + auth) ===
 step "build_app"         "Building app (production)"   "npm run build --prefix $INSTALL_DIR/app"
 step "build_auth"        "Building auth (production)"  "npm run build --prefix $INSTALL_DIR/services/auth"
-step "build_bridges_app" "Building admin (production)" "npm run build --prefix $INSTALL_DIR/bridges/app"
+step "build_bridges_app" "Building admin (production)" "npm run build --prefix $INSTALL_DIR/bridges/app-light"
 
 # === PM2: 3 processes ===
-pm2 delete fractera-light-app fractera-light-auth fractera-light-data fractera-light-admin >> "$LOG_FILE" 2>&1 || true
+# pm2 kill убивает daemon целиком (PID 0) — гарантированно удаляет zombie-записи
+# от старого dump.pm2 которые pm2 resurrect мог восстановить через systemd.
+# pm2 delete оставляет daemon живым, что создаёт race condition.
+pm2 kill >> "$LOG_FILE" 2>&1 || true
 
 step "start_app"   "Starting app service"   "cd $INSTALL_DIR/app && pm2 start npm --name fractera-light-app -- run start && cd $INSTALL_DIR"
 step "start_auth"  "Starting auth service"  "cd $INSTALL_DIR/services/auth && pm2 start npm --name fractera-light-auth -- run start && cd $INSTALL_DIR"
 step "start_data"  "Starting data service"  "cd $INSTALL_DIR/services/data && pm2 start node --name fractera-light-data -- server.js && cd $INSTALL_DIR"
-step "start_admin" "Starting admin service" "cd $INSTALL_DIR/bridges/app && pm2 start npm --name fractera-light-admin -- run start && cd $INSTALL_DIR"
+step "start_admin" "Starting admin service" "cd $INSTALL_DIR/bridges/app-light && pm2 start npm --name fractera-light-admin -- run start && cd $INSTALL_DIR"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving process configuration"
@@ -476,7 +479,7 @@ DATABASE_URL=file:$INSTALL_DIR/app/data/app.db
 ALLOWED_ORIGINS=https://$SUBDOMAIN
 ENVEOF
 
-cat > "$INSTALL_DIR/bridges/app/.env.local" <<ENVEOF
+cat > "$INSTALL_DIR/bridges/app-light/.env.local" <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=https://$SUBDOMAIN/auth
 NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
@@ -507,10 +510,10 @@ echo "ENV VALIDATION PASSED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs ===
-rm -rf "$INSTALL_DIR/app/.next" "$INSTALL_DIR/services/auth/.next" "$INSTALL_DIR/bridges/app/.next"
+rm -rf "$INSTALL_DIR/app/.next" "$INSTALL_DIR/services/auth/.next" "$INSTALL_DIR/bridges/app-light/.next"
 step "rebuild_app"         "Rebuilding app with domain"   "npm run build --prefix $INSTALL_DIR/app"
 step "rebuild_auth"        "Rebuilding auth with domain"  "npm run build --prefix $INSTALL_DIR/services/auth"
-step "rebuild_bridges_app" "Rebuilding admin with domain" "npm run build --prefix $INSTALL_DIR/bridges/app"
+step "rebuild_bridges_app" "Rebuilding admin with domain" "npm run build --prefix $INSTALL_DIR/bridges/app-light"
 
 CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
