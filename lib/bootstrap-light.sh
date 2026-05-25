@@ -297,6 +297,11 @@ pm2 save >> "$LOG_FILE" 2>&1 || true
 pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
 loginctl enable-linger root >> "$LOG_FILE" 2>&1 || true
+# pm2-root.service ships with Restart=on-failure — но PM2 daemon иногда exit 0
+# (например при OOM или systemd cleanup); тогда on-failure не триггерит restart.
+# Override на Restart=always чтобы PM2 daemon перезапускался при любом exit.
+sed -i 's/^Restart=on-failure$/Restart=always\nRestartSec=10/' /etc/systemd/system/pm2-root.service >> "$LOG_FILE" 2>&1 || true
+systemctl daemon-reload >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Nginx HTTP config — 3 server blocks ===
