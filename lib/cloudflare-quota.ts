@@ -81,15 +81,11 @@ async function fetchZoneInfo(): Promise<ZoneInfo> {
 // silent failure).
 async function shouldSendOnce(key: string, ttlSeconds: number): Promise<boolean> {
   try {
-    const { kv } = await import('@/lib/kv')
-    if (typeof (kv as unknown as { setnx?: unknown }).setnx === 'function') {
-      const ok = await (kv as unknown as { setnx: (k: string, v: string, opts?: unknown) => Promise<number> }).setnx(key, '1', { ex: ttlSeconds })
-      return ok === 1
-    }
-    // Fallback: get + set (race-prone but rare here)
-    const existing = await (kv as unknown as { get: (k: string) => Promise<unknown> }).get(key)
+    const { Redis } = await import('@upstash/redis')
+    const redis = Redis.fromEnv()
+    const existing = await redis.get(key)
     if (existing) return false
-    await (kv as unknown as { set: (k: string, v: string, opts?: unknown) => Promise<unknown> }).set(key, '1', { ex: ttlSeconds })
+    await redis.set(key, '1', { ex: ttlSeconds })
     return true
   } catch {
     return true
