@@ -305,6 +305,12 @@ loginctl enable-linger root >> "$LOG_FILE" 2>&1 || true
 # Override на Restart=always чтобы PM2 daemon перезапускался при любом exit.
 sed -i 's/^Restart=on-failure$/Restart=always\nRestartSec=10/' /etc/systemd/system/pm2-root.service >> "$LOG_FILE" 2>&1 || true
 systemctl daemon-reload >> "$LOG_FILE" 2>&1 || true
+# КРИТИЧНО: bootstrap запущен через systemd-run --scope. Когда скрипт завершится,
+# scope-unit закроется и systemd убьёт все процессы в cgroup — включая PM2 daemon.
+# systemctl restart pm2-root переносит PM2 daemon из scope в persistent service.
+pm2 kill >> "$LOG_FILE" 2>&1 || true
+systemctl restart pm2-root >> "$LOG_FILE" 2>&1 || true
+sleep 3
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Nginx HTTP config — 3 server blocks ===
@@ -523,6 +529,7 @@ CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-light-app fractera-light-auth fractera-light-data fractera-light-admin >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+pm2 save >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Wait for DNS propagation (1 domain only — path-based routing) ===
