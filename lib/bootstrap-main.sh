@@ -150,6 +150,17 @@ step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesour
 step "node_install" "Installing Node.js 20"     "apt-get install -y nodejs"
 step "pm2"          "Installing PM2"            "npm install -g pm2"
 
+# === AI CLI installations (5 platforms) ===
+# Each install is soft (failure non-fatal) — bridge will mark platform as
+# unavailable rather than abort the whole deploy. CLI bins land in
+# /root/.local/bin and /usr/local/bin so bridges/platforms server.js
+# can locate them via PATH.
+soft_step "install_claude" "Installing Claude Code CLI" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
+soft_step "install_codex"  "Installing Codex CLI"       "npm install -g @openai/codex"
+soft_step "install_gemini" "Installing Gemini CLI"      "npm install -g @google/gemini-cli"
+soft_step "install_qwen"   "Installing Qwen Code"       "npm install -g @qwen-code/qwen-code@latest"
+soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+
 # === Domain registration (3 subdomains: main + auth + data) ===
 CURRENT_STEP="register"
 CURRENT_LABEL="Registering your domain"
@@ -225,8 +236,12 @@ step_npm "deps_auth" "Installing dependencies (3/5)" \
   "npm install --prefix $INSTALL_DIR/services/auth && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/auth" "$INSTALL_DIR/services/auth"
 step_npm "deps_data" "Installing dependencies (4/5)" \
   "npm install --prefix $INSTALL_DIR/services/data && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/services/data && npm rebuild sharp --prefix $INSTALL_DIR/services/data" "$INSTALL_DIR/services/data"
-step_npm "deps_bridges_app" "Installing dependencies (5/5)" \
+step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
   "npm install --prefix $INSTALL_DIR/bridges/app-main && npm rebuild better-sqlite3 --prefix $INSTALL_DIR/bridges/app-main" "$INSTALL_DIR/bridges/app-main"
+
+# Bridge service deps — node-pty native build is the slow one here (~30s).
+step_npm "deps_bridges_platforms" "Installing dependencies (6/6)" \
+  "npm install --prefix $INSTALL_DIR/bridges/platforms" "$INSTALL_DIR/bridges/platforms"
 
 log_email "deps_data" "All dependencies installed" 30
 
@@ -283,6 +298,12 @@ NEXT_PUBLIC_PRODUCT=main
 DEPLOY_SECRET=$DEPLOY_SECRET
 BASE_PATH=enabled
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
+NEXT_PUBLIC_BRIDGE_URL=ws://localhost:3201/bridge/
+NEXT_PUBLIC_PTY_URL=ws://localhost:3201/bridge/
+NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
+NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
+NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
+NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -309,6 +330,10 @@ step "start_app"   "Starting app service"   "cd $INSTALL_DIR/app && pm2 start np
 step "start_auth"  "Starting auth service"  "cd $INSTALL_DIR/services/auth && pm2 start npm --name fractera-main-auth -- run start && cd $INSTALL_DIR"
 step "start_data"  "Starting data service"  "cd $INSTALL_DIR/services/data && pm2 start node --name fractera-main-data -- server.js && cd $INSTALL_DIR"
 step "start_admin" "Starting admin service" "cd $INSTALL_DIR/bridges/app-main && pm2 start npm --name fractera-main-admin -- run start && cd $INSTALL_DIR"
+
+# Bridge service — single Node process listening on 6 WS ports (3200-3205).
+# Same source file as old main (bridges/platforms/server.js, no fork).
+step "start_bridge" "Starting AI bridge service" "cd $INSTALL_DIR/bridges/platforms && pm2 start npm --name fractera-main-bridge -- run start && cd $INSTALL_DIR"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving process configuration"
@@ -427,6 +452,77 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # === AI bridges (WebSocket) ===
+    # 6 endpoints all served by the same Node process (bridges/platforms/server.js).
+    # PTY terminal stream — same path :3201 keeps the /bridge/ prefix internally
+    # so that nginx -> server.js handshake matches what the upstream expects.
+    location /bridge/ {
+        proxy_pass http://127.0.0.1:3201/bridge/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /claude-bridge/ {
+        proxy_pass http://127.0.0.1:3200/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /codex-bridge/ {
+        proxy_pass http://127.0.0.1:3202/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /gemini-bridge/ {
+        proxy_pass http://127.0.0.1:3203/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /qwen-bridge/ {
+        proxy_pass http://127.0.0.1:3204/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    location /kimi-bridge/ {
+        proxy_pass http://127.0.0.1:3205/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
     # Shell / app (catch-all)
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -511,6 +607,12 @@ NEXT_PUBLIC_PRODUCT=main
 DEPLOY_SECRET=$DEPLOY_SECRET
 BASE_PATH=enabled
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
+NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/bridge/
+NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/bridge/
+NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/codex-bridge/
+NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/gemini-bridge/
+NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/qwen-bridge/
+NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/kimi-bridge/
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -545,7 +647,7 @@ step "rebuild_bridges_app" "Rebuilding admin with domain" "npm run build --prefi
 CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-pm2 restart fractera-main-app fractera-main-auth fractera-main-data fractera-main-admin >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+pm2 restart fractera-main-app fractera-main-auth fractera-main-data fractera-main-admin fractera-main-bridge >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
 pm2 save >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
