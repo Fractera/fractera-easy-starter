@@ -243,7 +243,7 @@ step_npm "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefi
 step_npm "deps_auth"        "Installing dependencies (4/6)" \
   "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth" "services/auth"
 step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
-  "npm install --prefix bridges/app-main && npm rebuild better-sqlite3 --prefix bridges/app-main" "bridges/app-main"
+  "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app" "bridges/app"
 step_npm "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data" "services/data"
 log_email "deps_data" "All dependencies installed" 30
@@ -385,7 +385,7 @@ DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
 
-cat > /opt/fractera/bridges/app-main/.env.local <<ENVEOF
+cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://localhost:3001
 NEXT_PUBLIC_APP_URL=
@@ -509,7 +509,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 log_email "build_start" "Building services (this takes 5-10 min)" 40
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
-step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app-main"
+step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
@@ -517,7 +517,7 @@ pm2 delete all >> "$LOG_FILE" 2>&1 || true
 step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
-step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app-main && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
+step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
@@ -866,7 +866,7 @@ DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
 ENVEOF
 
-cat > /opt/fractera/bridges/app-main/.env.local <<ENVEOF
+cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
@@ -899,17 +899,17 @@ sed -i "s|^CORS_ORIGINS=.*|CORS_ORIGINS=http://localhost:3002,https://admin.$SUB
 
 # === Validate critical env vars are not empty or localhost ===
 MEDIA_VAL=$(grep "^DATA_PUBLIC_URL=" /opt/fractera/services/data/.env | cut -d'=' -f2)
-APP_VAL=$(grep "^NEXT_PUBLIC_APP_URL=" /opt/fractera/bridges/app-main/.env.local | cut -d'=' -f2)
-MEDIA_ADMIN_VAL=$(grep "^NEXT_PUBLIC_MEDIA_URL=" /opt/fractera/bridges/app-main/.env.local | cut -d'=' -f2)
+APP_VAL=$(grep "^NEXT_PUBLIC_APP_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
+MEDIA_ADMIN_VAL=$(grep "^NEXT_PUBLIC_MEDIA_URL=" /opt/fractera/bridges/app/.env.local | cut -d'=' -f2)
 
 if [ -z "$MEDIA_VAL" ] || echo "$MEDIA_VAL" | grep -q "localhost"; then
   fail "DATA_PUBLIC_URL is empty or localhost in services/data/.env — Vercel deploy may not be ready"
 fi
 if [ -z "$APP_VAL" ] || echo "$APP_VAL" | grep -q "localhost"; then
-  fail "NEXT_PUBLIC_APP_URL is empty or localhost in bridges/app-main/.env.local — Vercel deploy may not be ready"
+  fail "NEXT_PUBLIC_APP_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
 fi
 if [ -z "$MEDIA_ADMIN_VAL" ] || echo "$MEDIA_ADMIN_VAL" | grep -q "localhost"; then
-  fail "NEXT_PUBLIC_MEDIA_URL is empty or localhost in bridges/app-main/.env.local — Vercel deploy may not be ready"
+  fail "NEXT_PUBLIC_MEDIA_URL is empty or localhost in bridges/app/.env.local — Vercel deploy may not be ready"
 fi
 echo "ENV VALIDATION PASSED: all critical vars have real domains" >> "$LOG_FILE"
 
@@ -919,7 +919,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 log_email "rebuild_start" "Domain registered — rebuilding with real URLs" 75
 step "rebuild_app"         "Rebuilding shell with domain"   "npm run build --prefix app"
 step "rebuild_auth"        "Rebuilding auth with domain"    "npm run build --prefix services/auth"
-step "rebuild_bridges_app" "Rebuilding admin with domain"   "npm run build --prefix bridges/app-main"
+step "rebuild_bridges_app" "Rebuilding admin with domain"   "npm run build --prefix bridges/app"
 
 CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
