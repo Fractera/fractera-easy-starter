@@ -11,14 +11,13 @@ rm -rf /opt/fractera /opt/fractera-main /opt/fractera-light /opt/hermes-webui
 rm -rf /etc/fractera /etc/fractera-main /etc/fractera-light
 rm -rf /usr/local/lib/hermes-agent
 rm -rf /root/.hermes
-rm -rf /root/.local/share/uv /root/.cache/uv /root/.local/share/lightrag
+rm -rf /root/.local/share/uv /root/.cache/uv
 rm -rf /root/.bun
 rm -rf /root/.gemini /root/.claude /root/.config/openai /root/.openai \\
        /root/.config/qwen-code /root/.qwen \\
        /root/.config/kimi-cli /root/.kimi /root/.local/share/kimi-cli /root/.local/share/kimi 2>/dev/null || true
-rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi /root/.local/bin/kimi-cli \\
+rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi \\
       /root/.local/bin/uv /root/.local/bin/uvx 2>/dev/null || true
-rm -rf /root/.local/share/claude 2>/dev/null || true
 rm -f /usr/local/bin/claude /usr/local/bin/kimi 2>/dev/null || true
 rm -f /etc/nginx/sites-enabled/* /etc/nginx/sites-available/fractera /etc/nginx/sites-available/fractera-main /etc/nginx/sites-available/fractera-light
 nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true

@@ -47,29 +47,11 @@ export async function deployMainToServer({
 
         writeStream.on('close', () => {
           sftp.end()
-          // Launch via `setsid ... &` — identical mechanism to the proven
-          // original main deploy.ts. This is intentional, NOT systemd-run.
-          //
-          // Why this matters: systemd-run --scope spawns the bootstrap in a
-          // transient unit with a MINIMAL environment where $HOME is unset.
-          // The AI installers (uv tool install lightrag/hermes/kimi) resolve
-          // paths via $HOME/.local/... — with $HOME empty they expand to
-          // /.local/... and fail silently, so LightRAG/Hermes never install.
-          //
-          // setsid run through ssh.exec inherits the root login environment
-          // (HOME=/root), so uv works exactly as it does in the original main
-          // bootstrap that has shipped these tools reliably for months.
-          //
-          // Process survival: the original main uses setsid with no linger and
-          // works on this Contabo Ubuntu host. Our bootstrap-main.sh ALSO runs
-          // `loginctl enable-linger root` + `systemctl restart pm2-root`, so the
-          // PM2 daemon is moved to a persistent service regardless — strictly
-          // more protection than the original.
+          const bootstrapInner = `bash ${remoteScript} '${session_id}' '${secret}' '${safeGithubToken}' '${safeToken}' '${safeSubdomain}' > /tmp/fractera-main-install.log 2>&1`
           const cmd = [
             `chmod +x ${remoteScript}`,
-            `&& setsid bash ${remoteScript}`,
-            `'${session_id}' '${secret}' '${safeGithubToken}' '${safeToken}' '${safeSubdomain}'`,
-            `> /tmp/fractera-main-install.log 2>&1 < /dev/null &`,
+            `&& systemd-run --quiet --no-block --slice=fractera-main.slice`,
+            `bash -c "${bootstrapInner.replace(/"/g, '\\"')}"`,
           ].join(' ')
 
           ssh.exec(cmd, (err, stream) => {
