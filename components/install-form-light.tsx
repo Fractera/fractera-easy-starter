@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
+import { DeploySuccessToast } from './deploy-success-toast'
+import { DeployProgressToast } from './deploy-progress-toast'
 
 type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
@@ -60,6 +63,16 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
   const [now, setNow] = useState<number>(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
+  const [successSubdomain, setSuccessSubdomain] = useState<string | null>(null)
+  const [showProgressToast, setShowProgressToast] = useState(false)
+  const [emailConfirmed, setEmailConfirmed] = useState(false)
+  const [statusError, setStatusError] = useState<string | null>(null)
+  const { data: session, status: sessionStatus } = useSession()
+
+  useEffect(() => {
+    if (serverStatus !== 'fresh') setEmailConfirmed(false)
+  }, [serverStatus])
 
   useEffect(() => {
     if (!installing) return
@@ -67,9 +80,35 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
     return () => clearInterval(t)
   }, [installing])
 
+  async function checkNow() {
+    if (!ip || !login || !password) return
+    setServerStatus('checking')
+    try {
+      const res = await fetch('/api/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip, login, password }),
+      })
+      if (!res.ok) { setServerStatus('fresh'); return }
+      const data = await res.json()
+      if (data.installed) {
+        setServerStatus('installed')
+        if (data.subdomain) onSubdomainReady?.(data.subdomain)
+      } else {
+        setStatusError(data.sshError ?? null)
+        setServerStatus('fresh')
+      }
+    } catch {
+      setServerStatus('fresh')
+    }
+  }
+
   async function handleInstall() {
     if (!ip || !password) return
+    setServerStatus('idle')
+    setStatusError(null)
     setInstalling(true)
+    setShowProgressToast(true)
     onInstallingChange?.(true)
     setSteps(LIGHT_STEPS.map(s => ({ ...s, done: false })))
     setSubdomain('')
@@ -121,13 +160,16 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
           clearInterval(pollRef.current!)
           setSubdomain(progress.subdomain)
           setInstalling(false)
+          setShowProgressToast(false)
           onInstallingChange?.(false)
           onSubdomainReady?.(progress.subdomain)
+          setSuccessSubdomain(progress.subdomain)
         }
 
         if (progress.status === 'error') {
           clearInterval(pollRef.current!)
           setInstallError(progress.error ?? 'Installation failed')
+          setShowProgressToast(false)
           setInstalling(false)
           onInstallingChange?.(false)
           toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
@@ -149,39 +191,13 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
   const progress = Math.min(99, Math.round((doneCount / steps.length) * 100))
   const currentStep = steps.find(s => s.id === activeStep)
 
-  if (subdomain) {
-    return (
-      <div className="flex flex-col gap-4 w-full max-w-xl">
-        <div className="flex items-center gap-2">
-          <span className="text-green-600 text-lg">✓</span>
-          <p className="text-base font-semibold text-gray-900">Your backend is live</p>
-        </div>
-        <div className="flex flex-col gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
-          <a href={`https://${subdomain}`} target="_blank" rel="noopener noreferrer"
-            className="flex flex-col gap-0.5 group">
-            <span className="text-sm font-semibold text-green-700 group-hover:text-green-600 transition-colors">
-              ↗ {subdomain}
-            </span>
-            <span className="text-xs text-gray-500">Your public site</span>
-          </a>
-          <a href={`https://${subdomain}/admin`} target="_blank" rel="noopener noreferrer"
-            className="flex flex-col gap-0.5 group">
-            <span className="text-sm font-semibold text-green-700 group-hover:text-green-600 transition-colors">
-              ↗ {subdomain}/admin
-            </span>
-            <span className="text-xs text-gray-500">Admin panel — sign in to manage your site</span>
-          </a>
-        </div>
-      </div>
-    )
-  }
-
   return (
+    <>
     <div className="w-full max-w-xl flex flex-col gap-6">
 
-      {!installing && (
+      {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm font-bold uppercase tracking-widest text-gray-700">
+          <p className="text-sm font-bold uppercase tracking-widest text-slate-600">
             Deploy your backend
           </p>
 
@@ -209,13 +225,75 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
             />
           </div>
 
-          <button
-            onClick={handleInstall}
-            disabled={!ip || !password}
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Deploy Fractera Light
-          </button>
+          {serverStatus === 'checking' && (
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <span className="inline-block w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+              Checking server…
+            </div>
+          )}
+
+          {serverStatus === 'installed' && (
+            <div className="flex flex-col gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
+              <div className="flex items-center gap-2">
+                <span className="text-green-600">&#10003;</span>
+                <p className="text-sm font-semibold text-green-700">Fractera Light is already installed on this server</p>
+              </div>
+            </div>
+          )}
+
+          {serverStatus === 'fresh' && statusError && (
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-amber-600 px-1">Can&apos;t reach the server. Check your IP and credentials.</p>
+              <button type="button" onClick={checkNow}
+                className="text-xs font-semibold text-slate-700 border border-gray-300 hover:border-gray-500 px-3 py-1.5 rounded-lg transition-colors">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {serverStatus === 'fresh' && (
+            sessionStatus === 'loading' ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <span className="inline-block w-3.5 h-3.5 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin" />
+                Loading account info…
+              </div>
+            ) : session?.user?.email ? (
+              <div className="flex flex-col gap-3 bg-sky-50 border border-sky-200 rounded-xl p-4">
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs text-sky-600 uppercase tracking-widest font-medium">Updates will be sent to</p>
+                  <p className="text-sm font-semibold text-slate-900">{session.user.email}</p>
+                </div>
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={emailConfirmed}
+                    onChange={e => setEmailConfirmed(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-sky-600 cursor-pointer shrink-0"
+                  />
+                  <span className="text-sm text-slate-700 leading-snug">
+                    I confirm this email is correct and I want to receive deployment updates
+                  </span>
+                </label>
+              </div>
+            ) : null
+          )}
+
+          {serverStatus === 'idle' && ip && login && password && (
+            <button type="button" onClick={checkNow}
+              className="w-full border border-gray-300 hover:border-gray-500 text-slate-600 hover:text-slate-900 font-medium px-6 py-3 rounded-xl text-sm transition-colors">
+              Check server
+            </button>
+          )}
+
+          {(serverStatus === 'fresh' || serverStatus === 'idle') && (
+            <button
+              onClick={handleInstall}
+              disabled={!ip || !password || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Deploy Fractera Light
+            </button>
+          )}
 
           <p className="text-xs text-gray-400">
             Ubuntu 22.04 / 24.04 · root access required · ~10 min install
@@ -226,7 +304,7 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
       {installing && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-base font-semibold text-gray-900">
+            <p className="text-base font-semibold text-slate-900">
               {installError ? 'Installation failed' : (currentStep?.label ?? 'Preparing…')}
               {!installError && activeStep && (
                 <span className="text-gray-400 ml-2 font-normal text-sm">
@@ -234,12 +312,12 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
                 </span>
               )}
             </p>
-            <p className="text-base font-bold text-gray-900">{progress}%</p>
+            <p className="text-base font-bold text-slate-900">{progress}%</p>
           </div>
 
           <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 ${installError ? 'bg-red-500' : 'bg-gray-900'}`}
+              className={`h-full transition-all duration-500 ${installError ? 'bg-red-500' : 'bg-slate-900'}`}
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -254,12 +332,18 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
             <div className="flex flex-col gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-sm font-medium text-red-700">Error details</p>
               <p className="text-xs text-red-600 break-all whitespace-pre-wrap font-mono">{installError}</p>
-              <button
-                onClick={reset}
-                className="self-start text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors px-4 py-2 rounded-lg"
-              >
+              <button onClick={reset}
+                className="self-start text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors px-4 py-2 rounded-lg">
                 Try again
               </button>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                or{' '}
+                <a href="/en/partners" target="_blank" rel="noopener noreferrer"
+                  className="text-sky-600 hover:text-sky-500 transition-colors">
+                  launch deployment via an AI agent (MCP)
+                </a>
+                {' '}— it can fix the error itself.
+              </p>
             </div>
           )}
 
@@ -290,5 +374,34 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
       )}
 
     </div>
+
+    {showProgressToast && (
+      <DeployProgressToast
+        progress={progress}
+        strings={{
+          title: 'Fractera Light is being deployed…',
+          dashboardNote: 'You can close this page — deployment will continue on the server. Check your email for updates.',
+          checkboxLabel: 'I understand the deployment is running and I can safely close this page',
+          hideButton: 'Hide this notification',
+        }}
+        onHide={() => setShowProgressToast(false)}
+      />
+    )}
+
+    {successSubdomain && (
+      <DeploySuccessToast
+        subdomain={successSubdomain}
+        strings={{
+          title: 'Your Fractera Light backend is live!',
+          siteLabel: 'Your site',
+          adminLabel: 'Admin panel',
+          dashboardNote: 'Register your first account on the admin panel — the first user automatically becomes admin.',
+          checkboxLabel: 'I saved the links above',
+          closeButton: 'Close',
+        }}
+        onClose={() => setSuccessSubdomain(null)}
+      />
+    )}
+    </>
   )
 }
