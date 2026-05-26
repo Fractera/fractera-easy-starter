@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
+import type { LightContent } from '@/lib/i18n/types'
 
 type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
@@ -47,10 +48,13 @@ const LIGHT_STEPS: Step[] = [
   { id: 'https_check',        label: 'Verifying HTTPS is working',         done: false },
 ]
 
-export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
+type InstallFormStrings = LightContent['installForm']
+
+export function InstallFormLight({ strings: t, onSubdomainReady, onInstallingChange }: {
+  strings: InstallFormStrings
   onSubdomainReady?: (subdomain: string) => void
   onInstallingChange?: (installing: boolean) => void
-} = {}) {
+}) {
   const [ip, setIp] = useState('')
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
@@ -76,8 +80,8 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
 
   useEffect(() => {
     if (!installing) return
-    const t = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(t)
+    const iv = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(iv)
   }, [installing])
 
   async function checkNow() {
@@ -168,11 +172,11 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
 
         if (progress.status === 'error') {
           clearInterval(pollRef.current!)
-          setInstallError(progress.error ?? 'Installation failed')
+          setInstallError(progress.error ?? t.installFailed)
           setShowProgressToast(false)
           setInstalling(false)
           onInstallingChange?.(false)
-          toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
+          toast.error(progress.error ?? t.installFailed, { duration: 10000 })
         }
       } catch {
         // retry next cycle
@@ -198,37 +202,25 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
       {!installing && !subdomain && (
         <div className="flex flex-col gap-4">
           <p className="text-sm font-bold uppercase tracking-widest text-slate-600">
-            Deploy your backend
+            {t.title}
           </p>
 
           <div className="flex flex-col gap-3">
-            <input
-              type="text"
-              placeholder="Server IP address"
-              value={ip}
+            <input type="text" placeholder={t.ipPlaceholder} value={ip}
               onChange={e => setIp(e.target.value)}
-              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white"
-            />
-            <input
-              type="text"
-              placeholder="Login (default: root)"
-              value={login}
+              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white" />
+            <input type="text" placeholder={t.loginPlaceholder} value={login}
               onChange={e => setLogin(e.target.value)}
-              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white"
-            />
-            <input
-              type="password"
-              placeholder="SSH password"
-              value={password}
+              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white" />
+            <input type="password" placeholder={t.passwordPlaceholder} value={password}
               onChange={e => setPassword(e.target.value)}
-              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white"
-            />
+              className="border border-gray-300 rounded-xl px-5 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-600 transition-colors bg-white" />
           </div>
 
           {serverStatus === 'checking' && (
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="inline-block w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-              Checking server…
+              {t.checking}
             </div>
           )}
 
@@ -236,17 +228,17 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
             <div className="flex flex-col gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
               <div className="flex items-center gap-2">
                 <span className="text-green-600">&#10003;</span>
-                <p className="text-sm font-semibold text-green-700">Fractera Light is already installed on this server</p>
+                <p className="text-sm font-semibold text-green-700">{t.alreadyInstalled}</p>
               </div>
             </div>
           )}
 
           {serverStatus === 'fresh' && statusError && (
             <div className="flex items-center gap-3">
-              <p className="text-xs text-amber-600 px-1">Can&apos;t reach the server. Check your IP and credentials.</p>
+              <p className="text-xs text-amber-600 px-1">{t.cantReach}</p>
               <button type="button" onClick={checkNow}
                 className="text-xs font-semibold text-slate-700 border border-gray-300 hover:border-gray-500 px-3 py-1.5 rounded-lg transition-colors">
-                Retry
+                {t.retry}
               </button>
             </div>
           )}
@@ -255,24 +247,19 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
             sessionStatus === 'loading' ? (
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <span className="inline-block w-3.5 h-3.5 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin" />
-                Loading account info…
+                {t.loadingAccount}
               </div>
             ) : session?.user?.email ? (
               <div className="flex flex-col gap-3 bg-sky-50 border border-sky-200 rounded-xl p-4">
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs text-sky-600 uppercase tracking-widest font-medium">Updates will be sent to</p>
+                  <p className="text-xs text-sky-600 uppercase tracking-widest font-medium">{t.updatesTo}</p>
                   <p className="text-sm font-semibold text-slate-900">{session.user.email}</p>
                 </div>
                 <label className="flex items-start gap-3 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={emailConfirmed}
+                  <input type="checkbox" checked={emailConfirmed}
                     onChange={e => setEmailConfirmed(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-sky-600 cursor-pointer shrink-0"
-                  />
-                  <span className="text-sm text-slate-700 leading-snug">
-                    I confirm this email is correct and I want to receive deployment updates
-                  </span>
+                    className="mt-0.5 w-4 h-4 accent-sky-600 cursor-pointer shrink-0" />
+                  <span className="text-sm text-slate-700 leading-snug">{t.emailConfirm}</span>
                 </label>
               </div>
             ) : null
@@ -281,23 +268,19 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
           {serverStatus === 'idle' && ip && login && password && (
             <button type="button" onClick={checkNow}
               className="w-full border border-gray-300 hover:border-gray-500 text-slate-600 hover:text-slate-900 font-medium px-6 py-3 rounded-xl text-sm transition-colors">
-              Check server
+              {t.checkServer}
             </button>
           )}
 
           {(serverStatus === 'fresh' || serverStatus === 'idle') && (
-            <button
-              onClick={handleInstall}
+            <button onClick={handleInstall}
               disabled={!ip || !password || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              Deploy Fractera Light
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+              {t.deployCta}
             </button>
           )}
 
-          <p className="text-xs text-gray-400">
-            Ubuntu 22.04 / 24.04 · root access required · ~10 min install
-          </p>
+          <p className="text-xs text-gray-400">{t.credentials}</p>
         </div>
       )}
 
@@ -305,7 +288,7 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <p className="text-base font-semibold text-slate-900">
-              {installError ? 'Installation failed' : (currentStep?.label ?? 'Preparing…')}
+              {installError ? t.installFailed : (currentStep?.label ?? t.preparing)}
               {!installError && activeStep && (
                 <span className="text-gray-400 ml-2 font-normal text-sm">
                   — {Math.floor((now - stepStartedAt) / 1000)}s
@@ -316,33 +299,29 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
           </div>
 
           <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 ${installError ? 'bg-red-500' : 'bg-slate-900'}`}
-              style={{ width: `${progress}%` }}
-            />
+            <div className={`h-full transition-all duration-500 ${installError ? 'bg-red-500' : 'bg-slate-900'}`}
+              style={{ width: `${progress}%` }} />
           </div>
 
           {!installError && now - lastUpdateAt > 60000 && (
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              No updates for {Math.floor((now - lastUpdateAt) / 1000)}s — the step may be running a long operation.
+              {t.silentWarning.replace('{secs}', String(Math.floor((now - lastUpdateAt) / 1000)))}
             </p>
           )}
 
           {installError && (
             <div className="flex flex-col gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-red-700">Error details</p>
+              <p className="text-sm font-medium text-red-700">{t.errorDetails}</p>
               <p className="text-xs text-red-600 break-all whitespace-pre-wrap font-mono">{installError}</p>
               <button onClick={reset}
                 className="self-start text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors px-4 py-2 rounded-lg">
-                Try again
+                {t.tryAgain}
               </button>
               <p className="text-xs text-gray-400 leading-relaxed">
-                or{' '}
                 <a href="/en/partners" target="_blank" rel="noopener noreferrer"
                   className="text-sky-600 hover:text-sky-500 transition-colors">
-                  launch deployment via an AI agent (MCP)
+                  {t.mcpRetry}
                 </a>
-                {' '}— it can fix the error itself.
               </p>
             </div>
           )}
@@ -376,31 +355,13 @@ export function InstallFormLight({ onSubdomainReady, onInstallingChange }: {
     </div>
 
     {showProgressToast && (
-      <DeployProgressToast
-        progress={progress}
-        strings={{
-          title: 'Fractera Light is being deployed…',
-          dashboardNote: 'You can close this page — deployment will continue on the server. Check your email for updates.',
-          checkboxLabel: 'I understand the deployment is running and I can safely close this page',
-          hideButton: 'Hide this notification',
-        }}
-        onHide={() => setShowProgressToast(false)}
-      />
+      <DeployProgressToast progress={progress} strings={t.progressToast}
+        onHide={() => setShowProgressToast(false)} />
     )}
 
     {successSubdomain && (
-      <DeploySuccessToast
-        subdomain={successSubdomain}
-        strings={{
-          title: 'Your Fractera Light backend is live!',
-          siteLabel: 'Your site',
-          adminLabel: 'Admin panel',
-          dashboardNote: 'Register your first account on the admin panel — the first user automatically becomes admin.',
-          checkboxLabel: 'I saved the links above',
-          closeButton: 'Close',
-        }}
-        onClose={() => setSuccessSubdomain(null)}
-      />
+      <DeploySuccessToast subdomain={successSubdomain} strings={t.successToast}
+        onClose={() => setSuccessSubdomain(null)} />
     )}
     </>
   )

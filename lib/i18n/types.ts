@@ -252,6 +252,30 @@ export type LightContent = {
     }[]
   }
   ctaFooter: { label: string; h2: string; description: string; cta: string }
+  installForm: {
+    title: string
+    ipPlaceholder: string
+    loginPlaceholder: string
+    passwordPlaceholder: string
+    checking: string
+    alreadyInstalled: string
+    cantReach: string
+    retry: string
+    loadingAccount: string
+    updatesTo: string
+    emailConfirm: string
+    checkServer: string
+    deployCta: string
+    credentials: string
+    installFailed: string
+    preparing: string
+    silentWarning: string
+    errorDetails: string
+    tryAgain: string
+    mcpRetry: string
+    progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string }
+    successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; checkboxLabel: string; closeButton: string }
+  }
 }
 
 // Cookie consent banner. Kept in locale files (not hardcoded) so future

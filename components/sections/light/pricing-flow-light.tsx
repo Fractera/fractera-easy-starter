@@ -86,6 +86,7 @@ export function LightPricingFlow({ content }: { content: LightContent }) {
             </ul>
             {session ? (
               <InstallFormLight
+                strings={content.installForm}
                 onSubdomainReady={setLiveSubdomain}
                 onInstallingChange={setInstalling}
               />
