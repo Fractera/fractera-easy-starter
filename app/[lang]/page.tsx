@@ -17,7 +17,7 @@ import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
-import { BlackBoxSection } from '@/components/sections/black-box'
+import { CompanyBrainSection } from '@/components/sections/company-brain'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 import { MainDeploySection } from '@/components/sections/main-deploy-section'
 
@@ -96,7 +96,7 @@ export default async function HomePage({
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <DeployButton />
               <FractеraPromo />
-              <BlackBoxSection />
+              <CompanyBrainSection />
               <DeployButton />
               <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
               <DeployButton />

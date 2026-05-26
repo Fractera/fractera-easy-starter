@@ -16,7 +16,7 @@ import { LightFaq } from '@/components/sections/light/faq-light'
 import { LightCtaFooter } from '@/components/sections/light/cta-footer-light'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
-import { BlackBoxSection } from '@/components/sections/black-box'
+import { CompanyBrainSection } from '@/components/sections/company-brain'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 
 const META_EN = {
@@ -171,7 +171,7 @@ export default async function LightPage({ params }: { params: Promise<{ lang: st
               <LoopShowcase />
             </div>
             <FractеraPromo />
-            <BlackBoxSection />
+            <CompanyBrainSection />
             <SponsorshipSection />
           </ContentProvider>
         </div>

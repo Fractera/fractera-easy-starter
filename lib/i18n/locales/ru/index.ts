@@ -8,7 +8,7 @@ import { install } from './install'
 import { features } from './features'
 import { faqItems } from './faq'
 import { sponsorship } from './sponsorship'
-import { blackBox } from './black-box'
+import { companyBrain } from './company-brain'
 
 export const ru: SiteContent = {
   ...hero,
@@ -19,6 +19,6 @@ export const ru: SiteContent = {
   ...install,
   ...features,
   ...sponsorship,
-  ...blackBox,
+  ...companyBrain,
   faqItems,
 }

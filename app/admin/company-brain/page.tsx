@@ -28,7 +28,7 @@ const STATUS_COLORS: Record<string, string> = {
   lost:           'text-white/40 border-white/15 bg-white/[0.04]',
 }
 
-export default function BlackBoxPage() {
+export default function CompanyBrainPage() {
   const [q, setQ] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [rows, setRows] = useState<Row[]>([])
@@ -40,7 +40,7 @@ export default function BlackBoxPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const url = new URL('/api/admin/black-box', window.location.origin)
+    const url = new URL('/api/admin/company-brain', window.location.origin)
     if (q.trim()) url.searchParams.set('q', q.trim())
     if (statusFilter) url.searchParams.set('status', statusFilter)
     try {
@@ -68,7 +68,7 @@ export default function BlackBoxPage() {
     const body: Record<string, unknown> = { id }
     if (statusChange && statusChange !== current?.status) body.status = statusChange
     if (note) body.note = note
-    const res = await fetch('/api/admin/black-box', {
+    const res = await fetch('/api/admin/company-brain', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -84,7 +84,7 @@ export default function BlackBoxPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold">Black Box CRM</h1>
+        <h1 className="text-2xl font-bold">AI Company Brain CRM</h1>
         <div className="text-sm text-white/55">Inquiries: <strong className="text-white">{rows.length}</strong></div>
       </div>
 

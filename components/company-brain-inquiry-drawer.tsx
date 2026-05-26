@@ -12,7 +12,7 @@ type Props = {
   email: string
 }
 
-export function BlackBoxInquiryDrawer({ open, onClose, lang, email }: Props) {
+export function CompanyBrainInquiryDrawer({ open, onClose, lang, email }: Props) {
   const isRu = lang === 'ru'
   const [name, setName] = useState('')
   const [company, setCompany] = useState('')
@@ -36,7 +36,7 @@ export function BlackBoxInquiryDrawer({ open, onClose, lang, email }: Props) {
   if (!open) return null
 
   const t = isRu ? {
-    title: 'Fractera Black Box — заявка на консультацию',
+    title: 'Fractera AI Company Brain — заявка на консультацию',
     subtitle: 'Эти данные помогут основателю Fractera подготовиться к разговору. Все поля кроме email — необязательные.',
     nameLabel: 'Ваше имя',
     companyLabel: 'Название компании',
@@ -56,7 +56,7 @@ export function BlackBoxInquiryDrawer({ open, onClose, lang, email }: Props) {
     successBody: 'Основатель Fractera получил вашу заявку и свяжется с вами в течение 48 часов. Проверьте «Спам», если ответа не будет во входящих.',
     successClose: 'Понятно',
   } : {
-    title: 'Fractera Black Box — consultation inquiry',
+    title: 'Fractera AI Company Brain — consultation inquiry',
     subtitle: 'These details help the Fractera founder prepare for the call. All fields except email are optional.',
     nameLabel: 'Your name',
     companyLabel: 'Company name',
@@ -82,7 +82,7 @@ export function BlackBoxInquiryDrawer({ open, onClose, lang, email }: Props) {
     if (submitting) return
     setSubmitting(true)
     try {
-      const res = await fetch('/api/black-box/inquiry', {
+      const res = await fetch('/api/company-brain/inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -134,7 +134,7 @@ export function BlackBoxInquiryDrawer({ open, onClose, lang, email }: Props) {
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">Fractera Black Box</span>
+                <span className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">Fractera AI Company Brain</span>
                 <h2 className="text-xl md:text-2xl font-bold text-white font-serif">{t.title}</h2>
                 <p className="text-sm text-white/60 leading-relaxed">{t.subtitle}</p>
               </div>

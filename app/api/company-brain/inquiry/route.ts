@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { sendBlackBoxInquiryEmail } from '@/lib/email'
+import { sendCompanyBrainInquiryEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -27,23 +27,21 @@ export async function POST(req: NextRequest) {
   }
 
   // Persist to CRM first so an email-send failure doesn't lose the lead.
-  // Email is best-effort — if Resend has a hiccup the row is still in the DB
-  // and the admin sees the inquiry in /admin/blackbox.
+  // DB model is still named blackBoxInquiry (table rename is a risky migration
+  // that could drop existing leads — kept as-is; the product is "Company Brain"
+  // everywhere the user sees it).
   let inquiryId: string | null = null
   try {
     const row = await db.blackBoxInquiry.create({ data: payload })
     inquiryId = row.id
   } catch (err) {
-    console.error('[black-box/inquiry] DB write failed', err)
-    // Fall through — still try to send the email; the admin will at least see
-    // the inquiry in their inbox even if the CRM row didn't make it.
+    console.error('[company-brain/inquiry] DB write failed', err)
   }
 
   try {
-    await sendBlackBoxInquiryEmail(payload)
+    await sendCompanyBrainInquiryEmail(payload)
   } catch (err) {
-    console.error('[black-box/inquiry] email send failed', err)
-    // If DB write also failed above, surface a 500 — neither channel got it.
+    console.error('[company-brain/inquiry] email send failed', err)
     if (!inquiryId) {
       return NextResponse.json({ error: 'send failed' }, { status: 500 })
     }

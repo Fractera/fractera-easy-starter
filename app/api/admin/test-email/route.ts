@@ -8,7 +8,7 @@ import {
   sendRecoveryTokenEmail,
   sendQueuedEmail,
   sendExpiryWarningEmail,
-  sendBlackBoxInquiryEmail,
+  sendCompanyBrainInquiryEmail,
   sendLightInstallStartedEmail,
   sendLightWelcomeEmail,
   sendLightRecoveryTokenEmail,
@@ -31,7 +31,7 @@ type TemplateKey =
   | 'deploy_failed'
   | 'queued'
   | 'expiry_warning'
-  | 'black_box_inquiry'
+  | 'company_brain_inquiry'
   | 'light_install_started'
   | 'light_recovery_token'
   | 'light_deploy_failed'
@@ -78,8 +78,8 @@ async function dispatch(template: TemplateKey, to: string) {
         blockedDomain: 'light-pure-fox-77.fractera.ai',
         nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
       })
-    case 'black_box_inquiry':
-      return sendBlackBoxInquiryEmail({
+    case 'company_brain_inquiry':
+      return sendCompanyBrainInquiryEmail({
         email: to,
         name: 'Sample Customer',
         company: 'Acme Inc.',

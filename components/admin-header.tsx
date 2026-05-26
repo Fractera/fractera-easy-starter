@@ -10,7 +10,7 @@ const TABS = [
   { href: '/admin/sponsors-5',  label: '$5 sponsors' },
   { href: '/admin/sponsors-20', label: '$20 sponsors' },
   { href: '/admin/whitelabel',  label: 'White-label' },
-  { href: '/admin/blackbox',    label: 'Black Box' },
+  { href: '/admin/company-brain',    label: 'Company Brain' },
   { href: '/admin/partners',    label: 'Partners' },
   { href: '/admin/servers',     label: 'Servers' },
   { href: '/admin/deployments', label: 'Deployments' },

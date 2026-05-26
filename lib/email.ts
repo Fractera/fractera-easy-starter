@@ -595,7 +595,7 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c))
 }
 
-type BlackBoxInquiry = {
+type CompanyBrainInquiry = {
   email: string
   name?: string
   company?: string
@@ -607,7 +607,7 @@ type BlackBoxInquiry = {
   lang?: string
 }
 
-export async function sendBlackBoxInquiryEmail(inquiry: BlackBoxInquiry) {
+export async function sendCompanyBrainInquiryEmail(inquiry: CompanyBrainInquiry) {
   const rows: [string, string | undefined][] = [
     ['Email', inquiry.email],
     ['Name', inquiry.name],
@@ -632,10 +632,10 @@ export async function sendBlackBoxInquiryEmail(inquiry: BlackBoxInquiry) {
     from: FROM,
     to: 'admin@fractera.ai',
     replyTo: inquiry.email,
-    subject: `Black Box inquiry — ${inquiry.company?.trim() || inquiry.email}`,
+    subject: `AI Company Brain inquiry — ${inquiry.company?.trim() || inquiry.email}`,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#111">
-        <h2 style="margin:0 0 6px">Fractera Black Box — new consultation inquiry</h2>
+        <h2 style="margin:0 0 6px">Fractera AI Company Brain — new consultation inquiry</h2>
         <p style="margin:0 0 16px;color:#666;font-size:13px">Reply directly to this email — it goes to the inquirer (${escapeHtml(inquiry.email)}).</p>
         <table style="width:100%;border-collapse:collapse;border:1px solid #eee">
           ${rowsHtml}

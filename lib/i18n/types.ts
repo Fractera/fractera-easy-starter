@@ -124,7 +124,7 @@ export type SiteContent = {
   featuresHeader: { label: string; h2: string; description: string }
   featureList: { title: string; description: string; badge: string }[]
   promoSection: { h2: string; description: string; githubButton: string }
-  blackBox: {
+  companyBrain: {
     label: string
     h2: string
     subhead: string
