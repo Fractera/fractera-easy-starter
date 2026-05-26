@@ -931,3 +931,117 @@ export async function sendDnsQuotaCriticalEmail(to: string, info: DnsQuotaInfo &
     `,
   })
 }
+
+// ─── Fractera Main emails ──────────────────────────────────────────────────────
+
+export async function sendMainInstallStartedEmail(to: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: 'Fractera Main — your backend is being installed',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#111">
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Installation started</h2>
+        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+          We're setting up <strong>Fractera</strong> on your server.
+          This usually takes <strong>10–15 minutes</strong>.
+        </p>
+        <ul style="margin:0 0 20px;padding-left:20px;color:#444;line-height:2;font-size:14px">
+          <li><strong>App</strong> — your landing page + protected dashboard</li>
+          <li><strong>Auth</strong> — login, registration, roles, guest access</li>
+          <li><strong>Admin</strong> — management panel (preview, DB, media, users)</li>
+          <li><strong>Data</strong> — file &amp; media storage (SQLite + local storage)</li>
+        </ul>
+        <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
+          You can watch live progress at
+          <a href="https://fractera.ai" style="color:#6366f1">fractera.ai</a>
+          — the install bar on the page updates in real time.
+        </p>
+      </div>
+    `,
+  })
+}
+
+export async function sendMainWelcomeEmail(to: string, subdomain: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: 'Your Fractera backend is live',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a">
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="display:inline-block;background:#10b981;color:#fff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">✓ Live</div>
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;line-height:1.2">Your Fractera backend is live</h1>
+          <p style="margin:0;color:#666;font-size:15px;line-height:1.5">Sign in to the admin panel to manage your site.</p>
+        </div>
+        <div style="text-align:center;margin:28px 0">
+          <a href="https://${subdomain}/admin" style="display:inline-block;background:#6366f1;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open admin panel →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${subdomain}/admin</p>
+        </div>
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Your public site</div>
+              <a href="https://${subdomain}" style="color:#6366f1;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin panel</div>
+              <a href="https://${subdomain}/admin" style="color:#6366f1;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}/admin</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `,
+  })
+}
+
+export async function sendMainRecoveryTokenEmail(to: string, serverToken: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: 'Save your Fractera recovery token (backup — only if needed)',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a">
+        <h2 style="margin:0 0 12px;font-size:22px;font-weight:700">Save this in case anything goes wrong</h2>
+        <p style="margin:0 0 16px;color:#333;line-height:1.6">
+          We just launched the deployment of your Fractera backend. <strong>You do not need to do anything right now.</strong>
+        </p>
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your recovery token</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#0a0a0a;font-family:monospace;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">${escapeHtml(serverToken)}</p>
+        <p style="margin:0 0 16px;color:#555;font-size:13px;line-height:1.6;background:#fffbeb;border:1px solid #fef3c7;border-radius:8px;padding:12px">
+          <strong style="color:#92400e">If everything goes well — you can safely ignore this email.</strong>
+        </p>
+        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">Questions? Reply directly to this email — it goes to admin@fractera.ai.</p>
+      </div>
+    `,
+  })
+}
+
+export async function sendMainDeployFailedEmail(to: string, errorMessage?: string, serverToken?: string) {
+  await sendEmail({
+    from: FROM,
+    to,
+    replyTo: 'admin@fractera.ai',
+    subject: 'Your Fractera deployment did not complete',
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#0a0a0a">
+        <h2 style="margin:0 0 12px;font-size:22px;font-weight:700">Deployment did not complete</h2>
+        <p style="margin:0 0 16px;color:#333;line-height:1.6">
+          We started setting up your Fractera backend, but the deployment ran into a problem.
+        </p>
+        ${errorMessage ? `
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">What went wrong</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#b91c1c;font-family:monospace;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;line-height:1.5;word-break:break-word">${escapeHtml(errorMessage)}</p>
+        ` : ''}
+        ${serverToken ? `
+        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your server token (for retry)</p>
+        <p style="margin:0 0 20px;font-size:13px;color:#0a0a0a;font-family:monospace;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all">${escapeHtml(serverToken)}</p>
+        ` : ''}
+        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">Need help? Reply to this email — it goes to admin@fractera.ai.</p>
+      </div>
+    `,
+  })
+}

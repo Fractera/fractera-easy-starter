@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createDnsRecord, findLightDnsRecordByIp } from '@/lib/cloudflare'
+import { createDnsRecord, findMainDnsRecordByIp } from '@/lib/cloudflare'
 import { generateSubdomain } from '@/lib/subdomain'
 
 export async function POST(req: NextRequest) {
@@ -45,23 +45,4 @@ export async function POST(req: NextRequest) {
 
   console.log(`${TAG} success ${fullDomain} -> ${ip}`)
   return NextResponse.json({ subdomain: fullDomain, session_id })
-}
-
-async function findMainDnsRecordByIp(ip: string): Promise<string | null> {
-  const CLOUDFLARE_API = 'https://api.cloudflare.com/client/v4'
-  const zoneId = process.env.CLOUDFLARE_ZONE_ID!
-  const token = process.env.CLOUDFLARE_API_TOKEN!
-
-  const res = await fetch(
-    `${CLOUDFLARE_API}/zones/${zoneId}/dns_records?type=A&content=${encodeURIComponent(ip)}`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
-  )
-  if (!res.ok) return null
-
-  const json = await res.json() as { result?: { name: string }[] }
-  const records = json.result ?? []
-  const mainRecord = records.find(r =>
-    r.name.startsWith('main-') && r.name.endsWith('.fractera.ai')
-  )
-  return mainRecord ? mainRecord.name : null
 }

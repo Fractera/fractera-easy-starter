@@ -19,6 +19,7 @@ import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { BlackBoxSection } from '@/components/sections/black-box'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
+import { MainDeploySection } from '@/components/sections/main-deploy-section'
 
 function buildFaqSchema(lang: string) {
   const content = getContent(lang)
@@ -83,6 +84,8 @@ export default async function HomePage({
                   <PricingFlow />
                 </Suspense>
               </div>
+
+              <MainDeploySection />
 
               <LightPitch />
 
