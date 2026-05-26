@@ -24,7 +24,7 @@ export function DeploySuccessToast({
   const [confirmed, setConfirmed] = useState(false)
 
   const siteUrl = `https://${subdomain}`
-  const isPathBased = subdomain?.startsWith('light-') || subdomain?.startsWith('main-')
+  const isPathBased = subdomain?.startsWith('light-')
   const adminUrl = isPathBased ? `https://${subdomain}/admin` : `https://admin.${subdomain}`
 
   return (
