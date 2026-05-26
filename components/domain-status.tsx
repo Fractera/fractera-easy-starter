@@ -78,9 +78,8 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
 
   function handleCopy(type: 'admin' | 'site') {
     if (state !== 'ready') return
-    const isLight = domain?.startsWith('light-')
     const url = type === 'admin'
-      ? isLight ? `https://${domain}/admin` : `https://admin.${domain}`
+      ? `https://${domain}/admin`
       : `https://${domain}`
     navigator.clipboard.writeText(url)
     setCopied(type)
@@ -114,11 +113,11 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
           style={borderStyle}
         >
           <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${textColor}`}>
-            {isEmpty ? 'admin panel will appear here' : domain?.startsWith('light-') ? `${domain}/admin` : `admin.${domain}`}
+            {isEmpty ? 'admin panel will appear here' : `${domain}/admin`}
           </code>
           {isReady && (
             <a
-              href={domain?.startsWith('light-') ? `https://${domain}/admin` : `https://admin.${domain}`}
+              href={`https://${domain}/admin`}
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border text-white hover:text-white border-white/40 hover:border-white/60 transition-colors"

@@ -46,13 +46,15 @@ export async function POST(req: NextRequest) {
   })
 
   if (domain) {
-    // Delete main domain + all 3 service subdomains
+    // Path-based = 1 record; legacy 4th-level = 6. Try all, silently ignore missing.
     const base = domain.replace(/\.fractera\.ai$/, '')
     await Promise.all([
       deleteDnsRecord(domain).catch(() => {}),
       deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
       deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
       deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`lightrag.${base}.fractera.ai`).catch(() => {}),
+      deleteDnsRecord(`hermes.${base}.fractera.ai`).catch(() => {}),
     ])
   }
 

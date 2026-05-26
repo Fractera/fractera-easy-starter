@@ -59,10 +59,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. DNS cleanup for all 5 subdomains. bootstrap.sh registers
-  // {root, auth, admin, data, lightrag, hermes} — the prior version of
-  // this endpoint only deleted 4 of them, leaving lightrag + hermes
-  // as orphan A records pointing at a freed IP.
+  // 2. DNS cleanup. Path-based servers (step 75+) have only 1 DNS record;
+  // legacy 4th-level servers had 6 (root + auth + admin + data + lightrag + hermes).
+  // We try all 6 with .catch — missing records are silently ignored.
   if (serverToken.subdomain) {
     const base = serverToken.subdomain.replace(/\.fractera\.ai$/, '')
     await Promise.all([

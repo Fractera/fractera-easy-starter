@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       })
 
       if (server.subdomain && server.token) {
-        fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
+        fetch(`https://${server.subdomain}/admin/api/config/white-label`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${server.token}`,

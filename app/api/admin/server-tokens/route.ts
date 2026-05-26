@@ -131,7 +131,8 @@ export async function DELETE(req: NextRequest) {
       console.error('[admin/server-tokens] hard wipe SSH failed', err)
       return NextResponse.json({ error: 'ssh wipe failed: ' + msg }, { status: 500 })
     }
-    // 2. Delete all 6 DNS records (main + 5 service prefixes). Best-effort.
+    // 2. Delete DNS records. Path-based (step 75+) = 1 record; legacy 4th-level = 6.
+    // Try all 6 — missing records silently ignored via .catch.
     const base = token.subdomain
     const dnsTargets = [base, `auth.${base}`, `admin.${base}`, `data.${base}`, `lightrag.${base}`, `hermes.${base}`]
     await Promise.all(dnsTargets.map(d => deleteDnsRecord(d).catch(() => {})))
