@@ -87,6 +87,19 @@ step() {
   report "$CURRENT_STEP" "$CURRENT_LABEL" true
 }
 
+# soft_step — like step() but failure is non-fatal. Used for CLI/AI installs
+# (claude/codex/gemini/qwen/kimi/lightrag/hermes) where one missing tool
+# should not abort the whole deploy. Reports done=true even on failure so
+# the progress UI advances.
+soft_step() {
+  CURRENT_STEP="$1"
+  CURRENT_LABEL="$2"
+  local cmd="$3"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" false
+  ( eval "$cmd" ) >> "$LOG_FILE" 2>&1 || echo "  ! soft_step '$CURRENT_STEP' failed (non-fatal, continuing)" >> "$LOG_FILE"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" true
+}
+
 step_npm() {
   CURRENT_STEP="$1"
   CURRENT_LABEL="$2"
