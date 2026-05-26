@@ -811,7 +811,7 @@ server {
 }
 NGINXEOF
 
-rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/sites-enabled/*
 ln -sf /etc/nginx/sites-available/fractera /etc/nginx/sites-enabled/fractera
 nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
