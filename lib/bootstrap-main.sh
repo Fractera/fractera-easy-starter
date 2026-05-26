@@ -159,7 +159,7 @@ soft_step "install_claude" "Installing Claude Code CLI" "curl -fsSL https://clau
 soft_step "install_codex"  "Installing Codex CLI"       "npm install -g @openai/codex"
 soft_step "install_gemini" "Installing Gemini CLI"      "npm install -g @google/gemini-cli"
 soft_step "install_qwen"   "Installing Qwen Code"       "npm install -g @qwen-code/qwen-code@latest"
-soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 
 # === Domain registration (3 subdomains: main + auth + data) ===
 CURRENT_STEP="register"

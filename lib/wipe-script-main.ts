@@ -16,8 +16,9 @@ rm -rf /root/.bun
 rm -rf /root/.gemini /root/.claude /root/.config/openai /root/.openai \\
        /root/.config/qwen-code /root/.qwen \\
        /root/.config/kimi-cli /root/.kimi /root/.local/share/kimi-cli /root/.local/share/kimi 2>/dev/null || true
-rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi \\
+rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi /root/.local/bin/kimi-cli \\
       /root/.local/bin/uv /root/.local/bin/uvx 2>/dev/null || true
+rm -rf /root/.local/share/claude 2>/dev/null || true
 rm -f /usr/local/bin/claude /usr/local/bin/kimi 2>/dev/null || true
 rm -f /etc/nginx/sites-enabled/* /etc/nginx/sites-available/fractera /etc/nginx/sites-available/fractera-main /etc/nginx/sites-available/fractera-light
 nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
