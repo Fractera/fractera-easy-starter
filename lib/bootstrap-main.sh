@@ -4,6 +4,12 @@
 # AI tools (Claude Code, platforms, LightRAG, Hermes) added incrementally.
 # Reports progress back to fractera-easy-starter.
 
+# Force HOME=/root — bootstrap runs via systemd-run --scope where $HOME
+# can be empty/unset. Without this, soft_step commands that reference
+# $HOME (uv tool install, kimi-cli, lightrag-hku) silently fail because
+# `$HOME/.local/bin/uv` expands to `/.local/bin/uv` → not found.
+export HOME=/root
+
 SESSION_ID="$1"
 PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
 REGISTER_URL="https://fractera-easy-starter.vercel.app/api/register/main"
