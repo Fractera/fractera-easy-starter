@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail, sendLightWelcomeEmail, sendExpiryWarningEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendLightWelcomeEmail, sendMainWelcomeEmail, sendExpiryWarningEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
@@ -57,8 +57,11 @@ export async function POST(req: NextRequest) {
   // Welcome email on first successful ping (only for real user tokens)
   if (wasFirstPing && serverToken.user.email && subdomain) {
     const isLight = serverToken.deploySessionId?.startsWith('light-') ?? false
+    const isMain = serverToken.deploySessionId?.startsWith('main-') ?? false
     if (isLight) {
       sendLightWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
+    } else if (isMain) {
+      sendMainWelcomeEmail(serverToken.user.email, subdomain).catch(console.error)
     } else {
       sendWelcomeEmail(
         serverToken.user.email,

@@ -24,8 +24,8 @@ export function DeploySuccessToast({
   const [confirmed, setConfirmed] = useState(false)
 
   const siteUrl = `https://${subdomain}`
-  const isLight = subdomain?.startsWith('light-')
-  const adminUrl = isLight ? `https://${subdomain}/admin` : `https://admin.${subdomain}`
+  const isPathBased = subdomain?.startsWith('light-') || subdomain?.startsWith('main-')
+  const adminUrl = isPathBased ? `https://${subdomain}/admin` : `https://admin.${subdomain}`
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 sm:p-6">
@@ -70,7 +70,7 @@ export function DeploySuccessToast({
               <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">
                 {strings.adminLabel}
               </span>
-              <span className="text-sm text-white font-mono font-bold">{isLight ? `${subdomain}/admin` : `admin.${subdomain}`}</span>
+              <span className="text-sm text-white font-mono font-bold">{isPathBased ? `${subdomain}/admin` : `admin.${subdomain}`}</span>
             </div>
             <span className="text-emerald-400 group-hover:text-emerald-300 text-base font-bold transition-colors">↗</span>
           </a>
