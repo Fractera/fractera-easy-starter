@@ -4,10 +4,11 @@
 # AI tools (Claude Code, platforms, LightRAG, Hermes) added incrementally.
 # Reports progress back to fractera-easy-starter.
 
-# Force HOME=/root — bootstrap runs via systemd-run --scope where $HOME
-# can be empty/unset. Without this, soft_step commands that reference
-# $HOME (uv tool install, kimi-cli, lightrag-hku) silently fail because
-# `$HOME/.local/bin/uv` expands to `/.local/bin/uv` → not found.
+# Defense-in-depth: deploy-main.ts launches this via `setsid` (same as the
+# proven original main), so $HOME=/root is already inherited from the root
+# SSH session and uv tools install correctly. This export is a belt-and-braces
+# guard so the uv-based AI installers never break even if the launch mechanism
+# changes in the future. No-op when HOME is already /root.
 export HOME=/root
 
 SESSION_ID="$1"
@@ -178,7 +179,7 @@ soft_step "install_claude" "Installing Claude Code CLI" "curl -fsSL https://clau
 soft_step "install_codex"  "Installing Codex CLI"       "npm install -g @openai/codex"
 soft_step "install_gemini" "Installing Gemini CLI"      "npm install -g @google/gemini-cli"
 soft_step "install_qwen"   "Installing Qwen Code"       "npm install -g @qwen-code/qwen-code@latest"
-soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 
 # === LightRAG (Company Brain) — uv tool + custom build of WebUI ===
 # CLAUDE.md rule 13: this block is an independent copy from bootstrap.sh,
@@ -520,9 +521,11 @@ loginctl enable-linger root >> "$LOG_FILE" 2>&1 || true
 # Override на Restart=always чтобы PM2 daemon перезапускался при любом exit.
 sed -i 's/^Restart=on-failure$/Restart=always\nRestartSec=10/' /etc/systemd/system/pm2-root.service >> "$LOG_FILE" 2>&1 || true
 systemctl daemon-reload >> "$LOG_FILE" 2>&1 || true
-# КРИТИЧНО: bootstrap запущен через systemd-run --scope. Когда скрипт завершится,
-# scope-unit закроется и systemd убьёт все процессы в cgroup — включая PM2 daemon.
-# systemctl restart pm2-root переносит PM2 daemon из scope в persistent service.
+# Bootstrap is launched via `setsid` (see deploy-main.ts). PM2 daemon started
+# inside that detached session must be re-homed into the persistent pm2-root
+# systemd service so it survives the SSH session / setsid process exiting.
+# pm2 kill clears any daemon started in the transient session; the restart
+# brings it back under systemd (enabled + linger above).
 pm2 kill >> "$LOG_FILE" 2>&1 || true
 systemctl restart pm2-root >> "$LOG_FILE" 2>&1 || true
 sleep 3
