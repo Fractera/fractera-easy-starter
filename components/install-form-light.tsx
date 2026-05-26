@@ -71,11 +71,14 @@ export function InstallFormLight({ strings: t, onSubdomainReady, onInstallingCha
   const [successSubdomain, setSuccessSubdomain] = useState<string | null>(null)
   const [showProgressToast, setShowProgressToast] = useState(false)
   const [emailConfirmed, setEmailConfirmed] = useState(false)
+  const [redeployConfirmed, setRedeployConfirmed] = useState(false)
+  const [installedSubdomain, setInstalledSubdomain] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
   const { data: session, status: sessionStatus } = useSession()
 
   useEffect(() => {
     if (serverStatus !== 'fresh') setEmailConfirmed(false)
+    if (serverStatus !== 'installed') setRedeployConfirmed(false)
   }, [serverStatus])
 
   useEffect(() => {
@@ -97,6 +100,7 @@ export function InstallFormLight({ strings: t, onSubdomainReady, onInstallingCha
       const data = await res.json()
       if (data.installed) {
         setServerStatus('installed')
+        setInstalledSubdomain(data.subdomain ?? null)
         if (data.subdomain) onSubdomainReady?.(data.subdomain)
       } else {
         setStatusError(data.sshError ?? null)
@@ -225,11 +229,39 @@ export function InstallFormLight({ strings: t, onSubdomainReady, onInstallingCha
           )}
 
           {serverStatus === 'installed' && (
-            <div className="flex flex-col gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
+            <div className="flex flex-col gap-3 bg-amber-50 border border-amber-200 rounded-xl p-5">
               <div className="flex items-center gap-2">
-                <span className="text-green-600">&#10003;</span>
-                <p className="text-sm font-semibold text-green-700">{t.alreadyInstalled}</p>
+                <span className="text-amber-600">&#9888;</span>
+                <p className="text-sm font-semibold text-amber-700">{t.alreadyInstalled}</p>
               </div>
+
+              {installedSubdomain && (
+                <p className="text-sm text-slate-700">
+                  {t.currentSite}: <span className="font-semibold">{installedSubdomain}</span>
+                </p>
+              )}
+
+              <p className="text-sm text-red-700 leading-snug">{t.reinstallWarning}</p>
+
+              {session?.user?.email && (
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs text-sky-600 uppercase tracking-widest font-medium">{t.updatesTo}</p>
+                  <p className="text-sm font-semibold text-slate-900">{session.user.email}</p>
+                </div>
+              )}
+
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input type="checkbox" checked={redeployConfirmed}
+                  onChange={e => setRedeployConfirmed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-red-600 cursor-pointer shrink-0" />
+                <span className="text-sm text-slate-700 leading-snug">{t.reinstallConfirm}</span>
+              </label>
+
+              <button onClick={handleInstall}
+                disabled={!ip || !password || !redeployConfirmed}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                {t.reinstallCta}
+              </button>
             </div>
           )}
 

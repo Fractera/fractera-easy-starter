@@ -259,6 +259,10 @@ export type LightContent = {
     passwordPlaceholder: string
     checking: string
     alreadyInstalled: string
+    currentSite: string
+    reinstallWarning: string
+    reinstallConfirm: string
+    reinstallCta: string
     cantReach: string
     retry: string
     loadingAccount: string
