@@ -161,6 +161,51 @@ soft_step "install_gemini" "Installing Gemini CLI"      "npm install -g @google/
 soft_step "install_qwen"   "Installing Qwen Code"       "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"   "Installing Kimi Code"       "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 
+# === LightRAG (Company Brain) — uv tool + custom build of WebUI ===
+# CLAUDE.md rule 13: this block is an independent copy from bootstrap.sh,
+# not a shared helper. Light's bootstrap-light.sh has no LightRAG by design.
+soft_step "install_lightrag" "Installing LightRAG" "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/Fractera/LightRAG.git@v1.4.16' || true"
+
+# v1.4.9.3+ ships sources without a pre-built WebUI. Without this step
+# lightrag-server falls back to 307 → /docs (Swagger) and Company Brain
+# shows the API docs instead of the React UI.
+# soft_step body runs via `eval` in CURRENT shell — never use `exit 0` or
+# `set -e` here, they leak into the parent bootstrap shell.
+soft_step "build_lightrag_webui" "Building Company Brain UI" '
+SITE=$(ls -d /root/.local/share/uv/tools/lightrag-hku/lib/python*/site-packages/lightrag/api 2>/dev/null | head -1)
+SRC=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag_webui 2>/dev/null | head -1)
+if [ -z "$SITE" ] || [ -z "$SRC" ]; then
+  echo "  ! lightrag api dir or webui sources not found — skipping"
+elif [ -d "$SITE/webui" ] && [ -f "$SITE/webui/index.html" ]; then
+  echo "  webui already built — skipping"
+else
+  apt-get install -y -qq unzip >/dev/null 2>&1 || true
+  command -v bun >/dev/null 2>&1 || { curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 ; }
+  export PATH="$HOME/.bun/bin:$PATH"
+  cd "$SRC"
+  bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
+  bun run build >/dev/null 2>&1 || true
+  CHECKOUT_WEBUI=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag/api/webui 2>/dev/null | head -1)
+  ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
+  for CANDIDATE in "$ARCHIVE_WEBUI" "$CHECKOUT_WEBUI"; do
+    if [ -n "$CANDIDATE" ] && [ -f "$CANDIDATE/index.html" ]; then
+      mkdir -p "$SITE/webui"
+      cp -r "$CANDIDATE"/. "$SITE/webui/"
+      echo "  webui copied to $SITE/webui from $CANDIDATE"
+      break
+    fi
+  done
+  if [ ! -f "$SITE/webui/index.html" ]; then
+    echo "  ! no webui dist found — Company Brain will show 307 to Swagger"
+  fi
+fi' || true
+
+# === Hermes orchestration agent ===
+soft_step "install_hermes" "Installing Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/Fractera/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser --branch v2026.5.16 || true"
+# Plugins/skills/themes are vendored in ai-workspace/services/ — they're cloned
+# with the rest of the repo before this step runs, but install_hermes runs
+# BEFORE git clone. We defer plugin copy to after clone.
+
 # === Domain registration (3 subdomains: main + auth + data) ===
 CURRENT_STEP="register"
 CURRENT_LABEL="Registering your domain"
@@ -217,6 +262,12 @@ echo "$DEPLOYED_COMMIT" > "$INSTALL_DIR/DEPLOYED_COMMIT"
 echo "$DEPLOYED_BRANCH" > "$INSTALL_DIR/DEPLOYED_BRANCH"
 echo "=== DEPLOYED: branch=$DEPLOYED_BRANCH commit=$DEPLOYED_COMMIT ===" >> "$LOG_FILE"
 
+# === Hermes vendored content (plugins/skills/themes/docs) — requires repo cloned ===
+soft_step "install_hermes_plugins" "Installing Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r $INSTALL_DIR/services/hermes-plugins/* /root/.hermes/plugins/ || true"
+soft_step "install_hermes_skills"  "Installing Hermes delegation skills" "[ -d /root/.hermes ] && [ -d $INSTALL_DIR/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp $INSTALL_DIR/services/hermes-skills/* /root/.hermes/skills/ || true"
+soft_step "install_hermes_theme"   "Installing Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d $INSTALL_DIR/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp $INSTALL_DIR/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
+soft_step "hermes_docs_dir"        "Preparing Hermes protected docs dir" "mkdir -p $INSTALL_DIR/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root $INSTALL_DIR/app/docs/hermes && chmod -R 750 $INSTALL_DIR/app/docs/hermes || true"
+
 # === npm dependencies (4 installs: root, app, auth, data) ===
 step_npm "deps_root" "Installing dependencies (1/4)" "npm install" ""
 step_npm "deps_app"  "Installing dependencies (2/4)" "npm install --prefix $INSTALL_DIR/app" "$INSTALL_DIR/app"
@@ -260,8 +311,15 @@ fi
 if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
+if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
+if ! grep -q "HERMES_MCP_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "HERMES_MCP_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
+mkdir -p "$INSTALL_DIR/services/rag/storage"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Initial .env files (localhost URLs — before real subdomain is known in build) ===
@@ -304,6 +362,10 @@ NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
 NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
 NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
+RAG_ENV_PATH=$INSTALL_DIR/services/rag/.env
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -312,6 +374,86 @@ DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=$INSTALL_DIR/app/data/app.db
 DATA_SECRET=$DATA_SECRET
 ENVEOF
+
+# === LightRAG config ===
+cat > "$INSTALL_DIR/services/rag/.env" <<ENVEOF
+HOST=127.0.0.1
+PORT=9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_KV_STORAGE=JsonKVStorage
+LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
+LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
+LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
+WORKING_DIR=$INSTALL_DIR/services/rag/storage
+LLM_BINDING=openai
+LLM_BINDING_HOST=https://api.openai.com/v1
+LLM_BINDING_API_KEY=
+LLM_MODEL=gpt-4o-mini
+EMBEDDING_BINDING=openai
+EMBEDDING_BINDING_HOST=https://api.openai.com/v1
+EMBEDDING_BINDING_API_KEY=
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIM=1536
+CORS_ORIGINS=http://localhost:3002
+ENVEOF
+
+# === Hermes config (if installed) ===
+if [ -d "/root/.hermes" ]; then
+  cat > /root/.hermes/config.yaml <<HERMESEOF
+model:
+  provider: openai-codex
+  model: gpt-5.3-codex
+  fallback_provider: anthropic
+  fallback_model: claude-opus-4.7
+
+memory:
+  provider: lightrag-memory
+
+plugins:
+  enabled:
+    - fractera-platforms
+
+mcp_servers:
+  claude-bridge:
+    url: http://localhost:3210
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  codex-bridge:
+    url: http://localhost:3211
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  gemini-bridge:
+    url: http://localhost:3212
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  qwen-bridge:
+    url: http://localhost:3213
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  kimi-bridge:
+    url: http://localhost:3214
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+
+terminal:
+  cwd: $INSTALL_DIR/app
+
+dashboard:
+  theme: fractera-black
+
+logging:
+  level: INFO
+HERMESEOF
+  if ! grep -q "OPENAI_API_KEY=" /root/.hermes/.env 2>/dev/null; then
+    printf "\n# Fractera — set your API keys here\nOPENAI_API_KEY=\nOPENROUTER_API_KEY=\n" >> /root/.hermes/.env
+  fi
+  if ! grep -q "LIGHTRAG_URL=" /root/.hermes/.env 2>/dev/null; then
+    printf "LIGHTRAG_URL=http://localhost:9621\nLIGHTRAG_API_KEY=$LIGHTRAG_API_KEY\n" >> /root/.hermes/.env
+  fi
+  if ! grep -q "MCP_SECRET=" /root/.hermes/.env 2>/dev/null; then
+    printf "MCP_SECRET=$HERMES_MCP_SECRET\n" >> /root/.hermes/.env
+  fi
+fi
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
@@ -334,6 +476,18 @@ step "start_admin" "Starting admin service" "cd $INSTALL_DIR/bridges/app-main &&
 # Bridge service — single Node process listening on 6 WS ports (3200-3205).
 # Same source file as old main (bridges/platforms/server.js, no fork).
 step "start_bridge" "Starting AI bridge service" "cd $INSTALL_DIR/bridges/platforms && pm2 start npm --name fractera-main-bridge -- run start && cd $INSTALL_DIR"
+
+# === LightRAG + Hermes + Hermes WebUI ===
+# soft_step — failure here does not abort deploy (services degrade gracefully:
+# Company Brain button shows error, Hermes window shows error, AI workspace
+# without these is still functional).
+soft_step "start_rag" "Starting Company Brain (LightRAG)" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && [ -x \"\$RAG_BIN\" ] && cd $INSTALL_DIR/services/rag && pm2 start \$RAG_BIN --name fractera-main-rag --interpreter \$RAG_PY --cwd $INSTALL_DIR/services/rag && cd $INSTALL_DIR && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done || true"
+
+soft_step "start_hermes" "Starting Hermes Agent" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-main-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+
+# Hermes WebUI installer registers its own PM2 process (fractera-hermes-webui).
+# We rename it to fractera-main-hermes-webui after install for naming consistency.
+soft_step "install_hermes_webui" "Installing Hermes Chat UI" "[ -f $INSTALL_DIR/services/hermes-webui-installer/install.sh ] && bash $INSTALL_DIR/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 && (pm2 list 2>/dev/null | grep -q fractera-hermes-webui && pm2 delete fractera-hermes-webui >/dev/null 2>&1 && cd /opt/hermes-webui && pm2 start ./pm2-start.sh --name fractera-main-hermes-webui --cwd /opt/hermes-webui || true) && sleep 4 && curl -sf http://127.0.0.1:9120/health >> \"$LOG_FILE\" 2>&1 || true"
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving process configuration"
@@ -523,6 +677,98 @@ server {
         proxy_read_timeout 86400;
     }
 
+    # === LightRAG (Company Brain) / Hermes / Hermes WebUI — path-based ===
+    # Internal auth check shared by all three services (cookie via /api/session/verify).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+    location @ai_login_redirect {
+        return 302 /admin/;
+    }
+
+    # LightRAG WebUI on /lightrag/. Uvicorn --root-path is set in PM2 start cmd
+    # (services/rag/.env: ROOT_PATH); FastAPI rewrites OpenAPI/docs paths accordingly.
+    # Strip /lightrag prefix before proxy so app sees its own URLs.
+    location /lightrag/ {
+        auth_request /auth-verify;
+        error_page 401 = @ai_login_redirect;
+
+        rewrite ^/lightrag/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Prefix /lightrag;
+        proxy_read_timeout 86400;
+        # Allow iframe embedding from /admin
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL" always;
+        # Inject base href so SPA assets resolve under /lightrag/ when root_path is unset
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter '<head>' '<head><base href="/lightrag/">';
+    }
+
+    # Hermes dashboard on /hermes/. Same strategy as LightRAG.
+    location /hermes/ {
+        auth_request /auth-verify;
+        error_page 401 = @ai_login_redirect;
+
+        rewrite ^/hermes/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Prefix /hermes;
+        proxy_read_timeout 86400;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL" always;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter '<head>' '<head><base href="/hermes/">';
+    }
+
+    # Hermes Chat UI (Fractera-branded) on /chat/.
+    location /chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @ai_login_redirect;
+
+        rewrite ^/chat/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9120;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Prefix /chat;
+        proxy_read_timeout 86400;
+        proxy_buffering off;  # SSE streaming
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL" always;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter '<head>' '<head><base href="/chat/">';
+    }
+
     # Shell / app (catch-all)
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -613,6 +859,12 @@ NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/codex-bridge/
 NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/gemini-bridge/
 NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/qwen-bridge/
 NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/kimi-bridge/
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
+RAG_ENV_PATH=$INSTALL_DIR/services/rag/.env
+NEXT_PUBLIC_HERMES_URL=https://$SUBDOMAIN/hermes
+NEXT_PUBLIC_HERMES_CHAT_URL=https://$SUBDOMAIN/chat/
 ENVEOF
 
 cat > "$INSTALL_DIR/services/data/.env" <<ENVEOF
@@ -648,6 +900,10 @@ CURRENT_STEP="pm2_restart"
 CURRENT_LABEL="Restarting services with new config"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 restart fractera-main-app fractera-main-auth fractera-main-data fractera-main-admin fractera-main-bridge >> "$LOG_FILE" 2>&1 || fail "pm2 restart failed"
+# AI services are soft (may be missing if install_lightrag/install_hermes failed) — restart best-effort.
+pm2 restart fractera-main-rag >> "$LOG_FILE" 2>&1 || true
+pm2 restart fractera-main-hermes >> "$LOG_FILE" 2>&1 || true
+pm2 restart fractera-main-hermes-webui >> "$LOG_FILE" 2>&1 || true
 pm2 save >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 

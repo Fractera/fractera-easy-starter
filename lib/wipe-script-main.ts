@@ -11,7 +11,7 @@ rm -rf /opt/fractera /opt/fractera-main /opt/fractera-light /opt/hermes-webui
 rm -rf /etc/fractera /etc/fractera-main /etc/fractera-light
 rm -rf /usr/local/lib/hermes-agent
 rm -rf /root/.hermes
-rm -rf /root/.local/share/uv /root/.cache/uv
+rm -rf /root/.local/share/uv /root/.cache/uv /root/.local/share/lightrag
 rm -rf /root/.bun
 rm -rf /root/.gemini /root/.claude /root/.config/openai /root/.openai \\
        /root/.config/qwen-code /root/.qwen \\
