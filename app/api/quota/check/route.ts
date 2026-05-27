@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkDnsQuota } from '@/lib/cloudflare-quota'
 
-// Called as the first step of bootstrap-light.sh and (additively) bootstrap.sh.
+// Called as the first step of bootstrap.sh.
 // Returns the current Cloudflare DNS record count / plan / threshold status.
 // Side-effect: if status is `warning` or `critical`, sends an alert email to
 // admin@fractera.ai (idempotent — suppressed 4h via KV).

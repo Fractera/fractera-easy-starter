@@ -33,15 +33,6 @@ export function SiteHeader() {
             <Image src="/fractera-logo.jpg" alt="Fractera" width={28} height={28} className="rounded" />
             <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
           </Link>
-          <span className="text-white/30 text-sm select-none" aria-hidden="true">|</span>
-          <Link
-            href={`/${lang}/light`}
-            className={`text-sm font-semibold tracking-tight transition-colors ${
-              pathname.includes('/light') ? 'text-sky-300' : 'text-white/70 hover:text-white'
-            }`}
-          >
-            Light
-          </Link>
         </div>
 
         <div className="flex items-center gap-3">

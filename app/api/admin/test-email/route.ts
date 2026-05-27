@@ -9,16 +9,11 @@ import {
   sendQueuedEmail,
   sendExpiryWarningEmail,
   sendCompanyBrainInquiryEmail,
-  sendLightInstallStartedEmail,
-  sendLightWelcomeEmail,
-  sendLightRecoveryTokenEmail,
-  sendLightDeployFailedEmail,
   sendDnsQuotaWarningEmail,
   sendDnsQuotaCriticalEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
-const SAMPLE_LIGHT_SUBDOMAIN = 'light-bright-owl-54.fractera.ai'
 const SAMPLE_TOKEN = 'cmphj5xtp0004l8049ut8i4j4-demo'
 const SAMPLE_IP = '109.199.105.213'
 const SAMPLE_PASSWORD = 'demo-pass-Julia711'
@@ -32,10 +27,6 @@ type TemplateKey =
   | 'queued'
   | 'expiry_warning'
   | 'company_brain_inquiry'
-  | 'light_install_started'
-  | 'light_recovery_token'
-  | 'light_deploy_failed'
-  | 'light_welcome'
   | 'dns_quota_warning'
   | 'dns_quota_critical'
 
@@ -55,14 +46,6 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendQueuedEmail(to)
     case 'expiry_warning':
       return sendExpiryWarningEmail(to, 7, SAMPLE_SUBDOMAIN)
-    case 'light_install_started':
-      return sendLightInstallStartedEmail(to)
-    case 'light_recovery_token':
-      return sendLightRecoveryTokenEmail(to, SAMPLE_TOKEN)
-    case 'light_deploy_failed':
-      return sendLightDeployFailedEmail(to, 'SSH connect failed: timeout connecting to 109.199.105.213:22', SAMPLE_TOKEN)
-    case 'light_welcome':
-      return sendLightWelcomeEmail(to, SAMPLE_LIGHT_SUBDOMAIN)
     case 'dns_quota_warning':
       return sendDnsQuotaWarningEmail(to, {
         current: 162,

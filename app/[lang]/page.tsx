@@ -10,7 +10,6 @@ import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
 import { ProblemSection } from '@/components/sections/problem-section'
 import { PricingFlow } from '@/components/sections/pricing-flow'
-import { LightPitch } from '@/components/sections/light-pitch'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployButton } from '@/components/deploy-button'
 import { FeaturesGrid } from '@/components/sections/features-grid'
@@ -83,8 +82,6 @@ export default async function HomePage({
                   <PricingFlow />
                 </Suspense>
               </div>
-
-              <LightPitch />
 
               <div className="w-full max-w-4xl">
                 <PlatformSelector />

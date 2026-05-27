@@ -42,24 +42,6 @@ export async function createDnsRecord(ip: string, subdomain: string): Promise<vo
   }
 }
 
-export async function findLightDnsRecordByIp(ip: string): Promise<string | null> {
-  const zoneId = process.env.CLOUDFLARE_ZONE_ID!
-  const token = process.env.CLOUDFLARE_API_TOKEN!
-
-  const res = await fetch(
-    `${CLOUDFLARE_API}/zones/${zoneId}/dns_records?type=A&content=${encodeURIComponent(ip)}`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
-  )
-  if (!res.ok) return null
-
-  const json = await res.json() as { result?: { name: string }[] }
-  const records = json.result ?? []
-  const lightRecord = records.find(r =>
-    r.name.startsWith('light-') && r.name.endsWith('.fractera.ai')
-  )
-  return lightRecord ? lightRecord.name : null
-}
-
 export async function deleteDnsRecord(fullDomain: string): Promise<void> {
   const zoneId = process.env.CLOUDFLARE_ZONE_ID!
   const token = process.env.CLOUDFLARE_API_TOKEN!
