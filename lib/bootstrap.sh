@@ -187,24 +187,11 @@ else
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# Path-based architecture (step 75+): 3 DNS records per customer (was 6).
-# Core services (auth, admin, data) via path-routing on <slug>.fractera.ai.
-# Hermes and LightRAG get dedicated 3rd-level subdomains because their SPA
-# dashboards hardcode root-relative API calls (/api/status, /api/sessions)
-# that cannot be rewritten via nginx sub_filter (they're in compiled JS).
-# Universal SSL *.fractera.ai (Free) covers all three 3rd-level hosts.
-CURRENT_STEP="register_subdomains"
-CURRENT_LABEL="Registering Hermes and LightRAG subdomains"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in hermes lightrag; do
-  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX-$BASE\"}" \
-    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
-done
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
+# Path-based architecture (step 75+ migration): 1 DNS record per customer.
+# All services (auth, admin, data, hermes, lightrag) are reachable via
+# location-routing on the single <slug>.fractera.ai record created above.
+# No more 5 service-subdomain registrations (was auth./admin./data./...).
+# Universal SSL *.fractera.ai (Free Cloudflare) covers the 3rd-level host.
 
 if [ -n "$GITHUB_TOKEN" ]; then
   CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
@@ -526,8 +513,8 @@ step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platfor
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
-soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag -- --root-path /lightrag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open --base-path /hermes && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
+soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
 soft_step "install_hermes_webui" "Hermes Web UI (Fractera-branded)" "[ -f /opt/fractera/services/hermes-webui-installer/install.sh ] && bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 && sleep 4 && curl -sf http://127.0.0.1:9120/health >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
@@ -732,8 +719,68 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Hermes Web UI chat (9120) — auth-gated. Hermes has DNS-rebinding protection,
+    # so Host must be rewritten to 127.0.0.1:9120.
+    location /hermes/chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/hermes/chat/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9120;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_buffering off;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
 
+    # Hermes dashboard (9119) — auth-gated
+    location /hermes/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/hermes/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9119;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
 
+    # LightRAG / Company Brain (9621) — auth-gated; /lightrag/health stays public
+    location = /lightrag/health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
+    }
+    location /lightrag/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/lightrag/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+    }
 
     # Shell / app (catch-all) + Powered by Fractera footer
     location / {
@@ -751,99 +798,6 @@ server {
         sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
 }
-# Hermes Agent dashboard + Web UI chat — dedicated 3rd-level subdomain.
-# SPA with root-hardcoded /api/* calls — cannot work under path prefix.
-server {
-    listen 80;
-    server_name hermes-SLUG_PLACEHOLDER.fractera.ai;
-
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 https://SUBDOMAIN_PLACEHOLDER/admin/; }
-
-    location /chat/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9120/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9120;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_buffering off;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9119;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9119;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-}
-
-# LightRAG / Company Brain — dedicated 3rd-level subdomain.
-# SPA with root-hardcoded /webui, /assets/*, /api/* — cannot work under path prefix.
-server {
-    listen 80;
-    server_name lightrag-SLUG_PLACEHOLDER.fractera.ai;
-
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 https://SUBDOMAIN_PLACEHOLDER/admin/; }
-
-    location ~ ^/(docs|redoc|openapi\.json)$ { return 404; }
-    location = /health {
-        default_type application/json;
-        return 200 '{"status":"healthy","auth_mode":"disabled"}';
-    }
-    location = /favicon.png { return 204; }
-
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9621;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once off;
-        sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
-    }
-}
-
 NGINXEOF
 
 rm -f /etc/nginx/sites-enabled/*
@@ -873,7 +827,6 @@ CURRENT_STEP="nginx_domains"
 CURRENT_LABEL="Updating web server with real domains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 sed -i "s/SUBDOMAIN_PLACEHOLDER/$SUBDOMAIN/g" /etc/nginx/sites-available/fractera
-sed -i "s/SLUG_PLACEHOLDER/$BASE/g" /etc/nginx/sites-available/fractera
 nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx config invalid after domain substitution"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -925,8 +878,8 @@ LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
 RAG_ENV_PATH=/opt/fractera/services/rag/.env
 MCP_SECRET=$HERMES_MCP_SECRET
-NEXT_PUBLIC_HERMES_URL=https://hermes-$BASE.fractera.ai
-NEXT_PUBLIC_BRAIN_URL=https://lightrag-$BASE.fractera.ai
+NEXT_PUBLIC_HERMES_URL=https://$SUBDOMAIN/hermes
+NEXT_PUBLIC_BRAIN_URL=https://$SUBDOMAIN/lightrag
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -983,21 +936,19 @@ log_email "get_cf_cert" "Waiting for DNS + activating HTTPS" 85
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-# 3 DNS records: main + hermes-SLUG + lightrag-SLUG.
-for DOMAIN in "$SUBDOMAIN" "hermes-$BASE.fractera.ai" "lightrag-$BASE.fractera.ai"; do
-  RESOLVED=""
-  for i in $(seq 1 60); do
-    RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
-    if [ -n "$RESOLVED" ]; then
-      break
-    fi
-    sleep 5
-  done
-  if [ -z "$RESOLVED" ]; then
-    fail "DNS did not propagate within 5 minutes: $DOMAIN (no answer)"
+# Path-based: only the single <slug> record to wait for (1 DNS record).
+RESOLVED=""
+for i in $(seq 1 60); do
+  RESOLVED=$(dig +short "$SUBDOMAIN" @1.1.1.1 2>/dev/null | head -1)
+  if [ -n "$RESOLVED" ]; then
+    break
   fi
-  echo "DNS OK: $DOMAIN → $RESOLVED" >> "$LOG_FILE"
+  sleep 5
 done
+if [ -z "$RESOLVED" ]; then
+  fail "DNS did not propagate within 5 minutes: $SUBDOMAIN (no answer)"
+fi
+echo "DNS OK: $SUBDOMAIN → $RESOLVED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Download Cloudflare Origin Certificate from Easy Starter ===
@@ -1215,8 +1166,68 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Hermes Web UI chat (9120) — auth-gated. Hermes has DNS-rebinding protection,
+    # so Host must be rewritten to 127.0.0.1:9120.
+    location /hermes/chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/hermes/chat/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9120;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_buffering off;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
 
+    # Hermes dashboard (9119) — auth-gated
+    location /hermes/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/hermes/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9119;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
 
+    # LightRAG / Company Brain (9621) — auth-gated; /lightrag/health stays public
+    location = /lightrag/health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
+    }
+    location /lightrag/ {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+        rewrite ^/lightrag/(.*) /$1 break;
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+    }
 
     # Shell / app (catch-all) + Powered by Fractera footer
     location / {
@@ -1234,107 +1245,9 @@ server {
         sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
 }
-# Hermes Agent dashboard + Web UI chat — dedicated 3rd-level subdomain.
-# SPA with root-hardcoded /api/* calls — cannot work under path prefix.
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name hermes-SLUG_PLACEHOLDER.fractera.ai;
-    include /etc/nginx/cf-ssl.conf;
-
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 https://SUBDOMAIN_PLACEHOLDER/admin/; }
-
-    location /chat/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9120/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9120;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_buffering off;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9119;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9119;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-}
-
-# LightRAG / Company Brain — dedicated 3rd-level subdomain.
-# SPA with root-hardcoded /webui, /assets/*, /api/* — cannot work under path prefix.
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name lightrag-SLUG_PLACEHOLDER.fractera.ai;
-    include /etc/nginx/cf-ssl.conf;
-
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 https://SUBDOMAIN_PLACEHOLDER/admin/; }
-
-    location ~ ^/(docs|redoc|openapi\.json)$ { return 404; }
-    location = /health {
-        default_type application/json;
-        return 200 '{"status":"healthy","auth_mode":"disabled"}';
-    }
-    location = /favicon.png { return 204; }
-
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        proxy_pass http://127.0.0.1:9621;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once off;
-        sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
-    }
-}
-
 NGINXHTTPSEOF
 
 sed -i "s/SUBDOMAIN_PLACEHOLDER/$SUBDOMAIN/g" /etc/nginx/sites-available/fractera
-sed -i "s/SLUG_PLACEHOLDER/$BASE/g" /etc/nginx/sites-available/fractera
 nginx -t >> "$LOG_FILE" 2>&1 || fail "nginx HTTPS config invalid"
 systemctl reload nginx >> "$LOG_FILE" 2>&1 || fail "nginx reload failed"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
@@ -1404,7 +1317,7 @@ wait_for_subs() {
   for sub in "${pending[@]}"; do echo "$sub"; done
 }
 
-ALL_SUBS=("$SUBDOMAIN" "hermes-$BASE.fractera.ai" "lightrag-$BASE.fractera.ai")
+ALL_SUBS=("$SUBDOMAIN")
 
 echo "  HTTPS verification (parallel, up to 10 min)" >> "$LOG_FILE"
 mapfile -t still_failing < <(wait_for_subs 600 "${ALL_SUBS[@]}")
