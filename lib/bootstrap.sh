@@ -278,7 +278,7 @@ soft_step "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install
 soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
-soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
 soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/Fractera/LightRAG.git@v1.4.16' || true"
 # v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
 # from the repo). Without this step lightrag-server falls back to a 307 to /docs
