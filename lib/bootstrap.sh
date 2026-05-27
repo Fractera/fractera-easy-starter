@@ -187,11 +187,19 @@ else
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# Path-based architecture (step 75+ migration): 1 DNS record per customer.
-# All services (auth, admin, data, hermes, lightrag) are reachable via
-# location-routing on the single <slug>.fractera.ai record created above.
-# No more 5 service-subdomain registrations (was auth./admin./data./...).
-# Universal SSL *.fractera.ai (Free Cloudflare) covers the 3rd-level host.
+CURRENT_STEP="register_subdomains"
+CURRENT_LABEL="Registering service subdomains"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
+for PREFIX in auth admin data lightrag hermes; do
+  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
+    -H "Content-Type: application/json" \
+    -H "x-install-secret: $INSTALL_SECRET" \
+    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
+    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
+done
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+# Cloudflare Total TLS now starts provisioning certs in the background.
 
 if [ -n "$GITHUB_TOKEN" ]; then
   CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
@@ -373,7 +381,6 @@ AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
-BASE_PATH=enabled
 DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
 ENVEOF
@@ -390,7 +397,6 @@ NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
 NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
 NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
 DEPLOY_SECRET=$DEPLOY_SECRET
-BASE_PATH=enabled
 APP_DB_PATH=/opt/fractera/app/data/app.db
 LIGHTRAG_URL=http://localhost:9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
@@ -524,20 +530,6 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 pm2 save >> "$LOG_FILE" 2>&1 || true
 pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || true
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
-loginctl enable-linger root >> "$LOG_FILE" 2>&1 || true
-# pm2-root.service ships with Restart=on-failure — but the PM2 daemon sometimes
-# exits 0 (OOM / systemd user-slice cleanup); on-failure then does NOT restart it
-# and the server falls into 502. Override to Restart=always so the daemon always
-# comes back. (proven in Light step 72/74)
-sed -i 's/^Restart=on-failure$/Restart=always\nRestartSec=10/' /etc/systemd/system/pm2-root.service >> "$LOG_FILE" 2>&1 || true
-systemctl daemon-reload >> "$LOG_FILE" 2>&1 || true
-# CRITICAL: bootstrap runs under systemd-run --scope. When this script exits the
-# scope unit closes and systemd kills every process in its cgroup — including the
-# PM2 daemon. systemctl restart pm2-root moves the daemon out of the scope into
-# the persistent service.
-pm2 kill >> "$LOG_FILE" 2>&1 || true
-systemctl restart pm2-root >> "$LOG_FILE" 2>&1 || true
-sleep 3
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Initial Nginx config — 4 server blocks, SUBDOMAIN_PLACEHOLDER for certbot later ===
@@ -546,243 +538,12 @@ CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
-# Single server block — path-based routing (step 75+ migration, full main).
-# Ports: app 3000 | auth 3001 (assetPrefix=/_auth_next) | admin 3002 (basePath=/admin)
-#        data 3300 (Express) | bridge WS 3200-3205 | hermes 9119 | hermes-webui 9120 | lightrag 9621
+# shell — default server for certbot challenge
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
 
-    # Internal auth check — verifies Fractera session via services/auth (3001).
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 /admin/; }
-
-    # Auth assets (Next.js assetPrefix=/_auth_next)
-    location /_auth_next/ {
-        rewrite ^/_auth_next(/.*)?$ $1 break;
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # NextAuth endpoints — auth serves them at root (no basePath)
-    location /api/auth/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Admin API — client calls /api/<ns>/, admin (basePath=/admin) serves /admin/api/<ns>/
-    location ~ ^/api/(db|config|bridges|deploy|data|hermes|rag|admin)(/.*)?$ {
-        rewrite ^/api/(.*)$ /admin/api/$1 break;
-        proxy_pass http://127.0.0.1:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-        client_max_body_size 100m;
-    }
-
-    # Auth UI pages — strip /auth/ (auth has no basePath)
-    location /auth/ {
-        rewrite ^/auth/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # WebSocket bridges (3200-3205) under /admin/ — proxy_pass URI strips the prefix
-    location /admin/bridge/ {
-        proxy_pass http://127.0.0.1:3201/bridge/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /admin/claude-bridge/ {
-        proxy_pass http://127.0.0.1:3200/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /admin/codex-bridge/ {
-        proxy_pass http://127.0.0.1:3202/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /admin/gemini-bridge/ {
-        proxy_pass http://127.0.0.1:3203/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /admin/qwen-bridge/ {
-        proxy_pass http://127.0.0.1:3204/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /admin/kimi-bridge/ {
-        proxy_pass http://127.0.0.1:3205/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    # Admin (Next.js basePath=/admin, no rewrite)
-    location /admin/ {
-        proxy_pass http://127.0.0.1:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    # Data (Express) — strip /data/
-    location /data/media/ {
-        rewrite ^/data/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:3300;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 500m;
-    }
-    location /data/ {
-        rewrite ^/data/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:3300;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Hermes Web UI chat (9120) — auth-gated. Hermes has DNS-rebinding protection,
-    # so Host must be rewritten to 127.0.0.1:9120.
-    location /hermes/chat/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/hermes/chat/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:9120;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9120;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_buffering off;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-
-    # Hermes dashboard (9119) — auth-gated
-    location /hermes/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/hermes/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:9119;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9119;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-
-    # LightRAG / Company Brain (9621) — auth-gated; /lightrag/health stays public
-    location = /lightrag/health {
-        default_type application/json;
-        return 200 '{"status":"healthy","auth_mode":"disabled"}';
-    }
-    location /lightrag/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/lightrag/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:9621;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once off;
-        sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
-    }
-
-    # Shell / app (catch-all) + Powered by Fractera footer
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -795,7 +556,257 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
+        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
+    }
+}
+
+# auth
+server {
+    listen 80;
+    server_name auth.SUBDOMAIN_PLACEHOLDER;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# admin + WebSocket bridges
+server {
+    listen 80;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
+
+    location /bridge/ {
+        proxy_pass http://127.0.0.1:3201/bridge/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /claude-bridge/ {
+        proxy_pass http://127.0.0.1:3200/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /codex-bridge/ {
+        proxy_pass http://127.0.0.1:3202/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /gemini-bridge/ {
+        proxy_pass http://127.0.0.1:3203/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /qwen-bridge/ {
+        proxy_pass http://127.0.0.1:3204/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location /kimi-bridge/ {
+        proxy_pass http://127.0.0.1:3205/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+
+# data
+server {
+    listen 80;
+    server_name data.SUBDOMAIN_PLACEHOLDER;
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:3300/media/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 500m;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3300;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# hermes — orchestration agent dashboard + Hermes Web UI chat (iframe-accessible from admin panel)
+server {
+    listen 80;
+    server_name hermes.SUBDOMAIN_PLACEHOLDER;
+
+    # Internal auth check — verifies Fractera session cookie via services/auth (port 3001).
+    # Returns 204 if logged in, 401 otherwise. Cookie is shared across .SUB.fractera.ai
+    # (COOKIE_DOMAIN=.$SUBDOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+
+    # Fractera-branded chat UI (nesquena/hermes-webui on port 9120) — auth-gated
+    location /chat/ {
+        auth_request /auth-verify;
+        error_page 401 = @chat_login_redirect;
+
+        proxy_pass http://127.0.0.1:9120/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 127.0.0.1:9120;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 86400;
+        proxy_buffering off;  # SSE streaming
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+    location @chat_login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
+
+    # Hermes dashboard (admin/config UI) — auth-gated. Without this gate the
+    # dashboard is publicly reachable on hermes.SUB.fractera.ai/ and any
+    # visitor can drive the customer's Hermes orchestration agent (which
+    # consumes their AI subscriptions). Security regression: previously
+    # only /chat/ was protected.
+    location / {
+        auth_request /auth-verify;
+        error_page 401 = @chat_login_redirect;
+
+        proxy_pass http://127.0.0.1:9119;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        # Allow iframe embedding from admin subdomain
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "ALLOWALL";
+    }
+}
+
+# lightrag — Company Brain WebUI — auth-gated. Without these guards the
+# customer's knowledge base (which may hold OpenAI keys typed into the
+# onboarding form and uploaded documents) is publicly reachable on
+# lightrag.SUB.fractera.ai/. Security regression caught in production.
+server {
+    listen 80;
+    server_name lightrag.SUBDOMAIN_PLACEHOLDER;
+
+    # Internal auth check — same pattern as hermes block above (cookie shared
+    # across .SUB.fractera.ai via COOKIE_DOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+    location @login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
+
+    location ~ ^/(docs|redoc|openapi\.json)$ {
+        return 404;
+    }
+
+    # /health stays public — used by check_lightrag_health() in bootstrap.sh
+    # and by uptime monitors. Returns a constant 200 without touching the app.
+    location = /health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
+    }
+
+    location = /favicon.png {
+        return 204;
+    }
+
+    location / {
+        auth_request /auth-verify;
+        error_page 401 = @login_redirect;
+
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
     }
 }
 NGINXEOF
@@ -837,40 +848,36 @@ CURRENT_LABEL="Updating environment with real domains"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 source /etc/fractera/secrets.env
 
-# Path-based real URLs (step 75+): all services on the single <slug> host.
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
-NEXT_PUBLIC_AUTH_URL=https://$SUBDOMAIN/auth
-NEXT_PUBLIC_ADMIN_URL=https://$SUBDOMAIN/admin
-NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
+NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
+NEXT_PUBLIC_ADMIN_URL=https://admin.$SUBDOMAIN
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=/opt/fractera/app/data/app.db
-DEPLOY_SECRET=$DEPLOY_SECRET
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
-COOKIE_DOMAIN=
+COOKIE_DOMAIN=.$SUBDOMAIN
 COOKIE_SECURE=true
-NEXTAUTH_URL=https://$SUBDOMAIN
-BASE_PATH=enabled
+NEXTAUTH_URL=https://auth.$SUBDOMAIN
 DATABASE_URL=file:/opt/fractera/app/data/app.db
-ALLOWED_ORIGINS=https://$SUBDOMAIN
+ALLOWED_ORIGINS=https://$SUBDOMAIN,https://admin.$SUBDOMAIN
 ENVEOF
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
-NEXT_PUBLIC_AUTH_URL=https://$SUBDOMAIN/auth
+NEXT_PUBLIC_AUTH_URL=https://auth.$SUBDOMAIN
 NEXT_PUBLIC_APP_URL=https://$SUBDOMAIN
-NEXT_PUBLIC_MEDIA_URL=https://$SUBDOMAIN/data
-NEXT_PUBLIC_BRIDGE_URL=wss://$SUBDOMAIN/admin/bridge/
-NEXT_PUBLIC_PTY_URL=wss://$SUBDOMAIN/admin/bridge/
-NEXT_PUBLIC_CODEX_URL=wss://$SUBDOMAIN/admin/codex-bridge/
-NEXT_PUBLIC_GEMINI_URL=wss://$SUBDOMAIN/admin/gemini-bridge/
-NEXT_PUBLIC_QWEN_URL=wss://$SUBDOMAIN/admin/qwen-bridge/
-NEXT_PUBLIC_KIMI_URL=wss://$SUBDOMAIN/admin/kimi-bridge/
+NEXT_PUBLIC_MEDIA_URL=https://data.$SUBDOMAIN
+NEXT_PUBLIC_BRIDGE_URL=wss://admin.$SUBDOMAIN/bridge/
+NEXT_PUBLIC_PTY_URL=wss://admin.$SUBDOMAIN/bridge/
+NEXT_PUBLIC_CODEX_URL=wss://admin.$SUBDOMAIN/codex-bridge/
+NEXT_PUBLIC_GEMINI_URL=wss://admin.$SUBDOMAIN/gemini-bridge/
+NEXT_PUBLIC_QWEN_URL=wss://admin.$SUBDOMAIN/qwen-bridge/
+NEXT_PUBLIC_KIMI_URL=wss://admin.$SUBDOMAIN/kimi-bridge/
 DEPLOY_SECRET=$DEPLOY_SECRET
-BASE_PATH=enabled
 APP_DB_PATH=/opt/fractera/app/data/app.db
 FRACTERA_INSTALL_SECRET=$INSTALL_SECRET
 LIGHTRAG_URL=http://localhost:9621
@@ -878,18 +885,17 @@ LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
 RAG_ENV_PATH=/opt/fractera/services/rag/.env
 MCP_SECRET=$HERMES_MCP_SECRET
-NEXT_PUBLIC_HERMES_URL=https://$SUBDOMAIN/hermes
-NEXT_PUBLIC_BRAIN_URL=https://$SUBDOMAIN/lightrag
+NEXT_PUBLIC_HERMES_URL=https://hermes.$SUBDOMAIN
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
-DATA_PUBLIC_URL=https://$SUBDOMAIN/data
+DATA_PUBLIC_URL=https://data.$SUBDOMAIN
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
 ENVEOF
 
-sed -i "s|^CORS_ORIGINS=.*|CORS_ORIGINS=http://localhost:3002,https://$SUBDOMAIN|" /opt/fractera/services/rag/.env >> "$LOG_FILE" 2>&1 || true
+sed -i "s|^CORS_ORIGINS=.*|CORS_ORIGINS=http://localhost:3002,https://admin.$SUBDOMAIN|" /opt/fractera/services/rag/.env >> "$LOG_FILE" 2>&1 || true
 
 # === Validate critical env vars are not empty or localhost ===
 MEDIA_VAL=$(grep "^DATA_PUBLIC_URL=" /opt/fractera/services/data/.env | cut -d'=' -f2)
@@ -911,12 +917,6 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Rebuild with real URLs (NEXT_PUBLIC_* are baked at build time) ===
 log_email "rebuild_start" "Domain registered — rebuilding with real URLs" 75
-# CRITICAL: stop the build-having processes BEFORE removing .next. Otherwise PM2's
-# internal autorestart catches a running process with an empty .next (between rm and
-# build completion) in a crash loop → ENOENT required-server-files.json → 502 after
-# "done". data/bridge/rag/hermes have no .next. (proven in Light step 73)
-pm2 stop fractera-app fractera-auth fractera-admin >> "$LOG_FILE" 2>&1 || true
-rm -rf /opt/fractera/app/.next /opt/fractera/services/auth/.next /opt/fractera/bridges/app/.next
 step "rebuild_app"         "Rebuilding shell with domain"   "npm run build --prefix app"
 step "rebuild_auth"        "Rebuilding auth with domain"    "npm run build --prefix services/auth"
 step "rebuild_bridges_app" "Rebuilding admin with domain"   "npm run build --prefix bridges/app"
@@ -936,19 +936,20 @@ log_email "get_cf_cert" "Waiting for DNS + activating HTTPS" 85
 CURRENT_STEP="wait_dns"
 CURRENT_LABEL="Waiting for DNS to propagate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-# Path-based: only the single <slug> record to wait for (1 DNS record).
-RESOLVED=""
-for i in $(seq 1 60); do
-  RESOLVED=$(dig +short "$SUBDOMAIN" @1.1.1.1 2>/dev/null | head -1)
-  if [ -n "$RESOLVED" ]; then
-    break
+for DOMAIN in "$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN"; do
+  RESOLVED=""
+  for i in $(seq 1 60); do
+    RESOLVED=$(dig +short "$DOMAIN" @1.1.1.1 2>/dev/null | head -1)
+    if [ -n "$RESOLVED" ]; then
+      break
+    fi
+    sleep 5
+  done
+  if [ -z "$RESOLVED" ]; then
+    fail "DNS did not propagate within 5 minutes: $DOMAIN (no answer)"
   fi
-  sleep 5
+  echo "DNS OK: $DOMAIN → $RESOLVED" >> "$LOG_FILE"
 done
-if [ -z "$RESOLVED" ]; then
-  fail "DNS did not propagate within 5 minutes: $SUBDOMAIN (no answer)"
-fi
-echo "DNS OK: $SUBDOMAIN → $RESOLVED" >> "$LOG_FILE"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Download Cloudflare Origin Certificate from Easy Starter ===
@@ -986,7 +987,7 @@ CURRENT_LABEL="Configuring HTTPS with Cloudflare certificate"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera <<'NGINXHTTPSEOF'
-# HTTP -> HTTPS redirect (Cloudflare may send HTTP to origin in some modes)
+# HTTP → HTTPS redirect (Cloudflare may send HTTP to origin in some modes)
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -994,49 +995,15 @@ server {
     return 301 https://$host$request_uri;
 }
 
-# HTTPS — single server block, path-based routing (step 75+ migration, full main).
+# shell — HTTPS
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name SUBDOMAIN_PLACEHOLDER;
     include /etc/nginx/cf-ssl.conf;
 
-    # Internal auth check — verifies Fractera session via services/auth (3001).
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect { return 302 /admin/; }
-
-    # Auth assets (Next.js assetPrefix=/_auth_next)
-    location /_auth_next/ {
-        rewrite ^/_auth_next(/.*)?$ $1 break;
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # NextAuth endpoints — auth serves them at root (no basePath)
-    location /api/auth/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Admin API — client calls /api/<ns>/, admin (basePath=/admin) serves /admin/api/<ns>/
-    location ~ ^/api/(db|config|bridges|deploy|data|hermes|rag|admin)(/.*)?$ {
-        rewrite ^/api/(.*)$ /admin/api/$1 break;
-        proxy_pass http://127.0.0.1:3002;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -1045,12 +1012,20 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
-        client_max_body_size 100m;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),s=document.createElement("style");s.textContent="body{padding-bottom:16px!important}";document.head.appendChild(s);var f=document.createElement("div");f.style.cssText="position:fixed;bottom:0;left:0;right:0;height:16px;z-index:2147483647;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
+}
 
-    # Auth UI pages — strip /auth/ (auth has no basePath)
-    location /auth/ {
-        rewrite ^/auth/(.*) /$1 break;
+# auth — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name auth.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location / {
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -1058,9 +1033,16 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+}
 
-    # WebSocket bridges (3200-3205) under /admin/ — proxy_pass URI strips the prefix
-    location /admin/bridge/ {
+# admin + WebSocket bridges — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name admin.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location /bridge/ {
         proxy_pass http://127.0.0.1:3201/bridge/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1071,8 +1053,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    location /admin/claude-bridge/ {
+    location /claude-bridge/ {
         proxy_pass http://127.0.0.1:3200/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1083,8 +1064,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    location /admin/codex-bridge/ {
+    location /codex-bridge/ {
         proxy_pass http://127.0.0.1:3202/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1095,8 +1075,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    location /admin/gemini-bridge/ {
+    location /gemini-bridge/ {
         proxy_pass http://127.0.0.1:3203/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1107,8 +1086,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    location /admin/qwen-bridge/ {
+    location /qwen-bridge/ {
         proxy_pass http://127.0.0.1:3204/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1119,8 +1097,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    location /admin/kimi-bridge/ {
+    location /kimi-bridge/ {
         proxy_pass http://127.0.0.1:3205/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1131,9 +1108,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
-
-    # Admin (Next.js basePath=/admin, no rewrite)
-    location /admin/ {
+    location / {
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1144,11 +1119,17 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 86400;
     }
+}
 
-    # Data (Express) — strip /data/
-    location /data/media/ {
-        rewrite ^/data/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:3300;
+# data — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name data.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:3300/media/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -1156,8 +1137,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         client_max_body_size 500m;
     }
-    location /data/ {
-        rewrite ^/data/(.*) /$1 break;
+    location / {
         proxy_pass http://127.0.0.1:3300;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -1165,14 +1145,63 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+}
 
-    # Hermes Web UI chat (9120) — auth-gated. Hermes has DNS-rebinding protection,
-    # so Host must be rewritten to 127.0.0.1:9120.
-    location /hermes/chat/ {
+# lightrag — Company Brain WebUI — HTTPS
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name lightrag.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    location ~ ^/(docs|redoc|openapi\.json)$ { return 404; }
+    location = /health {
+        default_type application/json;
+        return 200 '{"status":"healthy","auth_mode":"disabled"}';
+    }
+    location = /favicon.png { return 204; }
+    location / {
+        proxy_pass http://127.0.0.1:9621;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once off;
+        sub_filter 'LightRAG' 'Company Brain';
+        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
+    }
+}
+
+# hermes — orchestration agent dashboard + Hermes Web UI chat — HTTPS
+# Note: Hermes has DNS rebinding protection — only accepts Host header
+# matching what it was bound to (127.0.0.1). nginx rewrites Host so
+# Hermes accepts external requests without --insecure flag.
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name hermes.SUBDOMAIN_PLACEHOLDER;
+    include /etc/nginx/cf-ssl.conf;
+
+    # Internal auth check — verifies Fractera session cookie via services/auth (port 3001).
+    # Returns 204 if logged in, 401 otherwise. Cookie is shared across .SUB.fractera.ai
+    # (COOKIE_DOMAIN=.$SUBDOMAIN in services/auth/.env).
+    location = /auth-verify {
+        internal;
+        proxy_pass http://127.0.0.1:3001/api/session/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Host $host;
+    }
+
+    # Fractera-branded chat UI (nesquena/hermes-webui on port 9120) — auth-gated
+    location /chat/ {
         auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/hermes/chat/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:9120;
+        error_page 401 = @chat_login_redirect;
+
+        proxy_pass http://127.0.0.1:9120/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -1182,17 +1211,17 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_read_timeout 86400;
-        proxy_buffering off;
+        proxy_buffering off;  # SSE streaming
         proxy_hide_header X-Frame-Options;
         proxy_hide_header Content-Security-Policy;
         add_header X-Frame-Options "ALLOWALL";
     }
+    location @chat_login_redirect {
+        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
+    }
 
-    # Hermes dashboard (9119) — auth-gated
-    location /hermes/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/hermes/(.*) /$1 break;
+    # Hermes dashboard (admin/config UI)
+    location / {
         proxy_pass http://127.0.0.1:9119;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -1206,43 +1235,6 @@ server {
         proxy_hide_header X-Frame-Options;
         proxy_hide_header Content-Security-Policy;
         add_header X-Frame-Options "ALLOWALL";
-    }
-
-    # LightRAG / Company Brain (9621) — auth-gated; /lightrag/health stays public
-    location = /lightrag/health {
-        default_type application/json;
-        return 200 '{"status":"healthy","auth_mode":"disabled"}';
-    }
-    location /lightrag/ {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-        rewrite ^/lightrag/(.*) /$1 break;
-        proxy_pass http://127.0.0.1:9621;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once off;
-        sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
-    }
-
-    # Shell / app (catch-all) + Powered by Fractera footer
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once on;
-        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;padding:16px 0;display:flex;align-items:center;justify-content:center;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);function g(){var d=document.documentElement.classList.contains("dark");a.style.color=d?"rgba(255,255,255,0.75)":"rgba(0,0,0,0.75)";}g();new MutationObserver(g).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}();</script></body>';
     }
 }
 NGINXHTTPSEOF
@@ -1273,7 +1265,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 #      background while the user already has a usable server.
 #   3. Only if the apex itself is missing — that's a real failure.
 CURRENT_STEP="https_check"
-CURRENT_LABEL="Verifying HTTPS is working"
+CURRENT_LABEL="Verifying HTTPS is working (6 subdomains)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 probe_subdomain() {
@@ -1317,7 +1309,7 @@ wait_for_subs() {
   for sub in "${pending[@]}"; do echo "$sub"; done
 }
 
-ALL_SUBS=("$SUBDOMAIN")
+ALL_SUBS=("$SUBDOMAIN" "auth.$SUBDOMAIN" "admin.$SUBDOMAIN" "data.$SUBDOMAIN" "lightrag.$SUBDOMAIN" "hermes.$SUBDOMAIN")
 
 echo "  HTTPS verification (parallel, up to 10 min)" >> "$LOG_FILE"
 mapfile -t still_failing < <(wait_for_subs 600 "${ALL_SUBS[@]}")

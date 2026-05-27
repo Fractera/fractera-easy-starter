@@ -438,8 +438,8 @@ function PlanSelector({ plans, selected, onSelect, content }: {
 function ServerLinks({ subdomain, email }: { subdomain: string; email: string }) {
   const links = [
     { href: `https://${subdomain}`,       label: subdomain,               note: 'your app' },
-    { href: `https://${subdomain}/auth`,  label: `${subdomain}/auth`,     note: 'login / register' },
-    { href: `https://${subdomain}/admin`, label: `${subdomain}/admin`,    note: 'AI coding workspace' },
+    { href: `https://auth.${subdomain}`,  label: `auth.${subdomain}`,     note: 'login / register' },
+    { href: `https://admin.${subdomain}`, label: `admin.${subdomain}`,    note: 'AI coding workspace' },
   ]
   return (
     <div className="flex flex-col gap-4 bg-green-500/5 border border-green-500/40 rounded-2xl p-5">

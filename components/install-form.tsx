@@ -229,13 +229,13 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                     className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
                     ↗ {detectedSubdomain} <span className="text-white text-sm font-medium">site</span>
                   </a>
-                  <a href={`https://${detectedSubdomain}/auth`} target="_blank" rel="noopener noreferrer"
+                  <a href={`https://auth.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
                     className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
-                    ↗ {detectedSubdomain}/auth <span className="text-white text-sm font-medium">login / register</span>
+                    ↗ auth.{detectedSubdomain} <span className="text-white text-sm font-medium">login / register</span>
                   </a>
-                  <a href={`https://${detectedSubdomain}/admin`} target="_blank" rel="noopener noreferrer"
+                  <a href={`https://admin.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
                     className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
-                    ↗ {detectedSubdomain}/admin <span className="text-white text-sm font-medium">admin</span>
+                    ↗ admin.{detectedSubdomain} <span className="text-white text-sm font-medium">admin</span>
                   </a>
                 </div>
               )}

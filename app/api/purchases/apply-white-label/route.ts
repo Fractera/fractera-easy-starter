@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`https://${server.subdomain}/admin/api/config/white-label`, {
+    const res = await fetch(`https://admin.${server.subdomain}/api/config/white-label`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${server.token}`,

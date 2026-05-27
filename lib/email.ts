@@ -104,8 +104,8 @@ export async function sendWelcomeEmail(
 
         <!-- Primary CTA -->
         <div style="text-align:center;margin:28px 0">
-          <a href="https://${subdomain}/admin" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${subdomain}/admin</p>
+          <a href="https://admin.${subdomain}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">admin.${subdomain}</p>
         </div>
 
         <!-- The 3 main destinations -->
@@ -120,14 +120,14 @@ export async function sendWelcomeEmail(
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Hermes — your AI orchestrator</div>
-              <a href="https://${subdomain}/hermes" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">${subdomain}/hermes</a>
+              <a href="https://hermes.${subdomain}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">hermes.${subdomain}</a>
               <div style="font-size:12px;color:#888;margin-top:4px">Speak to Hermes from Telegram or chat. It delegates work to the right AI for each step.</div>
             </td>
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Company Brain</div>
-              <a href="https://${subdomain}/lightrag" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
+              <a href="https://lightrag.${subdomain}/" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
               <div style="font-size:12px;color:#888;margin-top:4px">Your private knowledge base. Feed it docs, query it from any AI tool on the workspace.</div>
             </td>
           </tr>

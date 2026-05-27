@@ -433,7 +433,7 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
               Open app ↗
             </a>
             <a
-              href={`https://${server.subdomain}/admin`}
+              href={server.subdomain?.startsWith('light-') ? `https://${server.subdomain}/admin` : `https://admin.${server.subdomain}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
