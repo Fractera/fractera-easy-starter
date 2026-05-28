@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { PartnerCabinetView } from '@/components/partner-cabinet-view'
 import { useLang } from '@/lib/i18n/use-lang'
+import { buildUrls } from '@/lib/subdomain-helpers'
 
 type ServerRecord = {
   id: string
@@ -423,24 +424,29 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
       {/* Links for active servers */}
       {server.status === 'active' && server.subdomain && (
         <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <a
-              href={`https://${server.subdomain}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
-            >
-              Open app ↗
-            </a>
-            <a
-              href={`https://admin.${server.subdomain}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
-            >
-              Open admin ↗
-            </a>
-          </div>
+          {(() => {
+            const u = buildUrls(server.subdomain)
+            return (
+              <div className="flex gap-2">
+                <a
+                  href={u.appUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
+                >
+                  Open app ↗
+                </a>
+                <a
+                  href={u.adminUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-center text-sm font-semibold text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/40 rounded-lg py-2 transition-colors"
+                >
+                  Open admin ↗
+                </a>
+              </div>
+            )
+          })()}
 
           {server.whiteLabelActive ? (
             <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2.5 py-0.5 w-fit">

@@ -27,7 +27,16 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}))
-  const subdomain = (body.subdomain as string | undefined) ?? serverToken.subdomain ?? ''
+  const incomingSubdomain = (body.subdomain as string | undefined) ?? ''
+
+  // Preserve the existing DB subdomain if it already has the synthetic
+  // `ip-<IP>` form set by /api/install. Bootstrap sends the bare IP in
+  // ping payload (SUBDOMAIN=$SERVER_IP) — overwriting the DB would lose
+  // the prefix and break IP-mode detection in welcome email + UI.
+  const dbSubdomain = serverToken.subdomain ?? ''
+  const subdomain = dbSubdomain.startsWith('ip-')
+    ? dbSubdomain
+    : (incomingSubdomain || dbSubdomain)
 
   const wasFirstPing = serverToken.status === 'pending'
 
@@ -36,7 +45,7 @@ export async function POST(req: NextRequest) {
     data: {
       lastPingAt: new Date(),
       status: 'active',
-      subdomain: subdomain || serverToken.subdomain,
+      subdomain,
     },
   })
 

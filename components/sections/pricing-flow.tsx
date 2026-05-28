@@ -436,11 +436,18 @@ function PlanSelector({ plans, selected, onSelect, content }: {
 // ─── ServerLinks ──────────────────────────────────────────────────────────────
 
 function ServerLinks({ subdomain, email }: { subdomain: string; email: string }) {
-  const links = [
-    { href: `https://${subdomain}`,       label: subdomain,               note: 'your app' },
-    { href: `https://auth.${subdomain}`,  label: `auth.${subdomain}`,     note: 'login / register' },
-    { href: `https://admin.${subdomain}`, label: `admin.${subdomain}`,    note: 'AI coding workspace' },
-  ]
+  const ipMatch = subdomain.match(/^(?:ip-)?(\d+\.\d+\.\d+\.\d+)$/)
+  const links = ipMatch
+    ? [
+        { href: `http://${ipMatch[1]}:3000`, label: ipMatch[1],                note: 'your app' },
+        { href: `http://${ipMatch[1]}:3001`, label: `${ipMatch[1]}:3001`,      note: 'login / register' },
+        { href: `http://${ipMatch[1]}:3002`, label: `${ipMatch[1]}:3002`,      note: 'AI coding workspace' },
+      ]
+    : [
+        { href: `https://${subdomain}`,       label: subdomain,               note: 'your app' },
+        { href: `https://auth.${subdomain}`,  label: `auth.${subdomain}`,     note: 'login / register' },
+        { href: `https://admin.${subdomain}`, label: `admin.${subdomain}`,    note: 'AI coding workspace' },
+      ]
   return (
     <div className="flex flex-col gap-4 bg-green-500/5 border border-green-500/40 rounded-2xl p-5">
       <div className="flex items-center gap-2">

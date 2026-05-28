@@ -7,6 +7,7 @@ import { useHeroContent } from '@/lib/i18n/context'
 import { useLang } from '@/lib/i18n/use-lang'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
+import { buildUrls } from '@/lib/subdomain-helpers'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
@@ -222,23 +223,34 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 <span className="text-green-400">&#10003;</span>
                 <p className="text-sm font-semibold text-green-400">{t.alreadyInstalled}</p>
               </div>
-              {detectedSubdomain && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm text-white font-bold uppercase tracking-widest">{t.yourDomains}</p>
-                  <a href={`https://${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
-                    ↗ {detectedSubdomain} <span className="text-white text-sm font-medium">site</span>
-                  </a>
-                  <a href={`https://auth.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
-                    ↗ auth.{detectedSubdomain} <span className="text-white text-sm font-medium">login / register</span>
-                  </a>
-                  <a href={`https://admin.${detectedSubdomain}`} target="_blank" rel="noopener noreferrer"
-                    className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
-                    ↗ admin.{detectedSubdomain} <span className="text-white text-sm font-medium">admin</span>
-                  </a>
-                </div>
-              )}
+              {detectedSubdomain && (() => {
+                const u = buildUrls(detectedSubdomain)
+                return (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-white font-bold uppercase tracking-widest">{t.yourDomains}</p>
+                    <a href={u.appUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                      ↗ {u.appLabel} <span className="text-white text-sm font-medium">site</span>
+                    </a>
+                    <a href={u.authUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                      ↗ {u.mode === 'ip' ? `${u.ip}:3001` : `auth.${detectedSubdomain}`} <span className="text-white text-sm font-medium">login / register</span>
+                    </a>
+                    <a href={u.adminUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-base text-green-300 font-semibold hover:text-green-200 transition-colors">
+                      ↗ {u.adminLabel} <span className="text-white text-sm font-medium">admin</span>
+                    </a>
+                    {u.mode === 'ip' && (
+                      <p className="text-xs text-amber-300/90 leading-relaxed mt-1 pt-2 border-t border-green-500/20">
+                        ⚠ Откройте ссылки в инкогнито (<code className="bg-white/10 px-1.5 rounded">Ctrl+Shift+N</code>).
+                        Если браузер ругается «Небезопасно» — <strong>Дополнительно → Перейти на сайт</strong>.
+                        Это HTTP без SSL — нормально пока не привязали свой домен.
+                        После привязки в админ-панели → автоматически появится SSL и зелёный замок.
+                      </p>
+                    )}
+                  </div>
+                )
+              })()}
               {onWhiteLabel && freeServerTokenId && (
                 <button
                   onClick={() => onWhiteLabel(freeServerTokenId)}

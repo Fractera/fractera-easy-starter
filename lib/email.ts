@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { LEGAL, legalAddressOneLine } from '@/config/legal'
+import { buildUrls } from '@/lib/subdomain-helpers'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = process.env.AUTH_RESEND_FROM ?? 'noreply@fractera.ai'
@@ -115,21 +116,37 @@ export async function sendWelcomeEmail(
         ${isIpMode ? `
         <!-- Autonomy note (IP-mode) -->
         <div style="margin:16px 0 0;padding:16px 18px;background:#ecfdf5;border:1px solid #10b981;border-radius:10px">
-          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#065f46">✓ Fully autonomous server</p>
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#065f46">✓ Fully autonomous — zero dependency on Fractera</p>
           <p style="margin:0;color:#047857;font-size:13px;line-height:1.6">
-            Your server runs entirely on your own VPS — no DNS, no domain, zero dependency on Fractera.
-            If Fractera ceased to exist tomorrow, your server would keep working. All code, data, and
-            credentials are yours alone. Attach your own domain anytime — from the admin panel.
+            Your server runs entirely on your own VPS. No DNS, no domain through Fractera.
+            If Fractera disappears tomorrow, your server keeps running. All code, data, and
+            credentials are yours alone.
           </p>
         </div>
 
-        <!-- Browser HTTP note -->
-        <div style="margin:12px 0 0;padding:12px 14px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px">
-          <p style="margin:0;color:#92400e;font-size:12px;line-height:1.6">
-            <strong>Heads up:</strong> The links below use plain HTTP — normal for IP-only deploys.
-            Browsers may show "Not secure" near the address bar. This is expected: your data flows
-            between your browser and your own server, no third parties involved. For full HTTPS with
-            a green padlock, attach your domain via the admin panel.
+        <!-- How to open: incognito + bypass warning -->
+        <div style="margin:12px 0 0;padding:14px 18px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#92400e">⚠ How to open the links below — please read</p>
+          <p style="margin:0 0 10px;color:#92400e;font-size:13px;line-height:1.6">
+            These links use plain HTTP (your server has no SSL certificate yet — that's normal until you
+            attach your own domain). Your browser will show <strong>"Not secure"</strong> or block the
+            page. Follow these steps to open it safely:
+          </p>
+          <ol style="margin:0 0 10px;padding-left:22px;color:#92400e;font-size:13px;line-height:1.9">
+            <li>Open the link in an <strong>incognito / private window</strong>
+              (Chrome: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+N</code>,
+              Firefox: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+P</code>).
+              This avoids cached HTTPS redirects from any previous server.</li>
+            <li>If you still see a security warning, click <strong>"Advanced"</strong> → <strong>"Proceed to ${ip} (unsafe)"</strong>.
+              In Chrome, you can also type <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">thisisunsafe</code>
+              directly on the warning page to bypass.</li>
+            <li>You are connecting to <strong>your own server</strong> — no third party is intercepting your traffic.
+              The warning only means "no SSL certificate", not "untrusted website".</li>
+          </ol>
+          <p style="margin:0;padding-top:8px;border-top:1px solid #fde68a;color:#78350f;font-size:13px;line-height:1.6">
+            <strong>✓ The warning disappears automatically</strong> once you attach a real domain in the
+            admin panel — Fractera will obtain a free Let's Encrypt SSL certificate for you, and the green
+            padlock will appear in your browser.
           </p>
         </div>
         ` : ''}

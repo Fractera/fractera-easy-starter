@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { buildUrls } from '@/lib/subdomain-helpers'
 
 type DomainState = 'empty' | 'installing' | 'ready'
 
@@ -78,9 +79,8 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
 
   function handleCopy(type: 'admin' | 'site') {
     if (state !== 'ready') return
-    const url = type === 'admin'
-      ? `https://admin.${domain}`
-      : `https://${domain}`
+    const u = buildUrls(domain)
+    const url = type === 'admin' ? u.adminUrl : u.appUrl
     navigator.clipboard.writeText(url)
     setCopied(type)
     setTimeout(() => setCopied(null), 2000)
@@ -113,11 +113,11 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
           style={borderStyle}
         >
           <code className={`text-sm flex-1 break-all transition-colors duration-[1500ms] ${textColor}`}>
-            {isEmpty ? 'admin panel will appear here' : `admin.${domain}`}
+            {isEmpty ? 'admin panel will appear here' : buildUrls(domain).adminLabel}
           </code>
           {isReady && (
             <a
-              href={`https://admin.${domain}`}
+              href={buildUrls(domain).adminUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border text-white hover:text-white border-white/40 hover:border-white/60 transition-colors"
@@ -154,7 +154,7 @@ export function DomainStatus({ onStatusChange, subdomain, installing, onResetRef
           </code>
           {isReady && (
             <a
-              href={`https://${domain}`}
+              href={buildUrls(domain).appUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-lg border text-white hover:text-white border-white/40 hover:border-white/60 transition-colors"
