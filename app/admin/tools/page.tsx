@@ -13,8 +13,6 @@ const TEMPLATES = [
   { key: 'queued',                 label: 'Queued — pool is empty (Path B)',       desc: 'Sent when the user paid but no server was ready in the pool.' },
   { key: 'expiry_warning',         label: 'Expiry warning — 7 days left',          desc: 'Sent 7 days before the Stripe subscription expires.' },
   { key: 'company_brain_inquiry',      label: 'AI Company Brain inquiry — admin notify',      desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
-  { key: 'dns_quota_warning',      label: 'DNS quota — warning (80%+)',            desc: 'Sent to admin@fractera.ai when Cloudflare DNS record count crosses ~80% of plan limit. Amber palette. Sample: 160/200 on Free Website.' },
-  { key: 'dns_quota_critical',     label: 'DNS quota — CRITICAL (100%)',           desc: 'Sent to admin@fractera.ai when DNS quota is exhausted; bootstrap aborts. Red palette. Sample: 200/200 on Free Website.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']

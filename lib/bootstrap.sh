@@ -20,7 +20,6 @@ CURRENT_LABEL=""
 INSTALL_START=$(date +%s)
 # DEBUG — remove before launch
 LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
-QUOTA_URL="https://fractera-easy-starter.vercel.app/api/quota/check"
 
 log_email() {
   [ -z "$SERVER_TOKEN" ] && return
@@ -116,25 +115,6 @@ step_npm() {
 }
 
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
-
-# === Pre-flight: DNS quota check ===
-# Additive safety net (CLAUDE.md rule 15). If Cloudflare DNS quota is
-# exhausted, abort here rather than failing at register step with the
-# opaque `code:81045 Record quota exceeded`. Best-effort — if /api/quota/check
-# returns degraded mode (CF API unreachable), we proceed and let register
-# fail downstream as before.
-CURRENT_STEP="quota_check"
-CURRENT_LABEL="Checking Cloudflare DNS quota"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-QUOTA_RESP=$(curl -s --max-time 15 -X GET "$QUOTA_URL" -H "x-install-secret: $INSTALL_SECRET")
-QUOTA_STATUS=$(echo "$QUOTA_RESP" | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
-QUOTA_COUNT=$(echo "$QUOTA_RESP" | grep -o '"count":-\?[0-9]*' | head -1 | cut -d':' -f2)
-QUOTA_LIMIT=$(echo "$QUOTA_RESP" | grep -o '"limit":-\?[0-9]*' | head -1 | cut -d':' -f2)
-echo "[quota] status=$QUOTA_STATUS count=$QUOTA_COUNT limit=$QUOTA_LIMIT" >> "$LOG_FILE"
-if [ "$QUOTA_STATUS" = "critical" ]; then
-  fail "Cloudflare DNS quota exhausted ($QUOTA_COUNT/$QUOTA_LIMIT). Deploy aborted before touching the server. Admin has been notified."
-fi
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
 step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh"

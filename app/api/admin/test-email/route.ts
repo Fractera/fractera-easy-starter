@@ -9,8 +9,6 @@ import {
   sendQueuedEmail,
   sendExpiryWarningEmail,
   sendCompanyBrainInquiryEmail,
-  sendDnsQuotaWarningEmail,
-  sendDnsQuotaCriticalEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
@@ -28,8 +26,6 @@ type TemplateKey =
   | 'queued'
   | 'expiry_warning'
   | 'company_brain_inquiry'
-  | 'dns_quota_warning'
-  | 'dns_quota_critical'
 
 async function dispatch(template: TemplateKey, to: string) {
   switch (template) {
@@ -51,21 +47,6 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendQueuedEmail(to)
     case 'expiry_warning':
       return sendExpiryWarningEmail(to, 7, SAMPLE_SUBDOMAIN)
-    case 'dns_quota_warning':
-      return sendDnsQuotaWarningEmail(to, {
-        current: 162,
-        limit: 200,
-        planTier: 'Free Website',
-        nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
-      })
-    case 'dns_quota_critical':
-      return sendDnsQuotaCriticalEmail(to, {
-        current: 200,
-        limit: 200,
-        planTier: 'Free Website',
-        blockedDomain: 'pure-fox-77.fractera.ai',
-        nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
-      })
     case 'company_brain_inquiry':
       return sendCompanyBrainInquiryEmail({
         email: to,
