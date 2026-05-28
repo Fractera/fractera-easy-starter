@@ -20,6 +20,7 @@ const SAMPLE_PASSWORD = 'demo-pass-Julia711'
 
 type TemplateKey =
   | 'welcome'
+  | 'welcome_ip'
   | 'install_started'
   | 'install_progress'
   | 'recovery_token'
@@ -34,6 +35,10 @@ async function dispatch(template: TemplateKey, to: string) {
   switch (template) {
     case 'welcome':
       return sendWelcomeEmail(to, SAMPLE_SUBDOMAIN, { ip: SAMPLE_IP, password: SAMPLE_PASSWORD })
+    case 'welcome_ip':
+      // IP-mode rendering: subdomain="ip-<IP>" triggers the autonomy block,
+      // HTTP browser note, and IP:port links.
+      return sendWelcomeEmail(to, `ip-${SAMPLE_IP}`, { ip: SAMPLE_IP, password: SAMPLE_PASSWORD })
     case 'install_started':
       return sendInstallStartedEmail(to)
     case 'install_progress':
@@ -58,7 +63,7 @@ async function dispatch(template: TemplateKey, to: string) {
         current: 200,
         limit: 200,
         planTier: 'Free Website',
-        blockedDomain: 'light-pure-fox-77.fractera.ai',
+        blockedDomain: 'pure-fox-77.fractera.ai',
         nextTier: { name: 'Pro', limit: 3500, monthly: '$25/mo' },
       })
     case 'company_brain_inquiry':

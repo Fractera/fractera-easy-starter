@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 const TEMPLATES = [
-  { key: 'welcome',                label: 'Welcome — server is live',              desc: 'Main deploy-success email with primary CTA, three destination cards, SSH credentials block.' },
+  { key: 'welcome',                label: 'Welcome — server is live (domain)',     desc: 'Main deploy-success email with primary CTA, three destination cards (admin.X / hermes.X / lightrag.X), SSH credentials block.' },
+  { key: 'welcome_ip',             label: 'Welcome — server is live (IP-only)',    desc: 'IP-mode variant. Subdomain="ip-<IP>" triggers HTTP IP:port links, autonomy block ("zero dependency on Fractera"), and browser HTTP note.' },
   { key: 'install_started',        label: 'Install started — confirmation',        desc: 'Sent right after a paid deploy begins.' },
   { key: 'install_progress',       label: 'Install progress — middle of deploy',   desc: 'Sent once mid-bootstrap when dependencies finished installing (~30%).' },
   { key: 'recovery_token',         label: 'Recovery token — safety net',           desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL.' },
@@ -12,10 +13,6 @@ const TEMPLATES = [
   { key: 'queued',                 label: 'Queued — pool is empty (Path B)',       desc: 'Sent when the user paid but no server was ready in the pool.' },
   { key: 'expiry_warning',         label: 'Expiry warning — 7 days left',          desc: 'Sent 7 days before the Stripe subscription expires.' },
   { key: 'company_brain_inquiry',      label: 'AI Company Brain inquiry — admin notify',      desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
-  { key: 'light_install_started',  label: 'Light — install started',               desc: 'Light variant of install-started. No Hermes/LightRAG/coding agents mentioned.' },
-  { key: 'light_recovery_token',   label: 'Light — recovery token',                desc: 'Light variant of recovery-token. Points to https://www.fractera.ai/api/mcp/light (Light MCP), Light palette.' },
-  { key: 'light_deploy_failed',    label: 'Light — deploy failed',                 desc: 'Light variant of deploy-failed. Points to Light MCP for retry; no Hermes/Brain mentions.' },
-  { key: 'light_welcome',          label: 'Light — server is live',                desc: 'Light deploy-success email. Admin panel + public site + git sync hint — no Hermes, no Company Brain, no 5 platforms.' },
   { key: 'dns_quota_warning',      label: 'DNS quota — warning (80%+)',            desc: 'Sent to admin@fractera.ai when Cloudflare DNS record count crosses ~80% of plan limit. Amber palette. Sample: 160/200 on Free Website.' },
   { key: 'dns_quota_critical',     label: 'DNS quota — CRITICAL (100%)',           desc: 'Sent to admin@fractera.ai when DNS quota is exhausted; bootstrap aborts. Red palette. Sample: 200/200 on Free Website.' },
 ] as const
