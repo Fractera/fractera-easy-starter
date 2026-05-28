@@ -12,6 +12,7 @@ PLATFORM="${3:-claude-code}"
 SERVER_TOKEN="${4:-}"
 SUBDOMAIN_OVERRIDE="${5:-}"
 GITHUB_TOKEN="${6:-}"
+DEPLOY_MODE="${7:-domain}"  # "domain" (4th-level subdomains + HTTPS) or "ip" (HTTP-only, no DNS)
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -155,51 +156,61 @@ rm -rf \
   2>/dev/null || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === EARLY DOMAIN REGISTRATION ===
-# Register the main subdomain and all 5 service subdomains BEFORE the heavy
-# install steps. This way Cloudflare Total TLS starts provisioning edge
-# certificates in parallel with the bootstrap — by the time we finish
-# install (~15-20 min later), certs are ready. No SSL waiting at the end.
-CURRENT_STEP="register"
-CURRENT_LABEL="Registering your domain"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-if [ -n "$SUBDOMAIN_OVERRIDE" ]; then
-  SUBDOMAIN="$SUBDOMAIN_OVERRIDE"
-  echo "Using existing subdomain: $SUBDOMAIN" >> "$LOG_FILE"
-  # Still need SERVER_IP for register-subdomain
-  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
-else
-  SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
-  if [ -z "$SERVER_IP" ]; then
-    fail "could not detect server IP"
-  fi
-  RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
-  if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
-    fail "domain registration failed: $RESPONSE"
-  fi
-  SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
-  if [ -z "$SUBDOMAIN" ]; then
-    fail "could not parse subdomain from response: $RESPONSE"
-  fi
+# === SERVER IP DETECTION (always needed) ===
+SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
+if [ -z "$SERVER_IP" ]; then
+  fail "could not detect server IP"
 fi
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-CURRENT_STEP="register_subdomains"
-CURRENT_LABEL="Registering service subdomains"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
-for PREFIX in auth admin data lightrag hermes; do
-  curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
-    -H "Content-Type: application/json" \
-    -H "x-install-secret: $INSTALL_SECRET" \
-    -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
-    >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
-done
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
-# Cloudflare Total TLS now starts provisioning certs in the background.
+if [ "$DEPLOY_MODE" = "ip" ]; then
+  # IP-only mode: no DNS, no domain. Use IP as the "subdomain" identifier.
+  # All services accessed via http://IP:port directly (no nginx subdomains).
+  SUBDOMAIN="$SERVER_IP"
+  BASE="ip-$SERVER_IP"
+  CURRENT_STEP="register"
+  CURRENT_LABEL="IP-only deploy (skipping DNS registration)"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" true
+else
+  # === EARLY DOMAIN REGISTRATION ===
+  # Register the main subdomain and all 5 service subdomains BEFORE the heavy
+  # install steps. This way Cloudflare Total TLS starts provisioning edge
+  # certificates in parallel with the bootstrap — by the time we finish
+  # install (~15-20 min later), certs are ready. No SSL waiting at the end.
+  CURRENT_STEP="register"
+  CURRENT_LABEL="Registering your domain"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" false
+  if [ -n "$SUBDOMAIN_OVERRIDE" ]; then
+    SUBDOMAIN="$SUBDOMAIN_OVERRIDE"
+    echo "Using existing subdomain: $SUBDOMAIN" >> "$LOG_FILE"
+  else
+    RESPONSE=$(curl -s -X POST "$REGISTER_URL" \
+      -H "Content-Type: application/json" \
+      -H "x-install-secret: $INSTALL_SECRET" \
+      -d "{\"ip\":\"$SERVER_IP\",\"session_id\":\"$SESSION_ID\"}")
+    if ! echo "$RESPONSE" | grep -q '"subdomain"'; then
+      fail "domain registration failed: $RESPONSE"
+    fi
+    SUBDOMAIN=$(echo "$RESPONSE" | grep -o '"subdomain":"[^"]*"' | cut -d'"' -f4)
+    if [ -z "$SUBDOMAIN" ]; then
+      fail "could not parse subdomain from response: $RESPONSE"
+    fi
+  fi
+  report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+  CURRENT_STEP="register_subdomains"
+  CURRENT_LABEL="Registering service subdomains"
+  report "$CURRENT_STEP" "$CURRENT_LABEL" false
+  BASE=$(echo "$SUBDOMAIN" | sed 's/\.fractera\.ai//')
+  for PREFIX in auth admin data lightrag hermes; do
+    curl -s -X POST "$REGISTER_SUBDOMAIN_URL" \
+      -H "Content-Type: application/json" \
+      -H "x-install-secret: $INSTALL_SECRET" \
+      -d "{\"ip\":\"$SERVER_IP\",\"subdomain\":\"$PREFIX.$BASE\"}" \
+      >> "$LOG_FILE" 2>&1 || fail "register $PREFIX subdomain failed"
+  done
+  report "$CURRENT_STEP" "$CURRENT_LABEL" true
+  # Cloudflare Total TLS now starts provisioning certs in the background.
+fi
 
 if [ -n "$GITHUB_TOKEN" ]; then
   CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/ai-workspace.git"
@@ -367,6 +378,14 @@ CURRENT_LABEL="Writing environment configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 source /etc/fractera/secrets.env
 
+# In IP-mode, add the server IP to ALLOWED_ORIGINS so cross-port requests
+# from http://IP:3000 to auth on :3001 pass the CORS check.
+if [ "$DEPLOY_MODE" = "ip" ]; then
+  IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3300"
+else
+  IP_ORIGINS=""
+fi
+
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
@@ -382,7 +401,7 @@ COOKIE_DOMAIN=
 COOKIE_SECURE=false
 NEXTAUTH_URL=http://localhost:3001
 DATABASE_URL=file:/opt/fractera/app/data/app.db
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002$IP_ORIGINS
 ENVEOF
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
@@ -833,6 +852,7 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "302" ] && [ "$CODE" != "307" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+if [ "$DEPLOY_MODE" = "domain" ]; then
 # === Update Nginx with real server_name ===
 CURRENT_STEP="nginx_domains"
 CURRENT_LABEL="Updating web server with real domains"
@@ -1336,6 +1356,8 @@ if [ ${#still_failing[@]} -gt 0 ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+fi
+
 # === White label check — remove footer if user has paid for it ===
 if [ -n "$SERVER_TOKEN" ]; then
   WL=$(curl -s --max-time 5 \
@@ -1379,7 +1401,9 @@ if [ -n "$SERVER_TOKEN" ]; then
 fi
 
 # Signal completion with subdomain — retry up to 5x to survive Vercel cold starts
-_done_payload="{\"session_id\":\"$SESSION_ID\",\"done\":true,\"response\":$RESPONSE}"
+# In IP-mode RESPONSE is empty (no register call) — use a synthetic JSON.
+_response_json="${RESPONSE:-{\"subdomain\":\"$SUBDOMAIN\",\"ip\":\"$SERVER_IP\",\"mode\":\"ip\"}}"
+_done_payload="{\"session_id\":\"$SESSION_ID\",\"done\":true,\"response\":$_response_json}"
 for _attempt in 1 2 3 4 5; do
   _code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 -X POST "$PROGRESS_URL" \
     -H "Content-Type: application/json" \
@@ -1390,4 +1414,8 @@ for _attempt in 1 2 3 4 5; do
 done
 
 echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
-echo "FRACTERA_READY: https://$SUBDOMAIN"
+if [ "$DEPLOY_MODE" = "ip" ]; then
+  echo "FRACTERA_READY: http://$SERVER_IP:3000 (app) | http://$SERVER_IP:3002 (admin) | http://$SERVER_IP:3001 (auth)"
+else
+  echo "FRACTERA_READY: https://$SUBDOMAIN"
+fi
