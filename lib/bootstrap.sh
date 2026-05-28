@@ -145,7 +145,7 @@ fi
 SUBDOMAIN="$SERVER_IP"
 BASE="ip-$SERVER_IP"
 CURRENT_STEP="register"
-CURRENT_LABEL="IP-only deploy"
+CURRENT_LABEL="Detecting server IP"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 if [ -n "$GITHUB_TOKEN" ]; then

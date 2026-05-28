@@ -1,5 +1,7 @@
 export type Step = { id: string; label: string; done: boolean; skipped?: boolean }
 
+// Pipeline shown in the install-progress UI. Steps emitted by lib/bootstrap.sh
+// in IP-only mode (no DNS, no Cloudflare SSL, no second build cycle).
 export const ALL_STEPS: Step[] = [
   { id: 'email_start',          label: 'Confirmation email sent',                  done: false },
   { id: 'connect',              label: 'Connecting to server',                     done: false },
@@ -9,8 +11,7 @@ export const ALL_STEPS: Step[] = [
   { id: 'node_install',         label: 'Installing Node.js 20',                    done: false },
   { id: 'pm2',                  label: 'Installing PM2 process manager',           done: false },
   { id: 'clear_creds',          label: 'Clearing platform credentials',            done: false },
-  { id: 'register',             label: 'Registering your domain',                  done: false },
-  { id: 'register_subdomains',  label: 'Registering service subdomains (×5)',      done: false },
+  { id: 'register',             label: 'Detecting server IP',                      done: false },
   { id: 'clone',                label: 'Downloading Fractera',                     done: false },
   { id: 'deps_root',            label: 'Installing dependencies (1/6)',            done: false },
   { id: 'deps_app',             label: 'Installing dependencies (2/6)',            done: false },
@@ -45,15 +46,5 @@ export const ALL_STEPS: Step[] = [
   { id: 'pm2_save',             label: 'Saving configuration',                     done: false },
   { id: 'configure_nginx_http', label: 'Configuring web server (HTTP)',            done: false },
   { id: 'health_check',         label: 'Verifying server is responding',           done: false },
-  { id: 'nginx_domains',        label: 'Updating web server with real domains',    done: false },
-  { id: 'update_env',           label: 'Updating environment with real domains',   done: false },
-  { id: 'rebuild_app',          label: 'Rebuilding shell with domain',             done: false },
-  { id: 'rebuild_auth',         label: 'Rebuilding auth with domain',              done: false },
-  { id: 'rebuild_bridges_app',  label: 'Rebuilding admin with domain',             done: false },
-  { id: 'pm2_restart',          label: 'Restarting services with new config',      done: false },
-  { id: 'get_cf_cert',          label: 'Downloading Cloudflare SSL certificate',   done: false },
-  { id: 'wait_dns',             label: 'Waiting for DNS to propagate',             done: false },
-  { id: 'ssl_cert',             label: 'Configuring HTTPS (Cloudflare Origin)',    done: false },
-  { id: 'https_check',          label: 'Verifying HTTPS is working',              done: false },
   { id: 'email_complete',       label: 'Welcome email with URLs sent',            done: false },
 ]
