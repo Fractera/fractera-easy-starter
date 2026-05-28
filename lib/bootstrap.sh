@@ -330,22 +330,21 @@ AUTH_SECRET=$AUTH_SECRET
 AUTH_TRUST_HOST=true
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
-NEXTAUTH_URL=http://localhost:3001
+# IP-mode: NEXTAUTH_URL must point at the public host the browser uses,
+# otherwise NextAuth sets callback URLs and CSRF origin to localhost and the
+# browser refuses the redirect / drops the cookie. AUTH_TRUST_HOST=true makes
+# NextAuth honour the X-Forwarded-Host/Host header on each request, so this
+# value mainly seeds the default callbackUrl cookie.
+NEXTAUTH_URL=http://$SERVER_IP:3001
 DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002$IP_ORIGINS
 ENVEOF
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
+# Server-side only — admin proxy.ts calls auth on localhost.
 AUTH_SERVICE_URL=http://localhost:3001
-NEXT_PUBLIC_AUTH_URL=http://localhost:3001
-NEXT_PUBLIC_APP_URL=
-NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
-NEXT_PUBLIC_BRIDGE_URL=ws://localhost:3201/bridge/
-NEXT_PUBLIC_PTY_URL=ws://localhost:3201/bridge/
-NEXT_PUBLIC_CODEX_URL=ws://localhost:3202/
-NEXT_PUBLIC_GEMINI_URL=ws://localhost:3203/
-NEXT_PUBLIC_QWEN_URL=ws://localhost:3204/
-NEXT_PUBLIC_KIMI_URL=ws://localhost:3205/
+# NEXT_PUBLIC_* not needed: bridges/app reads URLs at runtime via
+# lib/runtime-urls.ts → window.location.hostname + service ports.
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
 LIGHTRAG_URL=http://localhost:9621
