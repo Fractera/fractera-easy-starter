@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { deleteDnsRecord } from '@/lib/cloudflare'
 import { wipeServer } from '@/lib/wipe-script'
 
 export const maxDuration = 120
@@ -59,29 +58,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. DNS cleanup for all 5 subdomains. bootstrap.sh registers
-  // {root, auth, admin, data, lightrag, hermes} — the prior version of
-  // this endpoint only deleted 4 of them, leaving lightrag + hermes
-  // as orphan A records pointing at a freed IP.
-  if (serverToken.subdomain) {
-    const base = serverToken.subdomain.replace(/\.fractera\.ai$/, '')
-    await Promise.all([
-      deleteDnsRecord(serverToken.subdomain).catch(() => {}),
-      deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`lightrag.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`hermes.${base}.fractera.ai`).catch(() => {}),
-    ])
-  }
-
-  // 3. Mark server as offline (only reached if wipe succeeded above).
+  // 2. Mark server as offline (only reached if wipe succeeded above).
+  // No DNS cleanup needed: IP-mode deploys never create fractera.ai DNS
+  // records. Custom-domain DNS lives in the user's own DNS provider.
   await db.serverToken.update({
     where: { id: serverToken.id },
     data: { status: 'offline', deployError: null },
   })
 
-  // 4. Cancel free (self-hosted) subscription when its server is deleted.
+  // 3. Cancel free (self-hosted) subscription when its server is deleted.
   // Paid subscriptions (monthly, annual, trial) are kept — the user paid for them
   // and may redeploy. Only the free plan has no value without an active server.
   await db.subscription.updateMany({

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client } from 'ssh2'
-import { deleteDnsRecord } from '@/lib/cloudflare'
 
 export const maxDuration = 60
 
@@ -45,16 +44,6 @@ export async function POST(req: NextRequest) {
     })
   })
 
-  if (domain) {
-    // Delete main domain + all 3 service subdomains
-    const base = domain.replace(/\.fractera\.ai$/, '')
-    await Promise.all([
-      deleteDnsRecord(domain).catch(() => {}),
-      deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
-      deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
-    ])
-  }
-
+  // No DNS cleanup: IP-mode never creates fractera.ai records.
   return NextResponse.json({ status: 'destroyed' })
 }

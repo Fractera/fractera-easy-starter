@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
         deploySessionId: session_id,
         serverIp: ip,
         serverPassword: password,
+        // IP-mode identifier: never DNS-resolved. Triggers HTTP IP:port
+        // rendering in welcome email + dashboard.
+        subdomain: `ip-${ip}`,
       },
     })
     tokenForBootstrap = newToken.token

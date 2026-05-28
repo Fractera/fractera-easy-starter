@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
-import { deleteDnsRecord } from '@/lib/cloudflare'
 
 const PAGE_SIZE = 50
 
@@ -69,8 +68,8 @@ export async function GET(req: NextRequest) {
 }
 
 // Soft delete (default) — mark status='deleted', keep the row for audit.
-// Hard wipe (mode='hard') — wipeServer + deleteDnsRecord on all 6 subdomains
-// + set status='deleted'. Requires the operator to type-confirm.
+// Hard wipe (mode='hard') — wipeServer on the customer VPS + set
+// status='deleted'. Requires the operator to type-confirm.
 export async function DELETE(req: NextRequest) {
   const session = await auth()
   if (session?.user?.email !== 'admin@fractera.ai') {
@@ -131,10 +130,7 @@ export async function DELETE(req: NextRequest) {
       console.error('[admin/server-tokens] hard wipe SSH failed', err)
       return NextResponse.json({ error: 'ssh wipe failed: ' + msg }, { status: 500 })
     }
-    // 2. Delete all 6 DNS records (main + 5 service prefixes). Best-effort.
-    const base = token.subdomain
-    const dnsTargets = [base, `auth.${base}`, `admin.${base}`, `data.${base}`, `lightrag.${base}`, `hermes.${base}`]
-    await Promise.all(dnsTargets.map(d => deleteDnsRecord(d).catch(() => {})))
+    // No DNS cleanup: IP-mode never creates fractera.ai records.
   }
 
   // Soft cleanup of related rows + mark deleted. We don't physically DELETE

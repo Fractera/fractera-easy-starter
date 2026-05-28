@@ -3,7 +3,6 @@ import { Client } from 'ssh2'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
-import { deleteDnsRecord } from '@/lib/cloudflare'
 
 export const maxDuration = 60
 
@@ -75,15 +74,7 @@ export async function POST(req: NextRequest) {
     if (token.serverIp && token.serverPassword) {
       sshDestroy(token.serverIp, token.serverPassword).catch(() => {})
     }
-    if (token.subdomain) {
-      const base = token.subdomain.replace(/\.fractera\.ai$/, '')
-      Promise.all([
-        deleteDnsRecord(token.subdomain).catch(() => {}),
-        deleteDnsRecord(`auth.${base}.fractera.ai`).catch(() => {}),
-        deleteDnsRecord(`admin.${base}.fractera.ai`).catch(() => {}),
-        deleteDnsRecord(`data.${base}.fractera.ai`).catch(() => {}),
-      ])
-    }
+    // No DNS cleanup: IP-mode never creates fractera.ai records.
     await db.serverToken.update({
       where: { id: token.id },
       data: { status: 'offline' },
