@@ -88,6 +88,16 @@ export async function sendWelcomeEmail(
   subdomain: string,
   credentials?: { ip: string; password: string }
 ) {
+  // IP-mode deploy: subdomain stored as "ip-<IP>" — switch to HTTP IP:port links.
+  const isIpMode = subdomain.startsWith('ip-')
+  const ip = isIpMode ? subdomain.slice(3) : null
+  const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
+  const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
+  const hermesUrl = isIpMode ? `http://${ip}:9119` : `https://hermes.${subdomain}`
+  const brainUrl  = isIpMode ? `http://${ip}:9621` : `https://lightrag.${subdomain}/`
+  const adminLabel  = isIpMode ? `${ip}:3002` : `admin.${subdomain}`
+  const hermesLabel = isIpMode ? `${ip}:9119` : `hermes.${subdomain}`
+
   await sendEmail({
     from: FROM,
     to,
@@ -102,10 +112,32 @@ export async function sendWelcomeEmail(
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">Open your workspace below to start coding with AI.</p>
         </div>
 
+        ${isIpMode ? `
+        <!-- Autonomy note (IP-mode) -->
+        <div style="margin:16px 0 0;padding:16px 18px;background:#ecfdf5;border:1px solid #10b981;border-radius:10px">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#065f46">✓ Fully autonomous server</p>
+          <p style="margin:0;color:#047857;font-size:13px;line-height:1.6">
+            Your server runs entirely on your own VPS — no DNS, no domain, zero dependency on Fractera.
+            If Fractera ceased to exist tomorrow, your server would keep working. All code, data, and
+            credentials are yours alone. Attach your own domain anytime — from the admin panel.
+          </p>
+        </div>
+
+        <!-- Browser HTTP note -->
+        <div style="margin:12px 0 0;padding:12px 14px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px">
+          <p style="margin:0;color:#92400e;font-size:12px;line-height:1.6">
+            <strong>Heads up:</strong> The links below use plain HTTP — normal for IP-only deploys.
+            Browsers may show "Not secure" near the address bar. This is expected: your data flows
+            between your browser and your own server, no third parties involved. For full HTTPS with
+            a green padlock, attach your domain via the admin panel.
+          </p>
+        </div>
+        ` : ''}
+
         <!-- Primary CTA -->
         <div style="text-align:center;margin:28px 0">
-          <a href="https://admin.${subdomain}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">admin.${subdomain}</p>
+          <a href="${adminUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminLabel}</p>
         </div>
 
         <!-- The 3 main destinations -->
@@ -113,21 +145,21 @@ export async function sendWelcomeEmail(
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
-              <a href="https://${subdomain}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">https://${subdomain}</a>
+              <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">${appUrl}</a>
               <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
             </td>
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Hermes — your AI orchestrator</div>
-              <a href="https://hermes.${subdomain}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">hermes.${subdomain}</a>
+              <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">${hermesLabel}</a>
               <div style="font-size:12px;color:#888;margin-top:4px">Speak to Hermes from Telegram or chat. It delegates work to the right AI for each step.</div>
             </td>
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Company Brain</div>
-              <a href="https://lightrag.${subdomain}/" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
+              <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
               <div style="font-size:12px;color:#888;margin-top:4px">Your private knowledge base. Feed it docs, query it from any AI tool on the workspace.</div>
             </td>
           </tr>

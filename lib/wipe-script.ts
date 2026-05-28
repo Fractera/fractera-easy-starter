@@ -44,11 +44,9 @@ rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi \\
       /root/.local/bin/lightrag-server 2>/dev/null || true
 rm -f /usr/local/bin/claude /usr/local/bin/kimi 2>/dev/null || true
 rm -rf /etc/nginx/sites-enabled/fractera /etc/nginx/sites-available/fractera
-rm -rf /etc/nginx/sites-enabled/fractera-light /etc/nginx/sites-available/fractera-light
 for prefix in auth admin data hermes lightrag; do
   rm -f /etc/nginx/sites-enabled/\${prefix}.* /etc/nginx/sites-available/\${prefix}.* 2>/dev/null || true
 done
-rm -rf /opt/fractera-light /etc/fractera-light
 nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
 rm -f /tmp/fractera-install-*.log /tmp/fractera-install.log /tmp/fractera-bootstrap.sh
 echo "WIPED"
