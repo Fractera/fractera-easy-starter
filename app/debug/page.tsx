@@ -11,18 +11,24 @@ type VarRow = {
   note?: string
 }
 
-function maskSecret(val: string | undefined, showChars = 6): string {
+type PageProps = { searchParams: Promise<{ reveal?: string }> }
+
+function maskSecret(val: string | undefined, showChars = 6, reveal = false): string {
   if (!val) return '❌ NOT SET'
+  if (reveal) return '✅ ' + val
   if (val.length <= showChars) return '✅ ' + '*'.repeat(val.length)
   return '✅ ' + val.slice(0, showChars) + '…' + val.slice(-4)
 }
 
-function showPartial(val: string | undefined, showChars = 20): string {
+function showPartial(val: string | undefined, showChars = 20, reveal = false): string {
   if (!val) return '❌ NOT SET'
+  if (reveal) return '✅ ' + val
   return '✅ ' + val.slice(0, showChars) + (val.length > showChars ? '…' : '')
 }
 
-export default async function DebugPage() {
+export default async function DebugPage({ searchParams }: PageProps) {
+  const sp = await searchParams
+  const reveal = sp.reveal === '1'
   // --- Check DB ---
   let dbStatus = '❌ ERROR'
   let userCount = '?'
@@ -56,44 +62,72 @@ export default async function DebugPage() {
     {
       title: '🚀 Deploy (Stripe one-click)',
       rows: [
-        { name: 'FRACTERA_DEPLOY_IP',       value: showPartial(process.env.FRACTERA_DEPLOY_IP, 20),       ok: !!process.env.FRACTERA_DEPLOY_IP,       note: 'IP сервера для деплоя после оплаты' },
-        { name: 'FRACTERA_DEPLOY_USER',      value: showPartial(process.env.FRACTERA_DEPLOY_USER, 20),     ok: !!process.env.FRACTERA_DEPLOY_USER,      note: 'SSH логин' },
-        { name: 'FRACTERA_DEPLOY_PASSWORD',  value: maskSecret(process.env.FRACTERA_DEPLOY_PASSWORD),      ok: !!process.env.FRACTERA_DEPLOY_PASSWORD,  note: 'SSH пароль' },
-        { name: 'INSTALL_SCRIPT_SECRET',     value: maskSecret(process.env.INSTALL_SCRIPT_SECRET),         ok: !!process.env.INSTALL_SCRIPT_SECRET,     note: 'Секрет bootstrap → /api/progress' },
+        { name: 'FRACTERA_DEPLOY_IP',        value: showPartial(process.env.FRACTERA_DEPLOY_IP, 20, reveal),       ok: !!process.env.FRACTERA_DEPLOY_IP,       note: 'IP сервера для деплоя после оплаты' },
+        { name: 'FRACTERA_DEPLOY_USER',      value: showPartial(process.env.FRACTERA_DEPLOY_USER, 20, reveal),     ok: !!process.env.FRACTERA_DEPLOY_USER,     note: 'SSH логин' },
+        { name: 'FRACTERA_DEPLOY_PASSWORD',  value: maskSecret(process.env.FRACTERA_DEPLOY_PASSWORD, 6, reveal),   ok: !!process.env.FRACTERA_DEPLOY_PASSWORD, note: 'SSH пароль' },
+        { name: 'INSTALL_SCRIPT_SECRET',     value: maskSecret(process.env.INSTALL_SCRIPT_SECRET, 6, reveal),      ok: !!process.env.INSTALL_SCRIPT_SECRET,    note: 'Секрет bootstrap → /api/progress' },
       ],
     },
     {
       title: '💳 Stripe',
       rows: [
-        { name: 'STRIPE_SECRET_KEY',         value: maskSecret(process.env.STRIPE_SECRET_KEY),             ok: !!process.env.STRIPE_SECRET_KEY },
-        { name: 'STRIPE_PRICE_TRIAL',        value: showPartial(process.env.STRIPE_PRICE_TRIAL, 30),       ok: !!process.env.STRIPE_PRICE_TRIAL },
-        { name: 'STRIPE_PRICE_MONTHLY',      value: showPartial(process.env.STRIPE_PRICE_MONTHLY, 30),     ok: !!process.env.STRIPE_PRICE_MONTHLY },
-        { name: 'STRIPE_PRICE_ANNUAL',       value: showPartial(process.env.STRIPE_PRICE_ANNUAL, 30),      ok: !!process.env.STRIPE_PRICE_ANNUAL },
-        { name: 'STRIPE_WEBHOOK_SECRET',     value: maskSecret(process.env.STRIPE_WEBHOOK_SECRET),         ok: !!process.env.STRIPE_WEBHOOK_SECRET },
+        { name: 'STRIPE_SECRET_KEY',         value: maskSecret(process.env.STRIPE_SECRET_KEY, 6, reveal),          ok: !!process.env.STRIPE_SECRET_KEY },
+        { name: 'STRIPE_PRICE_TRIAL',        value: showPartial(process.env.STRIPE_PRICE_TRIAL, 30, reveal),       ok: !!process.env.STRIPE_PRICE_TRIAL },
+        { name: 'STRIPE_PRICE_MONTHLY',      value: showPartial(process.env.STRIPE_PRICE_MONTHLY, 30, reveal),     ok: !!process.env.STRIPE_PRICE_MONTHLY },
+        { name: 'STRIPE_PRICE_ANNUAL',       value: showPartial(process.env.STRIPE_PRICE_ANNUAL, 30, reveal),      ok: !!process.env.STRIPE_PRICE_ANNUAL },
+        { name: 'STRIPE_WEBHOOK_SECRET',     value: maskSecret(process.env.STRIPE_WEBHOOK_SECRET, 6, reveal),      ok: !!process.env.STRIPE_WEBHOOK_SECRET },
       ],
     },
     {
       title: '🔐 Auth',
       rows: [
-        { name: 'AUTH_SECRET',               value: maskSecret(process.env.AUTH_SECRET),                   ok: !!process.env.AUTH_SECRET },
-        { name: 'AUTH_URL',                  value: showPartial(process.env.AUTH_URL, 40),                 ok: !!process.env.AUTH_URL,                 note: 'должен быть https://fractera.ai' },
-        { name: 'GOOGLE_CLIENT_ID',          value: maskSecret(process.env.GOOGLE_CLIENT_ID, 20),          ok: !!process.env.GOOGLE_CLIENT_ID },
-        { name: 'GOOGLE_CLIENT_SECRET',      value: maskSecret(process.env.GOOGLE_CLIENT_SECRET),          ok: !!process.env.GOOGLE_CLIENT_SECRET },
-        { name: 'RESEND_API_KEY',            value: maskSecret(process.env.RESEND_API_KEY),                ok: !!process.env.RESEND_API_KEY },
-        { name: 'AUTH_RESEND_FROM',          value: showPartial(process.env.AUTH_RESEND_FROM, 30),         ok: !!process.env.AUTH_RESEND_FROM },
+        { name: 'AUTH_SECRET',               value: maskSecret(process.env.AUTH_SECRET, 6, reveal),                ok: !!process.env.AUTH_SECRET },
+        { name: 'AUTH_URL',                  value: showPartial(process.env.AUTH_URL, 40, reveal),                 ok: !!process.env.AUTH_URL,                 note: 'должен быть https://fractera.ai' },
+        { name: 'GOOGLE_CLIENT_ID',          value: maskSecret(process.env.GOOGLE_CLIENT_ID, 20, reveal),          ok: !!process.env.GOOGLE_CLIENT_ID },
+        { name: 'GOOGLE_CLIENT_SECRET',      value: maskSecret(process.env.GOOGLE_CLIENT_SECRET, 6, reveal),       ok: !!process.env.GOOGLE_CLIENT_SECRET },
+        { name: 'RESEND_API_KEY',            value: maskSecret(process.env.RESEND_API_KEY, 6, reveal),             ok: !!process.env.RESEND_API_KEY },
+        { name: 'AUTH_RESEND_FROM',          value: showPartial(process.env.AUTH_RESEND_FROM, 30, reveal),         ok: !!process.env.AUTH_RESEND_FROM },
       ],
     },
     {
       title: '🗄️ Database & Redis',
       rows: [
-        { name: 'DATABASE_URL',              value: maskSecret(process.env.DATABASE_URL, 30),              ok: !!process.env.DATABASE_URL },
-        { name: 'UPSTASH_REDIS_REST_URL',    value: maskSecret(process.env.UPSTASH_REDIS_REST_URL, 30),    ok: !!process.env.UPSTASH_REDIS_REST_URL },
-        { name: 'UPSTASH_REDIS_REST_TOKEN',  value: maskSecret(process.env.UPSTASH_REDIS_REST_TOKEN),      ok: !!process.env.UPSTASH_REDIS_REST_TOKEN },
+        { name: 'DATABASE_URL',              value: maskSecret(process.env.DATABASE_URL, 30, reveal),              ok: !!process.env.DATABASE_URL },
+        { name: 'UPSTASH_REDIS_REST_URL',    value: maskSecret(process.env.UPSTASH_REDIS_REST_URL, 30, reveal),    ok: !!process.env.UPSTASH_REDIS_REST_URL },
+        { name: 'UPSTASH_REDIS_REST_TOKEN',  value: maskSecret(process.env.UPSTASH_REDIS_REST_TOKEN, 6, reveal),   ok: !!process.env.UPSTASH_REDIS_REST_TOKEN },
+      ],
+    },
+    {
+      title: '🐙 GitHub / Cloudflare',
+      rows: [
+        { name: 'GITHUB_DEPLOY_TOKEN',       value: maskSecret(process.env.GITHUB_DEPLOY_TOKEN, 6, reveal),        ok: !!process.env.GITHUB_DEPLOY_TOKEN,      note: 'PAT для clone+pull приватного ai-workspace' },
+        { name: 'CLOUDFLARE_API_TOKEN',      value: maskSecret(process.env.CLOUDFLARE_API_TOKEN, 6, reveal),       ok: !!process.env.CLOUDFLARE_API_TOKEN },
+        { name: 'CLOUDFLARE_ZONE_ID',        value: showPartial(process.env.CLOUDFLARE_ZONE_ID, 30, reveal),       ok: !!process.env.CLOUDFLARE_ZONE_ID },
       ],
     },
   ]
 
   const totalMissing = groups.flatMap(g => g.rows).filter(r => !r.ok).length
+
+  // ── All other env vars ──────────────────────────────────────────────────────
+  // List EVERY runtime env var so nothing on Vercel is hidden. Skip the ones
+  // already shown in the curated groups above. In reveal mode (?reveal=1) shows
+  // full values, otherwise masks each.
+  const knownKeys = new Set(groups.flatMap(g => g.rows.map(r => r.name)))
+  // Filter out Vercel platform / Node noise.
+  const NOISE_PREFIXES = ['VERCEL_', 'NEXT_RUNTIME', 'NODE_', '__NEXT_', 'TURBOPACK', 'PATH', 'HOME', 'HOSTNAME', 'PWD', 'LANG', 'TZ', 'SHELL', 'TERM', 'AWS_', 'LAMBDA_', '_HANDLER', 'LD_LIBRARY']
+  function isNoise(k: string): boolean {
+    if (knownKeys.has(k)) return true
+    return NOISE_PREFIXES.some(p => k.startsWith(p) || k === p)
+  }
+  const otherRows: VarRow[] = Object.keys(process.env)
+    .filter(k => !isNoise(k))
+    .sort()
+    .map(k => ({
+      name: k,
+      value: maskSecret(process.env[k], 6, reveal),
+      ok: !!process.env[k],
+    }))
 
   return (
     <div style={{ fontFamily: 'monospace', padding: '32px', maxWidth: '900px', margin: '0 auto', color: '#e5e5e5', background: '#0a0a0a', minHeight: '100vh' }}>
