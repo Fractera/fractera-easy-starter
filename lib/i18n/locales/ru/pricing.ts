@@ -52,7 +52,7 @@ export const pricing: PricingPart = {
   },
 
   serverSection: {
-    label: 'Где купить',
+    label: 'Где купить сервер',
     h2: 'Рекомендуемый Ubuntu 24.04 VPS-провайдер для AI',
     description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Мы рекомендуем Contabo — максимум ресурсов по минимальной цене, популярен у AI-разработчиков.',
     providers: [
