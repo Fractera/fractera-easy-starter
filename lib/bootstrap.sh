@@ -406,7 +406,7 @@ model:
   # the agent will refuse to run — which is the intended UX (sign in,
   # don't fall back to a paid API key the user didn't agree to).
   provider: openai-codex
-  model: gpt-5.3-codex
+  model: gpt-5.5
   # Anthropic Claude Code is an equally valid subscription; the user can
   # sign in there too and switch the active provider in the Hermes /env
   # panel. We don't set it as fallback because both providers go through
