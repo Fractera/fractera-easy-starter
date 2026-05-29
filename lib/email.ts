@@ -189,6 +189,9 @@ export async function sendWelcomeEmail(
                 <div style="font-size:12px;color:#555;line-height:1.5">
                   A real domain gives you HTTPS automatically and removes the browser security warnings. Buy one from any registrar (Namecheap, Porkbun, GoDaddy, etc.) and attach it in <strong>Admin → Personal Domain</strong>. We recommend using the registrar's own DNS panel rather than Cloudflare.
                 </div>
+                <div style="margin-top:8px;padding:8px 10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;font-size:11px;color:#92400e;line-height:1.5">
+                  <strong>Don&rsquo;t buy an SSL certificate from your registrar.</strong> Registrars often up-sell SSL for $30&ndash;$80/year &mdash; you don&rsquo;t need it. Fractera issues a free Let&rsquo;s Encrypt certificate for you the moment you attach the domain, and renews it automatically every ~60 days. For restricted regions (e.g.&nbsp;Russia, Iran) or compliance-bound deployments where Let&rsquo;s Encrypt isn&rsquo;t available, you can upload your own certificate instead.
+                </div>
               </td>
             </tr>
           </table>
