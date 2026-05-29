@@ -50,7 +50,6 @@ export const ALL_STEPS: Step[] = [
   { id: 'start_data',           label: 'Starting data service',                    done: false },
   { id: 'start_rag',            label: 'LightRAG service',                         done: false },
   { id: 'start_hermes',         label: 'Hermes Agent service',                     done: false },
-  { id: 'install_hermes_webui', label: 'Hermes Web UI',                            done: false },
   { id: 'pm2_save',             label: 'Saving configuration',                     done: false },
   { id: 'configure_nginx_http', label: 'Configuring web server (HTTP)',            done: false },
   { id: 'health_check',         label: 'Verifying server is responding',           done: false },

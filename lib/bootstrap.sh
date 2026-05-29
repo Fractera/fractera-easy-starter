@@ -480,7 +480,6 @@ step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && 
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
-soft_step "install_hermes_webui" "Hermes Web UI (Fractera-branded)" "[ -f /opt/fractera/services/hermes-webui-installer/install.sh ] && bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 && sleep 4 && curl -sf http://127.0.0.1:9120/health >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
@@ -491,13 +490,18 @@ pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || t
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-# === Initial Nginx config — 4 server blocks, SUBDOMAIN_PLACEHOLDER for certbot later ===
+# === Initial Nginx config — IP-only, single default_server on :80 ===
+# Customer attaches their own domain later through Admin → Personal Domain
+# (admin app runs certbot directly). No Fractera-owned subdomains.
 CURRENT_STEP="configure_nginx_http"
 CURRENT_LABEL="Configuring web server (HTTP)"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
-# shell — default server for certbot challenge
+# Default HTTP server — catches all requests to the bare IP and proxies to
+# the shell on :3000. Other services (auth :3001, admin :3002, data :3300,
+# hermes :9119, lightrag :9621) are reached directly on their ports until
+# the user attaches a domain.
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -519,255 +523,6 @@ server {
     }
 }
 
-# auth
-server {
-    listen 80;
-    server_name auth.SUBDOMAIN_PLACEHOLDER;
-
-    location / {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# admin + WebSocket bridges
-server {
-    listen 80;
-    server_name admin.SUBDOMAIN_PLACEHOLDER;
-
-    location /bridge/ {
-        proxy_pass http://127.0.0.1:3201/bridge/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /claude-bridge/ {
-        proxy_pass http://127.0.0.1:3200/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /codex-bridge/ {
-        proxy_pass http://127.0.0.1:3202/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /gemini-bridge/ {
-        proxy_pass http://127.0.0.1:3203/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /qwen-bridge/ {
-        proxy_pass http://127.0.0.1:3204/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location /kimi-bridge/ {
-        proxy_pass http://127.0.0.1:3205/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-    }
-}
-
-# data
-server {
-    listen 80;
-    server_name data.SUBDOMAIN_PLACEHOLDER;
-
-    location /media/ {
-        proxy_pass http://127.0.0.1:3300/media/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 500m;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:3300;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# hermes — orchestration agent dashboard + Hermes Web UI chat (iframe-accessible from admin panel)
-server {
-    listen 80;
-    server_name hermes.SUBDOMAIN_PLACEHOLDER;
-
-    # Internal auth check — verifies Fractera session cookie via services/auth (port 3001).
-    # Returns 204 if logged in, 401 otherwise. Cookie is shared across .SUB.fractera.ai
-    # (COOKIE_DOMAIN=.$SUBDOMAIN in services/auth/.env).
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-
-    # Fractera-branded chat UI (nesquena/hermes-webui on port 9120) — auth-gated
-    location /chat/ {
-        auth_request /auth-verify;
-        error_page 401 = @chat_login_redirect;
-
-        proxy_pass http://127.0.0.1:9120/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host 127.0.0.1:9120;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_read_timeout 86400;
-        proxy_buffering off;  # SSE streaming
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-    location @chat_login_redirect {
-        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
-    }
-
-    # Hermes dashboard (admin/config UI) — auth-gated. Without this gate the
-    # dashboard is publicly reachable on hermes.SUB.fractera.ai/ and any
-    # visitor can drive the customer's Hermes orchestration agent (which
-    # consumes their AI subscriptions). Security regression: previously
-    # only /chat/ was protected.
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @chat_login_redirect;
-
-        proxy_pass http://127.0.0.1:9119;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400;
-        # Allow iframe embedding from admin subdomain
-        proxy_hide_header X-Frame-Options;
-        proxy_hide_header Content-Security-Policy;
-        add_header X-Frame-Options "ALLOWALL";
-    }
-}
-
-# lightrag — Company Brain WebUI — auth-gated. Without these guards the
-# customer's knowledge base (which may hold OpenAI keys typed into the
-# onboarding form and uploaded documents) is publicly reachable on
-# lightrag.SUB.fractera.ai/. Security regression caught in production.
-server {
-    listen 80;
-    server_name lightrag.SUBDOMAIN_PLACEHOLDER;
-
-    # Internal auth check — same pattern as hermes block above (cookie shared
-    # across .SUB.fractera.ai via COOKIE_DOMAIN in services/auth/.env).
-    location = /auth-verify {
-        internal;
-        proxy_pass http://127.0.0.1:3001/api/session/verify;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Host $host;
-    }
-    location @login_redirect {
-        return 302 https://admin.SUBDOMAIN_PLACEHOLDER/;
-    }
-
-    location ~ ^/(docs|redoc|openapi\.json)$ {
-        return 404;
-    }
-
-    # /health stays public — used by check_lightrag_health() in bootstrap.sh
-    # and by uptime monitors. Returns a constant 200 without touching the app.
-    location = /health {
-        default_type application/json;
-        return 200 '{"status":"healthy","auth_mode":"disabled"}';
-    }
-
-    location = /favicon.png {
-        return 204;
-    }
-
-    location / {
-        auth_request /auth-verify;
-        error_page 401 = @login_redirect;
-
-        proxy_pass http://127.0.0.1:9621;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Accept-Encoding "";
-        sub_filter_once off;
-        sub_filter 'LightRAG' 'Company Brain';
-        sub_filter '</head>' '<style>[href*="github"],[class*="version"],.bg-amber-100{display:none!important}</style><script>(function(){function fix(){var t=document.querySelector("title");if(t&&t.textContent.indexOf("LightRAG")>=0)t.textContent=t.textContent.replace(/LightRAG/g,"Company Brain");}new MutationObserver(fix).observe(document,{subtree:true,characterData:true,childList:true});fix();})();</script></head>';
-    }
-}
 NGINXEOF
 
 rm -f /etc/nginx/sites-enabled/*
@@ -822,7 +577,7 @@ if [ -n "$SERVER_TOKEN" ]; then
   CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
   (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
   echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
-  log_email "complete" "Server is ready! SSL installed, all services running" 100
+  log_email "complete" "Server is ready — all services running on plain HTTP. Attach your own domain through Admin → Personal Domain to enable HTTPS." 100
   # Ping immediately (retry up to 5 times in case Vercel is redeploying)
   for i in 1 2 3 4 5; do
     PING_RESP=$(curl -s -X POST "$PING_URL" \
