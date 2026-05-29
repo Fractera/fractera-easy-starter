@@ -226,7 +226,7 @@ soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
 soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
 soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
-soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/Fractera/LightRAG.git@v1.4.16' || true"
+soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
 # v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
 # from the repo). Without this step lightrag-server falls back to a 307 to /docs
 # (Swagger) and Company Brain in admin shows 404/Swagger instead of the React UI.
@@ -275,7 +275,7 @@ else
     echo "  ! no webui dist found in archive or checkout — Company Brain will 307 to Swagger (blocked by nginx)"
   fi
 fi' || true
-soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/Fractera/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser --branch v2026.5.16 || true"
+soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
 soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
 soft_step "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
 soft_step "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
