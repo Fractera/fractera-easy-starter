@@ -2,9 +2,9 @@ import type { SiteContent } from '../../types'
 
 type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection' | 'domainProviderSection'>
 
-// Bake-in at build time via `next build`. Fallback = Cloud VPS 10 / Ubuntu 24.04 product page.
+// Bake-in at build time via `next build`. Fallback = Fractera's Contabo affiliate link.
 const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
-  || 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
+  || 'https://www.dpbolvw.net/click-101757323-17082116'
 
 // Same bake-in for the recommended domain registrar. Override in Vercel env once
 // the GoDaddy affiliate URL is approved.
