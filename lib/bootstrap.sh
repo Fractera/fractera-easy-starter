@@ -323,6 +323,9 @@ NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
+# IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
+# or recovery sed command in /opt/fractera/services/auth/.env.local.
+FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -338,6 +341,7 @@ COOKIE_SECURE=false
 NEXTAUTH_URL=http://$SERVER_IP:3001
 DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002$IP_ORIGINS
+FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
@@ -351,6 +355,7 @@ LIGHTRAG_URL=http://localhost:9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
 RAG_ENV_PATH=/opt/fractera/services/rag/.env
+FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
 cat > /opt/fractera/services/data/.env <<ENVEOF
@@ -358,10 +363,15 @@ AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
+FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
 cat > /opt/fractera/services/rag/.env <<ENVEOF
-HOST=127.0.0.1
+# IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
+# can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
+# either way). When switching to Secure mode, gate this port via UFW or
+# nginx auth_request.
+HOST=0.0.0.0
 PORT=9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_KV_STORAGE=JsonKVStorage
@@ -469,7 +479,7 @@ step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth &
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
 soft_step "install_hermes_webui" "Hermes Web UI (Fractera-branded)" "[ -f /opt/fractera/services/hermes-webui-installer/install.sh ] && bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 && sleep 4 && curl -sf http://127.0.0.1:9120/health >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
