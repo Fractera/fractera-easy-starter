@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import {
   sendWelcomeEmail,
+  sendDomainActivatedEmail,
   sendInstallStartedEmail,
   sendInstallProgressEmail,
   sendDeployFailedEmail,
@@ -12,6 +13,7 @@ import {
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
+const SAMPLE_DOMAIN = 'aifa.dev'
 const SAMPLE_TOKEN = 'cmphj5xtp0004l8049ut8i4j4-demo'
 const SAMPLE_IP = '109.199.105.213'
 const SAMPLE_PASSWORD = 'demo-pass-Julia711'
@@ -19,6 +21,7 @@ const SAMPLE_PASSWORD = 'demo-pass-Julia711'
 type TemplateKey =
   | 'welcome'
   | 'welcome_ip'
+  | 'domain_activated'
   | 'install_started'
   | 'install_progress'
   | 'recovery_token'
@@ -35,6 +38,10 @@ async function dispatch(template: TemplateKey, to: string) {
       // IP-mode rendering: subdomain="ip-<IP>" triggers the autonomy block,
       // HTTP browser note, and IP:port links.
       return sendWelcomeEmail(to, `ip-${SAMPLE_IP}`, { ip: SAMPLE_IP, password: SAMPLE_PASSWORD })
+    case 'domain_activated':
+      // Sent after the Personal Domain wizard step 4 succeeds — same look as
+      // welcome_ip but URLs are https://<host>.<domain>.
+      return sendDomainActivatedEmail(to, SAMPLE_DOMAIN)
     case 'install_started':
       return sendInstallStartedEmail(to)
     case 'install_progress':

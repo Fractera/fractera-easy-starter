@@ -280,6 +280,132 @@ export async function sendWelcomeEmail(
   })
 }
 
+// Sent right after the Domain wizard step 4 (Activate Secure mode) succeeds.
+// Same look as sendWelcomeEmail but URLs are https://<host>.<domain> and the
+// "buy a domain" step in the recommended-next-steps list is replaced with a
+// congratulatory card about being on a real domain.
+export async function sendDomainActivatedEmail(to: string, domain: string) {
+  const appUrl    = `https://${domain}`
+  const adminUrl  = `https://admin.${domain}`
+  const authUrl   = `https://auth.${domain}`
+  const hermesUrl = `https://hermes.${domain}`
+  const brainUrl  = `https://lightrag.${domain}`
+
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: `Your Fractera server is now live on ${domain}`,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a">
+
+        <!-- Hero -->
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="display:inline-block;background:#10b981;color:#fff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">✓ Secure</div>
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;line-height:1.2">You&rsquo;re live on ${domain}</h1>
+          <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
+        </div>
+
+        <!-- Primary CTA -->
+        <div style="text-align:center;margin:28px 0">
+          <a href="${adminUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
+        </div>
+
+        <!-- Destinations -->
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
+          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
+            <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${appUrl}</a>
+            <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
+          </td></tr>
+          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Brain — Hermes Agent</div>
+            <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${hermesUrl}</a>
+            <div style="font-size:12px;color:#888;margin-top:4px">The thinking centre of your workspace. Delegates work across all connected AI subscriptions and runs autonomous tasks.</div>
+          </td></tr>
+          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Memory — LightRAG</div>
+            <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${brainUrl}</a>
+            <div style="font-size:12px;color:#888;margin-top:4px">Long-term knowledge base. Feed it your docs and history — Brain queries it to stay grounded in your context.</div>
+          </td></tr>
+          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Sign-in service</div>
+            <a href="${authUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${authUrl}</a>
+            <div style="font-size:12px;color:#888;margin-top:4px">Strict sign-in is now required. The first person to register here becomes the new administrator.</div>
+          </td></tr>
+        </table>
+
+        <!-- Recommended next steps (no "buy a domain" — that's done now) -->
+        <div style="margin:32px 0 8px">
+          <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">Recommended next steps</p>
+          <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
+            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Get an OpenAI API key</div>
+              <div style="font-size:12px;color:#555;line-height:1.5">Needed to activate <strong>Memory</strong> (and as a fallback for <strong>Brain</strong>). Tokens are spent very economically. Paste the key in <strong>Admin → Memory → settings</strong>.</div>
+            </td></tr>
+            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">2 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
+              <div style="font-size:12px;color:#555;line-height:1.5">A flat-rate Codex subscription costs dramatically less than equivalent API usage for the same workload.</div>
+            </td></tr>
+            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">3 · Prepare Telegram for hands-free access</div>
+              <div style="font-size:12px;color:#555;line-height:1.5">Talk to <strong>Brain</strong> from your phone. Open Telegram, message <a href="https://t.me/BotFather" style="color:#6c47ff;text-decoration:none">@BotFather</a>, send <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">/newbot</code>, paste the token in <strong>Admin → Brain settings → Telegram bot token</strong>.</div>
+            </td></tr>
+            <tr><td style="padding:10px 14px;background:#ecfdf5;border-left:3px solid #10b981;border-radius:4px">
+              <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:2px">🎉 You&rsquo;re on your own domain</div>
+              <div style="font-size:12px;color:#047857;line-height:1.5">
+                Your SSL certificate from Let&rsquo;s Encrypt is installed for all six hostnames and renews
+                automatically every ~60 days through the system <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-family:monospace">certbot.timer</code>.
+                If your browser ever shows a red lock, the cert may have expired — visit
+                <strong>Admin → Personal Domain</strong> for status. (Manual renewal and expiry email
+                alerts ship in a future update.)
+              </div>
+            </td></tr>
+          </table>
+        </div>
+
+        <!-- Account note -->
+        <div style="margin:24px 0 8px;padding:12px 14px;background:#f5f3ff;border-left:3px solid #6c47ff;border-radius:4px">
+          <div style="font-size:13px;color:#444;line-height:1.5">
+            Manage all your servers at <a href="https://www.fractera.ai/dashboard" style="color:#6c47ff;font-weight:600;text-decoration:none">fractera.ai/dashboard</a> — sign in with <strong>${to}</strong>.
+          </div>
+        </div>
+
+        <!-- Sponsor CTA -->
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
+          </p>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+        </div>
+
+        <!-- OR divider -->
+        <div style="margin:24px 0;display:flex;align-items:center;text-align:center">
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+          <span style="padding:0 14px;font-size:11px;color:#999;letter-spacing:2px;font-weight:600">OR</span>
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+        </div>
+
+        <!-- GitHub star CTA -->
+        <div style="margin:0;padding:18px 20px;background:#fafafa;border:1px solid #eee;border-radius:10px;text-align:center">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">⭐ Star us on GitHub</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
+          </p>
+          <a href="https://github.com/Fractera/ai-workspace" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
+        </div>
+
+        <!-- AI platforms footer -->
+        <p style="margin:24px 0 0;font-size:11px;color:#aaa;text-align:center;line-height:1.6">
+          Powered by ${AI_PLATFORMS.join(' · ')}
+        </p>
+
+      </div>
+    `,
+  })
+}
+
 export async function sendExpiryWarningEmail(to: string, daysLeft: number, subdomain: string) {
   await sendEmail({
     from: FROM,

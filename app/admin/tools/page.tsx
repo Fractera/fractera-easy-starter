@@ -12,7 +12,8 @@ const TEMPLATES = [
   { key: 'install_started',  label: '1 · Install started — confirmation',      desc: 'First email. Sent right after the user clicks Deploy — bootstrap is starting on the VPS.' },
   { key: 'recovery_token',   label: '2 · Recovery token — safety net',         desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL so the user can re-engage the deploy from any AI agent if anything breaks.' },
   { key: 'install_progress', label: '3 · Install progress — middle of deploy', desc: 'Sent once mid-bootstrap when all 6 dependency steps finished (~30% through). Reassures the user the deploy is still running.' },
-  { key: 'welcome_ip',       label: '4 · Welcome — server is live (IP-only)',  desc: 'Final email. IP-mode rendering: HTTP IP:port links to Live app, Hermes Agent (Brain), LightRAG (Memory). Recommended next steps (OpenAI key, Codex, Telegram, domain), Sponsor CTA, GitHub star CTA.' },
+  { key: 'welcome_ip',       label: '4 · Welcome — server is live (IP-only)',  desc: 'Final email after deploy. IP-mode rendering: HTTP IP:port links to Live app, Brain, Memory. Recommended next steps (OpenAI key, Codex, Telegram, domain), Sponsor CTA, GitHub star CTA.' },
+  { key: 'domain_activated', label: '5 · Domain activated — switched to HTTPS', desc: 'Sent after the user completes the Personal Domain wizard step 4. Same look as welcome_ip but URLs are https://<host>.<domain>, and the "buy a domain" step is replaced with a congratulations card.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']
