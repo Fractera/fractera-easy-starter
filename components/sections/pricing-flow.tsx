@@ -216,6 +216,32 @@ export function PricingFlow() {
                     </a>
                   ))}
                 </div>
+
+                {/* Domain registrar — separate sub-block, same visual language as
+                    the server provider chips above. */}
+                <div className="flex flex-col gap-1 pt-3 mt-2 border-t border-white/10">
+                  <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.domainProviderSection.label}</p>
+                  <h3 className="text-base font-bold font-serif text-white">{content.domainProviderSection.h2}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed">{content.domainProviderSection.description}</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {content.domainProviderSection.providers.map(({ name, tagline, url, price }) => (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={tagline}
+                      className="group w-full flex items-center justify-between gap-3 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-5 py-4 transition-all"
+                    >
+                      <span className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{name}</span>
+                        {price && <span className="text-xs text-white/60 font-medium">{price}</span>}
+                      </span>
+                      <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">↗</span>
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
 

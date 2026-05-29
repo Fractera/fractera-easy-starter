@@ -1,10 +1,13 @@
 import type { SiteContent } from '../../types'
 
-type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection'>
+type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection' | 'domainProviderSection'>
 
 // Bake-in at build time via `next build`. Fallback = Cloud VPS 10 / Ubuntu 24.04 product page.
 const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
   || 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
+
+const GODADDY_URL = process.env.NEXT_PUBLIC_GODADDY_AFFILIATE_URL
+  || 'https://www.godaddy.com/domainsearch/find'
 
 export const pricing: PricingPart = {
   pricingHeader: {
@@ -54,6 +57,15 @@ export const pricing: PricingPart = {
     description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Мы рекомендуем Contabo — максимум ресурсов по минимальной цене, популярен у AI-разработчиков.',
     providers: [
       { name: 'Contabo', tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.', url: CONTABO_URL, price: 'от 3,60 €/мес' },
+    ],
+  },
+
+  domainProviderSection: {
+    label: 'Где купить домен',
+    h2: 'Рекомендуемый регистратор доменов',
+    description: 'Домен даёт серверу HTTPS, красивый адрес и снимает предупреждения браузера. Мы рекомендуем GoDaddy — прямое управление DNS без обязательного прокси, что нужно для корректной работы Fractera.',
+    providers: [
+      { name: 'GoDaddy', tagline: 'Прямое управление DNS, большой выбор TLD, без обязательного прокси.', url: GODADDY_URL, price: 'от $0.99/год' },
     ],
   },
 }

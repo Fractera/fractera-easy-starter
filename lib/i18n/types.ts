@@ -83,6 +83,12 @@ export type SiteContent = {
     description: string
     providers: { name: string; tagline: string; url: string; price?: string }[]
   }
+  domainProviderSection: {
+    label: string
+    h2: string
+    description: string
+    providers: { name: string; tagline: string; url: string; price?: string }[]
+  }
   mcpSection: {
     label: string
     h2: string

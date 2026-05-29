@@ -1,10 +1,15 @@
 import type { SiteContent } from '../../types'
 
-type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection'>
+type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection' | 'domainProviderSection'>
 
 // Bake-in at build time via `next build`. Fallback = Cloud VPS 10 / Ubuntu 24.04 product page.
 const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
   || 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
+
+// Same bake-in for the recommended domain registrar. Override in Vercel env once
+// the GoDaddy affiliate URL is approved.
+const GODADDY_URL = process.env.NEXT_PUBLIC_GODADDY_AFFILIATE_URL
+  || 'https://www.godaddy.com/domainsearch/find'
 
 export const pricing: PricingPart = {
   pricingHeader: {
@@ -54,6 +59,15 @@ export const pricing: PricingPart = {
     description: 'Fractera installs on any Ubuntu 24.04 VPS with 4 cores and 6 GB RAM. Contabo is our recommended choice — high-resource configurations at the lowest price point, popular among AI builders.',
     providers: [
       { name: 'Contabo', tagline: 'High-resource VPS at unbeatable prices. Popular for AI workloads.', url: CONTABO_URL, price: 'from €3.60/mo' },
+    ],
+  },
+
+  domainProviderSection: {
+    label: 'Where to buy a domain',
+    h2: 'Recommended Domain Registrar',
+    description: 'A domain gives your server HTTPS, a memorable URL, and removes browser security warnings. GoDaddy gives you direct DNS management without forcing a proxy — exactly what Fractera needs.',
+    providers: [
+      { name: 'GoDaddy', tagline: 'Direct DNS management, broad TLD support, no mandatory proxy.', url: GODADDY_URL, price: 'from $0.99/yr' },
     ],
   },
 }
