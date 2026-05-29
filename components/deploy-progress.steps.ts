@@ -2,7 +2,8 @@ export type Step = { id: string; label: string; done: boolean; skipped?: boolean
 
 // Pipeline shown in the install-progress UI. Order matches actual emission
 // sequence from /api/install + lib/deploy.ts + lib/bootstrap.sh + /api/progress.
-// Verified against bootstrap.sh step emitters on 2026-05-28.
+// Verified against bootstrap.sh emitters on 2026-05-29 (post-Cloudflare,
+// IP-only deploys — no DNS / SSL / cert provisioning steps).
 export const ALL_STEPS: Step[] = [
   // /api/install
   { id: 'email_start',          label: 'Confirmation email sent',                  done: false },
@@ -25,7 +26,6 @@ export const ALL_STEPS: Step[] = [
   { id: 'deps_auth',            label: 'Installing dependencies (4/6)',            done: false },
   { id: 'deps_bridges_app',     label: 'Installing dependencies (5/6)',            done: false },
   { id: 'deps_data',            label: 'Installing dependencies (6/6)',            done: false },
-  { id: 'email_deps',           label: 'Progress update email sent',              done: false },
   { id: 'install_claude',         label: 'Claude Code',                            done: false },
   { id: 'install_codex',         label: 'Codex',                                   done: false },
   { id: 'install_gemini',        label: 'Gemini CLI',                              done: false },
