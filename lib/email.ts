@@ -95,9 +95,7 @@ export async function sendWelcomeEmail(
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
   const hermesUrl = isIpMode ? `http://${ip}:9119` : `https://hermes.${subdomain}`
-  const brainUrl  = isIpMode ? `http://${ip}:9621` : `https://lightrag.${subdomain}/`
-  const adminLabel  = isIpMode ? `${ip}:3002` : `admin.${subdomain}`
-  const hermesLabel = isIpMode ? `${ip}:9119` : `hermes.${subdomain}`
+  const brainUrl  = isIpMode ? `http://${ip}:9621` : `https://lightrag.${subdomain}`
 
   await sendEmail({
     from: FROM,
@@ -128,7 +126,7 @@ export async function sendWelcomeEmail(
         <!-- Primary CTA -->
         <div style="text-align:center;margin:28px 0">
           <a href="${adminUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminLabel}</p>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
         </div>
 
         <!-- The 3 main destinations -->
@@ -136,31 +134,96 @@ export async function sendWelcomeEmail(
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
-              <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">${appUrl}</a>
+              <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${appUrl}</a>
               <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
             </td>
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Hermes — your AI orchestrator</div>
-              <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">${hermesLabel}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">Speak to Hermes from Telegram or chat. It delegates work to the right AI for each step.</div>
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Brain — Hermes Agent</div>
+              <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${hermesUrl}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">The thinking centre of your workspace. Delegates work across all connected AI subscriptions and runs autonomous tasks.</div>
             </td>
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Company Brain</div>
-              <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none">Open in workspace</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">Your private knowledge base. Feed it docs, query it from any AI tool on the workspace.</div>
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Memory — LightRAG</div>
+              <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${brainUrl}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Long-term knowledge base. Feed it your docs and history — Brain queries it to stay grounded in your context.</div>
             </td>
           </tr>
         </table>
+
+        <!-- Next steps — getting the most out of the workspace -->
+        <div style="margin:32px 0 8px">
+          <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">Recommended next steps</p>
+
+          <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
+            <tr>
+              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Get an OpenAI API key</div>
+                <div style="font-size:12px;color:#555;line-height:1.5">
+                  Needed to activate <strong>Memory</strong> (and as a fallback for <strong>Brain</strong>). Tokens are spent very economically — the embedding model used is among the cheapest available. Paste the key in <strong>Admin → Memory → settings</strong>.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">2 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
+                <div style="font-size:12px;color:#555;line-height:1.5">
+                  A flat-rate Codex subscription costs dramatically less than the equivalent API usage for the same workload. You <em>can</em> use an API key instead, but at heavy use the bill grows fast.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">3 · Prepare Telegram for hands-free access</div>
+                <div style="font-size:12px;color:#555;line-height:1.5">
+                  Talk to your <strong>Brain</strong> from your phone. Open Telegram, message <a href="https://t.me/BotFather" style="color:#6c47ff;text-decoration:none">@BotFather</a>, send <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">/newbot</code>, choose a name — BotFather replies with a token like <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">1234567:ABC…</code>. Paste it in <strong>Admin → Brain settings → Telegram bot token</strong>.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">4 · Buy a domain and connect it</div>
+                <div style="font-size:12px;color:#555;line-height:1.5">
+                  A real domain gives you HTTPS automatically and removes the browser security warnings. Buy one from any registrar (Namecheap, Porkbun, GoDaddy, etc.) and attach it in <strong>Admin → Personal Domain</strong>. We recommend using the registrar's own DNS panel rather than Cloudflare.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
 
         <!-- Account note -->
         <div style="margin:24px 0 8px;padding:12px 14px;background:#f5f3ff;border-left:3px solid #6c47ff;border-radius:4px">
           <div style="font-size:13px;color:#444;line-height:1.5">
             Manage all your servers at <a href="https://www.fractera.ai/dashboard" style="color:#6c47ff;font-weight:600;text-decoration:none">fractera.ai/dashboard</a> — sign in with <strong>${to}</strong>.
           </div>
+        </div>
+
+        <!-- Sponsor CTA -->
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
+          </p>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+        </div>
+
+        <!-- OR divider -->
+        <div style="margin:24px 0;display:flex;align-items:center;text-align:center">
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+          <span style="padding:0 14px;font-size:11px;color:#999;letter-spacing:2px;font-weight:600">OR</span>
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+        </div>
+
+        <!-- GitHub star CTA -->
+        <div style="margin:0;padding:18px 20px;background:#fafafa;border:1px solid #eee;border-radius:10px;text-align:center">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">⭐ Star us on GitHub</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
+          </p>
+          <a href="https://github.com/Fractera/ai-workspace" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
         </div>
 
         ${credentials ? `

@@ -3,16 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
+// Only the 4 transactional emails that fire during a real IP-mode deploy.
+// Other functions in lib/email.ts (deploy_failed, queued, expiry_warning,
+// company_brain_inquiry, welcome-with-domain) still exist and are called from
+// failure handlers / Stripe webhooks / B2B form — they're just not surfaced
+// here because we audit them separately from the install flow.
 const TEMPLATES = [
-  { key: 'welcome',                label: 'Welcome — server is live (domain)',     desc: 'Main deploy-success email with primary CTA, three destination cards (admin.X / hermes.X / lightrag.X), SSH credentials block.' },
-  { key: 'welcome_ip',             label: 'Welcome — server is live (IP-only)',    desc: 'IP-mode variant. Subdomain="ip-<IP>" triggers HTTP IP:port links, autonomy block ("zero dependency on Fractera"), and browser HTTP note.' },
-  { key: 'install_started',        label: 'Install started — confirmation',        desc: 'Sent right after a paid deploy begins.' },
-  { key: 'install_progress',       label: 'Install progress — middle of deploy',   desc: 'Sent once mid-bootstrap when dependencies finished installing (~30%).' },
-  { key: 'recovery_token',         label: 'Recovery token — safety net',           desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL.' },
-  { key: 'deploy_failed',          label: 'Deploy failed — with recovery',         desc: 'Sent when bootstrap fails. Includes error text + MCP retry path.' },
-  { key: 'queued',                 label: 'Queued — pool is empty (Path B)',       desc: 'Sent when the user paid but no server was ready in the pool.' },
-  { key: 'expiry_warning',         label: 'Expiry warning — 7 days left',          desc: 'Sent 7 days before the Stripe subscription expires.' },
-  { key: 'company_brain_inquiry',      label: 'AI Company Brain inquiry — admin notify',      desc: 'Sent to admin@fractera.ai when a B2B inquiry is submitted. Reply-To is the inquirer.' },
+  { key: 'install_started',  label: '1 · Install started — confirmation',      desc: 'First email. Sent right after the user clicks Deploy — bootstrap is starting on the VPS.' },
+  { key: 'recovery_token',   label: '2 · Recovery token — safety net',         desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL so the user can re-engage the deploy from any AI agent if anything breaks.' },
+  { key: 'install_progress', label: '3 · Install progress — middle of deploy', desc: 'Sent once mid-bootstrap when all 6 dependency steps finished (~30% through). Reassures the user the deploy is still running.' },
+  { key: 'welcome_ip',       label: '4 · Welcome — server is live (IP-only)',  desc: 'Final email. IP-mode rendering: HTTP IP:port links to Live app, Hermes Agent (Brain), LightRAG (Memory). Recommended next steps (OpenAI key, Codex, Telegram, domain), Sponsor CTA, GitHub star CTA.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']
