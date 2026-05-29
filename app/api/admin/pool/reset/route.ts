@@ -29,8 +29,7 @@ export async function POST(req: NextRequest) {
   await db.vpsReserve.update({
     where: { id: reserve.id },
     data: { status: 'available', provisioningServerTokenId: null },
-    // subdomain is kept intentionally: next Bootstrap will use subdomainOverride
-    // to skip Cloudflare re-registration (see provision route)
+    // subdomain is kept intentionally: next Bootstrap will use subdomainOverride.
   })
 
   return NextResponse.json({ ok: true })

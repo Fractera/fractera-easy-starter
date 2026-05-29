@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
       status: 'pending',
       deploySessionId,
       serverIp: reserve.ip,
-      serverPassword: reserve.password,
+      // Privacy: never persist the real SSH password (see install/route.ts).
+      serverPassword: '*****',
     },
   })
 

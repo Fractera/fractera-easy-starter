@@ -43,41 +43,13 @@ export function DeploySuccessToast({
         </div>
 
         {isIpMode && (
-          <>
-            <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/40 p-3.5 text-[13px] leading-relaxed text-emerald-100/90">
-              <p className="font-semibold text-emerald-300 mb-1">✓ Полностью автономный сервер</p>
-              <p>
-                Работает на вашем VPS. Никаких зависимостей от Fractera — если мы исчезнем завтра, ваш сервер
-                продолжит работать. Весь код, данные и доступы — ваши.
-              </p>
-            </div>
-            <div className="rounded-lg border border-amber-500/50 bg-amber-950/30 p-3.5 text-[13px] leading-relaxed text-amber-100/90">
-              <p className="font-semibold text-amber-300 mb-2">⚠ Как открыть ссылки ниже — обязательно прочитайте</p>
-              <p className="mb-2">
-                Ссылки используют HTTP без SSL (SSL появится автоматически когда вы привяжете свой домен).
-                Браузер покажет «Небезопасное соединение». Откройте так:
-              </p>
-              <ol className="list-decimal pl-5 space-y-1.5">
-                <li>
-                  Откройте ссылку в режиме <strong>инкогнито</strong> (Chrome: <code className="bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-200 font-mono text-xs">Ctrl+Shift+N</code>,
-                  Firefox: <code className="bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-200 font-mono text-xs">Ctrl+Shift+P</code>) — это обходит кеш HTTPS от прошлых деплоев.
-                </li>
-                <li>
-                  Если всё равно видите предупреждение — <strong>Дополнительно → Перейти на сайт</strong>.
-                  В Chrome можно просто напечатать на клавиатуре <code className="bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-200 font-mono text-xs">thisisunsafe</code>.
-                </li>
-                <li>
-                  Вы подключаетесь к <strong>своему собственному серверу</strong> — никто не перехватывает трафик.
-                  Предупреждение значит лишь «нет SSL-сертификата».
-                </li>
-              </ol>
-              <p className="mt-2.5 pt-2.5 border-t border-amber-500/30 text-amber-200/90">
-                <strong>✓ После привязки реального домена в админке</strong> Fractera автоматически получит
-                бесплатный SSL-сертификат (Let's Encrypt), и предупреждения исчезнут — браузер покажет
-                зелёный замок.
-              </p>
-            </div>
-          </>
+          <div className="rounded-lg border border-amber-500/50 bg-amber-950/30 p-3.5 text-[13px] leading-relaxed text-amber-100/90">
+            <p className="font-semibold text-amber-300 mb-1">No SSL certificate yet</p>
+            <p>
+              Your server is open over plain HTTP. Browsers will mark it "Not secure".
+              Attach your own domain in <strong>Admin → Personal Domain</strong> to enable HTTPS automatically.
+            </p>
+          </div>
         )}
 
         {/* Links */}

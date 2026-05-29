@@ -83,7 +83,8 @@ export async function assignServerToQueued(serverTokenId: string) {
     where: { id: serverTokenId },
     data: {
       serverIp: server.ip,
-      serverPassword: server.password,
+      // Privacy: never persist the real SSH password (see install/route.ts).
+      serverPassword: '*****',
       subdomain: server.subdomain ?? undefined,
       status: 'active',
     },

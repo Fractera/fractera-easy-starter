@@ -52,7 +52,7 @@ export const faqItems: FaqItem[] = [
       'On the "Your Server" tab, enter those credentials and launch the deployment. Watch real-time events for a few minutes. Two emails arrive: one when installation starts, another when it completes.',
       'Your dashboard sits in the top-right corner — click your name after signing in. Inside you will find direct links to your live site and admin panel. The same links arrive in your completion email.',
       'Sign up in the admin panel with a real email and password (save them carefully). The first user becomes the administrator — only admins can change settings. You can promote more admins later.',
-      'Have your own domain? Open "Settings", enter the domain name, copy the A-record. Set it at your domain registrar or in Cloudflare — and it works immediately.',
+      'Have your own domain? Open "Settings", enter the domain name, copy the A-record. Set it at your DNS provider — and it works immediately.',
       'Authorize one or more coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code). Codex is recommended as the channel for working through Hermes. Authorization is standard browser-based, just like in a local CLI. One-time setup.',
       'Open Hermes and configure it your way. Add a messenger channel, or use the chat directly in the admin panel.',
       'Tell Hermes what to change or what to generate. For example: "Let Claude do this and Codex do that" — both run in parallel through Hermes orchestration.',

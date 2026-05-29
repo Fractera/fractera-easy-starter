@@ -257,7 +257,8 @@ export async function handleToolCall(
         status: 'pending',
         deploySessionId: session_id,
         serverIp: ip,
-        serverPassword: password,
+        // Privacy: never persist the real SSH password (see install/route.ts).
+        serverPassword: '*****',
       },
     })
 

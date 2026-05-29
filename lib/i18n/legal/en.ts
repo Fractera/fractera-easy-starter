@@ -40,7 +40,6 @@ export const en: LegalContent = {
       intro: 'We share your information only with the following categories of service providers:',
       items: [
         'Stripe — payment processing.',
-        'Cloudflare — DNS, CDN, and DDoS protection.',
         'Resend — transactional email delivery.',
         'Upstash — session caching (Redis).',
       ],

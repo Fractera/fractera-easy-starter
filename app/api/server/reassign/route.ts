@@ -61,7 +61,8 @@ export async function POST() {
         subscriptionId: subscription.id,
         status: 'active',
         serverIp: poolServer.ip,
-        serverPassword: poolServer.password,
+        // Privacy: never persist the real SSH password (see install/route.ts).
+        serverPassword: '*****',
         subdomain: poolServer.subdomain ?? undefined,
       },
     })

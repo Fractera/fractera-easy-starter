@@ -47,7 +47,11 @@ export async function POST(req: NextRequest) {
         status: 'pending',
         deploySessionId: session_id,
         serverIp: ip,
-        serverPassword: password,
+        // Privacy: we never persist the real SSH password. Bootstrap uses it
+        // in-memory once, then we forget it. Downstream wipe/destroy that
+        // relied on this column will fail until refactored to a passwordless
+        // path (server-side daemon, Contabo API, or user-initiated wipe).
+        serverPassword: '*****',
         // IP-mode identifier: never DNS-resolved. Triggers HTTP IP:port
         // rendering in welcome email + dashboard.
         subdomain: `ip-${ip}`,

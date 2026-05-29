@@ -123,32 +123,6 @@ export async function sendWelcomeEmail(
             credentials are yours alone.
           </p>
         </div>
-
-        <!-- How to open: incognito + bypass warning -->
-        <div style="margin:12px 0 0;padding:14px 18px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#92400e">⚠ How to open the links below — please read</p>
-          <p style="margin:0 0 10px;color:#92400e;font-size:13px;line-height:1.6">
-            These links use plain HTTP (your server has no SSL certificate yet — that's normal until you
-            attach your own domain). Your browser will show <strong>"Not secure"</strong> or block the
-            page. Follow these steps to open it safely:
-          </p>
-          <ol style="margin:0 0 10px;padding-left:22px;color:#92400e;font-size:13px;line-height:1.9">
-            <li>Open the link in an <strong>incognito / private window</strong>
-              (Chrome: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+N</code>,
-              Firefox: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+P</code>).
-              This avoids cached HTTPS redirects from any previous server.</li>
-            <li>If you still see a security warning, click <strong>"Advanced"</strong> → <strong>"Proceed to ${ip} (unsafe)"</strong>.
-              In Chrome, you can also type <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">thisisunsafe</code>
-              directly on the warning page to bypass.</li>
-            <li>You are connecting to <strong>your own server</strong> — no third party is intercepting your traffic.
-              The warning only means "no SSL certificate", not "untrusted website".</li>
-          </ol>
-          <p style="margin:0;padding-top:8px;border-top:1px solid #fde68a;color:#78350f;font-size:13px;line-height:1.6">
-            <strong>✓ The warning disappears automatically</strong> once you attach a real domain in the
-            admin panel — Fractera will obtain a free Let's Encrypt SSL certificate for you, and the green
-            padlock will appear in your browser.
-          </p>
-        </div>
         ` : ''}
 
         <!-- Primary CTA -->
@@ -199,6 +173,34 @@ export async function sendWelcomeEmail(
             <tr><td style="padding:8px 12px;color:#888;border-bottom:1px solid #f0f0f0">User</td><td style="padding:8px 12px;font-family:monospace;border-bottom:1px solid #f0f0f0">root</td></tr>
             <tr><td style="padding:8px 12px;color:#888">Password</td><td style="padding:8px 12px;font-family:monospace">${credentials.password}</td></tr>
           </table>
+        </div>
+        ` : ''}
+
+        ${isIpMode ? `
+        <!-- How to open: incognito + bypass warning (moved to bottom, just above footer) -->
+        <div style="margin:24px 0 0;padding:14px 18px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#92400e">⚠ How to open the links above — please read</p>
+          <p style="margin:0 0 10px;color:#92400e;font-size:13px;line-height:1.6">
+            These links use plain HTTP (your server has no SSL certificate yet — that's normal until you
+            attach your own domain). Your browser will show <strong>"Not secure"</strong> or block the
+            page. Follow these steps to open it safely:
+          </p>
+          <ol style="margin:0 0 10px;padding-left:22px;color:#92400e;font-size:13px;line-height:1.9">
+            <li>Open the link in an <strong>incognito / private window</strong>
+              (Chrome: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+N</code>,
+              Firefox: <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">Ctrl+Shift+P</code>).
+              This avoids cached HTTPS redirects from any previous server.</li>
+            <li>If you still see a security warning, click <strong>"Advanced"</strong> → <strong>"Proceed to ${ip} (unsafe)"</strong>.
+              In Chrome, you can also type <code style="background:#fef3c7;padding:1px 6px;border-radius:3px;font-family:monospace">thisisunsafe</code>
+              directly on the warning page to bypass.</li>
+            <li>You are connecting to <strong>your own server</strong> — no third party is intercepting your traffic.
+              The warning only means "no SSL certificate", not "untrusted website".</li>
+          </ol>
+          <p style="margin:0;padding-top:8px;border-top:1px solid #fde68a;color:#78350f;font-size:13px;line-height:1.6">
+            <strong>✓ The warning disappears automatically</strong> once you attach a real domain in the
+            admin panel — Fractera will obtain a free Let's Encrypt SSL certificate for you, and the green
+            padlock will appear in your browser.
+          </p>
         </div>
         ` : ''}
 

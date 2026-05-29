@@ -138,7 +138,8 @@ export async function POST(req: NextRequest) {
           status: 'active',
           stripeCheckoutSessionId: session.id,
           serverIp: reserve.ip,
-          serverPassword: reserve.password,
+          // Privacy: never persist the real SSH password (see install/route.ts).
+          serverPassword: '*****',
           subdomain: reserve.subdomain ?? undefined,
         },
       })

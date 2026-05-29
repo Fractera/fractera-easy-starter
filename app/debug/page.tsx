@@ -98,11 +98,9 @@ export default async function DebugPage({ searchParams }: PageProps) {
       ],
     },
     {
-      title: '🐙 GitHub / Cloudflare',
+      title: '🐙 GitHub',
       rows: [
         { name: 'GITHUB_DEPLOY_TOKEN',       value: maskSecret(process.env.GITHUB_DEPLOY_TOKEN, 6, reveal),        ok: !!process.env.GITHUB_DEPLOY_TOKEN,      note: 'PAT для clone+pull приватного ai-workspace' },
-        { name: 'CLOUDFLARE_API_TOKEN',      value: maskSecret(process.env.CLOUDFLARE_API_TOKEN, 6, reveal),       ok: !!process.env.CLOUDFLARE_API_TOKEN },
-        { name: 'CLOUDFLARE_ZONE_ID',        value: showPartial(process.env.CLOUDFLARE_ZONE_ID, 30, reveal),       ok: !!process.env.CLOUDFLARE_ZONE_ID },
       ],
     },
   ]

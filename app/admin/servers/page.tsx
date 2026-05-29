@@ -181,7 +181,7 @@ export default function ServersPage() {
               ) : (
                 <div className="flex flex-col gap-3">
                   <p className="text-sm text-red-300 leading-relaxed">
-                    <strong>This destroys the customer&rsquo;s working server.</strong> We will SSH in, wipe <code>/opt/fractera</code>, PM2, nginx configs, and delete all 6 Cloudflare DNS records (main + auth + admin + data + lightrag + hermes).
+                    <strong>This destroys the customer&rsquo;s working server.</strong> We will SSH in and wipe <code>/opt/fractera</code>, PM2, and nginx configs.
                   </p>
                   <p className="text-sm text-white/75">
                     To authorise, type the full subdomain below:
