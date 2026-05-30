@@ -120,6 +120,15 @@ step "node_install" "Installing Node.js 20"   "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
 log_email "pm2" "Node.js + PM2 installed" 10
 
+# === Reliable DNS resolver ===
+# Some VPS providers (e.g. Contabo) ship a default resolver that intermittently
+# returns NXDOMAIN for freshly-created customer A-records (a customer adds the
+# domain's records, the provider resolver still fails to resolve e.g. the www
+# host). That breaks certbot during the Personal Domain wizard Step 2, which
+# validates all 7 hostnames. Pin systemd-resolved to public resolvers so DNS is
+# dependable. Best-effort: never fail the deploy over this.
+soft_step "dns_resolver" "Configuring DNS resolver" "mkdir -p /etc/systemd/resolved.conf.d && printf '[Resolve]\nDNS=1.1.1.1 8.8.8.8\nFallbackDNS=9.9.9.9 1.0.0.1\n' > /etc/systemd/resolved.conf.d/fractera-dns.conf && systemctl restart systemd-resolved && sleep 1 && resolvectl flush-caches"
+
 # === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
 CURRENT_STEP="clear_creds"
 CURRENT_LABEL="Clearing platform credentials"
