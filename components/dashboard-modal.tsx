@@ -6,6 +6,10 @@ import { PartnerCabinetView } from '@/components/partner-cabinet-view'
 import { useLang } from '@/lib/i18n/use-lang'
 import { buildUrls } from '@/lib/subdomain-helpers'
 
+// Product flag: White Label ("Remove Fractera branding — $100") is paused
+// (2026-05-31). Set to true to bring the upsell back on the Servers tab.
+const WHITE_LABEL_ENABLED = false
+
 type ServerRecord = {
   id: string
   status: string
@@ -15,6 +19,7 @@ type ServerRecord = {
   serverIp: string | null
   serverPassword: string | null
   whiteLabelActive: boolean
+  certExpiresAt: string | null
   subscription: {
     id: string
     stripeSubscriptionId: string | null
@@ -85,6 +90,37 @@ function CredentialRow({ label, value, secret, onCopied }: {
       >
         Copy
       </button>
+    </div>
+  )
+}
+
+// SSL certificate expiry + countdown for Secure-mode (custom domain) servers.
+// The customer server reports `certExpiresAt` (Let's Encrypt notAfter) on
+// activation; here we render the date and the days remaining, tinted by
+// urgency so a near-expiry cert stands out before it lapses.
+function CertCountdown({ expiresAt }: { expiresAt: string }) {
+  const exp = new Date(expiresAt)
+  if (Number.isNaN(exp.getTime())) return null
+
+  const daysLeft = Math.floor((exp.getTime() - Date.now()) / 86_400_000)
+  const expired = daysLeft < 0
+  const dateLabel = exp.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+
+  const tone = expired || daysLeft <= 14
+    ? 'text-red-400 border-red-400/20 bg-red-400/10'
+    : daysLeft <= 30
+      ? 'text-yellow-400 border-yellow-400/20 bg-yellow-400/10'
+      : 'text-green-400 border-green-400/20 bg-green-400/10'
+
+  return (
+    <div className="border-t border-white/10 pt-3 flex items-center justify-between gap-3">
+      <div className="flex flex-col">
+        <span className="text-xs text-white/40 uppercase tracking-widest">SSL certificate</span>
+        <span className="text-xs text-white/70">Valid until {dateLabel}</span>
+      </div>
+      <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full border ${tone}`}>
+        {expired ? 'Expired' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+      </span>
     </div>
   )
 }
@@ -388,6 +424,11 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
               Expires {expiry}
             </p>
           )}
+          {server.status !== 'offline' && (
+            <p className="text-xs text-white/40">
+              Launched {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+          )}
           {server.status === 'offline' && (
             <p className="text-sm text-white/40">
               Destroyed {new Date(server.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -448,17 +489,24 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
             )
           })()}
 
-          {server.whiteLabelActive ? (
-            <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2.5 py-0.5 w-fit">
-              White Label ✓
-            </span>
-          ) : (
-            <button
-              onClick={() => onWhiteLabel(server.id)}
-              className="text-xs text-white/50 hover:text-white transition-colors text-left font-medium"
-            >
-              Remove Fractera branding — $100
-            </button>
+          {server.certExpiresAt && <CertCountdown expiresAt={server.certExpiresAt} />}
+
+          {/* White Label / "Remove Fractera branding — $100" temporarily disabled
+              (product decision 2026-05-31 — not activating this for a while).
+              Flip WHITE_LABEL_ENABLED back to true to re-enable. */}
+          {WHITE_LABEL_ENABLED && (
+            server.whiteLabelActive ? (
+              <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2.5 py-0.5 w-fit">
+                White Label ✓
+              </span>
+            ) : (
+              <button
+                onClick={() => onWhiteLabel(server.id)}
+                className="text-xs text-white/50 hover:text-white transition-colors text-left font-medium"
+              >
+                Remove Fractera branding — $100
+              </button>
+            )
           )}
 
           {!showDelete ? (

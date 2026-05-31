@@ -94,6 +94,7 @@ model ServerToken {
   serverIp          String?
   serverPassword    String?
   whiteLabelActive  Boolean       @default(false)
+  certExpiresAt     DateTime?     // TLS cert notAfter, reported by the customer server on Secure-mode activation
   user              User          @relation(fields: [userId], references: [id])
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
   purchases         Purchase[]

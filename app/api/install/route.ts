@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { releaseServersOnIp } from '@/lib/server-takeover'
 
 export const maxDuration = 300
 
@@ -84,6 +85,14 @@ export async function POST(req: NextRequest) {
   try {
     await wipeServer(ip, login, password)
     await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
+    // Takeover cleanup: the IP is now wiped, so any other server record still
+    // pointing at it (a previous owner's phantom server) must disappear from
+    // their dashboard. Best-effort — never abort the deploy on cleanup failure.
+    try {
+      await releaseServersOnIp(ip, tokenForBootstrap)
+    } catch (err) {
+      console.error('[install] releaseServersOnIp failed (continuing)', err)
+    }
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)
     const wipeErr = `WIPE_FAILED: could not clean previous installation — ${errMsg}`

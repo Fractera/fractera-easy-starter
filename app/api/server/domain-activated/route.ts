@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown token' }, { status: 401 })
   }
 
-  let body: { domain?: string }
+  let body: { domain?: string; certExpiresAt?: string | null }
   try { body = await req.json() }
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
 
@@ -28,9 +28,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing domain' }, { status: 400 })
   }
 
+  // Optional TLS cert expiry (ISO string) reported by the customer server.
+  // Parse defensively — a malformed value just leaves the column untouched.
+  let certExpiresAt: Date | undefined
+  if (body.certExpiresAt) {
+    const d = new Date(body.certExpiresAt)
+    if (!Number.isNaN(d.getTime())) certExpiresAt = d
+  }
+
   await db.serverToken.update({
     where: { token },
-    data: { subdomain: domain },
+    data: {
+      subdomain: domain,
+      ...(certExpiresAt ? { certExpiresAt } : {}),
+    },
   })
 
   if (serverToken.user.email) {

@@ -22,6 +22,7 @@ export async function GET() {
       serverIp: true,
       serverPassword: true,
       whiteLabelActive: true,
+      certExpiresAt: true,
       subscription: {
         select: {
           id: true,
@@ -44,6 +45,7 @@ export async function GET() {
       serverIp: s.serverIp,
       serverPassword: s.serverPassword,
       whiteLabelActive: s.whiteLabelActive,
+      certExpiresAt: s.certExpiresAt,
       subscription: s.subscription,
     })),
   })
