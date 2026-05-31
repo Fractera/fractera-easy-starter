@@ -39,10 +39,11 @@ type PurchaseRecord = {
   serverToken: { subdomain: string | null; status: string; whiteLabelActive: boolean } | null
 }
 
-function CredentialRow({ label, value, secret, onCopied }: {
+function CredentialRow({ label, value, secret, revealNote, onCopied }: {
   label: string
   value: string
   secret?: boolean
+  revealNote?: string
   onCopied: (label: string) => void
 }) {
   const [visible, setVisible] = useState(false)
@@ -54,11 +55,16 @@ function CredentialRow({ label, value, secret, onCopied }: {
     } catch {}
   }
 
+  // When a reveal note is set (e.g. the password is never stored), opening the
+  // eye shows the note instead of the meaningless placeholder value, and the
+  // Copy button is hidden — there is nothing useful to copy.
+  const showingNote = !!revealNote && visible
+
   return (
     <div className="flex items-center gap-2 py-1">
       <span className="text-xs text-white/40 w-16 shrink-0">{label}</span>
-      <span className="flex-1 text-xs font-mono text-white truncate">
-        {secret && !visible ? '•'.repeat(10) : value}
+      <span className={`flex-1 text-xs ${showingNote ? 'text-white/50 italic' : 'font-mono text-white truncate'}`}>
+        {secret && !visible ? '•'.repeat(10) : showingNote ? revealNote : value}
       </span>
       {secret && (
         <button
@@ -83,13 +89,15 @@ function CredentialRow({ label, value, secret, onCopied }: {
           </svg>
         </button>
       )}
-      <button
-        type="button"
-        onClick={copy}
-        className="text-xs text-white/40 hover:text-white/70 border border-white/20 hover:border-white/40 rounded px-1.5 py-0.5 transition-colors shrink-0"
-      >
-        Copy
-      </button>
+      {!showingNote && (
+        <button
+          type="button"
+          onClick={copy}
+          className="text-xs text-white/40 hover:text-white/70 border border-white/20 hover:border-white/40 rounded px-1.5 py-0.5 transition-colors shrink-0"
+        >
+          Copy
+        </button>
+      )}
     </div>
   )
 }
@@ -530,7 +538,13 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
               <CredentialRow label="IP" value={server.serverIp} onCopied={handleCopied} />
               <CredentialRow label="Login" value="root" onCopied={handleCopied} />
               {server.serverPassword && (
-                <CredentialRow label="Password" value={server.serverPassword} secret onCopied={handleCopied} />
+                <CredentialRow
+                  label="Password"
+                  value={server.serverPassword}
+                  secret
+                  revealNote={server.serverPassword === '*****' ? 'Fractera never stores your passwords' : undefined}
+                  onCopied={handleCopied}
+                />
               )}
             </div>
           )}
