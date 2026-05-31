@@ -129,6 +129,17 @@ log_email "pm2" "Node.js + PM2 installed" 10
 # dependable. Best-effort: never fail the deploy over this.
 soft_step "dns_resolver" "Configuring DNS resolver" "mkdir -p /etc/systemd/resolved.conf.d && printf '[Resolve]\nDNS=1.1.1.1 8.8.8.8\nFallbackDNS=9.9.9.9 1.0.0.1\n' > /etc/systemd/resolved.conf.d/fractera-dns.conf && systemctl restart systemd-resolved && sleep 1 && resolvectl flush-caches"
 
+# === Firewall: open for IP mode ===
+# Bootstrap always yields IP/insecure mode, where the service ports (3000-3002,
+# 3200-3206, 3300, 9119, 9621) MUST be reachable. A genuinely fresh VPS has ufw
+# inactive, but a RE-bootstrap of a server that was once in Secure mode inherits
+# its lockdown (ufw 22/80/443 only) — wipe doesn't reset it — so the admin port
+# would silently time out from outside. Disable ufw here so every deploy/redeploy/
+# recovery comes up reachable. Secure mode re-locks via lockdownFirewall() on
+# domain activation; deactivate re-opens. No-op on a fresh VPS.
+# → reports/patterns/mode-aware-firewall.md
+soft_step "firewall_open" "Opening firewall for IP mode" "ufw --force disable 2>/dev/null || true"
+
 # === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
 CURRENT_STEP="clear_creds"
 CURRENT_LABEL="Clearing platform credentials"
