@@ -188,3 +188,9 @@ export type CookieBannerContent = {
   accept: string
   decline: string
 }
+
+// Strings for the authenticated dashboard (Servers tab, etc.). Add keys here
+// and a translation in every locales/<lang>/dashboard.ts as the dashboard grows.
+export type DashboardContent = {
+  passwordNeverStored: string
+}

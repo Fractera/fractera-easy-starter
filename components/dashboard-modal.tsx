@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { PartnerCabinetView } from '@/components/partner-cabinet-view'
 import { useLang } from '@/lib/i18n/use-lang'
+import { getDashboard } from '@/lib/i18n/locales'
 import { buildUrls } from '@/lib/subdomain-helpers'
 
 // Product flag: White Label ("Remove Fractera branding — $100") is paused
@@ -347,6 +348,7 @@ function ApplyWhiteLabel({ purchaseId, alreadyApplied }: { purchaseId: string; a
 }
 
 function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord; onRefresh: () => void; onWhiteLabel: (id: string) => void }) {
+  const dash = getDashboard(useLang())
   const progress = useDeployProgress(
     server.status === 'pending' ? server.deploySessionId : null
   )
@@ -542,7 +544,7 @@ function ServerCard({ server, onRefresh, onWhiteLabel }: { server: ServerRecord;
                   label="Password"
                   value={server.serverPassword}
                   secret
-                  revealNote={server.serverPassword === '*****' ? 'Fractera never stores your passwords' : undefined}
+                  revealNote={server.serverPassword === '*****' ? dash.passwordNeverStored : undefined}
                   onCopied={handleCopied}
                 />
               )}
