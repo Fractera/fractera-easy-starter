@@ -3,8 +3,8 @@
 # Reports progress + errors back to fractera-easy-starter.
 
 SESSION_ID="$1"
-PROGRESS_URL="https://fractera-easy-starter.vercel.app/api/progress"
-PING_URL="https://fractera-easy-starter.vercel.app/api/server/ping"
+PROGRESS_URL="https://www.fractera.ai/api/progress"
+PING_URL="https://www.fractera.ai/api/server/ping"
 INSTALL_SECRET="$2"
 PLATFORM="${3:-claude-code}"
 SERVER_TOKEN="${4:-}"
@@ -16,7 +16,7 @@ CURRENT_STEP=""
 CURRENT_LABEL=""
 INSTALL_START=$(date +%s)
 # DEBUG — remove before launch
-LOG_URL="https://fractera-easy-starter.vercel.app/api/server/install-log"
+LOG_URL="https://www.fractera.ai/api/server/install-log"
 
 log_email() {
   [ -z "$SERVER_TOKEN" ] && return
@@ -567,7 +567,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 if [ -n "$SERVER_TOKEN" ]; then
   WL=$(curl -s --max-time 5 \
     -H "Authorization: Bearer $SERVER_TOKEN" \
-    "https://fractera-easy-starter.vercel.app/api/server/white-label" 2>/dev/null || echo "")
+    "https://www.fractera.ai/api/server/white-label" 2>/dev/null || echo "")
   if echo "$WL" | grep -q '"white_label":true'; then
     echo "White label active — removing footer from nginx" >> "$LOG_FILE"
     python3 - << 'WLEOF' >> "$LOG_FILE" 2>&1
