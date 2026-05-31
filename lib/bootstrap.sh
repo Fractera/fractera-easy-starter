@@ -528,7 +528,7 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<script>!function(){var _t=[80,111,119,101,114,101,100,32,98,121,32,70,114,97,99,116,101,114,97],_u=[104,116,116,112,115,58,47,47,103,105,116,104,117,98,46,99,111,109,47,70,114,97,99,116,101,114,97,47,97,105,45,119,111,114,107,115,112,97,99,101],t=_t.map(function(c){return String.fromCharCode(c)}).join(""),u=_u.map(function(c){return String.fromCharCode(c)}).join(""),f=document.createElement("div");f.style.cssText="width:100%;background:#fff;text-align:center;padding:3px 0;line-height:1.4;";var a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t;a.style.cssText="font-size:10px;color:#000;text-decoration:none;";f.appendChild(a);document.body.appendChild(f);}();</script></body>';
+        sub_filter '</body>' '<div style="width:100%;background:#fff;text-align:center;padding:3px 0;line-height:1.4"><a href="https://github.com/Fractera/ai-workspace" style="font-size:10px;color:#000;text-decoration:none">Powered by Fractera</a></div></body>';
     }
 }
 
