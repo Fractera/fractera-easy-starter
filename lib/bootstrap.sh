@@ -499,6 +499,12 @@ pm2 startup systemd -u root --hp /root | tail -1 | bash >> "$LOG_FILE" 2>&1 || t
 systemctl enable pm2-root >> "$LOG_FILE" 2>&1 || true
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
+# Daily TLS cert-expiry relay → Easy Starter. The script self-guards (no-op
+# until Secure mode with a cert on disk), so scheduling it now in IP mode is
+# harmless. Keeps L1's certExpiresAt fresh after certbot auto-renewal and lets
+# L1 send a single expiry-warning email at <=14 days. → reports/patterns.
+soft_step "cert_relay_cron" "Cert-expiry relay (daily)" "chmod +x /opt/fractera/scripts/cert-relay.sh; echo '17 4 * * * root /opt/fractera/scripts/cert-relay.sh >> /var/log/fractera-cert-relay.log 2>&1' > /etc/cron.d/fractera-cert-relay; chmod 644 /etc/cron.d/fractera-cert-relay"
+
 # === Initial Nginx config — IP-only, single default_server on :80 ===
 # Customer attaches their own domain later through Admin → Personal Domain
 # (admin app runs certbot directly). No Fractera-owned subdomains.

@@ -95,6 +95,7 @@ model ServerToken {
   serverPassword    String?
   whiteLabelActive  Boolean       @default(false)
   certExpiresAt     DateTime?     // TLS cert notAfter, reported by the customer server on Secure-mode activation
+  certWarnedAt      DateTime?     // when the cert-expiry warning email was last sent (idempotency; reset when cert renews >30d out)
   user              User          @relation(fields: [userId], references: [id])
   subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
   purchases         Purchase[]

@@ -406,6 +406,87 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   })
 }
 
+// TLS certificate about to expire (Secure mode). Triggered by the customer
+// server's daily cert-relay → L1 /api/server/cert-status when daysLeft ≤ 14.
+// Same look/CSS as sendDomainActivatedEmail, including the Sponsor + GitHub
+// star CTAs. Distinct from sendExpiryWarningEmail (that one is for the paid
+// SUBSCRIPTION, not the certificate).
+export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
+  const adminUrl = `https://admin.${domain}`
+  const urgent = daysLeft <= 3
+  const accent = urgent ? '#dc2626' : '#d97706'
+  const dayWord = daysLeft === 1 ? 'day' : 'days'
+
+  await sendEmail({
+    from: FROM,
+    to,
+    subject: `Action needed: your Fractera TLS certificate for ${domain} expires in ${daysLeft} ${dayWord}`,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a">
+
+        <!-- Hero -->
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="display:inline-block;background:${accent};color:#fff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px">⚠ Certificate expiring</div>
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;line-height:1.2">Your TLS certificate expires in ${daysLeft} ${dayWord}</h1>
+          <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
+        </div>
+
+        <!-- Primary CTA -->
+        <div style="text-align:center;margin:28px 0">
+          <a href="${adminUrl}" style="display:inline-block;background:${accent};color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open Personal Domain panel →</a>
+          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
+        </div>
+
+        <!-- What to do -->
+        <div style="margin:24px 0 8px">
+          <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">What to do</p>
+          <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
+            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid ${accent};border-radius:4px">
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">Let&rsquo;s Encrypt (automatic)</div>
+              <div style="font-size:12px;color:#555;line-height:1.5">Certbot normally renews ~30 days before expiry via the system <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">certbot.timer</code>. If you still got this email, the auto-renew may have failed — open <strong>Admin → Personal Domain</strong> and re-run the certificate step.</div>
+            </td></tr>
+            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid ${accent};border-radius:4px">
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">Uploaded / GOST certificate</div>
+              <div style="font-size:12px;color:#555;line-height:1.5">If you uploaded your own certificate (e.g. a region-specific or GOST cert), it does not auto-renew. Upload the new certificate in <strong>Admin → Personal Domain</strong> before the expiry date.</div>
+            </td></tr>
+          </table>
+        </div>
+
+        <!-- Sponsor CTA -->
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
+          </p>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+        </div>
+
+        <!-- OR divider -->
+        <div style="margin:24px 0;display:flex;align-items:center;text-align:center">
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+          <span style="padding:0 14px;font-size:11px;color:#999;letter-spacing:2px;font-weight:600">OR</span>
+          <div style="flex:1;height:1px;background:#e5e5e5"></div>
+        </div>
+
+        <!-- GitHub star CTA -->
+        <div style="margin:0;padding:18px 20px;background:#fafafa;border:1px solid #eee;border-radius:10px;text-align:center">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">⭐ Star us on GitHub</p>
+          <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
+            A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
+          </p>
+          <a href="https://github.com/Fractera/ai-workspace" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
+        </div>
+
+        <!-- AI platforms footer -->
+        <p style="margin:24px 0 0;font-size:11px;color:#aaa;text-align:center;line-height:1.6">
+          Powered by ${AI_PLATFORMS.join(' · ')}
+        </p>
+
+      </div>
+    `,
+  })
+}
+
 export async function sendExpiryWarningEmail(to: string, daysLeft: number, subdomain: string) {
   await sendEmail({
     from: FROM,

@@ -9,6 +9,7 @@ import {
   sendRecoveryTokenEmail,
   sendQueuedEmail,
   sendExpiryWarningEmail,
+  sendCertExpiryWarningEmail,
   sendCompanyBrainInquiryEmail,
 } from '@/lib/email'
 
@@ -28,6 +29,7 @@ type TemplateKey =
   | 'deploy_failed'
   | 'queued'
   | 'expiry_warning'
+  | 'cert_expiry'
   | 'company_brain_inquiry'
 
 async function dispatch(template: TemplateKey, to: string) {
@@ -54,6 +56,10 @@ async function dispatch(template: TemplateKey, to: string) {
       return sendQueuedEmail(to)
     case 'expiry_warning':
       return sendExpiryWarningEmail(to, 7, SAMPLE_SUBDOMAIN)
+    case 'cert_expiry':
+      // TLS cert about to lapse (Secure mode). Sent by the daily cert-relay
+      // when daysLeft <= 14. Same look as domain_activated + Sponsor/Star CTAs.
+      return sendCertExpiryWarningEmail(to, 7, SAMPLE_DOMAIN)
     case 'company_brain_inquiry':
       return sendCompanyBrainInquiryEmail({
         email: to,

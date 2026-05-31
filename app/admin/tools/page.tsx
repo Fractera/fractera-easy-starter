@@ -14,6 +14,7 @@ const TEMPLATES = [
   { key: 'install_progress', label: '3 · Install progress — middle of deploy', desc: 'Sent once mid-bootstrap when all 6 dependency steps finished (~30% through). Reassures the user the deploy is still running.' },
   { key: 'welcome_ip',       label: '4 · Welcome — server is live (IP-only)',  desc: 'Final email after deploy. IP-mode rendering: HTTP IP:port links to Live app, Brain, Memory. Recommended next steps (OpenAI key, Codex, Telegram, domain), Sponsor CTA, GitHub star CTA.' },
   { key: 'domain_activated', label: '5 · Domain activated — switched to HTTPS', desc: 'Sent after the user completes the Personal Domain wizard step 4. Same look as welcome_ip but URLs are https://<host>.<domain>, and the "buy a domain" step is replaced with a congratulations card.' },
+  { key: 'cert_expiry',      label: '6 · TLS certificate expiring (Secure mode)', desc: 'Sent by the customer server\'s daily cert-relay when the HTTPS certificate drops to ≤14 days left (one per cert lifecycle, re-armed after renewal). Same look as domain_activated + Sponsor / GitHub star CTAs. Sample renders 7 days left.' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']
