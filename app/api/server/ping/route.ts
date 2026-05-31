@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendWelcomeEmail, sendExpiryWarningEmail } from '@/lib/email'
+import { classifySubdomain } from '@/lib/subdomain-helpers'
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
@@ -29,12 +30,21 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   const incomingSubdomain = (body.subdomain as string | undefined) ?? ''
 
-  // Preserve the existing DB subdomain if it already has the synthetic
-  // `ip-<IP>` form set by /api/install. Bootstrap sends the bare IP in
-  // ping payload (SUBDOMAIN=$SERVER_IP) — overwriting the DB would lose
-  // the prefix and break IP-mode detection in welcome email + UI.
+  // The DB subdomain is the source of truth once it is "meaningful" — i.e.
+  // either a real custom domain (Secure mode, set by /api/server/domain-activated)
+  // or the synthetic `ip-<IP>` form set by /api/install. The ping payload only
+  // ever carries the bare server IP (bootstrap sends SUBDOMAIN=$SERVER_IP), so
+  // accepting it here would silently DOWNGRADE the record:
+  //   • a real domain → bare IP  → dashboard reverts from https://admin.<domain>
+  //     back to insecure http://<ip>:3002 within one 15-min ping cycle;
+  //   • an `ip-<IP>` form → bare IP → loses the prefix used by IP-mode detection.
+  // So we only adopt the incoming value to fill an empty/first-ping record.
+  // classifySubdomain() is the canonical shape classifier (shared with buildUrls
+  // + the email layer) — reuse it instead of re-deriving the rules here.
   const dbSubdomain = serverToken.subdomain ?? ''
-  const subdomain = dbSubdomain.startsWith('ip-')
+  const dbIsMeaningful =
+    classifySubdomain(dbSubdomain).mode === 'domain' || dbSubdomain.startsWith('ip-')
+  const subdomain = dbIsMeaningful
     ? dbSubdomain
     : (incomingSubdomain || dbSubdomain)
 
