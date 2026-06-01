@@ -65,6 +65,26 @@ export const faqItems: FaqItem[] = [
       'This loop repeats as many times as you want. Every product stays yours — on your server, under your domain, your code, your data, your subscriptions.',
     ],
   },
+  {
+    q: 'What is your long-term goal?',
+    a: [
+      'When you start a business for the first time, almost everything around you is unfamiliar. Registering the company, opening a bank account, standing up a website and social profiles, streamlining production, finding traffic, balancing the unit economics, and finally scaling. An AI agent helps at every step — but it is not a single "do it all" button: it is a road you cannot walk in a day, or even a month.',
+      'Along that road the AI keeps proposing solutions. Some turn out right, some wrong; some save you money, some waste it, and once in a while income appears out of nowhere. Until now, this priceless zero-to-product experience lived only in your head. Now it can be digitized.',
+      'And this is nothing like reading a book or running through a checklist. The AI that solved every task alongside you, listened to your conversations, prepared your presentations — can assemble not a step-by-step manual but a living knowledge base. Not yes/no, but the complex conditional logic of decisions that modern AI can analyze and carry over — even to a different region, with different inputs and a different outcome.',
+      "So whoever is lucky enough to buy your digitized experience walks the same road faster and with far fewer mistakes. Admit it — you would want to be in their place too: to save years of your life and not pay for someone else's mistakes with your own money.",
+    ],
+    bullets: [
+      'More than a book — a book gives one route; the loop remembers the forks.',
+      'More than a checklist — a checklist answers yes/no; the loop reasons in context.',
+      'More than a course — a course teaches in general; the loop knows your exact path.',
+    ],
+    trail: [
+      'This is what we call the product loop — and it is the product we want to build in the near future.',
+      'Already have experience, or a company of your own? Want to digitize your current business — or your next one? Become a project sponsor: you join a private Telegram group where you can talk to the founder directly and be first to shape what the skill marketplace becomes.',
+      'Stay with us — we will build it together.',
+    ],
+    cta: { label: 'Become a project sponsor', href: '#sponsorship' },
+  },
   // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос о переходе с платного плана скрыт
   /* {
     q: 'Can I switch from the paid plan to free self-hosting later?',
