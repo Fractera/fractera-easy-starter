@@ -4,6 +4,11 @@
 
 html {
   scroll-behavior: smooth;
+  /* Guard against horizontal scroll from full-bleed bands (e.g. FractеraPromo
+     uses w-screen / 100vw, which exceeds available width by the vertical
+     scrollbar width). `clip` prevents the overshoot without creating a scroll
+     container, so the sticky SiteHeader and anchor scrolling keep working. */
+  overflow-x: clip;
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
