@@ -29,7 +29,7 @@ export const sponsorship: SponsorshipPart = {
         id: 's20', amount: '$20', period: '/mo', sublabel: 'Champion — featured on Sponsors page',
         perks: [
           'Personal one-on-one access to the founder',
-          'Access to Fractera Pro features and skills',
+          'Access to all VIP features and skills — Fractera Pro',
         ],
       },
     ],

@@ -128,7 +128,7 @@ export type SiteContent = {
     successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; checkboxLabel: string; closeButton: string }
   }
   featuresHeader: { label: string; h2: string; description: string }
-  featureList: { title: string; description: string; badge: string }[]
+  featureList: { title: string; description: string; badge: string; vip?: boolean }[]
   promoSection: { h2: string; description: string; githubButton: string }
   companyBrain: {
     label: string

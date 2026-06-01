@@ -1,9 +1,9 @@
 'use client'
 
-import { Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot } from 'lucide-react'
+import { Mic, ShieldCheck, Database, DatabaseBackup, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot, Split, LayoutTemplate } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
-const ICONS = [Mic, ShieldCheck, Database, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot]
+const ICONS = [Mic, ShieldCheck, Database, DatabaseBackup, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot, Split, LayoutTemplate]
 
 export function FeaturesGrid() {
   const content = useHeroContent()
@@ -18,14 +18,23 @@ export function FeaturesGrid() {
       </div>
 
       <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-x-8 md:gap-y-11">
-        {content.featureList.map(({ title, description }, i) => {
+        {content.featureList.map(({ title, description, badge, vip }, i) => {
           const Icon = ICONS[i]
           return (
             <li key={i} className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <Icon className="w-[22px] h-[22px] shrink-0 text-violet-400" />
+                <Icon className={`w-[22px] h-[22px] shrink-0 ${vip ? 'text-yellow-400' : 'text-violet-400'}`} />
                 <h3 className="text-lg font-medium leading-tight tracking-tight text-white">{title}</h3>
               </div>
+              <span
+                className={`self-start text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  vip
+                    ? 'text-yellow-300 bg-yellow-500/15 border-yellow-500/40'
+                    : 'text-violet-300 bg-violet-500/15 border-violet-500/30'
+                }`}
+              >
+                {badge}
+              </span>
               <p className="text-sm leading-snug text-white/50">{description}</p>
             </li>
           )
