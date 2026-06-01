@@ -155,14 +155,12 @@ export type SiteContent = {
     label: string
     h2: string
     body: string[]
-    tiers: { id: 's1' | 's5' | 's20'; amount: string; period: string; sublabel: string; badge?: string }[]
+    tiers: { id: 's1' | 's5' | 's20'; amount: string; period: string; sublabel: string; badge?: string; perks: string[] }[]
     sponsorButton: string
     signInPrompt: string
     signInButton: string
     thankYouTitle: string
     thankYouBody: string
-    perksTitle: string
-    perks: string[]
     ourSponsorsLabel: string
     ourSponsorsLink: string
   }

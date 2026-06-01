@@ -99,6 +99,15 @@ export function SponsorshipSection() {
                 <p className="text-sm text-white/70 leading-snug">{tier.sublabel}</p>
               </div>
 
+              <ul className="flex flex-col gap-2">
+                {tier.perks.map((perk, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
+                    <span className="shrink-0 text-yellow-400 mt-0.5 font-bold">★</span>
+                    <span>{perk}</span>
+                  </li>
+                ))}
+              </ul>
+
               <button
                 type="button"
                 onClick={() => handleClick(tier.id)}
@@ -122,21 +131,6 @@ export function SponsorshipSection() {
           {content.sponsorship.signInPrompt}
         </p>
       )}
-
-      {/* ─── Perks ─── */}
-      <div className="flex flex-col gap-3 mt-2 rounded-2xl border border-white/15 bg-white/[0.02] p-5 md:p-6">
-        <p className="text-xs font-mono font-bold text-yellow-400 uppercase tracking-widest">
-          {content.sponsorship.perksTitle}
-        </p>
-        <ul className="flex flex-col gap-2">
-          {content.sponsorship.perks.map((perk, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-white/80 leading-relaxed">
-              <span className="shrink-0 text-yellow-400 mt-0.5 font-bold">★</span>
-              <span>{perk}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       {/* ─── Our Sponsors ─── */}
       <a
