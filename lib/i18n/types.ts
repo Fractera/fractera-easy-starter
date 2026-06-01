@@ -164,6 +164,11 @@ export type SiteContent = {
     ourSponsorsLabel: string
     ourSponsorsLink: string
   }
+  marketplace: {
+    linkedNote: string
+    skills: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
+    productLoop: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
+  }
 }
 
 export type SiteMeta = {

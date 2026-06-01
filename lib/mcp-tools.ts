@@ -315,6 +315,7 @@ export async function handleToolCall(
             password,
             session_id,
             serverToken: serverToken.token,
+            serverId: serverToken.id,
           })
           console.log(`${bgTag} deployToServer done — bootstrap uploaded and launched`)
         } catch (err) {
@@ -446,6 +447,7 @@ export async function handleToolCall(
         password,
         session_id: newSessionId,
         serverToken: server_token,
+        serverId: record.id,
       })
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)

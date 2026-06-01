@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
   // and the email pipeline has a known recipient. Pool provisioning uses /api/pool/provision
   // and never hits this route — this block is own-server only.
   let tokenForBootstrap = existingToken ?? ''
+  let serverIdForBootstrap = ''
   const session = await auth()
   const userEmail = session?.user?.email ?? null
   const userId = session?.user?.id ?? null
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       },
     })
     tokenForBootstrap = newToken.token
+    serverIdForBootstrap = newToken.id
   }
 
   // Step 1: init progress + send confirmation email BEFORE SSH so it always fires
@@ -101,7 +103,13 @@ export async function POST(req: NextRequest) {
   }
 
   // Step 3: SSH + upload bootstrap + launch (initProgress is idempotent — won't wipe email_start step)
-  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap })
+  // Resolve the non-secret server id for the existing-token path too (MCP recovery / re-deploy),
+  // so NEXT_PUBLIC_SERVER_ID is baked even when this route didn't just create the row.
+  if (!serverIdForBootstrap && tokenForBootstrap) {
+    const existing = await db.serverToken.findUnique({ where: { token: tokenForBootstrap }, select: { id: true } }).catch(() => null)
+    if (existing) serverIdForBootstrap = existing.id
+  }
+  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap, serverId: serverIdForBootstrap })
 
   return NextResponse.json({ session_id, status: 'installing' })
 }

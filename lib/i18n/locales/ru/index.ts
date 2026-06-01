@@ -9,6 +9,7 @@ import { features } from './features'
 import { faqItems } from './faq'
 import { sponsorship } from './sponsorship'
 import { companyBrain } from './company-brain'
+import { marketplace } from './marketplace'
 
 export const ru: SiteContent = {
   ...hero,
@@ -20,5 +21,6 @@ export const ru: SiteContent = {
   ...features,
   ...sponsorship,
   ...companyBrain,
+  ...marketplace,
   faqItems,
 }

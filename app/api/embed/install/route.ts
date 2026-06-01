@@ -130,6 +130,7 @@ export async function POST(req: NextRequest) {
       password,
       session_id: sessionId,
       serverToken: serverToken.token,
+      serverId: serverToken.id,
     })
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)

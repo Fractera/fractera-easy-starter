@@ -10,6 +10,7 @@ PLATFORM="${3:-claude-code}"
 SERVER_TOKEN="${4:-}"
 SUBDOMAIN_OVERRIDE="${5:-}"  # accepted for back-compat with old deploy.ts callers; ignored
 GITHUB_TOKEN="${6:-}"
+SERVER_ID="${7:-}"  # ServerToken.id — non-secret, baked as NEXT_PUBLIC_SERVER_ID for marketplace links
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -367,8 +368,11 @@ ENVEOF
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 # Server-side only — admin proxy.ts calls auth on localhost.
 AUTH_SERVICE_URL=http://localhost:3001
-# NEXT_PUBLIC_* not needed: bridges/app reads URLs at runtime via
+# Service URLs not needed here: bridges/app reads them at runtime via
 # lib/runtime-urls.ts → window.location.hostname + service ports.
+# NEXT_PUBLIC_SERVER_ID is the one baked client var (non-secret ServerToken.id)
+# — used by the footer Skills / Product Loop marketplace links.
+NEXT_PUBLIC_SERVER_ID=$SERVER_ID
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
 LIGHTRAG_URL=http://localhost:9621

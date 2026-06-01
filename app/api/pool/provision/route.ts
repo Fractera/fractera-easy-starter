@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
       session_id: deploySessionId,
       platform: 'claude-code',
       serverToken: tempToken.token,
+      serverId: tempToken.id,
       subdomainOverride: reserve.subdomain ?? undefined,
     })
   } catch (err) {
