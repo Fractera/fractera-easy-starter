@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer } from '@/lib/deploy'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { releaseServersOnIp } from '@/lib/server-takeover'
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -20,7 +21,7 @@ export const MCP_TOOLS = [
   {
     name: 'register_and_deploy',
     description:
-      'Register a new Fractera user and start the deployment of their server in one atomic call. Use this AFTER you have collected the user\'s email (entered twice for typo protection), server IP, and root password. Creates the User row (or reuses an existing one with the same email), creates a free Subscription, creates a ServerToken, wipes any previous installation on the target server, and launches bootstrap. Returns session_id (for check_status polling) and server_token (so the user can recover via retry_deploy if anything breaks).',
+      'Register a new Fractera user and start the deployment of their server in one atomic call. Use this AFTER you have collected the user\'s email (entered twice for typo protection), server IP, and root password. Creates the User row (or reuses an existing one with the same email), creates a free Subscription, creates a ServerToken, wipes any previous installation on the target server, and launches bootstrap. The deploy is IP-first (phase-1): the server comes up on plain HTTP at http://<IP>:3002 in 8-14 minutes; it does NOT get a domain or HTTPS cert here (that is an optional later step inside the workspace). Returns session_id (for a single on-demand check_status read — do not poll) and server_token (so the user can recover via retry_deploy if anything breaks). Call this AT MOST ONCE per conversation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -47,7 +48,7 @@ export const MCP_TOOLS = [
   {
     name: 'check_status',
     description:
-      'Check the current installation progress. Call this every 20-30 seconds after register_and_deploy or retry_deploy returns. Returns the current step, the list of completed steps (~44 total in a full bootstrap), and whether installation is done or failed.',
+      'Read the current installation progress ONCE, on demand. Call this only when the user explicitly asks how the deploy is going (e.g. "what is the status", "did it finish") — never on a timer and never in a polling loop. The deploy takes 8-14 minutes and the authoritative status channels are the email pipeline + the dashboard; one read on request is enough. Returns the current step, the list of completed steps (~44 total in a full bootstrap), and whether installation is done or failed.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -59,7 +60,7 @@ export const MCP_TOOLS = [
   {
     name: 'get_subdomain',
     description:
-      'Return the assigned subdomain (and full HTTPS URL) once installation is complete. Poll this once after check_status reports status="done".',
+      'Return the final entry address of the server once installation is complete. In phase-1 (IP-first) this is a plain-HTTP Admin URL of the form http://<IP>:3002 — the server has NO domain and NO HTTPS cert yet (attaching a custom domain with HTTPS is an optional later step the user does inside Admin -> Personal Domain). Call this once after check_status reports status="done".',
     inputSchema: {
       type: 'object',
       properties: {
@@ -130,7 +131,23 @@ export async function handleToolCall(
       return { status: 'unknown', message: 'No installation found for this session_id. It may have expired or never existed.' }
     }
     if (progress.status === 'done' && progress.subdomain) {
-      return { status: 'complete', subdomain: progress.subdomain, url: `https://${progress.subdomain}` }
+      // Phase-1 is IP-first: the server is live on plain HTTP at http://<IP>:3002
+      // (Admin). It has NO domain and NO TLS cert yet — that is a separate later
+      // step in Admin → Personal Domain. `progress.subdomain` is the `ip-<IP>`
+      // form (or a bare IP on legacy records); strip the prefix and build the
+      // insecure URL. Never emit https:// here — there is no cert in phase-1.
+      const sd = progress.subdomain
+      const ip = sd.startsWith('ip-') ? sd.slice(3) : sd
+      const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(ip)
+      const url = isIp ? `http://${ip}:3002` : `https://admin.${sd}`
+      return {
+        status: 'complete',
+        subdomain: sd,
+        url,
+        note: isIp
+          ? 'The workspace is live on plain HTTP at this address (Admin). HTTPS and a custom domain are an optional later step the user runs inside Admin -> Personal Domain.'
+          : undefined,
+      }
     }
     if (progress.status === 'error') {
       return { status: 'error', message: progress.error ?? 'Unknown deploy error' }
@@ -162,7 +179,7 @@ export async function handleToolCall(
       steps,
       hint:
         progress.status === 'done'
-          ? `Installation complete. Subdomain: ${progress.subdomain}. Tell the user.`
+          ? `Installation complete. The workspace is live on plain HTTP — call get_subdomain(session_id) to get the exact http://<IP>:3002 address, then tell the user. Do NOT promise HTTPS or a domain: phase-1 is IP-only; a custom domain + HTTPS is an optional later step inside Admin -> Personal Domain.`
           : progress.status === 'error'
             ? `Installation failed: ${progress.error}. Offer the user to retry — if they agree, call retry_deploy with the server_token.`
             : 'Installation in progress. Keep polling every 20-30 seconds. Stream each newly-completed step to the user so they see continuous progress.',
@@ -259,6 +276,15 @@ export async function handleToolCall(
         serverIp: ip,
         // Privacy: never persist the real SSH password (see install/route.ts).
         serverPassword: '*****',
+        // IP-mode (phase-1) identifier — MUST mirror install/route.ts:59. This
+        // `ip-<IP>` seed is load-bearing: bootstrap's completion ping carries the
+        // BARE IP, and ping/route.ts only keeps the DB value when it is already
+        // "meaningful" (startsWith('ip-') or a real domain). Without this seed the
+        // first ping adopts the bare IP, sendWelcomeEmail() sees isIpMode=false,
+        // and the welcome email + dashboard render broken https://<bare-IP> links
+        // for a server that only speaks plain HTTP. MCP is phase-1 / IP-first only
+        // (no domain, no cert — that is the Admin → Personal Domain wizard later).
+        subdomain: `ip-${ip}`,
       },
     })
 
@@ -298,6 +324,14 @@ export async function handleToolCall(
           await wipeServer(ip, login, password)
           await appendStep(session_id, { id: 'wipe_start', label: 'Previous installation cleaned', done: true, ts: Date.now() })
           console.log(`${bgTag} wipe done`)
+          // Takeover cleanup (mirror install/route.ts:94): the IP is now wiped, so
+          // any other ServerToken still pointing at it (a previous owner's phantom)
+          // must disappear from their dashboard. Best-effort — never abort on failure.
+          try {
+            await releaseServersOnIp(ip, serverToken.token)
+          } catch (err) {
+            console.error(`${bgTag} releaseServersOnIp failed (continuing)`, err)
+          }
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : String(err)
           console.error(`${bgTag} wipe failed:`, errMsg)
@@ -354,7 +388,7 @@ export async function handleToolCall(
         `All updates from here onward go to your email:\n` +
         `- A confirmation email has just been sent.\n` +
         `- A second email with these identifiers (recovery token) is on its way — check it now, including spam.\n` +
-        `- A welcome email with the final HTTPS URL of your server will arrive in 8-14 minutes.\n` +
+        `- A welcome email with the address of your server (the form http://<your-IP>:3002) will arrive in 8-14 minutes. The server runs on plain HTTP at first; attaching your own domain with HTTPS is an optional later step you do inside the workspace (Admin -> Personal Domain).\n` +
         `- If anything fails, a failure email will arrive with the same recovery token.\n\n` +
         `You can safely close this chat. Bootstrap continues server-side and does not depend on this conversation.\n\n` +
         `If you want to come back later and check progress from here, just paste the SESSION_ID above and ask "what's the status" — I will check it once and report.\n` +
@@ -411,7 +445,13 @@ export async function handleToolCall(
     try {
       await db.serverToken.update({
         where: { id: record.id },
-        data: { deploySessionId: newSessionId, status: 'pending', deployError: null },
+        // Re-seed the `ip-<IP>` subdomain (phase-1). A retry always wipes and
+        // re-runs bootstrap, which lands the server back in INSECURE/IP mode
+        // (FRACTERA_IP_NODOMAIN_MODE=true) — so the record must carry the
+        // `ip-<IP>` form again, otherwise the completion ping adopts the bare IP
+        // and the welcome email renders broken https://<bare-IP> links. Same
+        // load-bearing reason as register_and_deploy / install/route.ts:59.
+        data: { deploySessionId: newSessionId, status: 'pending', deployError: null, subdomain: `ip-${ip}` },
       })
     } catch (err) {
       console.error('[mcp:retry_deploy] failed to update ServerToken', err)
