@@ -104,6 +104,11 @@ export function LoopShowcase() {
 
   const activeSlide = slides[currentSlide]
 
+  // Outer-perimeter glow: appears only once the active slide's image is set and
+  // the crossfade has settled (opacity === 1); fades out while slides change.
+  const activeImageReady = !!activeSlide?.imageSrc && !!loadedImages[currentSlide]
+  const showGlow = activeImageReady && opacity === 1
+
   const getCircleLeft = (pos: number) => {
     if (dotsCount === 1) return '50%'
     if (dotsCount === 3) {
@@ -142,8 +147,16 @@ export function LoopShowcase() {
         </p>
       </div>
 
-      {/* Image area — blur placeholder until real image loads */}
-      <div className="relative w-full aspect-[16/9] max-w-4xl mx-auto mb-8 rounded-2xl border-2 border-violet-500/60 shadow-violet-500/[0.12] overflow-hidden shadow-2xl">
+      {/* Image area — blur placeholder until real image loads. No static border:
+          a violet perimeter glow animates in when the image is set, out on change. */}
+      <div
+        className={`relative w-full aspect-[16/9] max-w-4xl mx-auto mb-8 rounded-2xl overflow-hidden transition-shadow ease-out ${
+          showGlow
+            ? 'shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]'
+            : 'shadow-[0_0_0px_0px_rgba(139,92,246,0)]'
+        }`}
+        style={{ transitionDuration: `${FADE_DURATION}ms` }}
+      >
         {slides.map((slide, idx) => {
           const Icon = ICONS[idx % ICONS.length]
           const isActive = idx === currentSlide
@@ -174,7 +187,7 @@ export function LoopShowcase() {
                   src={slide.imageSrc}
                   alt={slide.title}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-fill"
                 />
               )}
             </div>
