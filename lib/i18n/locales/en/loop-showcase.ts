@@ -54,7 +54,7 @@ export const loopShowcase: LoopShowcasePart = {
           'After signing in you land straight in the admin panel — mission control for your agents and web space. Five tools: a live preview of your main app; an agent selector carousel (Grok Builder lands soon); project settings; GitHub integration for local IDE work; and the Fractera skills marketplace.',
       },
       {
-        imageSrc: '/section-step-by-step-images/step6-required.png',
+        imageSrc: '/section-step-by-step-images/step7-required.png',
         label: 'Hermes Agent',
         sublabel: 'Orchestrator of all agents',
         title: 'Hermes orchestrator — your project core',
@@ -64,7 +64,7 @@ export const loopShowcase: LoopShowcasePart = {
 
       // ── Block 3: memory + Claude + Codex (7–9) ────────────────────────────
       {
-        imageSrc: '/section-step-by-step-images/step7-required.png',
+        imageSrc: '/section-step-by-step-images/step6-required.png',
         label: 'Project Memory',
         sublabel: 'LightRAG vector memory',
         title: 'LightRAG — your project’s memory',

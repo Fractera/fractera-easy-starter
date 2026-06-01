@@ -54,7 +54,7 @@ export const loopShowcase: LoopShowcasePart = {
           'После входа вы сразу попадаете в панель администратора — центр управления агентами и вашим веб-пространством. Пять инструментов: живой предпросмотр основного приложения; карусель выбора агентов (скоро добавим Grok Builder); настройки проекта; интеграция с GitHub для локальной работы в IDE; и маркетплейс навыков Fractera.',
       },
       {
-        imageSrc: '/section-step-by-step-images/step6-required.png',
+        imageSrc: '/section-step-by-step-images/step7-required.png',
         label: 'Агент Гермес',
         sublabel: 'Оркестратор всех ваших агентов',
         title: 'Hermes orchestrator — ядро проекта',
@@ -64,7 +64,7 @@ export const loopShowcase: LoopShowcasePart = {
 
       // ── Блок 3: память + Claude + Codex (7–9) ─────────────────────────────
       {
-        imageSrc: '/section-step-by-step-images/step7-required.png',
+        imageSrc: '/section-step-by-step-images/step6-required.png',
         label: 'Память проекта',
         sublabel: 'LightRAG: векторная память',
         title: 'LightRAG — память вашего проекта',
