@@ -3,7 +3,7 @@
 import { Mic, ShieldCheck, Database, DatabaseBackup, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot, Split, LayoutTemplate } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
-const ICONS = [Mic, ShieldCheck, Database, DatabaseBackup, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Bot, Split, LayoutTemplate]
+const ICONS = [Bot, Mic, ShieldCheck, Database, DatabaseBackup, GitBranch, Zap, ShoppingBag, Globe, Crosshair, Split, LayoutTemplate]
 
 export function FeaturesGrid() {
   const content = useHeroContent()
