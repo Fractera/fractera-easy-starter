@@ -112,6 +112,26 @@ step_npm() {
   done
 }
 
+# soft_step: like step() but NEVER fatal — a failing body is logged and skipped.
+# Body runs in a SUBSHELL via `( eval ... )` so cd/exit/set -e/IFS can't leak into
+# later steps (two past incidents froze bootstrap at 57%/77% before the subshell).
+# DEFINED HERE (not lower) on purpose: dns_resolver + firewall_open call soft_step
+# early. A call before the function is defined is a silent `command not found`
+# (no `set -e`), so those steps never ran — that is exactly how the secure-mode
+# ufw lockdown kept leaking into every IP redeploy. Keep this above first use.
+soft_step() {
+  local id="$1"
+  local label="$2"
+  local cmd="$3"
+  report "$id" "Installing $label" false
+  if ( eval "$cmd" ) >> "$LOG_FILE" 2>&1; then
+    report "$id" "$label" true
+  else
+    echo "[skip] $label installation failed, continuing" >> "$LOG_FILE"
+    report "$id" "$label (skipped)" true
+  fi
+}
+
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
@@ -139,7 +159,7 @@ soft_step "dns_resolver" "Configuring DNS resolver" "mkdir -p /etc/systemd/resol
 # recovery comes up reachable. Secure mode re-locks via lockdownFirewall() on
 # domain activation; deactivate re-opens. No-op on a fresh VPS.
 # → reports/patterns/mode-aware-firewall.md
-soft_step "firewall_open" "Opening firewall for IP mode" "ufw --force disable 2>/dev/null || true"
+soft_step "firewall_open" "Opening firewall for IP mode" "command -v ufw >/dev/null 2>&1 && { ufw --force reset >/dev/null 2>&1; ufw --force disable; } || true"
 
 # === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
 CURRENT_STEP="clear_creds"
@@ -217,31 +237,8 @@ step_npm "deps_data"        "Installing dependencies (6/6)" \
 log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
-# IMPORTANT: the body runs in a SUBSHELL via `( eval ... )`. This isolates
-# parent shell state from anything `cmd` might do. Bash's plain `eval`
-# executes the string in the current shell, which means `cd`, `exit`,
-# `set -e`, `umask`, `trap`, `IFS=…` etc. all leak out and silently break
-# later steps. Two real incidents we hit before adding the subshell:
-#   1. `exit 0` early-skip inside build_lightrag_webui terminated the
-#      whole bootstrap.sh — script froze at 57%.
-#   2. `cd "$SRC"` inside the same step left CWD pointing at the LightRAG
-#      uv cache; the next `npm run build --prefix app` looked for
-#      lightrag_webui/app/package.json — froze at 77%.
-# The subshell makes these classes of bugs impossible to recur regardless
-# of what future soft_step authors write in their bodies.
-soft_step() {
-  local id="$1"
-  local label="$2"
-  local cmd="$3"
-  report "$id" "Installing $label" false
-  if ( eval "$cmd" ) >> "$LOG_FILE" 2>&1; then
-    report "$id" "$label" true
-  else
-    echo "[skip] $label installation failed, continuing" >> "$LOG_FILE"
-    report "$id" "$label (skipped)" true
-  fi
-}
-
+# soft_step() is defined near step()/step_npm() above (it must precede its first
+# callers dns_resolver + firewall_open). Do NOT redefine it here.
 soft_step "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
 soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
 soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
