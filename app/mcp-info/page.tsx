@@ -1,26 +1,26 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { SECTIONS, getSection, type InfoLang } from '@/lib/project-info/content'
+import { getSectionList, getSection } from '@/lib/project-info/content'
 
-// SINGLE canonical reference page at the bare root /mcp-info — intentionally NOT
-// under /[lang], so there is exactly ONE indexable URL (no per-language
-// duplicates). proxy.ts has an explicit pass-through for /mcp-info so it is
-// served here directly instead of being redirected to /<lang>/mcp-info.
-// Bilingual via ?lang=ru (canonical always points to the bare /mcp-info, so the
-// toggle never creates a duplicate indexable page). Dependency-free markdown
-// rendering (bold / code / bullet & numbered lists / paragraphs) — no external
-// library, which keeps the route robust.
+// STATIC English knowledge base about the whole project = a full copy of the
+// landing content (incl. the entire FAQ) + the architecture/technical sections.
+// Fully prerendered at build time (force-static) — ONE indexable URL, zero
+// per-request server cost. English only. Sections carry #anchors so a section
+// can be sliced out (e.g. by nginx / an API) without rendering anything per call.
+// The MCP tool get_project_info() exposes the same content for AI agents.
+
+export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Fractera — Project Reference for AI Agents (/mcp-info)',
+  title: 'Fractera — Project Knowledge Base for AI Agents (/mcp-info)',
   description:
-    'Machine-readable reference about Fractera for AI agents scanning this site to learn its purpose, answer user questions during deployment, and serve as a project help desk. Covers architecture (auth, database & storage, Hermes orchestration, LightRAG memory), modes, data ownership, pricing, use cases, regional partners and Russia-specific sovereignty.',
+    'Static, machine-readable knowledge base about Fractera for AI agents scanning this site: full project overview, capabilities, browser workspace, problems & solutions, pricing, features, AI Company Brain, regional partners, sponsorship, the complete FAQ, and the deep architecture (auth, database & storage, Hermes orchestration, LightRAG memory, modes, secure transition).',
   alternates: { canonical: 'https://www.fractera.ai/mcp-info' },
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'Fractera — Project Reference for AI Agents',
+    title: 'Fractera — Project Knowledge Base',
     description:
-      'Reference about Fractera for AI agents: purpose, architecture, components, modes, data ownership, use cases.',
+      'Static reference about Fractera: overview, architecture, components, modes, data ownership, pricing, FAQ, use cases.',
     url: 'https://www.fractera.ai/mcp-info',
     type: 'article',
   },
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
 const JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
-  headline: 'Fractera — Project Reference for AI Agents',
+  headline: 'Fractera — Project Knowledge Base for AI Agents',
   description:
-    'Machine-readable reference about Fractera for AI agents scanning the site to learn its purpose, answer questions during deployment, and act as a project help desk.',
+    'Static knowledge base about Fractera for AI agents scanning the site to learn its purpose, answer questions during deployment, and act as a project help desk.',
   audience: { '@type': 'Audience', audienceType: 'AI agents, developers' },
   about: 'Fractera — open-source AI-native self-hosting platform for your own VPS',
   url: 'https://www.fractera.ai/mcp-info',
-  inLanguage: ['en', 'ru'],
+  inLanguage: 'en',
 }
 
 // --- tiny dependency-free markdown rendering (bold, code, lists, paragraphs) ---
@@ -66,6 +66,7 @@ type Block =
   | { kind: 'p'; text: string }
   | { kind: 'ul'; items: string[] }
   | { kind: 'ol'; items: string[] }
+  | { kind: 'hr' }
 
 function parseBody(body: string): Block[] {
   const blocks: Block[] = []
@@ -77,6 +78,7 @@ function parseBody(body: string): Block[] {
   for (const raw of body.split('\n')) {
     const line = raw.trim()
     if (!line) { flushPara(); flushList(); continue }
+    if (line === '---') { flushPara(); flushList(); blocks.push({ kind: 'hr' }); continue }
     const bullet = line.match(/^-\s+(.*)/)
     const numbered = line.match(/^\d+\.\s+(.*)/)
     if (bullet) {
@@ -101,6 +103,7 @@ function Body({ body, idp }: { body: string; idp: string }) {
   return (
     <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-700">
       {blocks.map((b, i) => {
+        if (b.kind === 'hr') return <hr key={`${idp}-hr${i}`} className="my-2 border-zinc-200" />
         if (b.kind === 'p') return <p key={`${idp}-p${i}`}>{renderInline(b.text, `${idp}-p${i}`)}</p>
         const cls = b.kind === 'ul' ? 'list-disc' : 'list-decimal'
         const Tag = b.kind === 'ul' ? 'ul' : 'ol'
@@ -114,48 +117,38 @@ function Body({ body, idp }: { body: string; idp: string }) {
   )
 }
 
-export default async function McpInfoPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string }>
-}) {
-  const sp = await searchParams
-  const lang: InfoLang = sp.lang === 'ru' ? 'ru' : 'en'
+export default function McpInfoPage() {
+  const list = getSectionList('en')
 
   return (
     <main className="min-h-screen bg-white text-zinc-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <div className="mx-auto max-w-3xl px-5 py-12">
         <header className="mb-10 border-b border-zinc-200 pb-6">
-          <p className="text-xs uppercase tracking-widest text-zinc-400">Project reference · /mcp-info</p>
-          <h1 className="mt-2 text-2xl font-bold">Fractera — Project Reference</h1>
+          <p className="text-xs uppercase tracking-widest text-zinc-400">Project knowledge base · /mcp-info</p>
+          <h1 className="mt-2 text-2xl font-bold">Fractera — Project Knowledge Base</h1>
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            {lang === 'ru'
-              ? 'Справочник о проекте Fractera. Эта страница предназначена для AI-агентов, сканирующих сайт, чтобы понять его назначение, отвечать на вопросы во время развёртывания и служить справочной службой — а также для всех, кто хочет узнать больше, пока готовится сервер.'
-              : 'A reference about the Fractera project. This page is intended for AI agents that scan the site to understand its purpose, answer questions during deployment, and act as a project help desk — and for anyone who wants to learn more while their server is being set up.'}
+            A complete reference about the Fractera project — landing content and deep architecture. This page is
+            intended for AI agents that scan the site to understand its purpose, answer questions during deployment,
+            and act as a project help desk — and for anyone who wants to learn more while their server is being set up.
           </p>
-          <nav className="mt-4 flex gap-3 text-sm">
-            <a href="/mcp-info" className={lang === 'en' ? 'font-semibold underline' : 'text-zinc-500 hover:underline'}>English</a>
-            <a href="/mcp-info?lang=ru" className={lang === 'ru' ? 'font-semibold underline' : 'text-zinc-500 hover:underline'}>Русский</a>
-          </nav>
         </header>
 
         <nav className="mb-12">
           <ol className="list-decimal space-y-1 pl-5 text-sm text-zinc-600">
-            {SECTIONS.map((s) => {
-              const title = lang === 'ru' ? (s.titleRu ?? s.title) : s.title
-              return <li key={s.id}><a href={`#${s.id}`} className="hover:underline">{title}</a></li>
-            })}
+            {list.map((s) => (
+              <li key={s.id}><a href={`#${s.id}`} className="hover:underline">{s.title}</a></li>
+            ))}
           </ol>
         </nav>
 
         <div className="flex flex-col gap-12">
-          {SECTIONS.map((s) => {
-            const sec = getSection(s.id, lang)!
+          {list.map((entry) => {
+            const sec = getSection(entry.id, 'en')!
             return (
-              <section key={s.id} id={s.id} className="scroll-mt-6">
+              <section key={sec.id} id={sec.id} className="scroll-mt-6">
                 <h2 className="mb-3 text-lg font-semibold">{sec.title}</h2>
-                <Body body={sec.body} idp={s.id} />
+                <Body body={sec.body} idp={sec.id} />
               </section>
             )
           })}

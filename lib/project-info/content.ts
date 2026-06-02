@@ -24,6 +24,10 @@
 // server (all ai-workspace layers) and the fact it is open-source on GitHub; and
 // the user-facing RESULTS/outcomes of the external service without internals.
 
+import type { SiteContent } from '@/lib/i18n/types'
+import { en } from '@/lib/i18n/locales/en'
+import { ru } from '@/lib/i18n/locales/ru'
+
 export type InfoLang = 'en' | 'ru'
 
 export type InfoSection = {
@@ -504,15 +508,134 @@ Pro даёт **максимально плотное насыщение** эти
   },
 ]
 
-export function getSectionList(): { id: string; title: string; titleRu?: string }[] {
-  return SECTIONS.map(({ id, title, titleRu }) => ({ id, title, titleRu }))
+// ── Landing-derived sections ────────────────────────────────────────────────
+// A faithful copy of the marketing landing content (hero benefits, presentation,
+// problems, pricing, features, Company Brain, the full FAQ, …) so /mcp-info is a
+// COMPLETE knowledge base = landing copy + the architecture sections above.
+// Built ONCE at module load from the static `en`/`ru` locale objects (no
+// per-request work) and memoized in LANDING below — the page is force-static, so
+// this is baked into the prerendered HTML at build time.
+
+function landingSectionsFor(c: SiteContent): { id: string; title: string; body: string }[] {
+  const bullet = (lines: string[]) => lines.map((l) => `- ${l}`).join('\n')
+  const out: { id: string; title: string; body: string }[] = []
+
+  out.push({
+    id: 'overview',
+    title: c.heroTitle,
+    body: `${c.description}\n\n${bullet(c.featureItems.map((f) => `**${f.title}** — ${f.text}`))}`,
+  })
+
+  out.push({
+    id: 'capabilities',
+    title: c.heroBenefitsHeader.h2,
+    body: c.heroBenefits.map((b) => `**${b.title}**\n\n${b.text}`).join('\n\n'),
+  })
+
+  if (c.loopShowcase?.slides?.length) {
+    out.push({
+      id: 'onboarding',
+      title: c.loopShowcase.h2,
+      body: `${c.loopShowcase.description}\n\n${c.loopShowcase.slides
+        .map((s, i) => `${i + 1}. **${s.title}** — ${s.description}`)
+        .join('\n')}`,
+    })
+  }
+
+  out.push({
+    id: 'workspace',
+    title: c.dpHeader.h2,
+    body:
+      `${c.dpHeader.description}\n\n` +
+      `**${c.dpLeft.title}** — ${c.dpLeft.description}\n\n` +
+      `**${c.dpRight.title}** — ${c.dpRight.description}\n\n` +
+      `${c.platformsHeader.description}\n\n` +
+      `${bullet(c.platformCards.map((p) => `**${p.title}** (${p.company}) — ${p.subtitle}`))}\n\n` +
+      `${c.platformsHeader.disclaimer}`,
+  })
+
+  out.push({
+    id: 'problems-solutions',
+    title: c.problemHeader.h2,
+    body:
+      `${c.problemHeader.description}\n\n` +
+      c.problemItems
+        .map((p) => `**${p.title}**\n\n${c.problemLabel}: ${p.problem}\n\n${c.solutionLabel}: ${p.solution}`)
+        .join('\n\n'),
+  })
+
+  out.push({
+    id: 'pricing-and-providers',
+    title: c.pricingHeader.h2,
+    body:
+      `${c.pricingHeader.description}\n\n` +
+      `**${c.planLabels.freeForever}** — ${c.planLabels.freeInstall}.\n\n` +
+      `${bullet(c.planLabels.freeFeatures)}\n\n` +
+      `**${c.serverSection.h2}.** ${c.serverSection.description}\n` +
+      `${bullet(c.serverSection.providers.map((p) => `${p.name} — ${p.tagline} (${p.price})`))}\n\n` +
+      `**${c.domainProviderSection.h2}.** ${c.domainProviderSection.description}\n` +
+      `${bullet(c.domainProviderSection.providers.map((p) => `${p.name} — ${p.tagline} (${p.price})`))}`,
+  })
+
+  out.push({
+    id: 'features-list',
+    title: c.featuresHeader.h2,
+    body:
+      `${c.featuresHeader.description}\n\n` +
+      bullet(c.featureList.map((f) => `**${f.title}** (${f.badge}) — ${f.description}`)),
+  })
+
+  const cb = c.companyBrain
+  out.push({
+    id: 'company-brain-full',
+    title: cb.h2,
+    body:
+      `${cb.subhead}\n\n${cb.intro}\n\n` +
+      `**${cb.pillarsTitle}**\n\n` +
+      cb.pillars.map((p) => `**${p.title}**\n\n${p.text}`).join('\n\n') +
+      `\n\n**${cb.pricingLabel}.** ${cb.pricingBody}\n\n` +
+      `**${cb.limitedLabel}.** ${cb.limitedBody}\n\n` +
+      `**${cb.assuranceTitle}.** ${cb.assuranceBody}\n\n` +
+      `**${cb.ctaTitle}.** ${cb.ctaBody} (${cb.ctaButton})`,
+  })
+
+  // The full FAQ — every question with its answer, bullets, steps and trailing notes.
+  out.push({
+    id: 'faq',
+    title: 'Frequently asked questions',
+    body: c.faqItems
+      .map((item) => {
+        const parts: string[] = [`**${item.q}**`, ...item.a]
+        if (item.bullets?.length) parts.push(bullet(item.bullets))
+        if (item.steps?.length) parts.push(item.steps.map((s, i) => `${i + 1}. ${s}`).join('\n'))
+        if (item.trail?.length) parts.push(...item.trail)
+        return parts.join('\n\n')
+      })
+      .join('\n\n---\n\n'),
+  })
+
+  return out
 }
 
-export function getSection(id: string, lang: InfoLang = 'en'): InfoSection | null {
+// Memoized once at module load (static — baked into the prerendered page).
+const LANDING: Record<InfoLang, { id: string; title: string; body: string }[]> = {
+  en: landingSectionsFor(en),
+  ru: landingSectionsFor(ru),
+}
+
+export function getSectionList(lang: InfoLang = 'en'): { id: string; title: string }[] {
+  const curated = SECTIONS.map((s) => ({ id: s.id, title: lang === 'ru' ? (s.titleRu ?? s.title) : s.title }))
+  const landing = LANDING[lang].map((s) => ({ id: s.id, title: s.title }))
+  return [...curated, ...landing]
+}
+
+export function getSection(id: string, lang: InfoLang = 'en'): { id: string; title: string; body: string } | null {
   const s = SECTIONS.find((x) => x.id === id)
-  if (!s) return null
-  if (lang === 'ru') {
-    return { ...s, title: s.titleRu ?? s.title, body: s.bodyRu ?? s.body }
+  if (s) {
+    return lang === 'ru'
+      ? { id: s.id, title: s.titleRu ?? s.title, body: s.bodyRu ?? s.body }
+      : { id: s.id, title: s.title, body: s.body }
   }
-  return s
+  const l = LANDING[lang].find((x) => x.id === id)
+  return l ?? null
 }

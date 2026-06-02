@@ -177,10 +177,7 @@ export async function handleToolCall(
     if (!section) {
       // Lightweight table of contents — call again with one `section` id.
       return {
-        sections: getSectionList().map(({ id, title, titleRu }) => ({
-          id,
-          title: lang === 'ru' ? (titleRu ?? title) : title,
-        })),
+        sections: getSectionList(lang).map(({ id, title }) => ({ id, title })),
         note:
           'This is the list of available sections (table of contents). To answer the user, call get_project_info again with a single `section` id — fetch ONLY the section(s) relevant to the question, never all of them. For purpose/use-case questions, combine the section content with your general knowledge to help the user find how Fractera fits their case; for architecture/facts, answer strictly from the section content. For COUNTRY-SPECIFIC questions (laws, data residency, local providers) use the section id pattern "sovereignty-<country>" — currently only "sovereignty-russia" exists; if the user asks about another country, answer from general sections and say country-specific guidance is only available for Russia so far.',
       }
