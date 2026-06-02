@@ -76,6 +76,21 @@ Three ways to start: the one-click form on the website, a partner/embed widget, 
 Три способа запуска: форма в один клик на сайте, партнёрский/встраиваемый виджет, либо беседа с AI-агентом через MCP-коннектор Fractera.`,
   },
   {
+    id: 'zero-ops-deployment',
+    title: 'Zero-Ops deployment — from a bare VPS to a full stack in ~10 minutes',
+    titleRu: 'Деплой без DevOps — от чистого VPS до полного стека за ~10 минут',
+    body: `Traditional self-hosting is plagued by DevOps friction — hours spent configuring an Nginx reverse proxy, wrestling with Let's Encrypt SSL renewals, securing the database, and wiring up authentication gates. Fractera removes that barrier.
+
+You provide nothing more than your bare Ubuntu server credentials, and an automated orchestration layer configures the entire infrastructure from scratch — with no terminal commands on your end.
+
+Better still, you don't even need to open a browser: you can trigger the whole deployment — and check its status on demand — programmatically through our custom MCP (Model Context Protocol) connector, right inside your AI coding environment. It's the simplicity of Vercel, brought natively to your own private hardware.`,
+    bodyRu: `Классический self-hosting тонет в DevOps-рутине — часы на настройку обратного прокси Nginx, борьба с продлением SSL Let's Encrypt, защита базы данных и настройка заслонов авторизации. Fractera убирает этот барьер.
+
+Вы предоставляете не более чем доступы к чистому серверу Ubuntu, а автоматический слой оркестрации настраивает всю инфраструктуру с нуля — без единой команды в терминале с вашей стороны.
+
+Более того, вам даже не нужно открывать браузер: вы можете запустить всё развёртывание — и по запросу проверить его статус — программно через наш кастомный MCP-коннектор (Model Context Protocol) прямо внутри вашей среды AI-разработки. Это простота Vercel, перенесённая прямо на ваше собственное частное железо.`,
+  },
+  {
     id: 'components',
     title: 'Components you can choose',
     titleRu: 'Компоненты, которые можно выбрать',
