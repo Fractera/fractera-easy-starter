@@ -135,6 +135,13 @@ export const faqItems: FaqItem[] = [
     ],
   },
   {
+    q: 'Do I need a Claude Code subscription to deploy via the MCP connector?',
+    a: [
+      'Not necessarily. If the Fractera connector is your only custom MCP, you can use it on the free tier and get the full deployment service — no subscription required.',
+      'The condition is that you have not added another primary or custom MCP. If you already use a different custom MCP, you have two options: remove it before adding the Fractera connector, or move to a paid Claude plan (for example, Claude Pro, around €20/month), which lets you keep several custom connectors at once. Note this is Anthropic\'s own plan for the connector — it is unrelated to Fractera, which is always free.',
+    ],
+  },
+  {
     q: 'Can I combine local development with the Fractera production platform?',
     a: [
       'Yes — and for developers with an existing local setup, this is often the most natural workflow.',

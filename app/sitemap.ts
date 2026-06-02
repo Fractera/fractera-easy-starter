@@ -38,6 +38,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     alternates: buildAlternates(''),
   }
 
+  // /mcp-info — top-level English project reference (also for AI crawlers).
+  // Not under /[lang]; bilingual via ?lang=ru, so a single canonical entry.
+  const mcpInfoEntry = {
+    url: `${base}/mcp-info`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }
+
   // Per-language entries. The English homepage's /en URL is deliberately
   // skipped here — it duplicates the root and we don't want to advertise
   // both. Other languages' homepages and ALL other paths in every language
@@ -54,5 +63,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
   )
 
-  return [rootEntry, ...perLang]
+  return [rootEntry, mcpInfoEntry, ...perLang]
 }

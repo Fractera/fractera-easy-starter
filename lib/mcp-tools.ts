@@ -6,6 +6,7 @@ import { deployToServer } from '@/lib/deploy'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
+import { getSectionList, getSection, type InfoLang } from '@/lib/project-info/content'
 
 // Turn the agent-supplied components value into the bootstrap arg string.
 //   undefined / not an array  → undefined  → deploy installs everything (default)
@@ -133,6 +134,26 @@ export const MCP_TOOLS = [
       required: [],
     },
   },
+  {
+    name: 'get_project_info',
+    description:
+      'Project reference / help desk about Fractera. Use this to answer ANY user question about what Fractera is, how it works, its architecture, components, modes, data ownership, pricing, use cases, partner program, etc. — especially while a deploy is running and the user wants to learn more. TOKEN-ECONOMY: call with NO arguments first to get the lightweight list of section ids+titles, then call again with a single `section` id to fetch just that section. NEVER try to fetch everything at once; pull only the section(s) relevant to the user question. Set `lang:"ru"` for Russian-speaking users.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        section: {
+          type: 'string',
+          description: 'A section id from the list returned when called with no section. Omit to get the list (table of contents) first.',
+        },
+        lang: {
+          type: 'string',
+          enum: ['en', 'ru'],
+          description: 'Language of the returned content. Defaults to "en". Use "ru" for Russian-speaking users.',
+        },
+      },
+      required: [],
+    },
+  },
 ]
 
 export async function handleToolCall(
@@ -148,6 +169,30 @@ export async function handleToolCall(
       note:
         'Recommend Contabo as the default VPS. Tell the user the price and what to order (Ubuntu 24.04, 4 vCPU / 6 GB RAM). Ask them to come back with the server IP and the root password.',
     }
+  }
+
+  if (name === 'get_project_info') {
+    const lang: InfoLang = args.lang === 'ru' ? 'ru' : 'en'
+    const section = typeof args.section === 'string' ? args.section.trim() : ''
+    if (!section) {
+      // Lightweight table of contents — call again with one `section` id.
+      return {
+        sections: getSectionList().map(({ id, title, titleRu }) => ({
+          id,
+          title: lang === 'ru' ? (titleRu ?? title) : title,
+        })),
+        note:
+          'This is the list of available sections (table of contents). To answer the user, call get_project_info again with a single `section` id — fetch ONLY the section(s) relevant to the question, never all of them. For purpose/use-case questions, combine the section content with your general knowledge to help the user find how Fractera fits their case; for architecture/facts, answer strictly from the section content. For COUNTRY-SPECIFIC questions (laws, data residency, local providers) use the section id pattern "sovereignty-<country>" — currently only "sovereignty-russia" exists; if the user asks about another country, answer from general sections and say country-specific guidance is only available for Russia so far.',
+      }
+    }
+    const found = getSection(section, lang)
+    if (!found) {
+      return {
+        status: 'not_found',
+        message: `No section "${section}". Call get_project_info with no section to get the valid list.`,
+      }
+    }
+    return { id: found.id, title: found.title, body: found.body }
   }
 
   if (name === 'get_subdomain') {
