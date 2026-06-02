@@ -558,6 +558,14 @@ step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && 
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+# Messaging gateway — the process that connects to Telegram/Discord/etc and
+# polls for messages. The dashboard above does NOT poll messengers; without
+# this process a saved Telegram token does nothing (the old "press Gateway run"
+# trap). Runs always (also drives the cron scheduler); connects platforms once
+# a token is present in /root/.hermes/.env. The Hermes settings panel restarts
+# THIS process on token save so the new token is picked up. Telegram polling is
+# outbound, so this needs no inbound firewall port (works in secure mode too).
+maybe_step "brain" "start_hermes_gateway" "Hermes messaging gateway" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes-gateway --interpreter \$HERMES_PY -- gateway || true"
 log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
