@@ -29,7 +29,14 @@ export function FaqSection() {
               <span className={`shrink-0 text-white mt-0.5 transition-transform duration-200 select-none ${open === i ? 'rotate-180' : ''}`}>▾</span>
             </button>
 
-            {open === i && (
+            {/* Панель всегда в DOM (SSR для краулеров): сворачиваем CSS grid-rows
+                0fr↔1fr с overflow-hidden, а не condition-mount — иначе ответ не
+                попадает в начальный HTML и робот не прочитает его без клика. */}
+            <div
+              className={`grid transition-[grid-template-rows] duration-200 ease-out ${open === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+              aria-hidden={open !== i}
+            >
+              <div className="overflow-hidden">
               <div className="px-5 pb-5 flex flex-col gap-3">
                 {item.a.map((para, pi) => (
                   <p key={pi} className="text-[15px] text-white leading-relaxed">{para}</p>
@@ -66,7 +73,8 @@ export function FaqSection() {
                   </a>
                 )}
               </div>
-            )}
+              </div>
+            </div>
           </div>
         ))}
       </div>
