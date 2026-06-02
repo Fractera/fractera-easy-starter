@@ -31,10 +31,13 @@ export function Hero() {
           <p className="text-lg text-white/80 leading-relaxed max-w-xl">{content.description}</p>
           <a
             href="#pricing"
-            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30 mt-2"
+            className="cta-shimmer group relative inline-flex items-center gap-2 overflow-hidden bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors mt-2"
           >
-            {content.deployButton}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span className="relative z-10 inline-flex items-center gap-2">
+              {content.deployButton}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span aria-hidden className="cta-shimmer-sweep pointer-events-none absolute inset-0 z-0" />
           </a>
         </div>
 
