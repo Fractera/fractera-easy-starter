@@ -478,7 +478,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             className="flex flex-col gap-1.5 mt-2 pr-1 overflow-y-auto"
             style={{ maxHeight: 250 }}
           >
-            {steps.map(step => (
+            {/* Selective install: fully hide steps for components the user did
+                not select. Bootstrap reports those as "(skipped)" (done+skipped);
+                we drop them from the list so the pipeline shows only what is
+                actually being installed. They still count as done in the % above. */}
+            {steps.filter(step => !(step.done && step.skipped)).map(step => (
               <div key={step.id} className="flex items-center gap-3">
                 <span className={`text-sm transition-colors duration-500 ${
                   step.done && step.skipped
