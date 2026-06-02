@@ -506,6 +506,110 @@ Pro gives you the **densest possible saturation** of these advanced features —
 
 Pro даёт **максимально плотное насыщение** этими продвинутыми функциями — причём на их разработку **не понадобятся токены**. Они приходят как **преднастроенные шаблоны страниц и инструменты**, готовые к использованию. Fractera Pro доступен **спонсорам уровня $20**.`,
   },
+  {
+    id: 'system-anatomy',
+    title: 'System anatomy — the services on your server',
+    titleRu: 'Анатомия системы — сервисы на вашем сервере',
+    body: `On your VPS the product runs as seven cooperating services (kept alive by a process manager) behind one web server (Nginx):
+
+- **Shell app** — the main user-facing application and iframe host; this is the open layer where your product is built.
+- **Auth** — the only service that issues the login session.
+- **Admin / Bridges** — the control panel (carousel, settings, domain wizard, deploy) and the Memory (RAG) proxy.
+- **Bridges** — the WebSocket bridges to the five coding platforms, and the always-on system terminal.
+- **Data** — the SQLite database plus media / file storage.
+- **Memory** — the LightRAG vector knowledge base.
+- **Brain** — the Hermes orchestration agent.
+
+Only ports 22/80/443 are public. The service ports are reached through Nginx in secure mode, or directly on the IP during onboarding. Nothing else is needed — no external Postgres/MySQL, no S3/MinIO, no Docker; the database is a file and storage is local disk, all on your server.`,
+    bodyRu: `На вашем VPS продукт работает как семь взаимодействующих сервисов (под менеджером процессов) за одним веб-сервером (Nginx):
+
+- **Shell-приложение** — основное пользовательское приложение и хост iframe; это открытый слой, где собирается ваш продукт.
+- **Auth** — единственный сервис, выдающий сессию входа.
+- **Admin / Bridges** — панель управления (карусель, настройки, мастер домена, деплой) и прокси к Памяти (RAG).
+- **Bridges** — WebSocket-мосты к пяти платформам разработки и всегда доступный системный терминал.
+- **Data** — база данных SQLite плюс медиа / файловое хранилище.
+- **Memory** — векторная база знаний LightRAG.
+- **Brain** — оркестратор Hermes.
+
+Публичны только порты 22/80/443. К служебным портам обращаются через Nginx в защищённом режиме или напрямую по IP при онбординге. Больше ничего не нужно — нет внешних Postgres/MySQL, нет S3/MinIO, нет Docker; база — это файл, хранилище — локальный диск, всё на вашем сервере.`,
+  },
+  {
+    id: 'open-vs-guarded',
+    title: 'Open layer vs guarded layers',
+    titleRu: 'Открытый слой и мягко-защищённые слои',
+    body: `The product exists so AI agents can build YOUR app, so the layers have different access rules:
+
+- **Open layer (the app):** where the in-VPS coding agents work freely — this is your product.
+- **Guarded layers (auth, data, memory, bridges):** soft-protected from accidental agent edits; advanced users can still extend them — add an auth provider, a new data strategy, or tune the agent ↔ memory wiring.
+
+The whole product on your server is open-source-ready. A security audit confirmed that a deployed server cannot push to Fractera's own repositories — your instance is isolated and yours.`,
+    bodyRu: `Продукт существует, чтобы ИИ-агенты собирали ВАШЕ приложение, поэтому у слоёв разные правила доступа:
+
+- **Открытый слой (приложение):** где агенты разработки на VPS работают свободно — это ваш продукт.
+- **Мягко-защищённые слои (auth, data, memory, bridges):** защищены от случайных правок агентами; продвинутые пользователи всё же могут их расширять — добавить провайдера авторизации, новую стратегию данных или донастроить связку агент ↔ память.
+
+Весь продукт на вашем сервере готов к open-source. Аудит безопасности подтвердил, что развёрнутый сервер не может пушить в собственные репозитории Fractera — ваш экземпляр изолирован и принадлежит вам.`,
+  },
+  {
+    id: 'security-model',
+    title: "Security model — why a raw port can't bypass secure mode",
+    titleRu: 'Модель безопасности — почему голый порт не обходит защищённый режим',
+    body: `In secure mode access is protected by two independent layers:
+
+- **Per-process authentication.** The mode flag is per-service; in secure mode every service enforces login. The session cookie is Secure and scoped to your domain, so it is never sent to a bare-IP address — you cannot be logged in over the plain-IP path.
+- **Host firewall.** Secure mode closes every inbound port except 80/443, so the service ports (database, Memory, Brain, etc.) are unreachable from the internet. Nginx on 443 becomes the only entrance, while the local reverse proxy to each service keeps working.
+
+In onboarding (IP) mode the ports stay open on purpose for zero-friction first access; only secure mode locks down.`,
+    bodyRu: `В защищённом режиме доступ защищён двумя независимыми слоями:
+
+- **Авторизация на уровне каждого процесса.** Флаг режима — у каждого сервиса; в защищённом режиме каждый сервис требует вход. Cookie сессии — Secure и привязана к вашему домену, поэтому она никогда не отправляется на голый IP — войти по plain-IP нельзя.
+- **Файрвол хоста.** Защищённый режим закрывает все входящие порты, кроме 80/443, поэтому служебные порты (база, Память, Мозг и т.д.) недоступны из интернета. Nginx на 443 становится единственным входом, а локальный reverse proxy к каждому сервису продолжает работать.
+
+В режиме онбординга (IP) порты намеренно открыты ради лёгкого первого входа; блокировка включается только в защищённом режиме.`,
+  },
+  {
+    id: 'branding-footer',
+    title: '"Powered by Fractera" footer',
+    titleRu: 'Футер «Powered by Fractera»',
+    body: `By default the public pages of your site carry a small "Powered by Fractera" link — a crawlable back-link to the project. It is added at the web-server layer (not inside your app code), so it is consistent across your public pages.
+
+Sponsors at the **$5 tier (white-label)** have it removed automatically and permanently — and if you rebuild your server, white-label status is reapplied so it stays removed.`,
+    bodyRu: `По умолчанию публичные страницы вашего сайта несут небольшую ссылку «Powered by Fractera» — индексируемую обратную ссылку на проект. Она добавляется на уровне веб-сервера (не внутри кода приложения), поэтому единообразна на всех публичных страницах.
+
+У спонсоров уровня **$5 (white-label)** она убирается автоматически и навсегда — и если вы пересоберёте сервер, статус white-label применяется заново, и она остаётся убранной.`,
+  },
+  {
+    id: 'telegram-surface',
+    title: 'Talking to the system — Telegram is the external surface',
+    titleRu: 'Общение с системой — Telegram как внешняя поверхность',
+    body: `For day-to-day use there is no separate built-in chat UI: you direct Brain (Hermes) from your phone via a Telegram bot (create one with @BotFather, paste the token in Admin → Brain settings), or directly from the admin panel. Any chat integration should be one Hermes supports out of the box; Telegram is the documented path.`,
+    bodyRu: `Для повседневной работы отдельного встроенного чата нет: вы управляете Мозгом (Hermes) с телефона через Telegram-бот (создайте его у @BotFather, вставьте токен в Admin → настройки Brain) или прямо из панели администратора. Любая чат-интеграция должна быть из тех, что Hermes поддерживает «из коробки»; Telegram — задокументированный путь.`,
+  },
+  {
+    id: 'emails-lifecycle',
+    title: 'Emails you receive',
+    titleRu: 'Письма, которые вы получаете',
+    body: `At key moments Fractera emails you. (Your server reaches the Fractera service, which sends the mail — you never configure an email provider yourself.) Typical messages: installation started; installation progress; a recovery token (to re-engage via the MCP agent if anything breaks); your server is ready (with the links); domain activated (secure mode live); certificate-expiry warning; deploy failed (with recovery options); and subscription / sponsorship notices. Always use a real address you control.`,
+    bodyRu: `В ключевые моменты Fractera присылает вам письма. (Ваш сервер обращается к сервису Fractera, который и отправляет письмо — вам не нужно настраивать почтового провайдера.) Типичные сообщения: установка началась; ход установки; recovery-токен (чтобы вернуться через MCP-агента, если что-то сломалось); сервер готов (со ссылками); домен активирован (защищённый режим включён); предупреждение об истечении сертификата; деплой не удался (с вариантами восстановления); уведомления о подписке / спонсорстве. Всегда указывайте реальный адрес, к которому у вас есть доступ.`,
+  },
+  {
+    id: 'dashboard',
+    title: 'Your dashboard',
+    titleRu: 'Ваш личный кабинет',
+    body: `You manage everything from your Fractera dashboard at fractera.ai/dashboard: your servers — each with direct links to its app and admin panel — and your subscription / sponsorship status. The links shown adapt to whether a server is on a bare IP (plain HTTP) or a real domain (HTTPS).`,
+    bodyRu: `Вы управляете всем из личного кабинета Fractera на fractera.ai/dashboard: ваши серверы — у каждого прямые ссылки на приложение и панель администратора — и статус подписки / спонсорства. Показываемые ссылки зависят от того, на голом IP сервер (обычный HTTP) или на реальном домене (HTTPS).`,
+  },
+  {
+    id: 'external-service',
+    title: 'How Fractera (the service) connects to your server',
+    titleRu: 'Как сервис Fractera взаимодействует с вашим сервером',
+    body: `A clear split. The product runs on **your** server (open-source, all the layers above). An external Fractera service — operated by us — is what **provisions** it, **delivers** it and its updates, **sends** your emails, **powers** the dashboard and the MCP chat-deploy, and handles **billing / sponsorship**.
+
+You interact only with the RESULTS of that service — the deploy, the dashboard, the emails, the MCP agent — and your code and data always stay on your server. (How that service is built internally is intentionally not part of this reference.)`,
+    bodyRu: `Чёткое разделение. Продукт работает на **вашем** сервере (open-source, все слои выше). Внешний сервис Fractera — который мы эксплуатируем — это то, что его **провижинит**, **доставляет** его и обновления, **отправляет** ваши письма, **обеспечивает** работу кабинета и развёртывания через MCP-чат, а также занимается **биллингом / спонсорством**.
+
+Вы взаимодействуете только с РЕЗУЛЬТАТАМИ этого сервиса — развёртывание, кабинет, письма, MCP-агент — а ваш код и данные всегда остаются на вашем сервере. (Как этот сервис устроен внутри — намеренно не часть этого справочника.)`,
+  },
 ]
 
 // ── Landing-derived sections ────────────────────────────────────────────────
