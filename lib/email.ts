@@ -94,8 +94,6 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
-  const hermesUrl = isIpMode ? `http://${ip}:9119` : `https://hermes.${subdomain}`
-  const brainUrl  = isIpMode ? `http://${ip}:9621` : `https://lightrag.${subdomain}`
 
   await sendEmail({
     from: FROM,
@@ -140,16 +138,9 @@ export async function sendWelcomeEmail(
           </tr>
           <tr>
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Brain — Hermes Agent</div>
-              <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${hermesUrl}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">The thinking centre of your workspace. Delegates work across all connected AI subscriptions and runs autonomous tasks.</div>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Memory — LightRAG</div>
-              <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${brainUrl}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">Long-term knowledge base. Feed it your docs and history — Brain queries it to stay grounded in your context.</div>
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin workspace</div>
+              <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${adminUrl}</a>
+              <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here.</div>
             </td>
           </tr>
         </table>
@@ -161,15 +152,7 @@ export async function sendWelcomeEmail(
           <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
             <tr>
               <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Get an OpenAI API key</div>
-                <div style="font-size:12px;color:#555;line-height:1.5">
-                  Needed to activate <strong>Memory</strong> (and as a fallback for <strong>Brain</strong>). Tokens are spent very economically — the embedding model used is among the cheapest available. Paste the key in <strong>Admin → Memory → settings</strong>.
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">2 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
                 <div style="font-size:12px;color:#555;line-height:1.5">
                   A flat-rate Codex subscription costs dramatically less than the equivalent API usage for the same workload. You <em>can</em> use an API key instead, but at heavy use the bill grows fast.
                 </div>
@@ -177,15 +160,7 @@ export async function sendWelcomeEmail(
             </tr>
             <tr>
               <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">3 · Prepare Telegram for hands-free access</div>
-                <div style="font-size:12px;color:#555;line-height:1.5">
-                  Talk to your <strong>Brain</strong> from your phone. Open Telegram, message <a href="https://t.me/BotFather" style="color:#6c47ff;text-decoration:none">@BotFather</a>, send <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">/newbot</code>, choose a name — BotFather replies with a token like <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">1234567:ABC…</code>. Paste it in <strong>Admin → Brain settings → Telegram bot token</strong>.
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">4 · Buy a domain and connect it</div>
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">2 · Buy a domain and connect it</div>
                 <div style="font-size:12px;color:#555;line-height:1.5">
                   A real domain gives you HTTPS automatically and removes the browser security warnings. Buy one from any registrar (Namecheap, Porkbun, GoDaddy, etc.) and attach it in <strong>Admin → Personal Domain</strong>. We recommend using the registrar's own DNS panel rather than Cloudflare.
                 </div>
@@ -288,8 +263,6 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
   const authUrl   = `https://auth.${domain}`
-  const hermesUrl = `https://hermes.${domain}`
-  const brainUrl  = `https://lightrag.${domain}`
 
   await sendEmail({
     from: FROM,
@@ -319,14 +292,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
             <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
           </td></tr>
           <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Brain — Hermes Agent</div>
-            <a href="${hermesUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${hermesUrl}</a>
-            <div style="font-size:12px;color:#888;margin-top:4px">The thinking centre of your workspace. Delegates work across all connected AI subscriptions and runs autonomous tasks.</div>
-          </td></tr>
-          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Memory — LightRAG</div>
-            <a href="${brainUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${brainUrl}</a>
-            <div style="font-size:12px;color:#888;margin-top:4px">Long-term knowledge base. Feed it your docs and history — Brain queries it to stay grounded in your context.</div>
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin workspace</div>
+            <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${adminUrl}</a>
+            <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here.</div>
           </td></tr>
           <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Sign-in service</div>
@@ -340,16 +308,8 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">Recommended next steps</p>
           <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
             <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Get an OpenAI API key</div>
-              <div style="font-size:12px;color:#555;line-height:1.5">Needed to activate <strong>Memory</strong> (and as a fallback for <strong>Brain</strong>). Tokens are spent very economically. Paste the key in <strong>Admin → Memory → settings</strong>.</div>
-            </td></tr>
-            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">2 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
               <div style="font-size:12px;color:#555;line-height:1.5">A flat-rate Codex subscription costs dramatically less than equivalent API usage for the same workload.</div>
-            </td></tr>
-            <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">3 · Prepare Telegram for hands-free access</div>
-              <div style="font-size:12px;color:#555;line-height:1.5">Talk to <strong>Brain</strong> from your phone. Open Telegram, message <a href="https://t.me/BotFather" style="color:#6c47ff;text-decoration:none">@BotFather</a>, send <code style="background:#eee;padding:1px 4px;border-radius:3px;font-family:monospace">/newbot</code>, paste the token in <strong>Admin → Brain settings → Telegram bot token</strong>.</div>
             </td></tr>
             <tr><td style="padding:10px 14px;background:#ecfdf5;border-left:3px solid #10b981;border-radius:4px">
               <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:2px">🎉 You&rsquo;re on your own domain</div>
