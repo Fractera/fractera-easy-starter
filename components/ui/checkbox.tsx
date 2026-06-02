@@ -14,16 +14,20 @@ function Checkbox({
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[checked]:border-primary data-[checked]:bg-primary data-[checked]:text-primary-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20",
+        // Outer element: explicit WHITE border so the box stays visible on the
+        // dark, semi-transparent form background (border-input blended in).
+        "peer size-4 shrink-0 rounded-[4px] border border-white bg-transparent shadow-xs transition-shadow outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[checked]:bg-white data-[checked]:text-black aria-invalid:border-destructive aria-invalid:ring-destructive/20",
         className
       )}
       {...props}
     >
       <CheckboxPrimitive.Indicator
         data-slot="checkbox-indicator"
-        className="flex items-center justify-center text-current"
+        // Inner element (shown when checked): BLACK border + black check so the
+        // filled state reads clearly against the white outer border / fill.
+        className="flex size-full items-center justify-center rounded-[3px] border border-black text-black"
       >
-        <CheckIcon className="size-3.5" />
+        <CheckIcon className="size-3" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )
