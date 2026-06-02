@@ -115,33 +115,18 @@ const softwareApplicationSchema = {
   name: 'Fractera',
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Linux (Ubuntu 24.04 VPS)',
-  description: 'AI-native self-hosting platform — Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees.',
+  description: 'AI-native self-hosting platform — Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees. Free and open source.',
   url: 'https://www.fractera.ai',
-  offers: [
-    {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'USD',
-      name: 'Fractera Free',
-      description: 'Free forever — BYO-install of the full Fractera AI stack on your own VPS, open source.',
-    },
-    {
-      '@type': 'Offer',
-      price: '20',
-      priceCurrency: 'USD',
-      priceSpecification: { '@type': 'UnitPriceSpecification', billingDuration: 'P1M' },
-      name: 'Fractera Pro',
-      description: 'Full Fractera stack on your VPS — includes Hermes orchestrator, all 5 AI coding platforms.',
-    },
-    {
-      '@type': 'Offer',
-      price: '25',
-      priceCurrency: 'USD',
-      priceSpecification: { '@type': 'UnitPriceSpecification', billingDuration: 'P1M' },
-      name: 'Fractera Pro + Managed Server',
-      description: 'Fractera Pro with a managed 4-core 6GB VPS included — zero infrastructure setup.',
-    },
-  ],
+  // Fractera is free — there are no paid tiers. The only money is the user's own
+  // VPS (paid to their host) and optional, voluntary sponsorship ($1/$5/$20),
+  // which is a donation, not a price for the software. So a single free Offer.
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    name: 'Fractera',
+    description: 'Free and open source — install the full Fractera AI stack on your own VPS. No tiers, no API fees; optional voluntary sponsorship only.',
+  },
 }
 
 export default async function LangLayout({
