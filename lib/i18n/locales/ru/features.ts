@@ -9,7 +9,7 @@ type FeaturesPart = Pick<SiteContent,
 export const features: FeaturesPart = {
   featuresHeader: {
     label: 'Что включено',
-    h2: 'Production-Ready full-stack функции разработки',
+    h2: 'Production-функции полного цикла на вашем сервере',
     description: 'Fractera Light покрывает 90% того, что нужно профессиональному приложению. Fractera Pro открывает оставшиеся 10%.',
   },
 

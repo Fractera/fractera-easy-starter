@@ -2,17 +2,18 @@ import type { SiteContent } from '../../types'
 
 type PricingPart = Pick<SiteContent, 'pricingHeader' | 'planLabels' | 'serverSection' | 'domainProviderSection'>
 
-// Bake-in at build time via `next build`. Fallback = Fractera's Contabo affiliate link.
-const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
-  || 'https://www.dpbolvw.net/click-101757323-17082116'
+// Bake-in at build time via `next build`. RU-локаль — российские провайдеры
+// (суверенный продакшн-периметр): VPS Timeweb Cloud + регистратор reg.ru.
+const TIMEWEB_URL = process.env.NEXT_PUBLIC_TIMEWEB_AFFILIATE_URL
+  || 'https://timeweb.cloud/services/vds-vps'
 
-const GODADDY_URL = process.env.NEXT_PUBLIC_GODADDY_AFFILIATE_URL
-  || 'https://www.godaddy.com/domainsearch/find'
+const REGRU_URL = process.env.NEXT_PUBLIC_REGRU_AFFILIATE_URL
+  || 'https://www.reg.ru/domain/new/'
 
 export const pricing: PricingPart = {
   pricingHeader: {
     label: 'Начать',
-    h2: 'Разверните приватную AI-инфраструктуру на своём сервере',
+    h2: 'Разверните частную AI-инфраструктуру на российском VPS',
     // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: оригинал — 'Деплой в один клик с включённым сервером или установка на собственный VPS — оба варианта дают полную среду Fractera.'
     description: 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно и open source.',
   },
@@ -53,19 +54,19 @@ export const pricing: PricingPart = {
 
   serverSection: {
     label: 'Где купить сервер',
-    h2: 'Рекомендуемый Ubuntu 24.04 VPS-провайдер для AI',
-    description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Мы рекомендуем Contabo — максимум ресурсов по минимальной цене, популярен у AI-разработчиков.',
+    h2: 'Рекомендуемый российский VPS-провайдер',
+    description: 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM. Для российского контура рекомендуем Timeweb Cloud — сервер и данные остаются на территории РФ, что важно для соответствия 152-ФЗ.',
     providers: [
-      { name: 'Contabo', tagline: 'Максимум ресурсов по минимальной цене. Популярен для AI-нагрузок.', url: CONTABO_URL, price: 'от 3,60 €/мес' },
+      { name: 'Timeweb Cloud', tagline: 'Российский VPS на Ubuntu 24.04. Сервер и данные — на территории РФ.', url: TIMEWEB_URL, price: 'от 1 782 ₽/мес' },
     ],
   },
 
   domainProviderSection: {
     label: 'Где купить домен',
-    h2: 'Рекомендуемый регистратор доменов',
-    description: 'Домен даёт серверу HTTPS, красивый адрес и снимает предупреждения браузера. Мы рекомендуем GoDaddy — прямое управление DNS без обязательного прокси, что нужно для корректной работы Fractera.',
+    h2: 'Рекомендуемый российский регистратор доменов',
+    description: 'Домен даёт серверу HTTPS, красивый адрес и снимает предупреждения браузера. Для российского контура рекомендуем reg.ru — домены .ru у российского регистратора и прямое управление DNS.',
     providers: [
-      { name: 'GoDaddy', tagline: 'Прямое управление DNS, большой выбор TLD, без обязательного прокси.', url: GODADDY_URL, price: 'от $0.99/год' },
+      { name: 'reg.ru', tagline: 'Российский регистратор: домены .ru, прямое управление DNS.', url: REGRU_URL, price: 'от 169 ₽/год' },
     ],
   },
 }

@@ -29,6 +29,26 @@ html {
   50%       { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 24px rgba(52,211,153,0.2), 0 0 48px rgba(148,163,184,0.1); }
 }
 
+/* Главный CTA «Запустить в 1 клик»: контрастный к фиолетовому фону янтарно-золотой
+   шиммер-свайп + мягкая пульсация свечения. Контраст намеренный — янтарь поверх violet. */
+@keyframes ctaGlow {
+  0%, 100% { box-shadow: 0 0 18px rgba(251,191,36,0.30), 0 0 40px rgba(245,158,11,0.16); }
+  50%       { box-shadow: 0 0 28px rgba(251,191,36,0.55), 0 0 60px rgba(245,158,11,0.30); }
+}
+@keyframes ctaSweep {
+  0%        { transform: translateX(-160%) skewX(-20deg); }
+  60%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+.cta-shimmer { animation: ctaGlow 2.4s ease-in-out infinite; }
+.cta-shimmer-sweep {
+  background: linear-gradient(100deg, transparent 20%, rgba(251,191,36,0.55) 48%, rgba(253,224,71,0.85) 58%, transparent 80%);
+  animation: ctaSweep 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-shimmer { animation: none; }
+  .cta-shimmer-sweep { animation: none; opacity: 0; }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

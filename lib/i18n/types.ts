@@ -169,6 +169,28 @@ export type SiteContent = {
     skills: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
     productLoop: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
   }
+  // Подпись под каждой из 9 кнопок «Запустить в 1 клик». Своя на секцию, но все
+  // несут идею «волшебно легко и супер эффективно». Опционально: языки, где не
+  // задано, рендерят кнопку без подписи. EN+RU заданы.
+  deployCaptions?: {
+    afterHero: string
+    afterLoop: string
+    afterPresentation: string
+    afterPlatforms: string
+    afterProblem: string
+    afterFeatures: string
+    afterBrain: string
+    afterSponsors: string
+    afterFaq: string
+  }
+  // Блок «Импортозамещение» — заменяет Elon-секцию в RU-потоке (продакшн-периметр
+  // под 152-ФЗ). Опционально: рендерится только когда задан (RU).
+  importSubstitution?: {
+    label: string
+    h2: string
+    description: string
+    points: { title: string; text: string }[]
+  }
 }
 
 export type SiteMeta = {

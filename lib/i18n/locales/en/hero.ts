@@ -3,6 +3,7 @@ import type { SiteContent } from '../../types'
 type HeroPart = Pick<SiteContent,
   | 'heroBadge' | 'heroTitle' | 'deployButton' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
+  | 'deployCaptions'
 >
 
 export const hero: HeroPart = {
@@ -26,7 +27,7 @@ export const hero: HeroPart = {
     watchButton: 'Watch the moment on YouTube',
     videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=4119s',
   },
-  deployButton: 'Deploy My Server',
+  deployButton: 'Launch in 1 click',
 
   description:
     'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
@@ -68,4 +69,16 @@ export const hero: HeroPart = {
       text: 'Package the workflows you\'ve solved into reusable AI Skills. Sell them in the community marketplace, share them free, or buy battle-tested recipes from other builders. Your AI infrastructure becomes a passive revenue stream — your best work earns while you sleep.',
     },
   ],
+
+  deployCaptions: {
+    afterHero: 'Looks like magic, runs like a pipeline — completely hands-off.',
+    afterLoop: 'The whole pipeline — from server to code — deploys itself. You just click.',
+    afterPresentation: 'Hermes and memory come pre-wired — tokens saved, you just build.',
+    afterPlatforms: 'Five AI platforms spin up in one click — no keys, no hassle.',
+    afterProblem: 'No cloud bills, no data leaving the country — it all lives on your server.',
+    afterFeatures: 'The full production stack assembles itself — like magic.',
+    afterBrain: 'Project memory cuts token spend automatically — you just save.',
+    afterSponsors: 'Back the project or just launch — the start is always one click.',
+    afterFaq: 'Still have questions? The fastest answer is to launch and see.',
+  },
 }

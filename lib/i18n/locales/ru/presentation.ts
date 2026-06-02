@@ -8,7 +8,7 @@ type PresentationPart = Pick<SiteContent,
 export const presentation: PresentationPart = {
   dpHeader: {
     label: 'Production AI Development',
-    h2: 'Production AI кодинг: Hermes + LightRAG + 5 платформ',
+    h2: 'Production-разработка с экономией токенов: Hermes + LightRAG + локальные MCP',
     description:
       'Production AI Development происходит полностью в браузере — с первой секунды. Без VS Code. Без локальной среды. Без базы данных. Без домена. Без CI-pipeline. Вы открываете вкладку: сервер запущен, домен зарегистрирован, база работает, пять AI-платформ ждут первой команды. Это не просто инструмент для разработчиков — это момент, когда любой человек с идеей может создать, запустить и масштабировать реальный продукт, не выходя из браузера.',
   },
