@@ -41,7 +41,9 @@ I think the steps are these — please confirm whether this is right:
 1. Open Settings in the left sidebar, then Connectors.
 2. Click the plus (+) and choose "Add custom connector".
 3. Paste the URL above and give it any name (ideally starting with "Fractera"), then confirm.
-4. Open a new chat and start the deployment through the connector.
+4. After it is added, the connector needs a fresh chat to take effect.
+
+Important: once the connector is added it will already show as connected — do NOT tell me it is "not connected" or ask me to connect it again. Instead, ask me to close this chat and open a NEW chat so the connector applies, and continue there.
 
 Then guide me ONE step at a time: give me a single step, wait for me, and let me ask questions before we move on. Be brief and please don't lecture me about safety — I trust this partner. Once it works, give me a 2–3 sentence intro to Fractera and how it launches servers.
 
@@ -71,7 +73,9 @@ I think the steps are these — please confirm whether this is right:
 1. Open Settings in the left sidebar, then Connectors.
 2. Click the plus (+) and choose "Add custom connector".
 3. Paste the URL above and give it any name (ideally starting with "Fractera"), then confirm.
-4. Open a new chat and start the deployment through the connector.
+4. After it is added, the connector needs a fresh chat to take effect.
+
+Important: once the connector is added it will already show as connected — do NOT tell me it is "not connected" or ask me to connect it again. Instead, ask me to close this chat and open a NEW chat so the connector applies, and continue there.
 
 Then guide me ONE step at a time: give me a single step, wait for me, and let me ask questions before we move on. Be brief and please don't lecture me about safety — I trust this partner. Once it works, give me a 2–3 sentence intro to Fractera and how it launches servers.
 
