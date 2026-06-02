@@ -117,6 +117,18 @@ export type SiteContent = {
     updatesTo: string
     emailConfirmCheck: string
     emailConfirmNote: string
+    componentSelect: {
+      fullLabel: string
+      customLabel: string
+      customHint: string
+      agentsTitle: string
+      servicesTitle: string
+      coreNote: string
+      items: Record<
+        'claude-code' | 'codex' | 'gemini-cli' | 'qwen-code' | 'kimi-code' | 'memory' | 'brain',
+        { name: string; desc: string }
+      >
+    }
     launchButton: string
     credentials: string
     installFailed: string

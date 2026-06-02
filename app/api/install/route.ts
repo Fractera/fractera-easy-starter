@@ -6,15 +6,23 @@ import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
+import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
 
 export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
-  const { ip, login, password, session_id, platform, serverToken: existingToken } = await req.json()
+  const { ip, login, password, session_id, platform, serverToken: existingToken, components } = await req.json()
 
   if (!ip || !login || !password || !session_id) {
     return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
   }
+
+  // Selective install (S2). The form sends `components` ONLY in custom mode:
+  //   - absent/undefined → full install (componentsArg stays undefined → bootstrap installs all)
+  //   - array (possibly empty) → respect it; [] serializes to 'none' = CORE only (server, no AI)
+  const componentsArg = Array.isArray(components)
+    ? serializeComponents(components.filter(isComponentId) as ComponentId[])
+    : undefined
 
   // For authenticated users: create a serverToken so the server appears in dashboard
   // and the email pipeline has a known recipient. Pool provisioning uses /api/pool/provision
@@ -109,7 +117,7 @@ export async function POST(req: NextRequest) {
     const existing = await db.serverToken.findUnique({ where: { token: tokenForBootstrap }, select: { id: true } }).catch(() => null)
     if (existing) serverIdForBootstrap = existing.id
   }
-  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap, serverId: serverIdForBootstrap })
+  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap, serverId: serverIdForBootstrap, components: componentsArg })
 
   return NextResponse.json({ session_id, status: 'installing' })
 }

@@ -5,6 +5,15 @@ import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer } from '@/lib/deploy'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
+import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
+
+// Turn the agent-supplied components value into the bootstrap arg string.
+//   undefined / not an array  → undefined  → deploy installs everything (default)
+//   array (possibly empty)    → 'all' | 'none' | csv  (empty = CORE only, no AI)
+function resolveMcpComponents(raw: unknown): string | undefined {
+  if (!Array.isArray(raw)) return undefined
+  return serializeComponents(raw.filter(isComponentId) as ComponentId[])
+}
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -40,6 +49,15 @@ export const MCP_TOOLS = [
         login: {
           type: 'string',
           description: 'Optional — defaults to "root". Override only if the VPS provider gave a non-root username.',
+        },
+        components: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ALL_COMPONENT_IDS,
+          },
+          description:
+            'Optional — which AI tools to install (lets the user save money on a smaller server). OMIT this to install the full recommended set (5 coding agents + Memory + Brain). Pass a subset of ["claude-code","codex","gemini-cli","qwen-code","kimi-code","memory","brain"] to install only those. Pass an empty array [] for a plain server with NO AI at all (just database + sign-in). The server, database, storage, sign-in and Admin panel are always installed regardless.',
         },
       },
       required: ['email', 'ip', 'password'],
@@ -91,6 +109,15 @@ export const MCP_TOOLS = [
         password: {
           type: 'string',
           description: 'Optional — only pass if the user discovered the original password was wrong. Otherwise the stored password is used.',
+        },
+        components: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ALL_COMPONENT_IDS,
+          },
+          description:
+            'Optional — same meaning as in register_and_deploy. OMIT to reinstall the full recommended toolset. Pass a subset (or [] for none) only if the user wants to change which AI tools are installed on this retry.',
         },
       },
       required: ['server_token'],
@@ -191,8 +218,9 @@ export async function handleToolCall(
     const ip = String(args.ip ?? '').trim()
     const password = String(args.password ?? '')
     const login = (typeof args.login === 'string' && args.login.trim()) ? args.login.trim() : 'root'
+    const components = resolveMcpComponents(args.components) // undefined => install all
     const TAG = `[mcp:reg ${ip}]`
-    console.log(`${TAG} called email=${email} login=${login}`)
+    console.log(`${TAG} called email=${email} login=${login} components=${components ?? 'all'}`)
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return { status: 'error', message: 'Invalid email. Ask the user to type a valid email twice for confirmation.' }
@@ -350,6 +378,7 @@ export async function handleToolCall(
             session_id,
             serverToken: serverToken.token,
             serverId: serverToken.id,
+            components, // undefined => install all (default)
           })
           console.log(`${bgTag} deployToServer done — bootstrap uploaded and launched`)
         } catch (err) {
@@ -431,6 +460,7 @@ export async function handleToolCall(
     const ipOverride = typeof args.ip === 'string' && args.ip.trim() ? args.ip.trim() : null
     const passwordOverride = typeof args.password === 'string' && args.password.trim() ? args.password.trim() : null
     const loginOverride = typeof args.login === 'string' && args.login.trim() ? args.login.trim() : 'root'
+    const components = resolveMcpComponents(args.components) // undefined => reinstall full set
 
     const ip = ipOverride ?? record.serverIp
     const password = passwordOverride ?? record.serverPassword
@@ -488,6 +518,7 @@ export async function handleToolCall(
         session_id: newSessionId,
         serverToken: server_token,
         serverId: record.id,
+        components, // undefined => reinstall full set
       })
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)

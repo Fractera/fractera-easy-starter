@@ -119,6 +119,22 @@ export const faqItems: FaqItem[] = [
     ],
   }, */
   {
+    q: 'Can I deploy a regular project without AI?',
+    a: [
+      'Yes — you can deploy a plain server with no AI at all. It is a common, deliberate choice, especially among experienced developers who want to offload the work of managing cloud resources and avoid DevOps overhead.',
+      'A server like this can be used at any time, synced with your home or work IDE (for example, Visual Studio Code), or simply to host and run your existing projects on infrastructure you control.',
+    ],
+    bullets: [
+      'Optional authentication — turn it on whenever you need it.',
+      'Local database and object storage (for example, media) — included, with no cloud subscriptions.',
+      'Freedom from cloud lock-in — meet regulatory or internal-policy requirements and avoid surprise bills.',
+    ],
+    trail: [
+      'A plain server like this needs only a lighter, more economical VPS. During deployment, switch to custom mode and tell us which services you want.',
+      "Don't worry if you turn off something you might need later — you can always add any recommended or custom AI tool through the terminal built into your admin panel.",
+    ],
+  },
+  {
     q: 'Can I combine local development with the Fractera production platform?',
     a: [
       'Yes — and for developers with an existing local setup, this is often the most natural workflow.',

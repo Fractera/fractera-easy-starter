@@ -11,6 +11,9 @@ SERVER_TOKEN="${4:-}"
 SUBDOMAIN_OVERRIDE="${5:-}"  # accepted for back-compat with old deploy.ts callers; ignored
 GITHUB_TOKEN="${6:-}"
 SERVER_ID="${7:-}"  # ServerToken.id — non-secret, baked as NEXT_PUBLIC_SERVER_ID for marketplace links
+COMPONENTS="${8:-}" # selective install (S1). "" or "all" => install everything (default,
+                    # byte-identical to pre-selection deploys); "none" => CORE only; otherwise a
+                    # csv subset of: claude-code,codex,gemini-cli,qwen-code,kimi-code,memory,brain
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -132,6 +135,35 @@ soft_step() {
   fi
 }
 
+# === Selective install (S1) ===
+# should_install <component-id>: true if this component is in the requested set.
+# COMPONENTS (arg $8): "" or "all" => everything (default); "none" => CORE only;
+# else a csv subset. DEFINED HERE (above first use, near soft_step) on purpose —
+# a call before definition is a silent `command not found` with no `set -e`
+# (exactly how the ufw-lockdown leak survived; see soft-step-defined-after-use).
+should_install() {
+  local id="$1"
+  case "$COMPONENTS" in
+    ""|all) return 0 ;;
+    none)   return 1 ;;
+    *) case ",$COMPONENTS," in *",$id,"*) return 0 ;; *) return 1 ;; esac ;;
+  esac
+}
+
+# maybe_step <component-id> <step-id> <label> <cmd>: run soft_step only if the
+# component is selected; otherwise emit a "(skipped)" progress report so the
+# install UI greys the line out (it keys off the "(skipped)" suffix) instead of
+# leaving it stuck as pending.
+maybe_step() {
+  local comp="$1" id="$2" label="$3" cmd="$4"
+  if should_install "$comp"; then
+    soft_step "$id" "$label" "$cmd"
+  else
+    echo "[skip] $label — component '$comp' not selected" >> "$LOG_FILE"
+    report "$id" "$label (skipped)" true
+  fi
+}
+
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
@@ -211,6 +243,26 @@ echo "$DEPLOYED_COMMIT" > /opt/fractera/DEPLOYED_COMMIT
 echo "$DEPLOYED_BRANCH" > /opt/fractera/DEPLOYED_BRANCH
 echo "=== DEPLOYED: branch=$DEPLOYED_BRANCH commit=$DEPLOYED_COMMIT ===" >> "$LOG_FILE"
 
+# Record the resolved component selection as a JSON array. The deployed admin
+# reads this (S5: GET /api/config/components) to show only the chosen tools in
+# the carousel / settings. Missing file on old servers => admin shows all.
+CURRENT_STEP="components_manifest"
+CURRENT_LABEL="Recording component selection"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+{
+  printf '['
+  _first=1
+  for _c in claude-code codex gemini-cli qwen-code kimi-code memory brain; do
+    if should_install "$_c"; then
+      [ "$_first" -eq 1 ] && _first=0 || printf ','
+      printf '"%s"' "$_c"
+    fi
+  done
+  printf ']\n'
+} > /opt/fractera/installed-components.json
+echo "=== COMPONENTS: $(cat /opt/fractera/installed-components.json) (arg='$COMPONENTS') ===" >> "$LOG_FILE"
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
 
 step_npm "deps_root"   "Installing dependencies (1/6)" "npm install" ""
 step_npm "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app" "app"
@@ -239,12 +291,17 @@ log_email "deps_data" "All dependencies installed" 30
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
 # soft_step() is defined near step()/step_npm() above (it must precede its first
 # callers dns_resolver + firewall_open). Do NOT redefine it here.
-soft_step "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
-soft_step "install_codex"    "Codex"       "npm install -g @openai/codex"
-soft_step "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
-soft_step "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
-soft_step "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
-soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
+# Selective install (S1): each component is gated by maybe_step <id>. When all
+# are selected (default / arg "" / "all") this is identical to the old fixed
+# pipeline. NOTE the de-coupled `uv`: it used to be installed only as a side
+# effect of install_kimi, but install_lightrag (memory) needs it too — so memory
+# could be picked without kimi. lightrag now self-ensures uv first.
+maybe_step "claude-code" "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
+maybe_step "codex"       "install_codex"    "Codex"       "npm install -g @openai/codex"
+maybe_step "gemini-cli"  "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
+maybe_step "qwen-code"   "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
+maybe_step "kimi-code"   "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+maybe_step "memory"      "install_lightrag" "LightRAG"    "{ command -v \"\$HOME/.local/bin/uv\" >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh; }; export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
 # v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
 # from the repo). Without this step lightrag-server falls back to a 307 to /docs
 # (Swagger) and Company Brain in admin shows 404/Swagger instead of the React UI.
@@ -256,7 +313,7 @@ soft_step "install_lightrag" "LightRAG"    "export PATH=\"\$HOME/.local/bin:\$PA
 # this step (precisely the bug that froze deploys at 57% in v5847cbe).
 # Same hazard for `set -e` — it would leak into the parent shell. Use only
 # if/elif/else control flow; let soft_step's `|| true` handle errors.
-soft_step "build_lightrag_webui" "Company Brain UI build" '
+maybe_step "memory" "build_lightrag_webui" "Company Brain UI build" '
 SITE=$(ls -d /root/.local/share/uv/tools/lightrag-hku/lib/python*/site-packages/lightrag/api 2>/dev/null | head -1)
 SRC=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag_webui 2>/dev/null | head -1)
 if [ -z "$SITE" ] || [ -z "$SRC" ]; then
@@ -293,11 +350,11 @@ else
     echo "  ! no webui dist found in archive or checkout — Company Brain will 307 to Swagger (blocked by nginx)"
   fi
 fi' || true
-soft_step "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
-soft_step "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
-soft_step "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
-soft_step "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
-soft_step "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
+maybe_step "brain" "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
+maybe_step "brain" "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
+maybe_step "brain" "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
+maybe_step "brain" "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
+maybe_step "brain" "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -499,8 +556,8 @@ step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platfor
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
-soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-soft_step "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
+maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
+maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && sleep 8 && curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
