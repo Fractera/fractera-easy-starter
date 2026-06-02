@@ -324,6 +324,53 @@ The same server can be used purely as a self-hosted backend (database + object s
 Этот же сервер можно использовать как чисто самостоятельный бэкенд (база данных + хранилище объектов + опциональная авторизация) вообще без ИИ.`,
   },
   {
+    id: 'real-world-use-cases',
+    title: 'Real-world use cases — what founders & teams actually build',
+    titleRu: 'Реальные сценарии — что фаундеры и команды строят на практике',
+    body: `Fractera is not just a theoretical framework — it is a deployment engine for practical, custom automation. Because the architecture enforces a strict split between the public-facing application (open layer) and the authenticated admin panel (guarded layer), builders use it to solve asymmetric operational problems with minimal token spend. Here is what real users have already built and deployed on Fractera.
+
+**1. The Collaborative Content Engine (private internal workspace)**
+
+- **The problem:** a high-traffic blogger needed a unified workspace where a distributed team of editors could collaborate on content planning, draft preparation, and asset management — without exposing the system to the public.
+- **The Fractera solution:** deployed entirely in secure, authenticated mode. The team uses the built-in SQLite database and file storage to manage the publishing pipeline. Editors work in an isolated environment, using Fractera's cross-platform AI routing to brainstorm structures and refine texts collaboratively — turning a standard VPS into a private corporate command center.
+
+**2. The Local Service Dispatcher & Smart Kanban (automated lead routing)**
+
+- **The problem:** a custom-furniture salon manager needed to automate dispatching for kitchen and wardrobe measurement requests — ingesting incoming emails from the marketing site and dynamically routing them to field engineers by geographic proximity to cut city-travel costs.
+- **The Fractera solution:** a background service fetches inbound emails via API and turns them into structured data. Fractera's local database acts as the state machine, rendering a secure, internal-only Kanban board. It stores field-tech availability and locations, letting authenticated staff orchestrate logistics privately — without a single byte of customer data leaking to third-party cloud platforms.
+
+**3. Adaptive AI Tutor (hybrid public/private EdTech)**
+
+- **The problem:** a parent wanted a hyper-personalized programming course for her child that adapts daily based on real performance, controlled securely via mobile commands.
+- **The Fractera solution:** a hybrid public/private structure. The child uses an unauthenticated, lightweight public page to complete interactive daily coding challenges; results are piped securely to the backend database. The parent uses a private dashboard and a dedicated Telegram bot connected to the Hermes orchestrator. Based on the child's performance metrics, the parent issues a voice command, prompting the AI to instantly restructure the next day's lesson database.
+
+**4. Viral Trend Scraper & Autonomous Blog Loop (public passive-traffic generator)**
+
+- **The problem:** a content creator wanted to monitor trending topics across competitive Telegram channels, enrich those signals with live web data, and autonomously publish optimized long-form articles to a public blog and external resources to capture maximum traffic.
+- **The Fractera solution:** the server acts as an autonomous data agent. A scheduled script monitors specified Telegram channels, feeds hot topics to the Hermes orchestrator, expands them with real-time search (e.g. the Exa API), and publishes the enriched posts via external APIs. The public site runs as a static, blazing-fast SEO blog with no user registration. Meanwhile traffic metrics are piped back to the creator's Telegram bot, so they can track performance and iteratively optimize publishing schedules.`,
+    bodyRu: `Fractera — не просто теоретический фреймворк, а движок развёртывания практической, нестандартной автоматизации. Поскольку архитектура жёстко разделяет публичное приложение (открытый слой) и авторизованную панель администратора (защищённый слой), создатели решают на ней асимметричные операционные задачи с минимальным расходом токенов. Вот что реальные пользователи уже собрали и развернули на Fractera.
+
+**1. Совместный контент-движок (приватное внутреннее рабочее пространство)**
+
+- **Проблема:** блогеру с большим трафиком нужно было единое пространство, где распределённая команда редакторов совместно ведёт контент-планирование, подготовку черновиков и управление ассетами — без выставления системы наружу.
+- **Решение Fractera:** развёрнуто целиком в защищённом, авторизованном режиме. Команда использует встроенную базу SQLite и файловое хранилище для управления издательским конвейером. Редакторы работают в изолированной среде, используя кросс-платформенную AI-маршрутизацию Fractera, чтобы совместно прорабатывать структуры и шлифовать тексты — превращая обычный VPS в приватный корпоративный командный центр.
+
+**2. Диспетчер локальных услуг и умный канбан (автоматическая маршрутизация заявок)**
+
+- **Проблема:** управляющему салона мебели на заказ нужно было автоматизировать распределение заявок на замер кухонь и шкафов — принимать входящие письма с маркетингового сайта и динамически направлять их полевым инженерам по географической близости, чтобы сократить расходы на разъезды по городу.
+- **Решение Fractera:** фоновый сервис забирает входящие письма через API и превращает их в структурированные данные. Локальная база Fractera работает как машина состояний, отображая защищённый, только-внутренний канбан. Она хранит доступность и локации полевых специалистов, позволяя авторизованному персоналу управлять логистикой приватно — без единого байта клиентских данных, утёкшего в сторонние облака.
+
+**3. Адаптивный AI-репетитор (гибридный публично-приватный EdTech)**
+
+- **Проблема:** родитель хотел гиперперсонализированный курс программирования для ребёнка, который ежедневно адаптируется по реальным результатам и безопасно управляется командами с телефона.
+- **Решение Fractera:** гибридная публично-приватная структура. Ребёнок заходит на лёгкую публичную страницу без авторизации и проходит интерактивные ежедневные задания; результаты безопасно передаются в бэкенд-базу. Родитель пользуется приватным дашбордом и выделенным Telegram-ботом, подключённым к оркестратору Hermes. По метрикам ребёнка родитель отдаёт голосовую команду, и ИИ мгновенно перестраивает базу уроков на следующий день.
+
+**4. Скрапер вирусных трендов и автономная блог-петля (публичный генератор пассивного трафика)**
+
+- **Проблема:** контент-мейкер хотел отслеживать трендовые темы в конкурентных Telegram-каналах, обогащать сигналы живыми веб-данными и автономно публиковать оптимизированные лонгриды в публичный блог и на внешние ресурсы ради максимума трафика.
+- **Решение Fractera:** сервер работает как автономный data-агент. Запланированный скрипт мониторит указанные Telegram-каналы, передаёт горячие темы оркестратору Hermes, расширяет их поиском в реальном времени (например, через Exa API) и публикует обогащённые посты через внешние API. Публичный сайт работает как статичный, молниеносный SEO-блог без регистрации. Параллельно метрики трафика возвращаются в Telegram-бот создателя, позволяя отслеживать эффективность и итеративно оптимизировать расписание публикаций.`,
+  },
+  {
     id: 'browser-first',
     title: 'Browser-first development & voice commands',
     titleRu: 'Разработка в браузере и голосовые команды',
