@@ -347,7 +347,12 @@ The same server can be used purely as a self-hosted backend (database + object s
 **4. Viral Trend Scraper & Autonomous Blog Loop (public passive-traffic generator)**
 
 - **The problem:** a content creator wanted to monitor trending topics across competitive Telegram channels, enrich those signals with live web data, and autonomously publish optimized long-form articles to a public blog and external resources to capture maximum traffic.
-- **The Fractera solution:** the server acts as an autonomous data agent. A scheduled script monitors specified Telegram channels, feeds hot topics to the Hermes orchestrator, expands them with real-time search (e.g. the Exa API), and publishes the enriched posts via external APIs. The public site runs as a static, blazing-fast SEO blog with no user registration. Meanwhile traffic metrics are piped back to the creator's Telegram bot, so they can track performance and iteratively optimize publishing schedules.`,
+- **The Fractera solution:** the server acts as an autonomous data agent. A scheduled script monitors specified Telegram channels, feeds hot topics to the Hermes orchestrator, expands them with real-time search (e.g. the Exa API), and publishes the enriched posts via external APIs. The public site runs as a static, blazing-fast SEO blog with no user registration. Meanwhile traffic metrics are piped back to the creator's Telegram bot, so they can track performance and iteratively optimize publishing schedules.
+
+**5. Dynamic School Timetable (collaborative scheduling)**
+
+- **The problem:** building a school timetable is notoriously hard and never static. The standard schedule constantly needs exceptions — one teacher requests a day off, another is out sick, someone has to take overtime or cover substitute classes, someone comes in on a day off for school-wide events. Reconciling everyone's constraints by hand is painful.
+- **The Fractera solution:** the school started by using the agent to generate surveys, sending links through their existing chat to private pages where each teacher's availability and preferences are collected. The agent forms a baseline timetable; each teacher has a private page to request changes; the system reads every teacher's input and the schedule dynamically re-builds until it is approved in a way that suits the maximum number of teachers. When something unplanned happens — a teacher falls ill — the model can even suggest which teachers would be the best fit to offer the substitute lessons to.`,
     bodyRu: `Fractera — не просто теоретический фреймворк, а движок развёртывания практической, нестандартной автоматизации. Поскольку архитектура жёстко разделяет публичное приложение (открытый слой) и авторизованную панель администратора (защищённый слой), создатели решают на ней асимметричные операционные задачи с минимальным расходом токенов. Вот что реальные пользователи уже собрали и развернули на Fractera.
 
 **1. Совместный контент-движок (приватное внутреннее рабочее пространство)**
@@ -368,7 +373,12 @@ The same server can be used purely as a self-hosted backend (database + object s
 **4. Скрапер вирусных трендов и автономная блог-петля (публичный генератор пассивного трафика)**
 
 - **Проблема:** контент-мейкер хотел отслеживать трендовые темы в конкурентных Telegram-каналах, обогащать сигналы живыми веб-данными и автономно публиковать оптимизированные лонгриды в публичный блог и на внешние ресурсы ради максимума трафика.
-- **Решение Fractera:** сервер работает как автономный data-агент. Запланированный скрипт мониторит указанные Telegram-каналы, передаёт горячие темы оркестратору Hermes, расширяет их поиском в реальном времени (например, через Exa API) и публикует обогащённые посты через внешние API. Публичный сайт работает как статичный, молниеносный SEO-блог без регистрации. Параллельно метрики трафика возвращаются в Telegram-бот создателя, позволяя отслеживать эффективность и итеративно оптимизировать расписание публикаций.`,
+- **Решение Fractera:** сервер работает как автономный data-агент. Запланированный скрипт мониторит указанные Telegram-каналы, передаёт горячие темы оркестратору Hermes, расширяет их поиском в реальном времени (например, через Exa API) и публикует обогащённые посты через внешние API. Публичный сайт работает как статичный, молниеносный SEO-блог без регистрации. Параллельно метрики трафика возвращаются в Telegram-бот создателя, позволяя отслеживать эффективность и итеративно оптимизировать расписание публикаций.
+
+**5. Динамическое школьное расписание (совместное планирование)**
+
+- **Проблема:** составление школьного расписания — известно сложная и никогда не статичная задача. Стандартное расписание постоянно требует исключений: один учитель просит отгул, другой уходит на больничный, кто-то должен взять сверхурочные или провести замену, кто-то выходит в выходной на общешкольные работы. Согласовывать ограничения всех вручную — мучительно.
+- **Решение Fractera:** школа начала с того, что агент генерировал опросы, рассылая в существующий чат ссылки на приватные страницы, где собирались доступность и пожелания каждого учителя. Агент формирует базовое расписание; у каждого учителя есть приватная страница, чтобы попросить изменения; система считывает мнение каждого, и расписание динамически перестраивается, пока не будет утверждено так, чтобы подходило максимальному числу учителей. При нештатной ситуации — например, учитель заболел — модель может даже подсказать, кому из учителей лучше всего предложить уроки на замену.`,
   },
   {
     id: 'browser-first',
