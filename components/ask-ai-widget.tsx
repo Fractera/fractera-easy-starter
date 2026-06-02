@@ -100,6 +100,15 @@ export function AskAiWidget({ lang }: { lang: string }) {
                 {t.body.map((p, i) => <p key={i}>{p}</p>)}
               </div>
 
+              {/* Web-interface steps — shown so the user can add the connector
+                  even if the chat answer drifts. */}
+              <div className="rounded-xl border border-violet-400/20 bg-white/[0.03] p-3.5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">{t.stepsTitle}</p>
+                <ol className="flex flex-col gap-1.5 pl-4 text-[13px] leading-relaxed text-white/75 list-decimal">
+                  {t.steps.map((s, i) => <li key={i}>{s}</li>)}
+                </ol>
+              </div>
+
               <div className="flex flex-col gap-2.5 pt-1">
                 <button
                   type="button"
