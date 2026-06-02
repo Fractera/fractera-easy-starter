@@ -673,6 +673,25 @@ In onboarding (IP) mode the ports stay open on purpose for zero-friction first a
 В режиме онбординга (IP) порты намеренно открыты ради лёгкого первого входа; блокировка включается только в защищённом режиме.`,
   },
   {
+    id: 'security-audit',
+    title: 'Is it safe to install? Audit the code yourself',
+    titleRu: 'Безопасно ли это устанавливать? Проверьте код сами',
+    body: `A fair question: could the installed software hide a threat — something that quietly runs an unwanted behavior? The honest answer is the strongest one: you are installing **open-source** software, so you can verify everything.
+
+- **Audit before going live.** At any time you can ask an AI agent to run a detailed audit of the files installed on your own server. Your agent can confirm the installed code is safe and matches the public reference on Fractera's GitHub.
+- **Go as deep as you want.** You can ask the agent to analyze every file on your server, not just ours. This is exactly the right instinct: we are entering an era where you should trust no one blindly, and installing files from someone else's source genuinely can carry hidden risk.
+- **Why ours stands up to it.** The packages we install are maximally transparent — all from open source, so they can be inspected by any security team or accredited auditor without a shred of doubt. Source of truth: https://github.com/Fractera/ai-workspace.
+
+In short: don't take our word for it — have your AI agent check, before and after deployment.`,
+    bodyRu: `Справедливый вопрос: нет ли в устанавливаемом ПО скрытой угрозы — чего-то, что тихо запустит нежелательное поведение? Честный ответ — самый сильный: вы устанавливаете программное обеспечение **с открытым исходным кодом**, поэтому можете проверить всё.
+
+- **Аудит перед вводом в эксплуатацию.** В любой момент вы можете попросить ИИ-агента провести детальный аудит файлов, установленных на ваш собственный сервер. Ваш агент подтвердит, что установленный код безопасен и соответствует публичному образцу на GitHub Fractera.
+- **Идите настолько глубоко, насколько хотите.** Вы можете попросить агента проанализировать все файлы вашего сервера, не только наши. Это и есть правильное поведение: мы входим в эпоху, когда нельзя слепо доверять никому, и установка файлов с чужого ресурса действительно может нести скрытую угрозу.
+- **Почему наш код это выдерживает.** Устанавливаемые пакеты максимально прозрачны — все из открытого исходного кода, поэтому их могут проверить любые службы безопасности или аккредитованные аудиторы без тени сомнения. Источник истины: https://github.com/Fractera/ai-workspace.
+
+Коротко: не верьте нам на слово — поручите ИИ-агенту проверить, и до, и после развёртывания.`,
+  },
+  {
     id: 'branding-footer',
     title: '"Powered by Fractera" footer',
     titleRu: 'Футер «Powered by Fractera»',
