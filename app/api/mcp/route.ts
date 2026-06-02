@@ -73,6 +73,14 @@ export async function POST(req: NextRequest) {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
         serverInfo: { name: 'fractera-installer', version: '1.0.0' },
+        // The MCP-spec channel for delivering the server's system prompt to the
+        // client/model. Without this, JSON-RPC clients (claude.ai connector,
+        // Claude Desktop) never receive MCP_SYSTEM_PROMPT — they only see tool
+        // descriptions — so the conversational flow (Q1–Q5, email-twice, the
+        // no-https / no-double-register rules) was never enforced. The GET
+        // manifest's `description_for_model` only reaches ChatGPT-plugin-style
+        // clients, not the MCP connector. → this is why Q5 was skipped.
+        instructions: MCP_SYSTEM_PROMPT,
       },
     })
   }
