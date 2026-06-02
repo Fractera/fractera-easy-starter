@@ -12,7 +12,7 @@ export const hero: HeroPart = {
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",
-    body: "Fractera Light is the bare backend on your VPS: role-based auth, database (SQLite or Postgres), file storage, custom domain and HTTPS — in 10 minutes from $1/mo. No Hermes, no five AI platforms, no LightRAG. If you're looking for a self-hosted alternative to Vercel/Netlify and just want a ready-to-go environment where all that's left to do is write code — Light is exactly that.",
+    body: "Fractera Light is the bare backend on your VPS: role-based auth, database (SQLite or Postgres), file storage, custom domain and HTTPS — in 10 minutes from $1/mo. No Hermes, no five coding platforms, no LightRAG. If you're looking for a self-hosted alternative to Vercel/Netlify and just want a ready-to-go environment where all that's left to do is write code — Light is exactly that.",
     cta: 'Explore Fractera Light',
   },
   elonTrillion: {
@@ -30,7 +30,7 @@ export const hero: HeroPart = {
   deployButton: 'Launch in 1 click',
 
   description:
-    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, 5 AI platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
+    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, five coding platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
 
   heroBenefitsHeader: {
     h2: 'The AI-Native Self-Hosting Platform',
@@ -66,7 +66,7 @@ export const hero: HeroPart = {
     },
     {
       title: 'Monetize AI Workflows via Skills Marketplace',
-      text: 'Package the workflows you\'ve solved into reusable AI Skills. Sell them in the community marketplace, share them free, or buy battle-tested recipes from other builders. Your AI infrastructure becomes a passive revenue stream — your best work earns while you sleep.',
+      text: 'Package the workflows you\'ve solved into reusable AI Skills. Sell them in the community marketplace, share them free, or buy battle-tested recipes from other builders. Your self-hosted stack becomes a passive revenue stream — your best work earns while you sleep.',
     },
   ],
 

@@ -24,7 +24,7 @@ export const problem: ProblemPart = {
     {
       id: 'ai-context',
       title: 'AI Loses Context Every Session',
-      problem: 'Without persistent memory, every AI session starts from scratch. Tokens spent on "where is the navbar?" are tokens not spent on your feature. Two messages become fifteen.',
+      problem: 'Without persistent memory, every session starts from scratch. Tokens spent on "where is the navbar?" are tokens not spent on your feature. Two messages become fifteen.',
       solution: 'Fractera includes LightRAG — a persistent vector store that remembers your codebase and every architectural decision. Switch between Claude Code, Gemini CLI, or Codex without losing the thread.',
     },
     {
@@ -36,7 +36,7 @@ export const problem: ProblemPart = {
     {
       id: 'hardware',
       title: 'Your Hardware Limits Your Output',
-      problem: 'Persistent memory, autonomous agents, five platforms in parallel — it pushes your machine hard. Performance drops the moment you open another tab. Not everyone has a dedicated AI workstation.',
+      problem: 'Persistent memory, autonomous agents, five platforms in parallel — it pushes your machine hard. Performance drops the moment you open another tab. Not everyone has a dedicated GPU workstation.',
       solution: 'With Fractera your device carries zero load. All computation runs on your VPS. Scale cores and RAM when needed. Works on a laptop, tablet, or phone.',
     },
     {
