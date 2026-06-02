@@ -428,6 +428,39 @@ So: the product on your server = open. The service that delivers and bills it = 
 Итог: продукт на вашем сервере — открытый. Сервис, который его доставляет и тарифицирует, — эксплуатируется Fractera. Ваш код и данные всегда остаются на вашем сервере.`,
   },
   {
+    id: 'customizing-auth',
+    title: 'Extending authentication — providers & roles',
+    titleRu: 'Расширение авторизации — провайдеры и роли',
+    body: `By default your server ships with a minimal auth setup. There is **no limit** on extending it: using the in-VPS AI agents you can ask to add new auth providers or new roles freely.
+
+One strong recommendation: **do this while in insecure (IP) mode.** Insecure mode does not restrict access to the admin panel, so if a change accidentally breaks authentication you can still get back in and keep working. In **secure mode**, breaking auth can lock you out of the project entirely. So experiment with auth in insecure mode, confirm it works, and only then switch to secure mode.`,
+    bodyRu: `По умолчанию ваш сервер поставляется с минимальной настройкой авторизации. Расширять её можно **без ограничений**: с помощью ИИ-агентов на VPS вы можете попросить добавить новых провайдеров авторизации или новые роли.
+
+Одна важная рекомендация: **делайте это в незащищённом (IP) режиме.** Незащищённый режим не ограничивает доступ к панели администратора, поэтому если правка случайно сломает авторизацию, вы всё равно сможете войти и продолжить работу. В **защищённом режиме** поломка авторизации может полностью заблокировать вам вход в проект. Поэтому экспериментируйте с авторизацией в незащищённом режиме, убедитесь, что всё работает, и только потом переключайтесь в защищённый.`,
+  },
+  {
+    id: 'extending-the-project',
+    title: 'Add tools & change the project — it is encouraged',
+    titleRu: 'Добавление инструментов и изменение проекта — это поощряется',
+    body: `You can add tools yourself through the system terminal — OpenClaw, OpenCode, or any other tool. The AI model has enough patterns in the codebase to copy how an existing platform works and add a new window plus a carousel button for it — just ask it directly to do this.
+
+More broadly, you may change the architecture, add skills, or optimize the project however you see fit. This is not only allowed — it is recommended. That is exactly why every part of the ai-workspace layer is fully open source.`,
+    bodyRu: `Вы можете добавлять инструменты самостоятельно через системный терминал — OpenClaw, OpenCode или любой другой. У ИИ-модели достаточно паттернов в кодовой базе, чтобы скопировать принцип работы существующей платформы и добавить новое окно плюс кнопку в карусель — просто попросите её сделать это прямо.
+
+Шире: вы можете менять архитектуру, добавлять навыки или оптимизировать проект по своему усмотрению. Это не только не запрещено — это рекомендуется. Именно поэтому каждый элемент слоя ai-workspace полностью открыт (open source).`,
+  },
+  {
+    id: 'removing-the-footer',
+    title: 'Removing the "Powered by Fractera" line',
+    titleRu: 'Как убрать надпись «Powered by Fractera»',
+    body: `If you want to remove the "Powered by Fractera" line that appears on your public pages: you will most likely **not** find it in the application code, and trying to hunt it down may break your project — it is applied at the web-server layer, not in app code.
+
+If its presence bothers you, the simplest safe trick is to overlay your own container on top of it to make it invisible. The recommended path, though: become a sponsor (the $5 tier removes it) and just ask — we'll tell you how to do it properly.`,
+    bodyRu: `Если вы хотите убрать надпись «Powered by Fractera», которая присутствует на ваших публичных страницах: скорее всего вы **не** найдёте её в коде приложения, а попытка её отыскать может сломать ваш проект — она добавляется на уровне веб-сервера, а не в коде приложения.
+
+Если её наличие вас беспокоит, самый простой безопасный приём — наложить сверху собственный контейнер, чтобы сделать её невидимой. Но более рекомендуемый путь: станьте спонсором (уровень $5 убирает её) и просто спросите — мы подскажем, как сделать это правильно.`,
+  },
+  {
     id: 'marketplace',
     title: 'Skills & Product Loop (roadmap)',
     titleRu: 'Маркетплейс навыков и Продуктовая петля (планы)',
