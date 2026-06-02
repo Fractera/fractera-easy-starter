@@ -75,6 +75,19 @@ export function ProblemSection() {
           <span className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/10" />
         </div>
       </div>
+
+      {/* SSR-краулабельный блок: вкладки выше показывают по одному пункту через JS,
+          здесь весь problem/solution каждого пункта лежит в начальном HTML, чтобы
+          робот прочитал их без клика. Заголовки — <strong>, не <h*> (иерархия). */}
+      <div className="sr-only">
+        {content.problemItems.map((item) => (
+          <div key={`seo-${item.id}`}>
+            <p><strong>{item.title}</strong></p>
+            <p>{content.problemLabel}: {item.problem}</p>
+            <p>{content.solutionLabel}: {item.solution}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

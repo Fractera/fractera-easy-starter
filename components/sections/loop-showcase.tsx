@@ -308,6 +308,19 @@ export function LoopShowcase() {
         <h3 className="text-xl md:text-2xl font-bold text-white">{activeSlide.title}</h3>
         <p className="text-sm md:text-base text-white/70 leading-relaxed">{activeSlide.description}</p>
       </div>
+
+      {/* SSR-краулабельный блок: карусель раскрывает слайды по одному через JS,
+          здесь весь онбординг-копирайт (title + description всех слайдов) лежит в
+          начальном HTML, чтобы робот прочитал его без взаимодействия.
+          Заголовки — <strong>, не <h*> (иерархия). */}
+      <div className="sr-only">
+        {slides.map((slide, idx) => (
+          <div key={`seo-slide-${idx}`}>
+            <p><strong>{slide.title}</strong> — {slide.label}, {slide.sublabel}</p>
+            <p>{slide.description}</p>
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
