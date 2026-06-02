@@ -448,6 +448,25 @@ So: the product on your server = open. The service that delivers and bills it = 
 You choose the provider (Hetzner, DigitalOcean, Vultr, Hostinger, Timeweb, Contabo, and many more run affiliate programs). The Fractera cabinet gives you a personal landing mirror, an embed widget for your blog, and an MCP link for AI agents — your links replace the defaults in the "where to buy a VPS" block. Direct programs can pay up to 30–40% of the first payment. Questions: admin@fractera.ai.`,
   },
   {
+    id: 'regional-partners',
+    title: 'Regional partners (official resellers)',
+    titleRu: 'Региональные партнёры (официальные реселлеры)',
+    body: `Separate from the affiliate Partner Program, Fractera is looking for **regional partners** who represent Fractera in their region on equal terms — promoting the business and receiving and fulfilling orders to install Fractera and the AI Company Brain locally.
+
+- **Business requirements:** a registered legal entity operating 3+ years; a significant audience of partners or subscribers; strong SEO and external-link skills; business-development skills.
+- **What we offer:** a page for your region carrying your own VPS + domain referral links; referral rewards split **30 / 70 (partner keeps 70%)**; official Fractera reseller status in your region.
+- **Partner responsibilities:** promote your regional page in search by driving traffic via your own publications, pages and mailings — the more visitors, the more referral reward from VPS and domain sales.
+- **What a "region" is:** either a whole country (when it is effectively one state/region) or a state/region within a country — so one country can have several regional representatives.
+- **How to apply:** email admin@fractera.ai with the subject "Regional representation application". Full page: /en/regional-partners (or /ru/regional-partners).`,
+    bodyRu: `Отдельно от партнёрской (реферальной) программы, Fractera ищет **региональных партнёров**, которые представляют Fractera в своём регионе на равных правах — продвигают бизнес, а также получают и исполняют заказы на установку Fractera и AI Company Brain на месте.
+
+- **Требования к бизнесу:** зарегистрированное юрлицо со стажем 3+ года; значительная аудитория партнёров или подписчиков; высокие навыки SEO и работы с внешними ссылками; навыки business development.
+- **Что мы предлагаем:** страницу для вашего региона с вашими реферальными ссылками на VPS и домен; деление вознаграждений **30 / 70 (партнёр получает 70%)**; статус официального реселлера Fractera в регионе.
+- **Обязанности партнёра:** продвигать страницу региона в поиске, привлекая трафик через собственные публикации, страницы и рассылки — чем больше посетителей, тем больше реферальное вознаграждение от продаж VPS и домена.
+- **Что такое «регион»:** либо целая страна (если по сути это один штат/регион), либо штат/регион внутри страны — поэтому в одной стране может быть несколько региональных представителей.
+- **Как подать заявку:** письмо на admin@fractera.ai с темой «Заявка на региональное представительство». Полная страница: /ru/regional-partners (или /en/regional-partners).`,
+  },
+  {
     id: 'sponsorship',
     title: 'Sponsorship & Fractera Pro',
     titleRu: 'Спонсорство и Fractera Pro',

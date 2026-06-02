@@ -66,6 +66,13 @@ export function proxy(request: NextRequest): NextResponse {
     return withLangCookie(NextResponse.redirect(url), lang)
   }
 
+  // Single canonical reference page — served at the bare /mcp-info with NO lang
+  // prefix (one indexable URL, no per-language duplicates). Pass through so it is
+  // NOT redirected to /<lang>/mcp-info. Bilingual via ?lang=ru on the same URL.
+  if (pathname === '/mcp-info' || pathname.startsWith('/mcp-info/')) {
+    return NextResponse.next()
+  }
+
   // Skip API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/debug')) {
     return NextResponse.next()

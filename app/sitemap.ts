@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
     { path: '/partners', changeFrequency: 'monthly' as const, priority: 0.5 },
     { path: '/light',    changeFrequency: 'monthly' as const, priority: 0.9 },
-    { path: '/mcp-info', changeFrequency: 'weekly'  as const, priority: 0.7 },
+    { path: '/regional-partners', changeFrequency: 'monthly' as const, priority: 0.5 },
   ]
 
   const buildAlternates = (path: string) => ({
@@ -39,6 +39,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     alternates: buildAlternates(''),
   }
 
+  // /mcp-info — a SINGLE canonical page at the bare root (no /[lang] duplicates).
+  const mcpInfoEntry = {
+    url: `${base}/mcp-info`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }
+
 
   // Per-language entries. The English homepage's /en URL is deliberately
   // skipped here — it duplicates the root and we don't want to advertise
@@ -56,5 +64,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
   )
 
-  return [rootEntry, ...perLang]
+  return [rootEntry, mcpInfoEntry, ...perLang]
 }
