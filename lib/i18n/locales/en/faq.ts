@@ -221,6 +221,19 @@ export const faqItems: FaqItem[] = [
     ],
     cta: { label: 'Open the Partners page', href: '/partners' },
   },
+  {
+    q: 'Are you looking for regional partners?',
+    a: [
+      'Yes — and this is a different kind of opportunity. We are looking for official regional partners to build localized versions of Fractera together: adapted for local regulations, delivered in the native language of the region, backed by people who understand the local market from the inside.',
+      'This is not a reseller arrangement. A regional partnership means your own branded product, your own customer base, your own revenue stream — on an open-source foundation that is already production-ready. The infrastructure is built. What a regional partner brings is market knowledge, local trust, and the ability to serve customers in ways a remote team cannot.',
+    ],
+    bullets: [
+      'Regulatory alignment — help your region meet local data residency and compliance requirements.',
+      'Native-language support — technical support and documentation in the language of your customers.',
+      'Your own business — not a franchise, a co-venture with full transparency into the product.',
+    ],
+    cta: { label: 'Regional Partners', href: '/regional-partners' },
+  },
   // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: вопрос об удалении сервера упоминает платную подписку и White Label
   /* {
     q: 'What happens when I delete my server?',
