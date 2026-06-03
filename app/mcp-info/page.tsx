@@ -155,7 +155,14 @@ export default function McpInfoPage() {
         </div>
 
         <footer className="mt-16 border-t border-zinc-200 pt-6 text-xs text-zinc-400">
-          Fractera · open-source AI-native self-hosting · <a href="/" className="hover:underline">fractera.ai</a>
+          <p>Fractera · open-source AI-native self-hosting · <a href="/" className="hover:underline">fractera.ai</a></p>
+          {/* Smithery listing backlink — verifies our MCP connector listing on Smithery. */}
+          <p className="mt-3">
+            <a href="https://smithery.ai/servers/admin-add5/fractera" target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://smithery.ai/badge/admin-add5/fractera" alt="Fractera MCP server on Smithery" />
+            </a>
+          </p>
         </footer>
       </div>
     </main>
