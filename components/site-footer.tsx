@@ -10,6 +10,7 @@ type FooterLabels = {
   cookies: string
   partners: string
   regionalPartners: string
+  knowledgeBase: string
   cookieSettings: string
   rights: string
   tocLabel: string
@@ -24,6 +25,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     cookies: 'Политика куки',
     partners: 'Партнёрская программа',
     regionalPartners: 'Региональные партнёры',
+    knowledgeBase: 'База знаний (MCP)',
     cookieSettings: 'Настройки куки',
     rights: 'Все права защищены.',
     tocLabel: 'Содержание сайта',
@@ -48,6 +50,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     cookies: 'Cookie Policy',
     partners: 'Partner Program',
     regionalPartners: 'Regional Partners',
+    knowledgeBase: 'Knowledge Base (MCP)',
     cookieSettings: 'Cookie Settings',
     rights: 'All rights reserved.',
     tocLabel: 'Site contents',
@@ -93,6 +96,7 @@ export function SiteFooter() {
           <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">{t.cookies}</a>
           <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">{t.partners}</a>
           <a href={`/${lang}/regional-partners`} className="hover:text-violet-400 transition-colors">{t.regionalPartners}</a>
+          <a href="/mcp-info" className="hover:text-violet-400 transition-colors">{t.knowledgeBase}</a>
           <button
             type="button"
             onClick={openCookieSettings}
