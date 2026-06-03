@@ -415,6 +415,107 @@ This is what lets anyone with an idea — not only engineers — build, ship, an
 - **Всегда восстановимо и переносимо.** Код хранится на GitHub, данные — на вашем VPS; вы можете изучить их, сделать резервную копию, экспортировать или уйти в любой момент. Никакой привязки.`,
   },
   {
+    id: 'connector-security-faq',
+    title: 'MCP connector — security, data & trust (FAQ)',
+    titleRu: 'MCP-коннектор — безопасность, данные и доверие (FAQ)',
+    body: `Direct answers to the questions technical reviewers and security teams ask most about the Fractera MCP connector.
+
+**Does Fractera store my server's root password?**
+
+No. The root password is used only transiently, inside the single deployment SSH session, to install the workspace — it is never written to our database. A placeholder is stored in its place, and the dashboard shows a "password is never stored" indicator. For \`retry_deploy\` you simply provide the password again. We strongly recommend changing the server password immediately after installation.
+
+---
+
+**Can Fractera access or control my server after deployment?**
+
+No. Because we do not retain the password — and we recommend rotating it after install — Fractera holds no standing administrative access to the servers it deploys. There is no backdoor: a deployed workspace cannot push to Fractera's own repositories (verified by a security audit). You can have your own AI agent audit every installed file against the public source at https://github.com/Fractera/ai-workspace, before and after deployment.
+
+---
+
+**What data does the connector collect and keep?**
+
+Only what is needed to deliver the service: your **email** (to send install / completion / recovery notifications) and your **server IP** (to provide follow-up value such as TLS-certificate-expiry reminders and health notices), plus your component selection. The root password is NOT kept (see above). Your application data — database records, files, user accounts — never leaves your own server.
+
+---
+
+**Does the connector require authentication?**
+
+No. It is an open connector — no API key, OAuth, or account is required to connect. Authorization for the destructive action is implicit: a deploy only ever touches the specific server whose IP and credentials the user explicitly provides in that conversation.
+
+---
+
+**What does each tool do, and which are destructive?**
+
+- \`register_and_deploy\` — **destructive**: wipes and installs the workspace on the server you provide.
+- \`retry_deploy\` — **destructive**: re-wipes and reinstalls on the same server after a failed attempt.
+- \`check_status\` — read-only: returns deployment progress.
+- \`get_subdomain\` — read-only: returns the finished workspace address.
+- \`get_vps_recommendation\` — read-only: suggests a VPS provider.
+- \`get_project_info\` — read-only: answers questions about the project.
+
+All tools carry the proper \`readOnlyHint\` / \`destructiveHint\` annotations. The read-only tools are completely safe to test without any server.
+
+---
+
+**Does it enable cross-service automation, or move money?**
+
+No to both. The connector does not chain or relay between third-party services — it acts only on a single target: the user's own VPS. It never transfers money, cryptocurrency, or executes financial transactions; the deployment itself is always free.
+
+---
+
+**Is the connection encrypted?**
+
+Yes. The connector is served over HTTPS/TLS using the streamable-http transport, with CORS configured for clean client handshakes. The SSH session to your server during deployment is likewise encrypted.`,
+    bodyRu: `Прямые ответы на вопросы, которые чаще всего задают технические ревьюеры и службы безопасности про MCP-коннектор Fractera.
+
+**Хранит ли Fractera root-пароль моего сервера?**
+
+Нет. Root-пароль используется только транзитно, внутри единственной SSH-сессии развёртывания, чтобы установить рабочее пространство — он никогда не пишется в нашу базу. На его месте хранится placeholder, а в кабинете отображается индикатор «пароль не сохраняется». Для \`retry_deploy\` вы просто вводите пароль заново. Настоятельно рекомендуем сменить пароль сервера сразу после установки.
+
+---
+
+**Может ли Fractera получить доступ к серверу или управлять им после развёртывания?**
+
+Нет. Поскольку мы не храним пароль — и рекомендуем сменить его после установки — у Fractera не остаётся постоянного административного доступа к развёрнутым серверам. Бэкдора нет: развёрнутое рабочее пространство не может пушить в репозитории Fractera (подтверждено аудитом безопасности). Вы можете поручить собственному ИИ-агенту проверить каждый установленный файл против публичного исходника на https://github.com/Fractera/ai-workspace — и до, и после развёртывания.
+
+---
+
+**Какие данные коннектор собирает и хранит?**
+
+Только то, что нужно для оказания услуги: вашу **почту** (для писем о старте / завершении / восстановлении) и **IP сервера** (для последующей пользы — напоминаний об истечении TLS-сертификата и уведомлений о состоянии), плюс ваш выбор компонентов. Root-пароль НЕ хранится (см. выше). Данные вашего приложения — записи базы, файлы, аккаунты — никогда не покидают ваш сервер.
+
+---
+
+**Требует ли коннектор авторизации?**
+
+Нет. Это открытый коннектор — для подключения не нужны ни API-ключ, ни OAuth, ни аккаунт. Авторизация деструктивного действия неявная: развёртывание всегда затрагивает только тот конкретный сервер, чьи IP и доступы пользователь явно указал в этой беседе.
+
+---
+
+**Что делает каждый инструмент и какие из них деструктивные?**
+
+- \`register_and_deploy\` — **деструктивный**: стирает и устанавливает рабочее пространство на указанный вами сервер.
+- \`retry_deploy\` — **деструктивный**: повторно стирает и переустанавливает на том же сервере после неудачной попытки.
+- \`check_status\` — только чтение: возвращает прогресс развёртывания.
+- \`get_subdomain\` — только чтение: возвращает адрес готового пространства.
+- \`get_vps_recommendation\` — только чтение: рекомендует VPS-провайдера.
+- \`get_project_info\` — только чтение: отвечает на вопросы о проекте.
+
+Все инструменты имеют корректные аннотации \`readOnlyHint\` / \`destructiveHint\`. Инструменты только для чтения полностью безопасно тестировать без какого-либо сервера.
+
+---
+
+**Включает ли он межсервисную автоматизацию или перевод денег?**
+
+Нет в обоих случаях. Коннектор не связывает и не ретранслирует между сторонними сервисами — он действует только на один объект: собственный VPS пользователя. Он никогда не переводит деньги, криптовалюту и не выполняет финансовых транзакций; само развёртывание всегда бесплатно.
+
+---
+
+**Шифруется ли соединение?**
+
+Да. Коннектор отдаётся по HTTPS/TLS на транспорте streamable-http, с настроенным CORS для чистого хендшейка клиента. SSH-сессия к вашему серверу во время развёртывания также зашифрована.`,
+  },
+  {
     id: 'features-overview',
     title: 'Included features (and what Pro adds)',
     titleRu: 'Включённые функции (и что добавляет Pro)',
