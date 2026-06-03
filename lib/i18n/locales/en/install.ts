@@ -14,6 +14,8 @@ export const install: InstallPart = {
     copied: 'Copied',
     helpHint:
       '* Never used MCP before? Just copy the URL above and ask your AI agent (Claude, Codex, Gemini): "please connect the MCP server at this URL." The AI will walk you through what to click inside its own interface — setup takes no more than 15 seconds. Once connected, tell the agent: "deploy Fractera for me" or "my deploy failed, here is the server_token" — it takes over from there.',
+    sliderH3: 'Step-by-step: deploying via the MCP connector',
+    sliderCaption: 'A custom implementation for deploying a server that runs Claude Code only.',
   },
 
   domainSection: {

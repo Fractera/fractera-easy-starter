@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
+
+const MCP_SLIDES = Array.from({ length: 10 }, (_, i) => `/mcp-step-by-step/mcp-step${i + 1}.png`)
 
 type Platform = {
   id: string
@@ -26,6 +29,9 @@ export function PlatformSelector() {
   const content = useHeroContent()
   const mcp = content.mcpSection
   const [copied, setCopied] = useState(false)
+  const [slide, setSlide] = useState(0)
+  const prevSlide = () => setSlide((s) => (s - 1 + MCP_SLIDES.length) % MCP_SLIDES.length)
+  const nextSlide = () => setSlide((s) => (s + 1) % MCP_SLIDES.length)
 
   async function copyUrl() {
     try {
@@ -82,6 +88,38 @@ export function PlatformSelector() {
           </button>
         </div>
         <p className="text-xs md:text-sm text-amber-300/85 leading-relaxed mt-1">{mcp.helpHint}</p>
+      </div>
+
+      {/* Step-by-step slider — 70% width image, prev/next one slide at a time, no autoplay */}
+      <div className="flex flex-col gap-3 items-center w-full mt-4">
+        <h3 className="font-serif font-bold text-white text-xl md:text-2xl text-center">{mcp.sliderH3}</h3>
+        <div className="flex items-center justify-center gap-2 md:gap-4 w-full">
+          <button
+            type="button"
+            onClick={prevSlide}
+            aria-label="Previous"
+            className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/15 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="w-[70%] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={MCP_SLIDES[slide]}
+              alt={`MCP deployment step ${slide + 1}`}
+              className="w-full h-auto object-contain"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={nextSlide}
+            aria-label="Next"
+            className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/15 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+        <p className="text-xs text-white/40 text-center max-w-xl">{mcp.sliderCaption}</p>
       </div>
     </div>
   )

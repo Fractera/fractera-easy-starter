@@ -98,6 +98,8 @@ export type SiteContent = {
     copy: string
     copied: string
     helpHint: string
+    sliderH3: string
+    sliderCaption: string
   }
   domainSection: { label: string; h2: string; description: string }
   installForm: {
