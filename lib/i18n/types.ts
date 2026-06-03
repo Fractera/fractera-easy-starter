@@ -100,6 +100,7 @@ export type SiteContent = {
     helpHint: string
     sliderH3: string
     sliderCaption: string
+    docLink: string
   }
   domainSection: { label: string; h2: string; description: string }
   installForm: {

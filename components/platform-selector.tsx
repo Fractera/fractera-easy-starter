@@ -88,6 +88,12 @@ export function PlatformSelector() {
           </button>
         </div>
         <p className="text-xs md:text-sm text-amber-300/85 leading-relaxed mt-1">{mcp.helpHint}</p>
+        <a
+          href="/mcp-info"
+          className="inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors mt-1"
+        >
+          {mcp.docLink}
+        </a>
       </div>
 
       {/* Step-by-step slider — 70% width image, prev/next one slide at a time, no autoplay */}
