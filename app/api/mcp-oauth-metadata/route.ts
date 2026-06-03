@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
-// MCP spec requires this endpoint even for open (no-auth) servers.
-// Without it Claude.ai v3 fails with "Couldn't register with sign-in service"
-// during connector setup. Returning an empty authorization_servers array
-// signals to the MCP client that no authentication is required.
+// Served at /.well-known/oauth-protected-resource via next.config.ts rewrite.
+// MCP spec requires this endpoint even for open (no-auth) servers — without it
+// Claude.ai v3 fails with "Couldn't register with sign-in service" on connect.
+// Empty authorization_servers signals: no authentication required.
 export async function GET() {
   return NextResponse.json(
     {
