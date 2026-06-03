@@ -30,6 +30,8 @@ const DEFAULT_VPS_PROVIDER = {
 export const MCP_TOOLS = [
   {
     name: 'register_and_deploy',
+    title: 'Deploy Fractera Workspace',
+    annotations: { destructiveHint: true, readOnlyHint: false },
     description:
       'Register a new Fractera user and start the deployment of their server in one atomic call. Use this AFTER you have collected the user\'s email (entered twice for typo protection), server IP, and root password. Creates the User row (or reuses an existing one with the same email), creates a free Subscription, creates a ServerToken, wipes any previous installation on the target server, and launches bootstrap. The deploy is IP-first (phase-1): the server comes up on plain HTTP at http://<IP>:3002 in 8-14 minutes; it does NOT get a domain or HTTPS cert here (that is an optional later step inside the workspace). Returns session_id (for a single on-demand check_status read — do not poll) and server_token (so the user can recover via retry_deploy if anything breaks). Call this AT MOST ONCE per conversation.',
     inputSchema: {
@@ -66,6 +68,8 @@ export const MCP_TOOLS = [
   },
   {
     name: 'check_status',
+    title: 'Check Deployment Status',
+    annotations: { readOnlyHint: true, destructiveHint: false },
     description:
       'Read the current installation progress ONCE, on demand. Call this only when the user explicitly asks how the deploy is going (e.g. "what is the status", "did it finish") — never on a timer and never in a polling loop. The deploy takes 8-14 minutes and the authoritative status channels are the email pipeline + the dashboard; one read on request is enough. Returns the current step, the list of completed steps (~44 total in a full bootstrap), and whether installation is done or failed.',
     inputSchema: {
@@ -78,6 +82,8 @@ export const MCP_TOOLS = [
   },
   {
     name: 'get_subdomain',
+    title: 'Get Workspace Address',
+    annotations: { readOnlyHint: true, destructiveHint: false },
     description:
       'Return the final entry address of the server once installation is complete. In phase-1 (IP-first) this is a plain-HTTP Admin URL of the form http://<IP>:3002 — the server has NO domain and NO HTTPS cert yet (attaching a custom domain with HTTPS is an optional later step the user does inside Admin -> Personal Domain). Call this once after check_status reports status="done".',
     inputSchema: {
@@ -90,6 +96,8 @@ export const MCP_TOOLS = [
   },
   {
     name: 'retry_deploy',
+    title: 'Retry Failed Deployment',
+    annotations: { destructiveHint: true, readOnlyHint: false },
     description:
       'Retry a failed deployment using a server_token (from the failure email, the deploy-progress UI, or the dashboard). Wipes the previous broken install and runs a fresh deploy on the SAME server. Returns a new session_id — poll with check_status. Use this when the user reports a failed deploy or pastes a server_token.',
     inputSchema: {
@@ -126,6 +134,8 @@ export const MCP_TOOLS = [
   },
   {
     name: 'get_vps_recommendation',
+    title: 'Get VPS Recommendation',
+    annotations: { readOnlyHint: true, destructiveHint: false },
     description:
       'Return a single recommended VPS provider for users who do not yet have a server. Call this ONLY when the user explicitly says they have no server. The user buys the VPS at this provider and comes back with IP + password.',
     inputSchema: {
@@ -136,6 +146,8 @@ export const MCP_TOOLS = [
   },
   {
     name: 'get_project_info',
+    title: 'Get Project Information',
+    annotations: { readOnlyHint: true, destructiveHint: false },
     description:
       'Project reference / help desk about Fractera. Use this to answer ANY user question about what Fractera is, how it works, its architecture, components, modes, data ownership, pricing, use cases, partner program, etc. — especially while a deploy is running and the user wants to learn more. TOKEN-ECONOMY: call with NO arguments first to get the lightweight list of section ids+titles, then call again with a single `section` id to fetch just that section. NEVER try to fetch everything at once; pull only the section(s) relevant to the user question. Set `lang:"ru"` for Russian-speaking users.',
     inputSchema: {
