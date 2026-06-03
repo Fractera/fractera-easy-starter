@@ -6,6 +6,21 @@ import { MCP_SYSTEM_PROMPT } from '@/lib/mcp-prompt'
 // so this route needs the full serverless duration window.
 export const maxDuration = 300
 
+// CORS — MCP clients (incl. Claude.ai browser-side connector setup) may send a
+// preflight before connecting. Without these headers the registration handshake
+// can fail. Open server, so we allow all origins.
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Mcp-Session-Id, mcp-protocol-version',
+  'Access-Control-Expose-Headers': 'Mcp-Session-Id',
+  'Access-Control-Max-Age': '86400',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function GET(req: NextRequest) {
   const baseUrl = `https://${req.headers.get('host')}`
 
@@ -23,7 +38,7 @@ export async function GET(req: NextRequest) {
     tools: MCP_TOOLS,
   }
 
-  return NextResponse.json(manifest)
+  return NextResponse.json(manifest, { headers: CORS_HEADERS })
 }
 
 export async function POST(req: NextRequest) {
@@ -37,7 +52,7 @@ export async function POST(req: NextRequest) {
       jsonrpc: '2.0',
       id: body.id,
       result: { tools: MCP_TOOLS },
-    })
+    }, { headers: CORS_HEADERS })
   }
 
   if (method === 'tools/call') {
@@ -50,7 +65,7 @@ export async function POST(req: NextRequest) {
         result: {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         },
-      })
+      }, { headers: CORS_HEADERS })
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
       console.error(`[mcp] tool ${name} threw`, err)
@@ -61,7 +76,7 @@ export async function POST(req: NextRequest) {
           content: [{ type: 'text', text: JSON.stringify({ status: 'error', message }, null, 2) }],
           isError: true,
         },
-      })
+      }, { headers: CORS_HEADERS })
     }
   }
 
@@ -82,12 +97,12 @@ export async function POST(req: NextRequest) {
         // clients, not the MCP connector. → this is why Q5 was skipped.
         instructions: MCP_SYSTEM_PROMPT,
       },
-    })
+    }, { headers: CORS_HEADERS })
   }
 
   return NextResponse.json({
     jsonrpc: '2.0',
     id: body.id,
     error: { code: -32601, message: 'Method not found' },
-  })
+  }, { headers: CORS_HEADERS })
 }
