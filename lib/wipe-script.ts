@@ -43,7 +43,11 @@ rm -f /root/.local/bin/hermes /root/.local/bin/claude /root/.local/bin/kimi \\
       /root/.local/bin/lightrag-gunicorn /root/.local/bin/lightrag-hash-password \\
       /root/.local/bin/lightrag-server 2>/dev/null || true
 rm -f /usr/local/bin/claude /usr/local/bin/kimi 2>/dev/null || true
-rm -rf /etc/nginx/sites-enabled/fractera /etc/nginx/sites-available/fractera
+# fractera* (not just fractera) so the secure-mode site fractera-custom is also
+# removed — otherwise the secure HTTPS/auth_request config survives wipe and
+# leaks into the next IP-mode redeploy (same class of bug as the ufw lockdown).
+# Does NOT touch /etc/letsencrypt — certs should survive wipe (LE rate limits).
+rm -rf /etc/nginx/sites-enabled/fractera* /etc/nginx/sites-available/fractera*
 for prefix in auth admin data hermes lightrag; do
   rm -f /etc/nginx/sites-enabled/\${prefix}.* /etc/nginx/sites-available/\${prefix}.* 2>/dev/null || true
 done
