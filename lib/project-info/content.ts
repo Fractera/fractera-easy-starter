@@ -143,7 +143,8 @@ Why it matters: without persistent memory, every AI session starts from scratch 
     title: 'Brain (Hermes orchestrator)',
     body: `Brain is the Hermes Agent (by Nous Research) deployed and configured on your VPS — the thinking centre of the workspace. It coordinates the connected AI subscriptions through shared context and can run autonomous, multi-step pipelines where each loop refines the next ("let Claude do this and Codex do that" — in parallel).
 
-There is no separate built-in chat UI: you talk to Brain from your phone via a Telegram bot (create one with @BotFather, paste the token in Admin → Brain settings), or directly in the admin panel.`,
+You talk to Brain through its **built-in web chat**, which opens automatically in the admin panel and is the primary way you use the system — just add a model to start. Talking to Brain from your phone via a Telegram bot is an optional secondary channel. (See "Hermes Web Chat — the main way you talk to Brain".)`,
+
   },
   {
     id: 'auth-architecture',
@@ -188,13 +189,13 @@ There is no separate built-in chat UI: you talk to Brain from your phone via a T
 - **Delegation over MCP.** Brain reaches each coding agent through a per-platform MCP delegation tool (each platform gets its own MCP endpoint on its own port). Through these tools Brain can hand a task to Claude Code, Codex, Gemini CLI, Qwen, or Kimi — individually or several at once.
 - **Parallel, multi-step work.** Because delegation is tool-based, Brain can run autonomous pipelines: split a job ("let Claude do this part and Codex do that part"), run them in parallel, collect results, and decide the next step — each loop refining the next.
 - **Shared context.** The agents are not isolated silos: they share project context (and Memory, below), so switching an in-flight task from one agent to another does not lose the thread.
-- **You talk to Brain, Brain talks to the agents.** There is no separate chat UI for each agent in normal use — you direct Brain (from the admin panel or a Telegram bot) and Brain coordinates the rest.`,
+- **You talk to Brain, Brain talks to the agents.** There is no separate chat UI for each agent in normal use — you direct Brain through its built-in web chat in the admin panel (or, optionally, a Telegram bot) and Brain coordinates the rest.`,
     bodyRu: `Каждая из пяти платформ разработки работает на вашем сервере за собственным WebSocket-мостом — это живой процесс, которым можно управлять интерактивно. Мозг (Hermes) стоит над ними как оркестратор.
 
 - **Делегирование через MCP.** Мозг обращается к каждому агенту разработки через отдельный MCP-инструмент делегирования (у каждой платформы свой MCP-эндпоинт на своём порту). Через эти инструменты Мозг может передать задачу Claude Code, Codex, Gemini CLI, Qwen или Kimi — по отдельности или нескольким сразу.
 - **Параллельная, многошаговая работа.** Поскольку делегирование построено на инструментах, Мозг может запускать автономные конвейеры: разбить задачу («пусть Claude сделает это, а Codex — то»), выполнить параллельно, собрать результаты и решить следующий шаг — каждый цикл уточняет следующий.
 - **Общий контекст.** Агенты не изолированы: они разделяют контекст проекта (и Память, ниже), поэтому переключение незавершённой задачи с одного агента на другого не теряет нить.
-- **Вы говорите Мозгу, Мозг — агентам.** В обычной работе нет отдельного чата для каждого агента — вы управляете Мозгом (из панели администратора или через Telegram-бот), а Мозг координирует остальных.`,
+- **Вы говорите Мозгу, Мозг — агентам.** В обычной работе нет отдельного чата для каждого агента — вы управляете Мозгом через встроенный веб-чат в панели администратора (или, по желанию, через Telegram-бот), а Мозг координирует остальных.`,
   },
   {
     id: 'memory-flow',
@@ -805,11 +806,34 @@ Sponsors at the **$5 tier (white-label)** have it removed automatically and perm
 У спонсоров уровня **$5 (white-label)** она убирается автоматически и навсегда — и если вы пересоберёте сервер, статус white-label применяется заново, и она остаётся убранной.`,
   },
   {
-    id: 'telegram-surface',
-    title: 'Talking to the system — Telegram is the external surface',
-    titleRu: 'Общение с системой — Telegram как внешняя поверхность',
-    body: `For day-to-day use there is no separate built-in chat UI: you direct Brain (Hermes) from your phone via a Telegram bot (create one with @BotFather, paste the token in Admin → Brain settings), or directly from the admin panel. Any chat integration should be one Hermes supports out of the box; Telegram is the documented path.`,
-    bodyRu: `Для повседневной работы отдельного встроенного чата нет: вы управляете Мозгом (Hermes) с телефона через Telegram-бот (создайте его у @BotFather, вставьте токен в Admin → настройки Brain) или прямо из панели администратора. Любая чат-интеграция должна быть из тех, что Hermes поддерживает «из коробки»; Telegram — задокументированный путь.`,
+    id: 'hermes-web-chat',
+    title: 'Hermes Web Chat — the main way you talk to Brain',
+    titleRu: 'Hermes Web Chat — основной способ общения с Мозгом',
+    body: `Brain (Hermes) ships with a built-in **web chat** — a friendly chat panel that is the **primary way you interact with the system**. The moment your workspace opens, the chat is already there: it **opens automatically** in the admin panel, ready to use. The only thing you need to add is a model.
+
+**How it works.** The chat is a thin, friendly front-end wrapped around the same Hermes agent running on your server. Your messages go to Brain, which thinks, queries Memory, and coordinates the coding agents, then replies in the chat. It reads the same single credential pool as everything else, so a provider you connect once works everywhere.
+
+**Login.** The chat has **no separate login of its own** — its built-in registration / setup wizard is deliberately turned off (one credential store, not two confusing onboarding flows; you never set a chat password). On a fresh IP server the chat is open like the rest of the onboarding workspace. Once you attach a domain (secure mode), the chat — and the agent dashboard and Memory — are protected by **Fractera's own authentication**: you sign in once (admin role), and every internal port and subdomain is gated. So the chat is ready instantly, yet fully protected the moment you go secure.
+
+**Telegram is secondary and optional.** It is **not** the main surface — it simply lets you *also* talk to Brain from your phone. Unlike the web chat (ready immediately, zero setup), Telegram needs setup: a @BotFather bot token in **Settings → Telegram**. Use the built-in web chat as your main tool; add Telegram only if you want a phone channel too.
+
+**Recommended model.** Start with **gpt-5-mini via the OpenAI API** for both Brain and Memory — it costs about a cent per hour and is plenty to get going. Only switch to a **Codex subscription** once your usage would exceed roughly **$20/month**; below that, pay-as-you-go gpt-5-mini is the better deal.`,
+    bodyRu: `У Мозга (Hermes) есть встроенный **веб-чат** — дружелюбная панель чата, которая является **основным способом взаимодействия с системой**. Как только открывается ваш воркспейс, чат уже там: он **открывается автоматически** в панели администратора и сразу готов к работе. Единственное, что нужно добавить, — модель.
+
+**Как это работает.** Чат — это тонкая дружелюбная оболочка вокруг того же агента Hermes, который работает на вашем сервере. Ваши сообщения уходят к Мозгу, он думает, обращается к Памяти, координирует кодинг-агентов и отвечает в чате. Он читает тот же единый пул учётных данных, что и всё остальное, поэтому подключённый однажды провайдер работает везде.
+
+**Вход.** У чата **нет собственного отдельного логина** — встроенный мастер регистрации / настройки намеренно выключен (один склад учётных данных, а не два путающих онбординга; пароль для чата вы не задаёте). На свежем IP-сервере чат открыт, как и весь онбординг-воркспейс. Как только вы привязываете домен (защищённый режим), чат — а также дашборд агента и Память — защищаются **собственной авторизацией Fractera**: вы входите один раз (роль администратора), и каждый внутренний порт и субдомен закрыт. То есть чат готов мгновенно, но полностью защищён, как только вы переходите в защищённый режим.
+
+**Telegram — вторичный и необязательный.** Это **не** основная поверхность — он лишь позволяет *также* общаться с Мозгом с телефона. В отличие от веб-чата (готов сразу, без настройки), Telegram требует настройки: токен бота от @BotFather в **Настройки → Telegram**. Используйте встроенный веб-чат как основной инструмент; добавляйте Telegram, только если хотите ещё и канал на телефоне.
+
+**Рекомендуемая модель.** Начните с **gpt-5-mini через API OpenAI** и для Мозга, и для Памяти — это стоит около цента в час и вполне хватает для старта. Переходите на **подписку Codex** только когда расход превысит примерно **$20 в месяц**; ниже этого порога оплата по факту за gpt-5-mini выгоднее.`,
+  },
+  {
+    id: 'free-tier-models',
+    title: 'Free daily model quotas — keep agents running at no cost (optional)',
+    titleRu: 'Бесплатные дневные лимиты моделей — работа агентов без затрат (опция)',
+    body: `Many providers offer a **free daily quota** on some of their models. You can optionally configure these free models in your workspace so that when one model's free limit for the day runs out, the agents **fall back to another** and keep working — without you paying anything. This is an extra option that the rich multi-model setup here makes possible: in a plain single-model dev setup you simply wouldn't have so many models to fall back across. It is not required — set it up only if you want to stretch usage at zero cost.`,
+    bodyRu: `Множество провайдеров предоставляют **бесплатный дневной лимит** на некоторые свои модели. При желании вы можете настроить эти бесплатные модели в своём воркспейсе так, чтобы когда дневной бесплатный лимит одной модели заканчивается, агенты **переключались на другую** и продолжали работать — не платя ничего. Это дополнительная опция, которую делает возможной богатая мультимодельная конфигурация: в обычной разработке с одной моделью у вас просто не было бы такого количества моделей для переключения. Это не обязательно — настраивайте, только если хотите растянуть использование с нулевыми затратами.`,
   },
   {
     id: 'emails-lifecycle',
