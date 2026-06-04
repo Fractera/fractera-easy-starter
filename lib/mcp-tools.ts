@@ -41,6 +41,10 @@ export const MCP_TOOLS = [
           type: 'string',
           description: 'The email the user typed (and confirmed by re-typing). Welcome / failure emails go here.',
         },
+        email_confirmed: {
+          type: 'boolean',
+          description: 'REQUIRED, must be true. Set this ONLY after the user has typed their email a SECOND time (Q2) and the two entries match (case-insensitive, trimmed). Do not set it if you only asked once.',
+        },
         ip: {
           type: 'string',
           description: 'IPv4 address of the user\'s VPS, e.g. 185.10.20.30.',
@@ -62,13 +66,17 @@ export const MCP_TOOLS = [
           description:
             'Optional — which AI tools to install (lets the user save money on a smaller server). OMIT this to install the full recommended set (5 coding agents + Memory + Brain). Pass a subset of ["claude-code","codex","gemini-cli","qwen-code","kimi-code","memory","brain"] to install only those. Pass an empty array [] for a plain server with NO AI at all (just database + sign-in). The server, database, storage, sign-in and Admin panel are always installed regardless.',
         },
+        components_selected: {
+          type: 'boolean',
+          description: 'REQUIRED, must be true. Set this ONLY after you have actually asked the component question (Q5) — told the user the full set is the default and asked, in three short steps, whether to keep all five coding assistants, Memory, and Brain. Pass it together with `components` (omit `components` or pass the full array = everything, [] = none, a subset = those). Do not set it if you skipped Q5.',
+        },
         terms_accepted: {
           type: 'boolean',
           description:
             'REQUIRED, must be true. Set this ONLY after the user has explicitly confirmed in the chat that they (1) have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and (2) understand they MUST change their server root password immediately after installation — Fractera never stores it and has no way to access the server afterwards. If the user has not given this explicit agreement, do NOT call this tool: ask for it first (and offer to explain the documents right in the chat).',
         },
       },
-      required: ['email', 'ip', 'password', 'terms_accepted'],
+      required: ['email', 'email_confirmed', 'ip', 'password', 'components_selected', 'terms_accepted'],
     },
   },
   {
@@ -281,16 +289,27 @@ export async function handleToolCall(
     const TAG = `[mcp:reg ${ip}]`
     console.log(`${TAG} called email=${email} login=${login} components=${components ?? 'all'}`)
 
+    // ── Pre-start validator — runs BEFORE any destructive action (wipe/deploy).
+    // Belt-and-suspenders with the inputSchema `required` list: the schema rejects
+    // a call missing a field; this validates the VALUES and returns a precise,
+    // actionable message so the agent re-asks the user and retries. NOTHING
+    // destructive runs until every check below passes — the surveys (Q2 email
+    // confirm, Q5 components, Q6 terms) cannot be skipped on the way to a deploy.
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return { status: 'error', message: 'Invalid email. Ask the user to type a valid email twice for confirmation.' }
+      return { status: 'error', message: 'Invalid email. Ask the user to type a valid email twice for confirmation (Q1+Q2).' }
     }
-    if (!ip) return { status: 'error', message: 'Missing IP address. Ask the user for their server IP (four groups of digits, e.g. 185.10.20.30).' }
-    if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server.' }
-    // Terms gate — the user must explicitly agree to the Terms of Service + Privacy
-    // Policy and acknowledge the post-install password-change obligation before any
-    // deploy. This is a hard server-side guard, not just a prompt instruction.
+    if (args.email_confirmed !== true) {
+      return { status: 'error', message: 'Email not confirmed (Q2 skipped). Ask the user to re-type the SAME email a second time; only once the two match, call again with email_confirmed: true.' }
+    }
+    if (!ip || !/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
+      return { status: 'error', message: 'Missing or invalid IP address. Ask the user for their server IPv4 — four groups of digits, e.g. 185.10.20.30 (Q3).' }
+    }
+    if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server (Q4).' }
+    if (args.components_selected !== true) {
+      return { status: 'error', message: 'Components not chosen yet (Q5 skipped). Run Q5 first: tell the user the full recommended set is installed by default, then ask in three short steps whether to keep all five coding assistants, Memory, and Brain (or drop any to run a smaller, cheaper server). Then call again with components_selected: true plus the components array (omit it or full array = everything, [] = none, a subset = those).' }
+    }
     if (args.terms_accepted !== true) {
-      return { status: 'error', message: 'Terms not accepted. Before deploying, the user must explicitly confirm in the chat that they have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and that they understand they must change their server root password immediately after installation (Fractera never stores it). Ask for that confirmation now — offer to explain the documents here in the chat — then call register_and_deploy again with terms_accepted: true.' }
+      return { status: 'error', message: 'Terms not accepted (Q6 skipped). The user must explicitly confirm in the chat that they have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and that they understand they must change their server root password immediately after installation (Fractera never stores it). Ask for that confirmation now — offer to explain the documents here in the chat — then call again with terms_accepted: true.' }
     }
 
     // Idempotency guard. If the agent calls this tool twice for the same IP
