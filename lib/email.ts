@@ -140,7 +140,7 @@ export async function sendWelcomeEmail(
             <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
               <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin workspace</div>
               <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${adminUrl}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here.</div>
+              <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here. If you installed <strong>Brain</strong>, the built-in <strong>chat opens here automatically</strong> the moment you sign in — just start talking to your AI.</div>
             </td>
           </tr>
         </table>
