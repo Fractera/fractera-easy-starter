@@ -152,9 +152,9 @@ export async function sendWelcomeEmail(
           <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
             <tr>
               <td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
+                <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Connect AI — start with <strong>gpt-5-mini</strong> via API <span style="color:#10b981;font-size:11px">recommended</span></div>
                 <div style="font-size:12px;color:#555;line-height:1.5">
-                  A flat-rate Codex subscription costs dramatically less than the equivalent API usage for the same workload. You <em>can</em> use an API key instead, but at heavy use the bill grows fast.
+                  The easiest way to begin: top up an OpenAI API balance (minimum <strong>$5</strong>) and paste the key into Fractera. The <strong>gpt-5-mini</strong> model costs only about <strong>1&cent; per hour</strong> of use — perfect if you are new to AI, and enough to power both <strong>Brain (Hermes)</strong> and <strong>Memory</strong>. Create your key at <a href="https://platform.openai.com/login" style="color:#6c47ff;text-decoration:none;font-weight:600">platform.openai.com</a>. Later, if you need more powerful models for serious code development, you can switch to a flat-rate subscription (e.g. OpenAI Codex).
                 </div>
               </td>
             </tr>
@@ -180,7 +180,7 @@ export async function sendWelcomeEmail(
         </div>
 
         <!-- Sponsor CTA -->
-        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px;text-align:center">
           <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
@@ -308,8 +308,8 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">Recommended next steps</p>
           <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 6px">
             <tr><td style="padding:10px 14px;background:#fafafa;border-left:3px solid #6c47ff;border-radius:4px">
-              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Subscribe to OpenAI Codex <span style="color:#10b981;font-size:11px">recommended</span></div>
-              <div style="font-size:12px;color:#555;line-height:1.5">A flat-rate Codex subscription costs dramatically less than equivalent API usage for the same workload.</div>
+              <div style="font-size:13px;font-weight:600;color:#0a0a0a;margin-bottom:2px">1 · Connect AI — start with <strong>gpt-5-mini</strong> via API <span style="color:#10b981;font-size:11px">recommended</span></div>
+              <div style="font-size:12px;color:#555;line-height:1.5">Top up an OpenAI API balance (from <strong>$5</strong>) and paste the key in. <strong>gpt-5-mini</strong> costs about <strong>1&cent;/hour</strong> — enough for Brain and Memory. Create a key at <a href="https://platform.openai.com/login" style="color:#6c47ff;text-decoration:none;font-weight:600">platform.openai.com</a>. Switch to a subscription later if you need heavier models for code development.</div>
             </td></tr>
             <tr><td style="padding:10px 14px;background:#ecfdf5;border-left:3px solid #10b981;border-radius:4px">
               <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:2px">🎉 You&rsquo;re on your own domain</div>
@@ -332,7 +332,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
         </div>
 
         <!-- Sponsor CTA -->
-        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px;text-align:center">
           <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
@@ -413,7 +413,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
         </div>
 
         <!-- Sponsor CTA -->
-        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px">
+        <div style="margin:32px 0 0;padding:18px 20px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:10px;text-align:center">
           <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#0a0a0a">Become a Fractera sponsor — from $1/mo</p>
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
