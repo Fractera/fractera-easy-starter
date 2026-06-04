@@ -10,6 +10,7 @@ import { AskAiWidget } from '@/components/ask-ai-widget'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
+import { LEGAL } from '@/config/legal'
 
 export async function generateMetadata({
   params,
@@ -96,6 +97,19 @@ function buildOrganizationSchema(lang: string) {
     logo: 'https://www.fractera.ai/fractera-logo.jpg',
     description: m.organizationDescription,
     email: 'admin@fractera.ai',
+    // Legal identity (single source: config/legal.ts). addressCountry: 'US' is
+    // the machine-readable proof that Fractera is a US-registered corporation;
+    // taxID is the EIN. Mirrors the human-visible footer + legal pages.
+    legalName: LEGAL.companyName,
+    taxID: LEGAL.ein,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: `${LEGAL.companyAddressLine1} ${LEGAL.companyAddressLine2}`,
+      addressLocality: LEGAL.companyCity,
+      addressRegion: LEGAL.companyState,
+      postalCode: LEGAL.companyZip,
+      addressCountry: 'US',
+    },
     founder: { '@id': 'https://www.fractera.ai/#roma-armstrong' },
     sameAs: [
       'https://www.fractera.ai',
