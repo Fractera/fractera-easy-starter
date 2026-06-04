@@ -90,16 +90,43 @@ function buildOrganizationSchema(lang: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': 'https://www.fractera.ai/#organization',
     name: 'Fractera',
     url: 'https://www.fractera.ai',
     logo: 'https://www.fractera.ai/fractera-logo.jpg',
     description: m.organizationDescription,
     email: 'admin@fractera.ai',
+    founder: { '@id': 'https://www.fractera.ai/#roma-armstrong' },
     sameAs: [
       'https://www.fractera.ai',
       'https://github.com/Fractera/ai-workspace',
     ],
   }
+}
+
+// Person entity for the founder. Canonical name is the target pseudonym
+// (Roma Armstrong); the previous real name lives in alternateName so search
+// engines merge both identities into ONE entity. sameAs lists every real
+// profile — old (Bolshiyanov) and new (Armstrong) — which is the actual "glue"
+// that consolidates the two names. Language-independent → a plain const.
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': 'https://www.fractera.ai/#roma-armstrong',
+  name: 'Roma Armstrong',
+  alternateName: ['Roman Bolshiyanov', 'Roma Bolshiyanov'],
+  jobTitle: 'Founder',
+  url: 'https://www.fractera.ai',
+  worksFor: { '@id': 'https://www.fractera.ai/#organization' },
+  sameAs: [
+    'https://www.linkedin.com/in/bolshiyanov/',
+    'https://habr.com/ru/users/bolshiyanov/',
+    'https://bolshiyanov.medium.com/',
+    'https://dev.to/roma_armstrong',
+    'https://hackernoon.com/u/roma_armstrong',
+    'https://vc.ru/id300490',
+    'https://forum.sdelaimebel.ru/profile/175447-bolshiyanov_99718/',
+  ],
 }
 
 const websiteSchema = {
@@ -171,6 +198,10 @@ export default async function LangLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
       />
       <SiteHeader />
       {children}
