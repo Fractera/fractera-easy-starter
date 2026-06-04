@@ -94,6 +94,8 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
+  // Remote Agent = the built-in Hermes Web Chat (the super-agent surface).
+  const chatUrl   = isIpMode ? `http://${ip}:9120` : `https://hermes.${subdomain}/chat/`
 
   await sendEmail({
     from: FROM,
@@ -121,26 +123,33 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        <!-- Primary CTA -->
-        <div style="text-align:center;margin:28px 0">
-          <a href="${adminUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
-        </div>
-
         <!-- The 3 main destinations -->
-        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
           <tr>
-            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
-              <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${appUrl}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
+            <td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
+              <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
+              <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
             </td>
           </tr>
           <tr>
-            <td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin workspace</div>
-              <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${adminUrl}</a>
-              <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here. If you installed <strong>Brain</strong>, the built-in <strong>chat opens here automatically</strong> the moment you sign in — just start talking to your AI.</div>
+            <td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your AI Workspace</div>
+              <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your control panel — coding agents, database, file storage and everything you installed live here.</div>
+              <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your AI Workspace →</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
+              <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Your Remote Agent</div>
+              <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">A super-agent that runs your whole setup by chat</div>
+              <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
+                A built-in AI chat that drives both your App and your AI Workspace remotely. Talk to it in plain
+                language — build features, manage your project, run multi-step work — in one easy, clean flow with
+                the full power of the system behind it. It opens automatically inside your workspace; just add a
+                model to start. <em>Available when Brain is installed.</em>
+              </div>
+              <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Agent →</a>
             </td>
           </tr>
         </table>
@@ -263,6 +272,8 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
   const authUrl   = `https://auth.${domain}`
+  // Remote Agent = the built-in Hermes Web Chat (auth-gated in secure mode).
+  const chatUrl   = `https://hermes.${domain}/chat/`
 
   await sendEmail({
     from: FROM,
@@ -278,30 +289,35 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        <!-- Primary CTA -->
-        <div style="text-align:center;margin:28px 0">
-          <a href="${adminUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open my workspace →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
-        </div>
-
-        <!-- Destinations -->
-        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px;margin:24px 0 0">
-          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Live app</div>
-            <a href="${appUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${appUrl}</a>
-            <div style="font-size:12px;color:#888;margin-top:4px">The site you publish for your end users.</div>
+        <!-- The 3 main destinations -->
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
+            <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
           </td></tr>
-          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Admin workspace</div>
-            <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${adminUrl}</a>
-            <div style="font-size:12px;color:#888;margin-top:4px">Your control panel — coding agents, settings, and everything you installed are here.</div>
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your AI Workspace</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your control panel — coding agents, database, file storage and everything you installed live here.</div>
+            <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your AI Workspace →</a>
           </td></tr>
-          <tr><td style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px 16px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">Sign-in service</div>
-            <a href="${authUrl}" style="color:#6c47ff;font-weight:600;font-size:14px;text-decoration:none;word-break:break-all">${authUrl}</a>
-            <div style="font-size:12px;color:#888;margin-top:4px">Strict sign-in is now required. The first person to register here becomes the new administrator.</div>
+          <tr><td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
+            <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Your Remote Agent</div>
+            <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">A super-agent that runs your whole setup by chat</div>
+            <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
+              A built-in AI chat that drives both your App and your AI Workspace remotely. Talk to it in plain
+              language — build features, manage your project, run multi-step work — in one easy, clean flow with
+              the full power of the system behind it. It opens automatically inside your workspace; just add a
+              model to start. <em>Available when Brain is installed.</em>
+            </div>
+            <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Agent →</a>
           </td></tr>
         </table>
+
+        <!-- Sign-in note (secure mode) -->
+        <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
+          <div style="font-size:12px;color:#555;line-height:1.5">Strict sign-in is now required at <a href="${authUrl}" style="color:#6c47ff;font-weight:600;text-decoration:none">${authUrl}</a>. The first person to register there becomes the administrator.</div>
+        </div>
 
         <!-- Recommended next steps (no "buy a domain" — that's done now) -->
         <div style="margin:32px 0 8px">
