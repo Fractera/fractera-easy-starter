@@ -31,7 +31,7 @@ export const install: InstallPart = {
     ipPlaceholder: 'IP-адрес сервера (например, 109.199.105.213)',
     loginPlaceholder: 'Логин (обычно: root)',
     passwordPlaceholder: 'Пароль',
-    passwordHint: 'Заменить пароль после развёртывания.',
+    passwordHint: 'В целях безопасности смените пароль вашего сервера после развёртывания.',
     checking: 'Проверка сервера...',
     alreadyInstalled: 'Fractera уже установлена на этом сервере',
     yourDomains: 'Ваши домены',

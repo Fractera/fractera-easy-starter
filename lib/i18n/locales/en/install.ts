@@ -31,7 +31,7 @@ export const install: InstallPart = {
     ipPlaceholder: 'Server IP address (e.g. 109.199.105.213)',
     loginPlaceholder: 'Login (usually: root)',
     passwordPlaceholder: 'Password',
-    passwordHint: 'Change this password after deployment.',
+    passwordHint: 'For security, change your server\'s password after deployment.',
     checking: 'Checking server...',
     alreadyInstalled: 'Fractera is already installed on this server',
     yourDomains: 'Your domains',
