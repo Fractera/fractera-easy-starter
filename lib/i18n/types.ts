@@ -108,6 +108,7 @@ export type SiteContent = {
     ipPlaceholder: string
     loginPlaceholder: string
     passwordPlaceholder: string
+    passwordHint: string
     checking: string
     alreadyInstalled: string
     yourDomains: string

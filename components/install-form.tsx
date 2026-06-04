@@ -210,13 +210,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               onChange={e => setLogin(e.target.value)}
               className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
             />
-            <input
-              type="password"
-              placeholder={t.passwordPlaceholder}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
-            />
+            <div className="flex flex-col gap-1.5">
+              <input
+                type="password"
+                placeholder={t.passwordPlaceholder}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
+              />
+              <p className="text-xs text-white/75 leading-relaxed pl-1">{t.passwordHint}</p>
+            </div>
           </div>
 
           {/* Component selection (S3) — full vs custom install */}
@@ -225,7 +228,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               <span className="text-sm text-white font-medium">
                 {customMode ? t.componentSelect.customLabel : t.componentSelect.fullLabel}
               </span>
-              <Switch checked={customMode} onCheckedChange={(v) => setCustomMode(!!v)} />
+              {/* Switch ON = standard/full build (default — everything installed);
+                  turning it OFF reveals the custom checkbox selection. Visual is
+                  inverted from `customMode` so "all active" reads as ON. Effective
+                  default is unchanged: customMode stays false → no `components` sent. */}
+              <Switch checked={!customMode} onCheckedChange={(v) => setCustomMode(!v)} />
             </label>
 
             {customMode && (
