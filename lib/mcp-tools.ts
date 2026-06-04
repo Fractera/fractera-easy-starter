@@ -62,8 +62,13 @@ export const MCP_TOOLS = [
           description:
             'Optional — which AI tools to install (lets the user save money on a smaller server). OMIT this to install the full recommended set (5 coding agents + Memory + Brain). Pass a subset of ["claude-code","codex","gemini-cli","qwen-code","kimi-code","memory","brain"] to install only those. Pass an empty array [] for a plain server with NO AI at all (just database + sign-in). The server, database, storage, sign-in and Admin panel are always installed regardless.',
         },
+        terms_accepted: {
+          type: 'boolean',
+          description:
+            'REQUIRED, must be true. Set this ONLY after the user has explicitly confirmed in the chat that they (1) have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and (2) understand they MUST change their server root password immediately after installation — Fractera never stores it and has no way to access the server afterwards. If the user has not given this explicit agreement, do NOT call this tool: ask for it first (and offer to explain the documents right in the chat).',
+        },
       },
-      required: ['email', 'ip', 'password'],
+      required: ['email', 'ip', 'password', 'terms_accepted'],
     },
   },
   {
@@ -281,6 +286,12 @@ export async function handleToolCall(
     }
     if (!ip) return { status: 'error', message: 'Missing IP address. Ask the user for their server IP (four groups of digits, e.g. 185.10.20.30).' }
     if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server.' }
+    // Terms gate — the user must explicitly agree to the Terms of Service + Privacy
+    // Policy and acknowledge the post-install password-change obligation before any
+    // deploy. This is a hard server-side guard, not just a prompt instruction.
+    if (args.terms_accepted !== true) {
+      return { status: 'error', message: 'Terms not accepted. Before deploying, the user must explicitly confirm in the chat that they have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and that they understand they must change their server root password immediately after installation (Fractera never stores it). Ask for that confirmation now — offer to explain the documents here in the chat — then call register_and_deploy again with terms_accepted: true.' }
+    }
 
     // Idempotency guard. If the agent calls this tool twice for the same IP
     // (e.g. it thought the first call timed out and retried), do NOT launch a

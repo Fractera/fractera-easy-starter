@@ -10,6 +10,7 @@ export type PrivacyLegal = {
   s8: { title: string; p1: string }
   s9: { title: string; p1: string }
   s10: { title: string; p1: string }
+  s12: { title: string; p1: string; p2: string }
   s11: { title: string }
 }
 
@@ -27,6 +28,7 @@ export type TermsLegal = {
   s10: { title: string; p1: string }
   s11: { title: string; p1: string; p2: string; p3: string }
   s12: { title: string; p1: string }
+  s14: { title: string; p1: string; p2: string; p3: string }
   s13: { title: string }
 }
 

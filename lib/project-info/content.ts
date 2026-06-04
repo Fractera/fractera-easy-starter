@@ -27,6 +27,7 @@
 import type { SiteContent } from '@/lib/i18n/types'
 import { en } from '@/lib/i18n/locales/en'
 import { ru } from '@/lib/i18n/locales/ru'
+import { getLegal } from '@/lib/i18n/legal'
 
 export type InfoLang = 'en' | 'ru'
 
@@ -835,6 +836,53 @@ You interact only with the RESULTS of that service — the deploy, the dashboard
 
 Вы взаимодействуете только с РЕЗУЛЬТАТАМИ этого сервиса — развёртывание, кабинет, письма, MCP-агент — а ваш код и данные всегда остаются на вашем сервере. (Как этот сервис устроен внутри — намеренно не часть этого справочника.)`,
   },
+  {
+    id: 'security-and-passwords',
+    title: 'Security & passwords — does Fractera keep access to my server?',
+    titleRu: 'Безопасность и пароли — остаётся ли у Fractera доступ к моему серверу?',
+    body: `**Does Fractera store my server password?**
+
+No. When you deploy, your server's root password is used only in memory, for the few minutes of installation, to connect to the server and set it up. It is never written to Fractera's database — our records keep only a masked placeholder ("*****"), never the real password. This is enforced in code at every place a server record is created.
+
+**So can Fractera access my server later?**
+
+No. Because the real password is never stored, Fractera has no credential to authenticate with once installation finishes. There is no hidden key, no backdoor, no "support access". The connection that performed the install is closed and nothing is retained.
+
+**Then why must I change the password after deployment?**
+
+Two reasons. First, you typed the password to start the install, so as basic hygiene you should rotate it. Second, changing it is your own guarantee: once you set a new password that only you know, it is provably impossible for anyone — including Fractera — to reach the server with the original one. Changing it is your responsibility and a condition of using the service (see the Terms of Service).
+
+**Could I be hacked "because the password was with Fractera"?**
+
+No claim of that kind can hold. Fractera does not store the password and requires you to change it. If a server were ever compromised, the cause would be something else — a weak or reused password you kept, an exposed service, malware, a third party you shared access with — never retained Fractera access, because there is none. If you complete the password change, Fractera cannot retain access under any circumstances.
+
+**Who is Fractera, legally?**
+
+Fractera, Inc. is a registered Delaware C-Corporation (USA) with a real legal address, publicly accountable for its actions. Not an anonymous operator: we publish our Terms of Service and Privacy Policy and are bound by them.
+
+**Best practice — deploy on a clean server.** For complete peace of mind, install onto a fresh VPS that holds none of your existing data. Then there is nothing pre-existing to worry about, and after you change the password the server is exclusively yours.`,
+    bodyRu: `**Хранит ли Fractera пароль моего сервера?**
+
+Нет. При развёртывании root-пароль сервера используется только в памяти, в течение нескольких минут установки, чтобы подключиться к серверу и настроить его. Он никогда не записывается в базу данных Fractera — в наших записях хранится только маска («*****»), а не реальный пароль. Это закреплено в коде в каждом месте, где создаётся запись о сервере.
+
+**Значит, Fractera сможет зайти на мой сервер потом?**
+
+Нет. Поскольку реальный пароль не хранится, у Fractera нет учётных данных для аутентификации после завершения установки. Нет скрытого ключа, нет бэкдора, нет «доступа поддержки». Соединение, выполнившее установку, закрыто, и ничего не сохраняется.
+
+**Тогда зачем менять пароль после развёртывания?**
+
+Две причины. Во-первых, вы вводили пароль, чтобы запустить установку, поэтому по базовой гигиене его стоит сменить. Во-вторых, смена пароля — ваша личная гарантия: как только вы задаёте новый пароль, известный только вам, становится доказуемо невозможным, чтобы кто-либо — включая Fractera — попал на сервер по прежнему. Смена пароля — ваша обязанность и условие использования сервиса (см. Условия использования).
+
+**Могут ли меня взломать «потому что пароль был у Fractera»?**
+
+Никакая претензия такого рода несостоятельна. Fractera не хранит пароль и требует его сменить. Если сервер когда-либо будет скомпрометирован, причина будет иной — слабый или повторно использованный пароль, который вы оставили; открытый наружу сервис; вредоносное ПО; третья сторона, которой вы дали доступ — но не сохранённый доступ Fractera, потому что его нет. Если вы выполнили смену пароля, Fractera ни при каких обстоятельствах не может сохранить доступ.
+
+**Кто такая Fractera юридически?**
+
+Fractera, Inc. — зарегистрированная корпорация (C-Corp) штата Делавэр, США, с реальным юридическим адресом, публично отвечающая за свои действия. Это не анонимный оператор: мы публикуем Условия использования и Политику конфиденциальности и связаны ими.
+
+**Лучшая практика — разворачивайте на чистом сервере.** Для полного спокойствия устанавливайте на новый VPS, на котором нет ваших данных. Тогда не о чем беспокоиться заранее, а после смены пароля сервер принадлежит исключительно вам.`,
+  },
 ]
 
 // ── Landing-derived sections ────────────────────────────────────────────────
@@ -952,10 +1000,44 @@ const LANDING: Record<InfoLang, { id: string; title: string; body: string }[]> =
   ru: landingSectionsFor(ru),
 }
 
+// Full legal documents (Terms of Service, Privacy Policy) flattened to markdown
+// from the SINGLE source in lib/i18n/legal — so the MCP agent can quote the actual
+// document text to users on request. No duplication: edits to the legal locale flow
+// through here automatically. Sections iterate in object-key (display) order.
+function legalToMarkdown(doc: Record<string, unknown>): string {
+  const blocks: string[] = []
+  for (const [key, raw] of Object.entries(doc)) {
+    if (key === 'title' || !raw || typeof raw !== 'object') continue
+    const s = raw as Record<string, unknown>
+    const parts: string[] = []
+    if (typeof s.title === 'string') parts.push(`### ${s.title}`)
+    if (typeof s.p1 === 'string') parts.push(s.p1)
+    if (typeof s.intro === 'string') parts.push(s.intro)
+    if (Array.isArray(s.items)) parts.push((s.items as string[]).map((i) => `- ${i}`).join('\n'))
+    if (typeof s.note === 'string') parts.push(s.note)
+    if (typeof s.p2 === 'string') parts.push(s.p2)
+    if (typeof s.p3 === 'string') parts.push(s.p3)
+    if (parts.length) blocks.push(parts.join('\n\n'))
+  }
+  return blocks.join('\n\n')
+}
+
+const LEGAL_SECTIONS: Record<InfoLang, { id: string; title: string; body: string }[]> = {
+  en: [
+    { id: 'terms-of-service', title: getLegal('en').terms.title, body: legalToMarkdown(getLegal('en').terms as unknown as Record<string, unknown>) },
+    { id: 'privacy-policy', title: getLegal('en').privacy.title, body: legalToMarkdown(getLegal('en').privacy as unknown as Record<string, unknown>) },
+  ],
+  ru: [
+    { id: 'terms-of-service', title: getLegal('ru').terms.title, body: legalToMarkdown(getLegal('ru').terms as unknown as Record<string, unknown>) },
+    { id: 'privacy-policy', title: getLegal('ru').privacy.title, body: legalToMarkdown(getLegal('ru').privacy as unknown as Record<string, unknown>) },
+  ],
+}
+
 export function getSectionList(lang: InfoLang = 'en'): { id: string; title: string }[] {
   const curated = SECTIONS.map((s) => ({ id: s.id, title: lang === 'ru' ? (s.titleRu ?? s.title) : s.title }))
+  const legal = LEGAL_SECTIONS[lang].map((s) => ({ id: s.id, title: s.title }))
   const landing = LANDING[lang].map((s) => ({ id: s.id, title: s.title }))
-  return [...curated, ...landing]
+  return [...curated, ...legal, ...landing]
 }
 
 export function getSection(id: string, lang: InfoLang = 'en'): { id: string; title: string; body: string } | null {
@@ -965,6 +1047,8 @@ export function getSection(id: string, lang: InfoLang = 'en'): { id: string; tit
       ? { id: s.id, title: s.titleRu ?? s.title, body: s.bodyRu ?? s.body }
       : { id: s.id, title: s.title, body: s.body }
   }
+  const lg = LEGAL_SECTIONS[lang].find((x) => x.id === id)
+  if (lg) return lg
   const l = LANDING[lang].find((x) => x.id === id)
   return l ?? null
 }

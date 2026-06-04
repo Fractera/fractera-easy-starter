@@ -109,6 +109,7 @@ export type SiteContent = {
     loginPlaceholder: string
     passwordPlaceholder: string
     passwordHint: string
+    security: { note: string; passwordAck: string }
     checking: string
     alreadyInstalled: string
     yourDomains: string

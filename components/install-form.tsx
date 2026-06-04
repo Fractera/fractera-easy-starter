@@ -41,6 +41,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [statusError, setStatusError] = useState<string | null>(null)
   const [destroying, setDestroying] = useState(false)
   const [emailConfirmed, setEmailConfirmed] = useState(false)
+  // Security acknowledgment: the user must confirm they will change the server
+  // password after deployment (Fractera never stores it). Always required —
+  // gates the launch button regardless of login state.
+  const [passwordAck, setPasswordAck] = useState(false)
   // Selective install (S3): full mode installs everything (default, sends no
   // `components`); custom mode sends the checked subset (may be empty = no AI).
   const [customMode, setCustomMode] = useState(false)
@@ -406,10 +410,27 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             </button>
           )}
 
+          {/* Security acknowledgment — Fractera never stores the password and has
+              no way to reach the server after install; changing it is the user's
+              own responsibility. Mandatory; gates the launch button. */}
+          {(serverStatus === 'fresh' || serverStatus === 'idle') && (
+            <div className="flex flex-col gap-3 bg-white/[0.04] border border-white/20 rounded-xl p-4">
+              <p className="text-xs text-white/60 leading-relaxed">{t.security.note}</p>
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <Checkbox
+                  checked={passwordAck}
+                  onCheckedChange={v => setPasswordAck(!!v)}
+                  className="mt-0.5"
+                />
+                <span className="text-sm text-white leading-snug">{t.security.passwordAck}</span>
+              </label>
+            </div>
+          )}
+
           {(serverStatus === 'fresh' || serverStatus === 'idle') && (
             <button
               onClick={handleInstall}
-              disabled={!ip || !password || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
+              disabled={!ip || !password || !passwordAck || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
               className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {t.launchButton}

@@ -14,7 +14,7 @@ export const en: LegalContent = {
         'Account data: email address, name, and authentication credentials when you create an account.',
         'Payment data: billing details processed by Stripe or other payment providers. We do not store full card numbers.',
         'Usage data: log data, IP address, device type, browser, pages visited, and feature usage.',
-        'Server data: IP address and credentials of servers you provision through our platform (stored encrypted).',
+        'Server data: the IP address and optional subdomain of servers you provision. We do NOT store your server\'s root password — it is used only in memory, during installation, and is never written to our database; we keep only a masked placeholder ("*****").',
         'Communications: messages you send to our support team.',
       ],
     },
@@ -33,7 +33,7 @@ export const en: LegalContent = {
     },
     s4: {
       title: '4. Data Storage and Security',
-      p1: 'Your account and subscription data is stored on servers located in the European Union (Neon managed PostgreSQL, EU region). We implement industry-standard technical and organizational measures including encryption at rest and in transit, access controls, and regular security reviews. Despite these measures, no system is completely secure.',
+      p1: 'Your account and subscription data is stored on servers located in the European Union (Neon managed PostgreSQL, EU region). We implement industry-standard technical and organizational measures including encryption at rest and in transit, access controls, and regular security reviews. Despite these measures, no system is completely secure. Importantly, we never store the root password of the servers you provision: it is used transiently to run the installation and is then discarded, so Fractera retains no credential capable of accessing your server after setup completes.',
     },
     s5: {
       title: '5. Data Sharing and Third-Party Services',
@@ -80,8 +80,13 @@ export const en: LegalContent = {
       title: '10. Changes to This Policy',
       p1: 'We may update this Privacy Policy from time to time. We will notify you of material changes by email or by posting a notice on our platform. Continued use of the service after changes constitutes acceptance of the updated policy.',
     },
+    s12: {
+      title: '11. Server Access Credentials',
+      p1: 'When you provision a server through Fractera, you supply its IP address and root password. The root password is used only in memory, for the duration of the installation, to connect to and configure your server. We do NOT persist your server\'s root password to our database or any of our systems — only a masked placeholder ("*****") is retained. After installation, Fractera holds no credential capable of accessing your server.',
+      p2: 'Because we do not store this password, we ask you to change it immediately after installation and to manage your server\'s security yourself. See our Terms of Service for the corresponding security obligations.',
+    },
     s11: {
-      title: '11. Contact',
+      title: '12. Contact',
     },
   },
 
@@ -145,8 +150,14 @@ export const en: LegalContent = {
       title: '12. Changes to Terms',
       p1: 'We reserve the right to modify these Terms at any time. We will notify you of material changes by email at least 14 days in advance. Continued use of the service after changes take effect constitutes acceptance of the revised Terms.',
     },
+    s14: {
+      title: '13. Server Access Credentials & Your Security Obligations',
+      p1: 'To install Fractera on your server, you provide your server\'s IP address and root password. This password is used only transiently, in memory, to perform the installation. Fractera does NOT store your server\'s root password: our systems retain only a masked placeholder, never the actual credential. Once installation completes, Fractera has no technical means to access, log into, or control your server.',
+      p2: 'You acknowledge and agree that changing your server\'s root password immediately after installation is YOUR responsibility and a condition of using the service. You are solely responsible for the ongoing security of your server, including password rotation, firewall configuration, and access management. We strongly recommend deploying onto a fresh, clean server that contains no pre-existing data of yours.',
+      p3: 'Because Fractera does not retain your server password and requires you to change it after installation, any claim, demand, or theory of liability premised on Fractera having retained access to your server through the installation password cannot be sustained: where you fulfil your obligation to change the password, Fractera cannot, under any circumstances, retain access. Fractera, Inc. is a duly registered Delaware corporation accountable for its actions. Nothing in this section limits any mandatory consumer rights you may have under the law of your country of residence.',
+    },
     s13: {
-      title: '13. Contact',
+      title: '14. Contact',
     },
   },
 

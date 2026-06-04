@@ -32,6 +32,10 @@ export const install: InstallPart = {
     loginPlaceholder: 'Login (usually: root)',
     passwordPlaceholder: 'Password',
     passwordHint: 'For security, change your server\'s password after deployment.',
+    security: {
+      note: 'Fractera never stores your server password and has no technical way to reach your server once installation completes. For complete peace of mind, deploy onto a fresh, clean server that holds no existing data of yours. Changing the password afterwards is your responsibility — see our Terms of Service and Privacy Policy.',
+      passwordAck: 'I understand I must change my server password immediately after deployment.',
+    },
     checking: 'Checking server...',
     alreadyInstalled: 'Fractera is already installed on this server',
     yourDomains: 'Your domains',

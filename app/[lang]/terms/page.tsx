@@ -99,6 +99,13 @@ export default async function TermsPage({
             <p>{t.s12.p1}</p>
           </section>
 
+          <section className="flex flex-col gap-3 border border-white/10 rounded-lg p-5">
+            <h2 className="text-lg font-semibold text-white">{t.s14.title}</h2>
+            <p>{t.s14.p1}</p>
+            <p>{t.s14.p2}</p>
+            <p>{t.s14.p3}</p>
+          </section>
+
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-white">{t.s13.title}</h2>
             <p>
