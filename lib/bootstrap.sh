@@ -566,6 +566,14 @@ maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/l
 # THIS process on token save so the new token is picked up. Telegram polling is
 # outbound, so this needs no inbound firewall port (works in secure mode too).
 maybe_step "brain" "start_hermes_gateway" "Hermes messaging gateway" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes-gateway --interpreter \$HERMES_PY -- gateway || true"
+# Hermes Web UI — friendly built-in chat to the SAME agent (port 9120), the
+# primary surface users land on. Installs from the vendored installer in the repo
+# (clone hermes-webui v0.51.68 + Fractera rebrand + PM2 fractera-hermes-webui).
+# Placed here in the START phase — AFTER `pm2 delete all` above — so its PM2
+# process survives into `pm2 save` below. Gated on `brain`: the Web UI is part of
+# Hermes, never a separate component. Binds 0.0.0.0 (installer default): reachable
+# directly on :9120 in IP mode, ufw-closed + nginx-proxied (/chat/) in Secure mode.
+maybe_step "brain" "install_hermes_webui" "Hermes Web UI" "bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 || true"
 log_email "start_data" "All 7 services started" 65
 
 CURRENT_STEP="pm2_save"
