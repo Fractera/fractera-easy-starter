@@ -14,6 +14,7 @@ const CONTENT = `# Fractera
 
 ## Primary knowledge base
 - [Project knowledge base for AI agents](https://www.fractera.ai/mcp-info): full L1/L2 architecture, service interactions, customization, Zero-Ops deployment, real-world use cases, and the MCP connector with the get_project_info tool.
+- [Full knowledge base in one file](https://www.fractera.ai/llms-full.txt): every /mcp-info section concatenated into a single plain-text document — architecture, deployment, customization, pricing, the full FAQ, and the legal text.
 
 ## Site
 - [Home](https://www.fractera.ai/): product overview, pricing and FAQ.
