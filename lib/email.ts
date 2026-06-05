@@ -84,6 +84,52 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
   })
 }
 
+// Shared destination block for the welcome / domain-activated / cert-expiry
+// emails. Three top buttons + three descriptive cards, in the SAME order:
+//   1. Your App  2. Remote Command Post (the chat — recommended)  3. Main Control Panel
+// The Remote Command Post is the built-in Hermes Web Chat: light, fast project
+// management by chat (incl. from a phone), no control panel needed.
+function destinationButtons(appUrl: string, chatUrl: string, adminUrl: string): string {
+  return `
+        <!-- Top destination buttons -->
+        <div style="margin:26px 0 0">
+          <a href="${appUrl}" style="display:block;text-align:center;background:#0a0a0a;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-bottom:12px">Your App →</a>
+
+          <a href="${chatUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">✨ Remote Command Post →</a>
+          <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Light, fast, convenient — manage your whole project by chat, right from your phone.</p>
+
+          <a href="${adminUrl}" style="display:block;text-align:center;background:#0a0a0a;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
+          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
+        </div>`
+}
+
+function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): string {
+  return `
+        <!-- Destination cards (same order as the buttons) -->
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
+            <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
+          </td></tr>
+          <tr><td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
+            <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Remote Command Post</div>
+            <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">Run your whole project by chat — even from your phone</div>
+            <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
+              A built-in AI chat that drives your entire setup remotely. Talk to it in plain language — build
+              features, manage the project, run multi-step work — light, fast and convenient, with no control
+              panel needed. Just add a model to start. <em>Available when Brain is installed.</em>
+            </div>
+            <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Command Post →</a>
+          </td></tr>
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Main Control Panel</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The full professional workspace — coding agents, database, file storage, analytics and everything you installed. Best on a wide screen.</div>
+            <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open Main Control Panel →</a>
+          </td></tr>
+        </table>`
+}
+
 export async function sendWelcomeEmail(
   to: string,
   subdomain: string,
@@ -94,8 +140,9 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
-  // Remote Agent = the built-in Hermes Web Chat (the super-agent surface).
-  const chatUrl   = isIpMode ? `http://${ip}:9120` : `https://hermes.${subdomain}/chat/`
+  // Remote Command Post = the built-in Hermes Web Chat (the super-agent surface).
+  // Dedicated subdomain in secure mode; direct port in IP mode.
+  const chatUrl   = isIpMode ? `http://${ip}:9120` : `https://chat.${subdomain}`
 
   await sendEmail({
     from: FROM,
@@ -123,36 +170,9 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        <!-- The 3 main destinations -->
-        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
-          <tr>
-            <td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
-              <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
-              <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
-              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your AI Workspace</div>
-              <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your control panel — coding agents, database, file storage and everything you installed live here.</div>
-              <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your AI Workspace →</a>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
-              <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Your Remote Agent</div>
-              <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">A super-agent that runs your whole setup by chat</div>
-              <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
-                A built-in AI chat that drives both your App and your AI Workspace remotely. Talk to it in plain
-                language — build features, manage your project, run multi-step work — in one easy, clean flow with
-                the full power of the system behind it. It opens automatically inside your workspace; just add a
-                model to start. <em>Available when Brain is installed.</em>
-              </div>
-              <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Agent →</a>
-            </td>
-          </tr>
-        </table>
+        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+
+        ${destinationCards(appUrl, chatUrl, adminUrl)}
 
         <!-- Next steps — getting the most out of the workspace -->
         <div style="margin:32px 0 8px">
@@ -272,8 +292,8 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
   const authUrl   = `https://auth.${domain}`
-  // Remote Agent = the built-in Hermes Web Chat (auth-gated in secure mode).
-  const chatUrl   = `https://hermes.${domain}/chat/`
+  // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
+  const chatUrl   = `https://chat.${domain}`
 
   await sendEmail({
     from: FROM,
@@ -289,30 +309,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        <!-- The 3 main destinations -->
-        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
-          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
-            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
-            <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
-          </td></tr>
-          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
-            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your AI Workspace</div>
-            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your control panel — coding agents, database, file storage and everything you installed live here.</div>
-            <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your AI Workspace →</a>
-          </td></tr>
-          <tr><td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
-            <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Your Remote Agent</div>
-            <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">A super-agent that runs your whole setup by chat</div>
-            <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
-              A built-in AI chat that drives both your App and your AI Workspace remotely. Talk to it in plain
-              language — build features, manage your project, run multi-step work — in one easy, clean flow with
-              the full power of the system behind it. It opens automatically inside your workspace; just add a
-              model to start. <em>Available when Brain is installed.</em>
-            </div>
-            <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Agent →</a>
-          </td></tr>
-        </table>
+        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+
+        ${destinationCards(appUrl, chatUrl, adminUrl)}
 
         <!-- Sign-in note (secure mode) -->
         <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
@@ -388,6 +387,8 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
 // star CTAs. Distinct from sendExpiryWarningEmail (that one is for the paid
 // SUBSCRIPTION, not the certificate).
 export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
+  const appUrl   = `https://${domain}`
+  const chatUrl  = `https://chat.${domain}`
   const adminUrl = `https://admin.${domain}`
   const urgent = daysLeft <= 3
   const accent = urgent ? '#dc2626' : '#d97706'
@@ -407,10 +408,11 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
         </div>
 
-        <!-- Primary CTA -->
-        <div style="text-align:center;margin:28px 0">
-          <a href="${adminUrl}" style="display:inline-block;background:${accent};color:#fff;font-weight:600;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:10px">Open Personal Domain panel →</a>
-          <p style="margin:10px 0 0;font-size:12px;color:#888;font-family:monospace">${adminUrl}</p>
+        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+
+        <!-- Renew CTA -->
+        <div style="text-align:center;margin:24px 0 0">
+          <a href="${adminUrl}" style="display:inline-block;background:${accent};color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:12px 24px;border-radius:10px">Renew now in Personal Domain →</a>
         </div>
 
         <!-- What to do -->
