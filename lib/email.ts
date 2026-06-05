@@ -318,6 +318,23 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <div style="font-size:12px;color:#555;line-height:1.5">Strict sign-in is now required at <a href="${authUrl}" style="color:#6c47ff;font-weight:600;text-decoration:none">${authUrl}</a>. The first person to register there becomes the administrator.</div>
         </div>
 
+        <!-- Password warning + data-retention note -->
+        <div style="margin:16px 0 0;padding:16px 18px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px">
+          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#b91c1c">
+            <span style="font-size:15px">⚠️</span> Important: change your server password
+          </p>
+          <p style="margin:0;font-size:13px;color:#7f1d1d;line-height:1.6">
+            To avoid any misunderstanding, you must change the password used to access your server. Fractera does not store it and has no way to reach your server after installation — changing it is your guarantee that access is yours alone.
+          </p>
+          <div style="height:1px;background:#fecaca;margin:14px 0"></div>
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#7f1d1d;line-height:1.6">
+            You might ask: then how will you renew our security certificate each period?
+          </p>
+          <p style="margin:0;font-size:13px;color:#7f1d1d;line-height:1.6">
+            We do not renew your certificate. Certificate renewal is fully under the control of your new server: it runs automatically, then makes a request to our service so we can send you a reminder email. We still keep your server identifier and your email solely to send you security-certificate notifications. If this matters to you, contact us to request deletion of your records — email <a href="mailto:admin@fractera.ai?subject=Delete%20my%20data%20from%20your%20server" style="color:#b91c1c;font-weight:600;text-decoration:none">admin@fractera.ai</a> with the subject "Delete my data from your server".
+          </p>
+        </div>
+
         <!-- Recommended next steps (no "buy a domain" — that's done now) -->
         <div style="margin:32px 0 8px">
           <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600">Recommended next steps</p>
