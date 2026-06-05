@@ -140,13 +140,17 @@ Key principle: they run on your existing **subscriptions**, not pay-per-token AP
 - **The five coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) run on YOUR existing subscriptions.** You sign in once with your normal account (standard browser login, like a local CLI) — no API keys, no per-token billing. This is where the heavy AI work happens, and it costs you nothing beyond the subscription you already pay the AI vendor.
 - **Brain (Hermes) and Memory (LightRAG) use one small OpenAI API key** — the cheap gpt-5-mini (about 1 cent per hour) is plenty to start, or a Codex subscription if your usage is heavy. This is the only per-token piece, and it is tiny and auxiliary.
 
-So: **a Claude Code user pays through their Claude subscription, not per token.** Per-token API spend, if any, is limited to the small Brain/Memory model — not the coding platforms.`,
+So: **a Claude Code user pays through their Claude subscription, not per token.** Per-token API spend, if any, is limited to the small Brain/Memory model — not the coding platforms.
+
+**Track Brain and Memory spend separately (optional).** Brain and Memory keep their OpenAI keys in two independent places, so you can meter each one on its own. Create **two separate API keys** in OpenAI and paste one into the Memory key field and the other into the Brain key field (in the OpenAI settings). One key works fine for both — but two keys let you watch each line item independently in the Usage dashboard at platform.openai.com.`,
     bodyRu: `Две разные модели оплаты — не путайте их:
 
 - **Пять платформ разработки (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) работают на ВАШИХ уже имеющихся подписках.** Вы входите один раз под обычным аккаунтом (стандартный вход через браузер, как в локальном CLI) — без API-ключей и без оплаты за токены. Именно здесь идёт основная работа ИИ, и она не стоит вам ничего сверх подписки, которую вы и так платите поставщику ИИ.
 - **Мозг (Hermes) и Память (LightRAG) используют один небольшой ключ OpenAI** — дешёвой gpt-5-mini (примерно 1 цент в час) хватает для старта, либо подписка Codex при высокой нагрузке. Это единственная часть с оплатой за токены — маленькая и вспомогательная.
 
-То есть: **пользователь Claude Code платит через свою подписку Claude, а не за токены.** Расход на API за токены, если он есть, ограничен маленькой моделью Мозга/Памяти, а не платформами разработки.`,
+То есть: **пользователь Claude Code платит через свою подписку Claude, а не за токены.** Расход на API за токены, если он есть, ограничен маленькой моделью Мозга/Памяти, а не платформами разработки.
+
+**Раздельный учёт расхода Мозга и Памяти (по желанию).** Мозг и Память хранят свои ключи OpenAI в двух независимых местах, поэтому расход по каждому можно считать отдельно. Создайте в OpenAI **два разных API-ключа** и вставьте один в поле ключа Памяти, другой — в поле ключа Мозга (в настройках OpenAI). Один ключ работает и для того, и для другого — но два ключа позволяют отслеживать каждую статью расхода отдельно в дашборде Usage на platform.openai.com.`,
   },
   {
     id: 'memory',
