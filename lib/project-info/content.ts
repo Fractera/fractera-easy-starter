@@ -132,6 +132,23 @@ Key principle: they run on your existing **subscriptions**, not pay-per-token AP
 "Bridge online" means the process is alive and the WebSocket handshake works; logging into each platform's subscription is a separate one-time step after that.`,
   },
   {
+    id: 'who-pays-what',
+    title: 'Subscriptions vs. API keys — what you actually pay',
+    titleRu: 'Подписки или API-ключи — за что вы реально платите',
+    body: `Two separate billing models — do not conflate them:
+
+- **The five coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) run on YOUR existing subscriptions.** You sign in once with your normal account (standard browser login, like a local CLI) — no API keys, no per-token billing. This is where the heavy AI work happens, and it costs you nothing beyond the subscription you already pay the AI vendor.
+- **Brain (Hermes) and Memory (LightRAG) use one small OpenAI API key** — the cheap gpt-5-mini (about 1 cent per hour) is plenty to start, or a Codex subscription if your usage is heavy. This is the only per-token piece, and it is tiny and auxiliary.
+
+So: **a Claude Code user pays through their Claude subscription, not per token.** Per-token API spend, if any, is limited to the small Brain/Memory model — not the coding platforms.`,
+    bodyRu: `Две разные модели оплаты — не путайте их:
+
+- **Пять платформ разработки (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) работают на ВАШИХ уже имеющихся подписках.** Вы входите один раз под обычным аккаунтом (стандартный вход через браузер, как в локальном CLI) — без API-ключей и без оплаты за токены. Именно здесь идёт основная работа ИИ, и она не стоит вам ничего сверх подписки, которую вы и так платите поставщику ИИ.
+- **Мозг (Hermes) и Память (LightRAG) используют один небольшой ключ OpenAI** — дешёвой gpt-5-mini (примерно 1 цент в час) хватает для старта, либо подписка Codex при высокой нагрузке. Это единственная часть с оплатой за токены — маленькая и вспомогательная.
+
+То есть: **пользователь Claude Code платит через свою подписку Claude, а не за токены.** Расход на API за токены, если он есть, ограничен маленькой моделью Мозга/Памяти, а не платформами разработки.`,
+  },
+  {
     id: 'memory',
     title: 'Memory (LightRAG)',
     body: `Memory is a persistent vector knowledge base (LightRAG by HKUDS) shared across all your coding platforms. Feed it your codebase, documents, and architectural decisions; the agents query it to stay grounded in your context.

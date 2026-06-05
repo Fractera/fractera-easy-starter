@@ -478,13 +478,16 @@ ENVEOF
 if [ -d "/root/.hermes" ]; then
   cat > /root/.hermes/config.yaml <<HERMESEOF
 model:
-  # Subscription-first: default to OpenAI Codex (ChatGPT subscription).
-  # The user signs in via OAuth at hermes.<sub>.fractera.ai/env on first
-  # admin-panel visit; until then this provider has no credentials and
-  # the agent will refuse to run — which is the intended UX (sign in,
-  # don't fall back to a paid API key the user didn't agree to).
-  provider: openai-codex
-  model: gpt-5.5
+  # API-first low-cost default: direct OpenAI API with the cheap gpt-5-mini,
+  # matching the welcome-email recommendation (top up an OpenAI balance from
+  # ~$5; gpt-5-mini ≈ 1 cent/hour — plenty for Brain + Memory). Until the user
+  # pastes an OpenAI key in the Hermes panel this provider has no credentials
+  # and the agent refuses to run (intended UX — no silent paid calls). Pasting
+  # a key (step 87 key→provider) keeps this openai-api/gpt-5-mini pairing.
+  # Heavy users can instead connect a Codex / Claude Code subscription via
+  # OAuth in the panel and switch the active provider there.
+  provider: openai-api
+  model: gpt-5-mini
   # Anthropic Claude Code is an equally valid subscription; the user can
   # sign in there too and switch the active provider in the Hermes /env
   # panel. We don't set it as fallback because both providers go through

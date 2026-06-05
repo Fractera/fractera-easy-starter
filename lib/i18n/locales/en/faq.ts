@@ -55,6 +55,18 @@ export const faqItems: FaqItem[] = [
     trail: ['One server. One bill. Maximum resilience — whether you are running one project or ten.'],
   },
   {
+    q: 'Do I pay per token for the AI, or use my own subscription?',
+    a: [
+      'You use your own subscriptions — that is the whole point. The five coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) run on the subscriptions you already have: you sign in once with your normal account, like a local CLI. No API keys to manage, no per-token billing surprises. This is where the heavy AI work happens, and it costs you nothing beyond the subscription you already pay the AI vendor.',
+      'The only per-token piece is small and auxiliary: Brain (Hermes) and Memory (LightRAG) use one inexpensive OpenAI API key — the cheap gpt-5-mini runs at roughly a cent per hour and is plenty to get going. If your Brain usage grows heavy, you can switch it to a Codex subscription instead.',
+    ],
+    bullets: [
+      'Coding platforms (Claude Code, Codex, Gemini, Qwen, Kimi) — your existing subscriptions, no per-token billing.',
+      'Brain + Memory — one small OpenAI key (gpt-5-mini, ~1¢/hour), or a Codex subscription if heavy.',
+      'So a Claude Code user pays through their subscription, not per token.',
+    ],
+  },
+  {
     q: 'What server specs do I need?',
     a: [
       'For full AI-coding workloads, the recommended minimum is 6 cores and 8 GB RAM. Storage depends on your project — 75 GB is a solid baseline.',
