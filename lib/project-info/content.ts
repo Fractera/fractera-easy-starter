@@ -241,6 +241,12 @@ You switch from IP to Secure yourself, inside the workspace (Admin → Personal 
 
 **How the coding-platform bridges connect.** In IP mode the browser talks to each platform's bridge directly over \`ws://<host>:<port>\`. In secure mode they move to path-based **wss** under the cert-covered admin host — \`wss://admin.<domain>/ws/...\` — so the interactive terminals keep working over TLS with no mixed-content blocking.
 
+**Reading the Step 3 health-check (200 / 307 / 404 are all fine).** The final check marks a host **healthy** when three things hold: DNS resolves to your server, the TLS certificate is valid (strict verification passes), and the service answers with any normal code in the 200–499 range (not a timeout, not a 5xx). The exact code is just informational — it tells you what the service returns at its root \`/\`:
+- **200** — the service serves a page at \`/\` (apex, www, admin, hermes, **chat**).
+- **307** — the service redirects at \`/\` (auth → the sign-in form; lightrag → its own UI). A normal redirect.
+- **404** — the service has no page at \`/\` (data — a media/DB API that legitimately serves nothing at the root).
+Only a real failure blocks the switch: DNS not resolving, an invalid certificate, a timeout, or a 5xx. If none of those occur, all hosts are green even with a mix of 200/307/404.
+
 **Reversible.** A "switch back to IP / demo mode" option restores the previous configuration and reopens the service ports. Certificates auto-renew (~every 60 days); if a certificate nears expiry an early warning email is sent.`,
     bodyRu: `Свежее развёртывание по умолчанию идёт по IP/незащищённо. Переход в защищённый режим — пошаговый мастер в Admin → Personal Domain, выполняется целиком на вашем сервере:
 
@@ -249,6 +255,12 @@ You switch from IP to Secure yourself, inside the workspace (Admin → Personal 
 3. **Активация.** Рабочее пространство переводит все сервисы в защищённый режим разом: флаг режима переключается во всех сервисах, cookie сессии становится \`Secure\` и привязывается к вашему домену, Nginx переписывается под HTTPS, а файрвол хоста закрывает все входящие порты, кроме 80/443. Страхующая проверка опрашивает новый домен и автоматически откатывает на прежние настройки, если он не поднялся — ошибка деградирует мягко, а не «кирпичит» сервер.
 
 **Как подключаются мосты к платформам разработки.** В IP-режиме браузер общается с мостом каждой платформы напрямую по \`ws://<host>:<порт>\`. В защищённом режиме они переходят на путь-ориентированный **wss** под админ-хостом с сертификатом — \`wss://admin.<домен>/ws/...\` — поэтому интерактивные терминалы продолжают работать по TLS без блокировки смешанного контента.
+
+**Как читать проверку Step 3 (200 / 307 / 404 — все нормальны).** Финальная проверка считает хост **здоровым**, если выполнены три условия: DNS резолвится на ваш сервер, TLS-сертификат валиден (строгая проверка пройдена), и сервис ответил любым нормальным кодом в диапазоне 200–499 (не таймаут и не 5xx). Сам код — лишь информация о том, что сервис отдаёт на корне \`/\`:
+- **200** — сервис отдаёт страницу на \`/\` (apex, www, admin, hermes, **chat**).
+- **307** — сервис делает редирект на \`/\` (auth → форма входа; lightrag → свой UI). Нормальный редирект.
+- **404** — у сервиса нет страницы на \`/\` (data — медиа/БД-API, на корне законно ничего нет).
+Переключению мешает только реальный сбой: DNS не резолвится, невалидный сертификат, таймаут или 5xx. Если ничего из этого нет — все хосты зелёные даже при смеси 200/307/404.
 
 **Обратимо.** Опция «вернуться в режим IP / демо» восстанавливает прежнюю конфигурацию и снова открывает служебные порты. Сертификаты продлеваются автоматически (~каждые 60 дней); при приближении истечения приходит предупреждающее письмо.`,
   },
