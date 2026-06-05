@@ -235,7 +235,7 @@ You switch from IP to Secure yourself, inside the workspace (Admin → Personal 
     titleRu: 'Подключение домена: переход IP → защищённый режим в деталях',
     body: `A fresh deploy is IP/insecure by default. Moving to secure mode is a guided wizard in Admin → Personal Domain, run entirely from your own server:
 
-1. **DNS.** Point your domain's A-records — the apex plus the service subdomains (www, auth, admin, data, hermes, lightrag) — at the server IP. The wizard verifies they resolve.
+1. **DNS.** Point your domain's A-records — the apex plus the service subdomains (www, auth, admin, data, hermes, lightrag, and **chat** for the built-in web chat) — at the server IP. The wizard verifies they resolve.
 2. **Certificate.** The admin app runs certbot on the server to issue a single Let's Encrypt certificate covering all those hostnames. Alternatively you **upload your own certificate** — a first-class path for regions where Let's Encrypt is unavailable or where compliance requires specific (e.g. national / GOST) certs.
 3. **Activate.** The workspace switches every service into secure mode at once: the mode flag flips in all services, the session cookie becomes \`Secure\` and scoped to your domain, Nginx is rewritten for HTTPS, and a host firewall closes every inbound port except 80/443. A safety watch probes the new domain and auto-rolls-back to the previous settings if it doesn't come up — so a mistake degrades gracefully instead of bricking the server.
 
@@ -244,7 +244,7 @@ You switch from IP to Secure yourself, inside the workspace (Admin → Personal 
 **Reversible.** A "switch back to IP / demo mode" option restores the previous configuration and reopens the service ports. Certificates auto-renew (~every 60 days); if a certificate nears expiry an early warning email is sent.`,
     bodyRu: `Свежее развёртывание по умолчанию идёт по IP/незащищённо. Переход в защищённый режим — пошаговый мастер в Admin → Personal Domain, выполняется целиком на вашем сервере:
 
-1. **DNS.** Направьте A-записи домена — корень плюс служебные субдомены (www, auth, admin, data, hermes, lightrag) — на IP сервера. Мастер проверяет их разрешение.
+1. **DNS.** Направьте A-записи домена — корень плюс служебные субдомены (www, auth, admin, data, hermes, lightrag и **chat** для встроенного веб-чата) — на IP сервера. Мастер проверяет их разрешение.
 2. **Сертификат.** Админ-приложение запускает certbot на сервере и выпускает один сертификат Let's Encrypt на все эти хосты. Либо вы **загружаете собственный сертификат** — это полноценный путь для регионов, где Let's Encrypt недоступен или где комплаенс требует особых (например, национальных / ГОСТ) сертификатов.
 3. **Активация.** Рабочее пространство переводит все сервисы в защищённый режим разом: флаг режима переключается во всех сервисах, cookie сессии становится \`Secure\` и привязывается к вашему домену, Nginx переписывается под HTTPS, а файрвол хоста закрывает все входящие порты, кроме 80/443. Страхующая проверка опрашивает новый домен и автоматически откатывает на прежние настройки, если он не поднялся — ошибка деградирует мягко, а не «кирпичит» сервер.
 
@@ -813,6 +813,8 @@ Sponsors at the **$5 tier (white-label)** have it removed automatically and perm
 
 **How it works.** The chat is a thin, friendly front-end wrapped around the same Hermes agent running on your server. Your messages go to Brain, which thinks, queries Memory, and coordinates the coding agents, then replies in the chat. It reads the same single credential pool as everything else, so a provider you connect once works everywhere.
 
+**Where it lives.** Inside the admin panel the chat opens automatically. On a custom domain it ALSO gets its own clean, auth-protected subdomain — **chat.<your-domain>** — so you can open it as a standalone "Remote Command Post" and manage the whole project from a light external link (even from your phone), without the full control panel. In IP mode it is reachable directly at \`http://<your-ip>:9120\`.
+
 **Login.** The chat has **no separate login of its own** — its built-in registration / setup wizard is deliberately turned off (one credential store, not two confusing onboarding flows; you never set a chat password). On a fresh IP server the chat is open like the rest of the onboarding workspace. Once you attach a domain (secure mode), the chat — and the agent dashboard and Memory — are protected by **Fractera's own authentication**: you sign in once (admin role), and every internal port and subdomain is gated. So the chat is ready instantly, yet fully protected the moment you go secure.
 
 **Telegram is secondary and optional.** It is **not** the main surface — it simply lets you *also* talk to Brain from your phone. Unlike the web chat (ready immediately, zero setup), Telegram needs setup: a @BotFather bot token in **Settings → Telegram**. Use the built-in web chat as your main tool; add Telegram only if you want a phone channel too.
@@ -821,6 +823,8 @@ Sponsors at the **$5 tier (white-label)** have it removed automatically and perm
     bodyRu: `У Мозга (Hermes) есть встроенный **веб-чат** — дружелюбная панель чата, которая является **основным способом взаимодействия с системой**. Как только открывается ваш воркспейс, чат уже там: он **открывается автоматически** в панели администратора и сразу готов к работе. Единственное, что нужно добавить, — модель.
 
 **Как это работает.** Чат — это тонкая дружелюбная оболочка вокруг того же агента Hermes, который работает на вашем сервере. Ваши сообщения уходят к Мозгу, он думает, обращается к Памяти, координирует кодинг-агентов и отвечает в чате. Он читает тот же единый пул учётных данных, что и всё остальное, поэтому подключённый однажды провайдер работает везде.
+
+**Где он живёт.** Внутри панели администратора чат открывается автоматически. На собственном домене он ТАКЖЕ получает свой чистый, защищённый авторизацией субдомен — **chat.<ваш-домен>** — чтобы открывать его как самостоятельный «удалённый командный пункт» и управлять всем проектом по лёгкой внешней ссылке (даже с телефона), без полной панели управления. В IP-режиме он доступен напрямую по \`http://<ваш-ip>:9120\`.
 
 **Вход.** У чата **нет собственного отдельного логина** — встроенный мастер регистрации / настройки намеренно выключен (один склад учётных данных, а не два путающих онбординга; пароль для чата вы не задаёте). На свежем IP-сервере чат открыт, как и весь онбординг-воркспейс. Как только вы привязываете домен (защищённый режим), чат — а также дашборд агента и Память — защищаются **собственной авторизацией Fractera**: вы входите один раз (роль администратора), и каждый внутренний порт и субдомен закрыт. То есть чат готов мгновенно, но полностью защищён, как только вы переходите в защищённый режим.
 
