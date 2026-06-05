@@ -295,7 +295,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
   const chatUrl   = `https://chat.${domain}`
 
-  await sendEmail({
+  return sendEmail({
     from: FROM,
     to,
     subject: `Your Fractera server is now live on ${domain}`,

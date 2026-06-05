@@ -42,11 +42,22 @@ export async function POST(req: NextRequest) {
     await db.serverToken.update({ where: { id: serverToken.id }, data: { subdomain: domain } })
   } catch { /* non-fatal */ }
 
+  // Resend's SDK does NOT throw on API errors — it resolves with { data, error }.
+  // sendDomainActivatedEmail returns that result, so we must inspect `error`
+  // explicitly; otherwise a rejected send would look like success.
+  const recipient = serverToken.user.email
   try {
-    await sendDomainActivatedEmail(serverToken.user.email, domain)
+    const result = await sendDomainActivatedEmail(recipient, domain)
+    if (result && (result as { error?: unknown }).error) {
+      const err = (result as { error?: unknown }).error
+      console.error('[send-domain-email] resend error', { recipient, domain, err })
+      return NextResponse.json({ error: 'Mail provider rejected the email', detail: String((err as { message?: string })?.message ?? JSON.stringify(err)) }, { status: 502 })
+    }
   } catch (e) {
+    console.error('[send-domain-email] threw', { recipient, domain, e: String(e) })
     return NextResponse.json({ error: 'Failed to send email', detail: String(e) }, { status: 502 })
   }
 
-  return NextResponse.json({ ok: true })
+  console.log('[send-domain-email] sent', { recipient, domain })
+  return NextResponse.json({ ok: true, recipient })
 }
