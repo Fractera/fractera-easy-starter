@@ -139,6 +139,7 @@ function useDeployProgress(sessionId: string | null) {
   useEffect(() => {
     if (!sessionId) return
     const iv = setInterval(async () => {
+      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const res = await fetch(`/api/progress?session_id=${sessionId}`)
         if (!res.ok) return
@@ -156,7 +157,7 @@ function useDeployProgress(sessionId: string | null) {
         }
         if (data.status === 'done' || data.status === 'error') clearInterval(iv)
       } catch {}
-    }, 4000)
+    }, 60000)
     return () => clearInterval(iv)
   }, [sessionId])
   return percent

@@ -121,6 +121,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     let prevActive: string | null = null
 
     const pollInterval = setInterval(async () => {
+      // Skip the round-trip while the tab is hidden — caught up on return.
+      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const pollRes = await fetch(`/api/progress?session_id=${session_id}`)
         if (!pollRes.ok) return
@@ -170,7 +172,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       } catch {
         // Network error — retry next cycle
       }
-    }, 3000)
+    }, 60000)
 
     eventSourceRef.current = () => clearInterval(pollInterval)
   }
@@ -464,7 +466,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           </div>
 
           {/* Silence warning */}
-          {!installError && installing && now - lastUpdateAt > 60000 && (
+          {!installError && installing && now - lastUpdateAt > 180000 && (
             <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
               {t.silentWarning.replace('{secs}', String(Math.floor((now - lastUpdateAt) / 1000)))}
             </p>

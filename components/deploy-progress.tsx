@@ -47,6 +47,10 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
     let prevActive: string | null = null
 
     pollRef.current = setInterval(async () => {
+      // Skip the network round-trip while the tab is hidden — the user isn't
+      // watching, and progress is server-side state we catch up on when they
+      // return. Cuts most of the /api/progress load when the tab is backgrounded.
+      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const res = await fetch(`/api/progress?session_id=${sessionId}`)
         if (!res.ok) return
@@ -85,7 +89,7 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
       } catch {
         // retry next cycle
       }
-    }, 3000)
+    }, 60000)
 
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [sessionId])
@@ -125,7 +129,7 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
         />
       </div>
 
-      {!installError && now - lastUpdateAt > 60000 && (
+      {!installError && now - lastUpdateAt > 180000 && (
         <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
           Server has been silent for {Math.floor((now - lastUpdateAt) / 1000)}s — installation may still be running.
         </p>
