@@ -13,6 +13,34 @@ const COOKIE_MAX_AGE = 365 * 24 * 60 * 60
 
 const PARTNER_APEX = 'partners.fractera.ai'
 
+// Public content pages an external agent / crawler / partner may link in a
+// language we do not ship (e.g. /ko/partners for Korean) or with a guessed
+// slug (/ar/term). These must NEVER 404 — they resolve to the page in the
+// requested language if it is supported, otherwise the default language.
+// Scoped to KNOWN slugs so genuine typos still return an honest 404.
+// Keep in sync with app/[lang]/<slug>/page.tsx (12 public slugs + home).
+const KNOWN_PAGE_SLUGS = new Set([
+  'privacy', 'terms', 'refund', 'cookies',
+  'partners', 'regional-partners',
+  'cases', 'blog', 'sponsors', 'skills', 'product-loop',
+])
+
+// Common singular / synonym guesses an AI or crawler invents → canonical slug.
+const SLUG_ALIASES: Record<string, string> = {
+  term: 'terms', tos: 'terms', 'terms-of-service': 'terms',
+  'privacy-policy': 'privacy', policy: 'privacy',
+  cookie: 'cookies', 'cookie-policy': 'cookies',
+  refunds: 'refund', 'refund-policy': 'refund',
+  partner: 'partners', 'regional-partner': 'regional-partners', sponsor: 'sponsors',
+}
+
+const canonSlug = (s: string): string => SLUG_ALIASES[s] ?? s
+
+// A bare 2–3 letter lowercase segment looks like an ISO language code. Used to
+// recognise an INVENTED locale prefix (one not in SUPPORTED_LANGUAGES) so we can
+// strip it instead of 404-ing. Real page slugs are all longer than 3 chars.
+const LOCALE_LIKE = /^[a-z]{2,3}$/
+
 function detectLang(request: NextRequest): string {
   // Priority 1: cookie
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value
@@ -97,11 +125,55 @@ export function proxy(request: NextRequest): NextResponse {
     return withLangCookie(NextResponse.rewrite(url), singleLang)
   }
 
-  // Multi-language mode: pass through if lang already in URL
+  const segs = pathname.split('/').filter(Boolean)
+
+  // Multi-language mode: lang already in URL.
   if (SUPPORTED_LANGUAGES.includes(firstSegment)) {
+    // Fix a guessed / singular slug inside a real language so footer pages
+    // always resolve: /ru/term → /ru/terms, /en/cookie → /en/cookies.
+    if (segs.length >= 2) {
+      const canon = canonSlug(segs[1])
+      if (canon !== segs[1] && KNOWN_PAGE_SLUGS.has(canon)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/${firstSegment}/${[canon, ...segs.slice(2)].join('/')}`
+        return withLangCookie(NextResponse.redirect(url, 308), firstSegment)
+      }
+    }
     const res = NextResponse.next()
     res.headers.set('x-lang', firstSegment)
     return withLangCookie(res, firstSegment)
+  }
+
+  // First segment is an INVENTED locale (not one we ship), e.g. /ko, /ar, /hy.
+  // If the page after it is one we know, drop the phantom locale and serve the
+  // page in the default language — never 404 a real page just because an agent
+  // assumed we localise that language. A bare invented locale → default home.
+  if (LOCALE_LIKE.test(firstSegment) && !KNOWN_PAGE_SLUGS.has(firstSegment)) {
+    if (segs.length >= 2) {
+      const canon = canonSlug(segs[1])
+      if (KNOWN_PAGE_SLUGS.has(canon)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/${DEFAULT_LANGUAGE}/${[canon, ...segs.slice(2)].join('/')}`
+        return withLangCookie(NextResponse.redirect(url, 308), DEFAULT_LANGUAGE)
+      }
+    } else {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${DEFAULT_LANGUAGE}`
+      return withLangCookie(NextResponse.redirect(url, 308), DEFAULT_LANGUAGE)
+    }
+  }
+
+  // Root-level known page with no lang prefix: /terms, /term, /partners.
+  // Send it to the detected language's canonical URL (instead of falling through
+  // to the generic redirect, which would not normalise a guessed slug).
+  {
+    const canon = canonSlug(firstSegment)
+    if (KNOWN_PAGE_SLUGS.has(canon)) {
+      const lang0 = detectLang(request)
+      const url = request.nextUrl.clone()
+      url.pathname = `/${lang0}/${[canon, ...segs.slice(1)].join('/')}`
+      return withLangCookie(NextResponse.redirect(url, 308), lang0)
+    }
   }
 
   // Detect lang.

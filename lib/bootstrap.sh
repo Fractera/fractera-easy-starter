@@ -675,7 +675,13 @@ if [ -n "$SERVER_TOKEN" ]; then
   sed -i "/^SERVER_TOKEN=/d" /etc/fractera/secrets.env 2>/dev/null; echo "SERVER_TOKEN=$SERVER_TOKEN" >> /etc/fractera/secrets.env
   # Cron: ping platform every 15 min, send subdomain on first ping
   CRON_CMD="*/15 * * * * curl -s -X POST $PING_URL -H 'Content-Type: application/json' -H 'Authorization: Bearer $SERVER_TOKEN' -d '{\"subdomain\":\"$SUBDOMAIN\"}' >> /var/log/fractera-ping.log 2>&1"
-  (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
+  # Idempotent: drop any prior ping cron (stale tokens from earlier deploys on
+  # this host) BEFORE adding the current one, so a server that is bootstrapped
+  # repeatedly keeps exactly ONE ping line instead of accumulating a stale-token
+  # 401 storm. wipe does not clean crontab, so reconcile here (one deploy = one
+  # ping line, regardless of host history). A real customer VPS is deployed once
+  # and is unaffected; this only matters for the shared, repeatedly-wiped test IP.
+  (crontab -l 2>/dev/null | grep -v '/api/server/ping'; echo "$CRON_CMD") | crontab -
   echo "Ping agent installed (token: ${SERVER_TOKEN:0:8}...)" >> "$LOG_FILE"
   log_email "complete" "Server is ready — all services running on plain HTTP. Attach your own domain through Admin → Personal Domain to enable HTTPS." 100
   # Ping immediately (retry up to 5 times in case Vercel is redeploying)
