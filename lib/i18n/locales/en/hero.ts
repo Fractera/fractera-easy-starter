@@ -8,7 +8,7 @@ type HeroPart = Pick<SiteContent,
 
 export const hero: HeroPart = {
   heroBadge: 'Open Source — Free Forever',
-  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS — Runs on Your Subscriptions, No Per-Token Fees',
+  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",
@@ -31,7 +31,7 @@ export const hero: HeroPart = {
   heroButtonCaption: 'Fractera — your smart robot installer.',
 
   description:
-    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, five coding platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Every AI agent runs on your existing subscriptions — zero per-token fees, nothing to meter, no usage limit to hit. No Clerk. No Supabase. Your server, your stack, your data.',
+    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, five coding platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
 
   heroBenefitsHeader: {
     h2: 'The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits',
@@ -55,7 +55,7 @@ export const hero: HeroPart = {
     },
     {
       title: 'Five AI Coding Platforms, One Server',
-      text: 'Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code — all preconfigured on your server. Every agent runs on your existing AI subscriptions: no API keys to manage, no per-token billing, nothing to meter and no usage limit to hit. Switch platforms mid-task without losing your project context — LightRAG keeps the thread.',
+      text: 'Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code — all preconfigured on your server. Run on your existing AI subscriptions. No API keys to manage, no per-token billing. Switch platforms mid-task without losing your project context — LightRAG keeps the thread.',
     },
     {
       title: 'Dedicated VPS Environment with Custom Domain',
