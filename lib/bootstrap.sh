@@ -488,6 +488,11 @@ model:
   # OAuth in the panel and switch the active provider there.
   provider: openai-api
   model: gpt-5-mini
+  # IMPORTANT: the web chat (fractera-hermes-webui, :9120) reads the default
+  # model from `model.default`, NOT `model.model` (which the :9119 agent reads).
+  # Both must be set or the chat opens with an empty model and stays silent.
+  # → reports/errors/hermes-key-pool-and-model-default.md (step 89).
+  default: gpt-5-mini
   # Anthropic Claude Code is an equally valid subscription; the user can
   # sign in there too and switch the active provider in the Hermes /env
   # panel. We don't set it as fallback because both providers go through
