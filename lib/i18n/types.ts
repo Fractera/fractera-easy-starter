@@ -14,6 +14,7 @@ export type SiteContent = {
   heroBadge: string
   heroTitle: string
   deployButton: string
+  heroButtonCaption?: string
   description: string
   lightPitch: {
     label: string

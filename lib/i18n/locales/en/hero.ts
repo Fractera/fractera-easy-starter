@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
   | 'deployCaptions'
 >
@@ -28,6 +28,7 @@ export const hero: HeroPart = {
     videoUrl: 'https://www.youtube.com/watch?v=BYXbuik3dgA&t=4119s',
   },
   deployButton: 'Launch in 1 click',
+  heroButtonCaption: 'Fractera — your smart robot installer.',
 
   description:
     'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, five coding platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Every AI agent runs on your existing subscriptions — zero per-token fees, nothing to meter, no usage limit to hit. No Clerk. No Supabase. Your server, your stack, your data.',

@@ -29,16 +29,23 @@ export function Hero() {
             {content.heroTitle}
           </h1>
           <p className="text-lg text-white/80 leading-relaxed max-w-xl">{content.description}</p>
-          <a
-            href="#pricing"
-            className="cta-shimmer group relative inline-flex items-center gap-2 overflow-hidden bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors mt-2"
-          >
-            <span className="relative z-10 inline-flex items-center gap-2">
-              {content.deployButton}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </span>
-            <span aria-hidden className="cta-shimmer-sweep pointer-events-none absolute inset-0 z-0" />
-          </a>
+          <div className="flex flex-col items-center gap-2.5 mt-2">
+            <a
+              href="#pricing"
+              className="cta-shimmer group relative inline-flex items-center gap-2 overflow-hidden bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors"
+            >
+              <span className="relative z-10 inline-flex items-center gap-2">
+                {content.deployButton}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+              <span aria-hidden className="cta-shimmer-sweep pointer-events-none absolute inset-0 z-0" />
+            </a>
+            {content.heroButtonCaption && (
+              <p className="max-w-md text-center text-xs md:text-sm font-medium text-amber-300/90 leading-snug">
+                {content.heroButtonCaption}
+              </p>
+            )}
+          </div>
         </div>
 
         <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
