@@ -19,7 +19,7 @@ const LS_EMAIL = 'fractera_embed_email'
 const LS_SESSION_ID = 'fractera_embed_session_id'
 const LS_IP = 'fractera_embed_ip'
 const POLL_ACTIVATION_MS = 3000
-const POLL_PROGRESS_MS = 60000
+const POLL_PROGRESS_MS = 30000
 
 const FALLBACK_PROVIDER_URL = 'https://contabo.com/en/vps/cloud-vps-10/?image=ubuntu.332&qty=1&contract=12&storage-type=cloud-vps-10-150-gb-ssd'
 
@@ -235,7 +235,6 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
     if (state !== 'deploying' || !deploySessionId) return
     let cancelled = false
     async function poll() {
-      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const res = await fetch(`/api/progress?session_id=${encodeURIComponent(deploySessionId!)}`)
         if (!res.ok) return

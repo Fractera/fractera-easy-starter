@@ -37,7 +37,7 @@ type ProgressData = {
 }
 
 const POLL_ACTIVATION_MS = 3000
-const POLL_PROGRESS_MS = 60000
+const POLL_PROGRESS_MS = 30000
 const LS_TOKEN = 'fractera_partner_token'
 const LS_STATE = 'fractera_partner_state'
 const LS_EMAIL = 'fractera_partner_email'
@@ -271,7 +271,6 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
     if (state !== 'deploying' || !deploySessionId) return
     let cancelled = false
     async function poll() {
-      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const res = await fetch(`/api/progress?session_id=${encodeURIComponent(deploySessionId!)}`)
         if (!res.ok) return

@@ -46,11 +46,7 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
     let prevDoneCount = 0
     let prevActive: string | null = null
 
-    pollRef.current = setInterval(async () => {
-      // Skip the network round-trip while the tab is hidden — the user isn't
-      // watching, and progress is server-side state we catch up on when they
-      // return. Cuts most of the /api/progress load when the tab is backgrounded.
-      if (typeof document !== 'undefined' && document.hidden) return
+    const tick = async () => {
       try {
         const res = await fetch(`/api/progress?session_id=${sessionId}`)
         if (!res.ok) return
@@ -89,7 +85,9 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
       } catch {
         // retry next cycle
       }
-    }, 60000)
+    }
+    pollRef.current = setInterval(tick, 30000)
+    tick()
 
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [sessionId])
