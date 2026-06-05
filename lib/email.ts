@@ -91,14 +91,15 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
 // management by chat (incl. from a phone), no control panel needed.
 function destinationButtons(appUrl: string, chatUrl: string, adminUrl: string): string {
   return `
-        <!-- Top destination buttons -->
+        <!-- Top destination buttons (orange / green / purple) -->
         <div style="margin:26px 0 0">
-          <a href="${appUrl}" style="display:block;text-align:center;background:#0a0a0a;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-bottom:12px">Your App →</a>
+          <a href="${appUrl}" style="display:block;text-align:center;background:#ea580c;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Your App →</a>
+          <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Your starter Next.js app template includes authentication, a database, object storage, and tools.</p>
 
-          <a href="${chatUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">✨ Remote Command Post →</a>
+          <a href="${chatUrl}" style="display:block;text-align:center;background:#16a34a;color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">✨ Remote Command Post →</a>
           <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Light, fast, convenient — manage your whole project by chat, right from your phone.</p>
 
-          <a href="${adminUrl}" style="display:block;text-align:center;background:#0a0a0a;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
+          <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
           <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
         </div>`
 }
@@ -110,7 +111,7 @@ function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): st
           <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
-            <a href="${appUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open your App →</a>
+            <a href="${appUrl}" style="color:#ea580c;font-weight:600;font-size:13px;text-decoration:underline">Open your App →</a>
           </td></tr>
           <tr><td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
             <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Remote Command Post</div>
@@ -120,12 +121,12 @@ function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): st
               features, manage the project, run multi-step work — light, fast and convenient, with no control
               panel needed. Just add a model to start. <em>Available when Brain is installed.</em>
             </div>
-            <a href="${chatUrl}" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">Open your Remote Command Post →</a>
+            <a href="${chatUrl}" style="color:#16a34a;font-weight:700;font-size:13px;text-decoration:underline">Open your Remote Command Post →</a>
           </td></tr>
           <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Main Control Panel</div>
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The full professional workspace — coding agents, database, file storage, analytics and everything you installed. Best on a wide screen.</div>
-            <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:9px 16px;border-radius:8px">Open Main Control Panel →</a>
+            <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:13px;text-decoration:underline">Open Main Control Panel →</a>
           </td></tr>
         </table>`
 }
@@ -214,7 +215,7 @@ export async function sendWelcomeEmail(
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
           </p>
-          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">🙏 View sponsor tiers →</a>
         </div>
 
         <!-- OR divider -->
@@ -369,7 +370,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
           </p>
-          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">🙏 View sponsor tiers →</a>
         </div>
 
         <!-- OR divider -->
@@ -453,7 +454,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             Sponsors get access to a private community where the Fractera team shares architecture details, helps debug, and ships fixes faster. Even $1/month makes a real difference and unlocks the private support channel.
           </p>
-          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">View sponsor tiers →</a>
+          <a href="https://www.fractera.ai/#sponsors" style="display:inline-block;background:#6c47ff;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">🙏 View sponsor tiers →</a>
         </div>
 
         <!-- OR divider -->
