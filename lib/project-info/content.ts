@@ -416,6 +416,27 @@ The same server can be used purely as a self-hosted backend (database + object s
 - **Решение Fractera:** школа начала с того, что агент генерировал опросы, рассылая в существующий чат ссылки на приватные страницы, где собирались доступность и пожелания каждого учителя. Агент формирует базовое расписание; у каждого учителя есть приватная страница, чтобы попросить изменения; система считывает мнение каждого, и расписание динамически перестраивается, пока не будет утверждено так, чтобы подходило максимальному числу учителей. При нештатной ситуации — например, учитель заболел — модель может даже подсказать, кому из учителей лучше всего предложить уроки на замену.`,
   },
   {
+    id: 'partner-program',
+    title: 'Partner program (affiliates for bloggers)',
+    titleRu: 'Партнёрская программа (affiliate для блогеров)',
+    body: `Fractera's partners are bloggers and YouTube creators who recommend Fractera to their audience. Instead of a plain referral link — which would send their readers to the general landing page (aimed at a different audience) and leak traffic — each partner gets two conversion-focused surfaces:
+
+- **Partner page** — a personal mirror of the Fractera landing at \`https://partners.fractera.ai/<lang>/<slug>\`, trimmed to just the order section (enter server details, pick a provider). It also satisfies what hosting providers require for affiliate approval: a real URL where the affiliate link lives.
+- **Widget** — an \`<iframe>\` the partner embeds on their own site or blog; it renders the same single order section, so the creator can write about any topic and offer server signup right inside their own page.
+
+Partners connect their own affiliate links in two categories that match the two deploy phases: a **VPS provider** (the IP-first server phase) and a **domain registrar** (the later secure custom-domain phase). Only providers on Fractera's trusted whitelist appear automatically — this protects readers from links to fake resources. To get a new provider added to the whitelist (for servers or for domains), a partner contacts the Fractera team for review.
+
+Becoming a partner is one click (auto-approved) from the Partners page; the cabinet then lets the partner manage their server/domain affiliate links, fill in the page footer details, and copy the widget snippet.`,
+    bodyRu: `Партнёры Fractera — это блогеры и YouTube-авторы, которые рекомендуют Fractera своей аудитории. Вместо обычной реферальной ссылки — которая отправила бы их читателей на общий лендинг (заточенный под другую аудиторию) и теряла бы трафик — каждый партнёр получает две конверсионные поверхности:
+
+- **Партнёрская страница** — персональное зеркало лендинга Fractera по адресу \`https://partners.fractera.ai/<lang>/<slug>\`, сокращённое до одной секции оформления заказа (ввод данных сервера, выбор провайдера). Она же закрывает требование хостингов для одобрения affiliate: реальный URL, где живёт партнёрская ссылка.
+- **Виджет** — \`<iframe>\`, который партнёр встраивает на свой сайт или блог; внутри разворачивается та же единственная секция оформления, поэтому автор может писать на любую тему и тут же на своей странице предлагать регистрацию сервера.
+
+Партнёр подключает собственные affiliate-ссылки в двух категориях, соответствующих двум фазам развёртывания: **VPS-провайдер** (фаза сервера по IP) и **регистратор домена** (последующая защищённая фаза на своём домене). Автоматически работают только провайдеры из доверенного whitelist Fractera — это защищает читателей от ссылок на фейковые ресурсы. Чтобы добавить новый провайдер в whitelist (для серверов или для доменов), партнёр обращается к команде Fractera на проверку.
+
+Стать партнёром — один клик (с авто-одобрением) на странице «Партнёры»; затем в кабинете партнёр управляет своими серверными и доменными affiliate-ссылками, заполняет реквизиты в подвале страницы и копирует сниппет виджета.`,
+  },
+  {
     id: 'browser-first',
     title: 'Browser-first development & voice commands',
     titleRu: 'Разработка в браузере и голосовые команды',

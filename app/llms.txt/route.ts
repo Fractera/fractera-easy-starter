@@ -18,6 +18,7 @@ const CONTENT = `# Fractera
 - **Fractera never charges for the deployment itself** — it is free, open-source, and runs on the user's own hardware. One bill: the VPS.
 - **You own everything** — code, data, database and file storage live on the user's server. No Clerk, no Supabase, no Vercel lock-in.
 - **Deployment is IP-first (phase 1):** it finishes on http://<server-ip>:3002 with no domain or HTTPS required; attaching a custom domain with HTTPS is an optional later step the user performs inside the workspace.
+- **Partner program:** bloggers/creators get a personal landing mirror (https://partners.fractera.ai/<slug>) and an embeddable signup widget, and attach their own VPS-provider and domain-registrar affiliate links — only whitelisted providers appear automatically. See the "Partner program" section in /llms-full.txt or /mcp-info.
 
 ## For AI agents
 - Fractera exposes a remote MCP server at https://www.fractera.ai/api/mcp. An agent can register the user, recommend a VPS, and run the full deployment programmatically, then call get_project_info for architecture and specs.

@@ -692,7 +692,7 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
         </h1>
 
         <p style="margin:0 0 20px;color:#333;line-height:1.7;font-size:15px">
-          Your partner cabinet is now active. Below is your personal partner identifier — keep it safe; you will use it when configuring your affiliate links and (later) when configuring the embeddable widget and MCP activation.
+          Your partner cabinet is now active. Below is your personal partner identifier — keep it safe; you use it in your partner page URL and in the embeddable widget.
         </p>
 
         <div style="background:linear-gradient(135deg,#f3f0ff 0%,#ede4ff 100%);border:1px solid #c4b5fd;border-radius:14px;padding:20px;margin:24px 0">
@@ -700,26 +700,36 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
           <p style="margin:0;font-family:monospace;font-size:20px;font-weight:700;color:#1f2937;letter-spacing:0.5px">${slug}</p>
         </div>
 
-        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">Widget snippet</h2>
-        <p style="margin:0 0 16px;color:#333;line-height:1.7;font-size:14px">
-          The embeddable signup widget is under active development. Once it ships, you will be able to copy a ready-to-paste snippet from your partner cabinet at <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard → Partner cabinet. The snippet will look approximately like this:
+        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">Your two surfaces</h2>
+        <p style="margin:0 0 12px;color:#333;line-height:1.7;font-size:14px">
+          From your partner cabinet (<a href="https://www.fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard → Partner cabinet) you have two ready-to-use surfaces:
         </p>
+        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
+          <li><strong>Partner page</strong> — your personal landing mirror at <a href="https://partners.fractera.ai/en/${slug}" style="color:#6c47ff;font-weight:600">partners.fractera.ai/en/${slug}</a>, where the “where to buy” block carries your own affiliate links.</li>
+          <li><strong>Widget</strong> — an embeddable signup section for your own blog. Copy the snippet from the cabinet; it looks like this:</li>
+        </ul>
 
-        <pre style="background:#0b0b0d;color:#a7f3d0;font-family:monospace;font-size:12px;border-radius:10px;padding:16px;overflow:auto;line-height:1.5;margin:0 0 16px"><code>&lt;iframe
-  src="https://embed.fractera.ai/signup?ref=${slug}"
+        <pre style="background:#0b0b0d;color:#a7f3d0;font-family:monospace;font-size:12px;border-radius:10px;padding:16px;overflow:auto;line-height:1.5;margin:0 0 20px"><code>&lt;iframe
+  src="https://fractera.ai/en/embed?ref=${slug}"
   width="100%" height="640"
   style="border:0; border-radius:16px"
 &gt;&lt;/iframe&gt;</code></pre>
 
-        <p style="margin:0 0 24px;color:#666;line-height:1.6;font-size:13px">
-          The widget will surface a call-to-action button labelled with your hosting provider name and linking to your affiliate URL — both you configure in the cabinet once it ships.
+        <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">Choosing an affiliate program</h2>
+        <p style="margin:0 0 10px;color:#333;line-height:1.7;font-size:14px">
+          You connect your own affiliate links — but only providers on Fractera’s whitelist appear automatically, which protects your readers from links to fake resources.
         </p>
+        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
+          <li><strong>Easiest start:</strong> a provider with a direct affiliate program, e.g. <a href="https://www.hostinger.com" style="color:#6c47ff;font-weight:600">Hostinger</a> — quick to join, no third-party network needed.</li>
+          <li><strong>Contabo &amp; GoDaddy:</strong> their affiliate programs run through the <strong>CJ network</strong> (<a href="https://www.cj.com" style="color:#6c47ff;font-weight:600">cj.com</a>) — a good fit only if you already have a CJ publisher account, since CJ onboarding is more involved.</li>
+          <li>Need a provider that isn’t whitelisted yet (for servers or for domains)? Reply to this email and we’ll review it and add it.</li>
+        </ul>
 
         <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;color:#111">What to do next</h2>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
-          <li>Open <a href="https://fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard (top-right corner of the page after signing in) → tab <strong>«Partner cabinet»</strong>.</li>
-          <li>Apply for an affiliate program with any VPS provider you want to recommend (Contabo's program is documented at <a href="https://contabo.com/en/affiliate-program/" style="color:#6c47ff;font-weight:600">contabo.com/en/affiliate-program/</a> — but any host with an affiliate program works).</li>
-          <li>Once approved by the provider, connect your affiliate link in the cabinet — that will happen as soon as link management ships (next development step).</li>
+          <li>Open <a href="https://www.fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard (top-right after signing in) → tab <strong>«Partner cabinet»</strong>.</li>
+          <li>Join an affiliate program — Hostinger is the simplest; Contabo/GoDaddy go via cj.com.</li>
+          <li>Paste your affiliate link into the cabinet — server links under <strong>Server</strong>, domain-registrar links under <strong>Domain</strong>. Whitelisted providers save instantly.</li>
         </ul>
 
         <p style="margin:24px 0 0;color:#666;font-size:13px;line-height:1.6">
