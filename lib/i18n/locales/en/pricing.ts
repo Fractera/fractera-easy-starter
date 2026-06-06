@@ -7,9 +7,9 @@ const CONTABO_URL = process.env.NEXT_PUBLIC_CONTABO_AFFILIATE_URL
   || 'https://www.dpbolvw.net/click-101757323-17082116'
 
 // Same bake-in for the recommended domain registrar. Override in Vercel env once
-// the GoDaddy affiliate URL is approved.
-const GODADDY_URL = process.env.NEXT_PUBLIC_GODADDY_AFFILIATE_URL
-  || 'https://www.godaddy.com/domainsearch/find'
+// the Hostinger affiliate URL is approved.
+const HOSTINGER_URL = process.env.NEXT_PUBLIC_HOSTINGER_AFFILIATE_URL
+  || 'https://www.hostinger.com/domain-name-search'
 
 export const pricing: PricingPart = {
   pricingHeader: {
@@ -65,9 +65,9 @@ export const pricing: PricingPart = {
   domainProviderSection: {
     label: 'Where to buy a domain',
     h2: 'Recommended Domain Registrar',
-    description: 'A domain gives your server HTTPS, a memorable URL, and removes browser security warnings. GoDaddy gives you direct DNS management without forcing a proxy — exactly what Fractera needs.',
+    description: 'A domain gives your server HTTPS, a memorable URL, and removes browser security warnings. Hostinger gives you direct DNS management without forcing a proxy — exactly what Fractera needs.',
     providers: [
-      { name: 'GoDaddy', tagline: 'Direct DNS management, broad TLD support, no mandatory proxy.', url: GODADDY_URL, price: 'from $0.99/yr' },
+      { name: 'Hostinger', tagline: 'Direct DNS management, broad TLD support, no mandatory proxy.', url: HOSTINGER_URL, price: 'from $0.99/yr' },
     ],
   },
 }
