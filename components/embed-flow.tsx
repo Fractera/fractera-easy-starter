@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { signIn } from 'next-auth/react'
+import { PartnerDeployOptions } from './partner-deploy-options'
+import { ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 
 type Lang = 'en' | 'ru'
 type State =
@@ -178,6 +180,11 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
   // Install / deployment
   const [ip, setIp] = useState('')
   const [password, setPassword] = useState('')
+  // Deploy options — parity with the live install form (S7):
+  // password-change ack (step 78) + custom component selection (step 85).
+  const [passwordAck, setPasswordAck] = useState(false)
+  const [customMode, setCustomMode] = useState(false)
+  const [selected, setSelected] = useState<ComponentId[]>(ALL_COMPONENT_IDS)
   const [deploySessionId, setDeploySessionId] = useState<string | null>(null)
   const [progress, setProgress] = useState<ProgressData | null>(null)
   const [deployError, setDeployError] = useState<string | null>(null)
@@ -312,6 +319,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
       setError(t.installMissingFields)
       return
     }
+    if (!passwordAck) return
     if (!embedToken) {
       setError(t.installKickoffFailed)
       return
@@ -333,7 +341,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
     fetch('/api/embed/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: embedToken, ip: ip.trim(), password, sessionId }),
+      body: JSON.stringify({ token: embedToken, ip: ip.trim(), password, sessionId, ...(customMode ? { components: selected } : {}) }),
     }).catch(() => {})
   }
 
@@ -558,10 +566,22 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                     className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70 font-mono"
                   />
                 </div>
+
+                <PartnerDeployOptions
+                  lang={lang}
+                  customMode={customMode}
+                  setCustomMode={setCustomMode}
+                  selected={selected}
+                  setSelected={setSelected}
+                  passwordAck={passwordAck}
+                  setPasswordAck={setPasswordAck}
+                  disabled={busy}
+                />
+
                 {error && <p className="text-sm text-red-400">{error}</p>}
                 <button
                   type="submit"
-                  disabled={busy || !ip.trim() || !password.trim()}
+                  disabled={busy || !ip.trim() || !password.trim() || !passwordAck}
                   className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
                 >
                   {busy ? <><span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t.deployStarting}</> : <>{t.deployStart} →</>}

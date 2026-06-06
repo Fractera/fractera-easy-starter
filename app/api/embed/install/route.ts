@@ -4,6 +4,7 @@ import { deployToServer } from '@/lib/deploy'
 import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -13,8 +14,16 @@ export const maxDuration = 300
 // (iframe third-party cookies are not reliable, so we use a localStorage
 // token issued at signup time).
 export async function POST(req: NextRequest) {
-  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown }
+  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown; components?: unknown }
   try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
+
+  // Selective install (S7) — additive parity with /api/install. The partner
+  // surfaces send `components` ONLY in custom mode:
+  //   - absent/undefined → full install (componentsArg stays undefined → bootstrap installs all)
+  //   - array (possibly empty) → respect it; [] serializes to 'none' = CORE only (server, no AI)
+  const componentsArg = Array.isArray(body.components)
+    ? serializeComponents((body.components as unknown[]).filter(isComponentId) as ComponentId[])
+    : undefined
 
   const token = typeof body.token === 'string' ? body.token : ''
   const ip = typeof body.ip === 'string' ? body.ip.trim() : ''
@@ -131,6 +140,7 @@ export async function POST(req: NextRequest) {
       session_id: sessionId,
       serverToken: serverToken.token,
       serverId: serverToken.id,
+      components: componentsArg,
     })
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)
