@@ -17,6 +17,8 @@ export default async function EmbedPage({
   let partnerSlug: string | null = null
   let providerName: string | null = null
   let affiliateUrl: string | null = null
+  let domainProviderName: string | null = null
+  let domainAffiliateUrl: string | null = null
 
   if (ref) {
     const partner = await db.partner.findUnique({
@@ -24,13 +26,18 @@ export default async function EmbedPage({
       select: {
         slug: true,
         status: true,
-        links: { where: { isDefault: true }, select: { providerName: true, affiliateUrl: true }, take: 1 },
+        // Default widget link of each kind (default is scoped per kind).
+        links: { where: { isDefault: true, forWidget: true }, select: { providerName: true, affiliateUrl: true, kind: true } },
       },
     })
     if (partner && partner.status === 'active') {
       partnerSlug = partner.slug
-      providerName = partner.links[0]?.providerName ?? null
-      affiliateUrl = partner.links[0]?.affiliateUrl ?? null
+      const serverLink = partner.links.find(l => l.kind !== 'domain') ?? null
+      const domainLink = partner.links.find(l => l.kind === 'domain') ?? null
+      providerName = serverLink?.providerName ?? null
+      affiliateUrl = serverLink?.affiliateUrl ?? null
+      domainProviderName = domainLink?.providerName ?? null
+      domainAffiliateUrl = domainLink?.affiliateUrl ?? null
     }
   }
 
@@ -40,6 +47,8 @@ export default async function EmbedPage({
       partnerSlug={partnerSlug}
       providerName={providerName}
       affiliateUrl={affiliateUrl}
+      domainProviderName={domainProviderName}
+      domainAffiliateUrl={domainAffiliateUrl}
     />
   )
 }

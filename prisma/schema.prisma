@@ -169,6 +169,7 @@ model PartnerLink {
   isDefault    Boolean  @default(false) // one default per surface, enforced in app layer
   forWidget    Boolean  @default(true)  // allowed in iframe widget (any URL, partner's blog responsibility)
   forPage      Boolean  @default(false) // allowed on partner page (must be in trusted-providers whitelist)
+  kind         String   @default("server") // server (VPS hosting affiliate) | domain (registrar affiliate)
   sortOrder    Int      @default(0)     // partner-controlled order for multi-link display
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -217,12 +218,14 @@ model BlackBoxHistoryEntry {
 // Seeded on first request from config/trusted-providers.json so the existing
 // list keeps working without manual data entry.
 model TrustedHosting {
-  id        String   @id @default(cuid())
-  domain    String   @unique // lowercase, no scheme/path
-  name      String           // display label
-  category  String   @default("vps") // vps | aff-network | other
-  createdAt DateTime @default(now())
-  createdBy String?  // admin email, optional
+  id          String   @id @default(cuid())
+  domain      String   @unique // lowercase, no scheme/path
+  name        String           // display label
+  category    String   @default("vps") // vps | aff-network | registrar | other (display)
+  isHosting   Boolean  @default(true)  // allowed for partner "server" affiliate links (VPS)
+  isRegistrar Boolean  @default(false) // allowed for partner "domain" affiliate links (registrar)
+  createdAt   DateTime @default(now())
+  createdBy   String?  // admin email, optional
 }
 
 model VpsReserve {

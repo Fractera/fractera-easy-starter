@@ -20,6 +20,7 @@ type PageLink = {
   providerName: string
   affiliateUrl: string
   isDefault: boolean
+  kind?: string
 }
 
 type PartnerData = {
@@ -68,6 +69,12 @@ function getTexts(lang: Lang) {
     notConfiguredBody: isRu
       ? 'Партнёр пока не подключил ни одной партнёрской ссылки.'
       : 'The partner has not connected any affiliate link yet.',
+
+    domainLabel: isRu ? 'Где купить домен' : 'Where to buy a domain',
+    domainHeader: isRu ? 'Рекомендуемые регистраторы доменов' : 'Recommended domain registrars',
+    domainDescription: isRu
+      ? 'Домен понадобится позже — для защищённого доступа (HTTPS) к вашему серверу на собственном домене.'
+      : 'You will need a domain later — for secure (HTTPS) access to your server on your own domain.',
 
     freeBadge: isRu ? 'ВАШ СЕРВЕР' : 'YOUR OWN SERVER',
     freeSub: isRu ? 'Бесплатно — установка на VPS' : 'Free — install on your VPS',
@@ -402,7 +409,8 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
   }
 
   const isActivated = state === 'activated' || state === 'deploying' || state === 'deploy-done' || state === 'deploy-error'
-  const isConfigured = partner.links.length > 0
+  const serverLinks = partner.links.filter(l => l.kind !== 'domain')
+  const domainLinks = partner.links.filter(l => l.kind === 'domain')
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -426,48 +434,23 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
                 <p className="text-xs text-white/50 leading-relaxed">{isActivated ? t.serverDescriptionPost : t.serverDescriptionPre}</p>
               </div>
 
-              {isConfigured ? (
-                <div className="flex flex-col gap-2">
-                  {partner.links.map(link => (
-                    isActivated ? (
-                      <a
-                        key={link.id}
-                        href={link.affiliateUrl}
-                        target="_blank"
-                        rel="noopener noreferrer sponsored"
-                        onClick={markHostingClicked}
-                        className="group w-full flex items-center justify-between gap-3 rounded-xl border border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/[0.06] hover:bg-emerald-500/[0.10] px-5 py-3.5 transition-all"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-base font-bold text-white group-hover:text-emerald-200 transition-colors">{link.providerName}</span>
-                          {link.isDefault && (
-                            <span className="text-xs font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">{t.primaryBadge}</span>
-                          )}
-                        </span>
-                        <span className="shrink-0 text-emerald-300 group-hover:text-emerald-200 text-base font-bold transition-colors">{t.open}</span>
-                      </a>
-                    ) : (
-                      <button
-                        key={link.id}
-                        type="button"
-                        onClick={() => setState('signup')}
-                        className="group w-full flex items-center justify-between gap-3 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-5 py-3.5 transition-all text-left"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{link.providerName}</span>
-                          {link.isDefault && (
-                            <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/30">{t.primaryBadge}</span>
-                          )}
-                        </span>
-                        <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">{t.open}</span>
-                      </button>
-                    )
-                  ))}
-                </div>
+              {serverLinks.length > 0 ? (
+                <ProviderLinks links={serverLinks} isActivated={isActivated} onActiveClick={markHostingClicked} onInactiveClick={() => setState('signup')} t={t} />
               ) : (
                 <div className="flex flex-col gap-2 rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-4">
                   <p className="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">{t.notConfiguredTitle}</p>
                   <p className="text-sm text-white/70 leading-relaxed">{t.notConfiguredBody}</p>
+                </div>
+              )}
+
+              {domainLinks.length > 0 && (
+                <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{t.domainLabel}</p>
+                    <h2 className="text-base font-bold font-serif text-white">{t.domainHeader}</h2>
+                    <p className="text-xs text-white/50 leading-relaxed">{t.domainDescription}</p>
+                  </div>
+                  <ProviderLinks links={domainLinks} isActivated={isActivated} onActiveClick={markHostingClicked} onInactiveClick={() => setState('signup')} t={t} />
                 </div>
               )}
             </div>
@@ -815,6 +798,57 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
         </Overlay>
       )}
     </main>
+  )
+}
+
+// Renders a list of partner affiliate buttons (used for both the server and
+// domain blocks). Before email verification they trigger signup; after, they
+// are real outbound affiliate links (attribution locked in the provider cookie).
+function ProviderLinks({ links, isActivated, onActiveClick, onInactiveClick, t }: {
+  links: PageLink[]
+  isActivated: boolean
+  onActiveClick: () => void
+  onInactiveClick: () => void
+  t: Texts
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {links.map(link => (
+        isActivated ? (
+          <a
+            key={link.id}
+            href={link.affiliateUrl}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            onClick={onActiveClick}
+            className="group w-full flex items-center justify-between gap-3 rounded-xl border border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/[0.06] hover:bg-emerald-500/[0.10] px-5 py-3.5 transition-all"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-base font-bold text-white group-hover:text-emerald-200 transition-colors">{link.providerName}</span>
+              {link.isDefault && (
+                <span className="text-xs font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">{t.primaryBadge}</span>
+              )}
+            </span>
+            <span className="shrink-0 text-emerald-300 group-hover:text-emerald-200 text-base font-bold transition-colors">{t.open}</span>
+          </a>
+        ) : (
+          <button
+            key={link.id}
+            type="button"
+            onClick={onInactiveClick}
+            className="group w-full flex items-center justify-between gap-3 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-5 py-3.5 transition-all text-left"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{link.providerName}</span>
+              {link.isDefault && (
+                <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/30">{t.primaryBadge}</span>
+              )}
+            </span>
+            <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">{t.open}</span>
+          </button>
+        )
+      ))}
+    </div>
   )
 }
 

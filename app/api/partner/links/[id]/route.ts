@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { isTrustedUrl } from '@/lib/trusted-providers'
+import { isTrustedUrlForAsync, type LinkKind } from '@/lib/trusted-providers'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,7 +10,7 @@ async function loadLinkForUser(linkId: string, userId: string) {
     where: { id: linkId, partner: { userId } },
     select: {
       id: true, partnerId: true, isDefault: true,
-      forWidget: true, forPage: true, affiliateUrl: true,
+      forWidget: true, forPage: true, affiliateUrl: true, kind: true,
     },
   })
 }
@@ -57,13 +57,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (typeof body.forPage === 'boolean') data.forPage = body.forPage
   if (typeof body.sortOrder === 'number') data.sortOrder = body.sortOrder
 
-  // Whitelist enforcement for page surface
+  // Whitelist enforcement for page surface — kind-aware (server→hosting,
+  // domain→registrar), against the live DB whitelist.
   const finalForPage = data.forPage ?? link.forPage
   const finalUrl = data.affiliateUrl ?? link.affiliateUrl
-  if (finalForPage && !isTrustedUrl(finalUrl)) {
+  const kind = (link.kind === 'domain' ? 'domain' : 'server') as LinkKind
+  if (finalForPage && !(await isTrustedUrlForAsync(finalUrl, kind))) {
     return NextResponse.json({
       error: 'NOT_TRUSTED',
-      message: 'This hosting provider is not in the trusted whitelist. Contact the Fractera team via the private $20/mo Sponsor Telegram channel to request approval.',
+      message: kind === 'domain'
+        ? 'This domain registrar is not in the trusted whitelist. Contact the Fractera team via the private $20/mo Sponsor Telegram channel to request approval.'
+        : 'This hosting provider is not in the trusted whitelist. Contact the Fractera team via the private $20/mo Sponsor Telegram channel to request approval.',
     }, { status: 400 })
   }
   // Must remain on at least one surface
@@ -75,7 +79,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const makeDefault = body.isDefault === true
   const updated = await db.$transaction(async (tx) => {
     if (makeDefault) {
-      await tx.partnerLink.updateMany({ where: { partnerId: link.partnerId }, data: { isDefault: false } })
+      await tx.partnerLink.updateMany({ where: { partnerId: link.partnerId, kind: link.kind }, data: { isDefault: false } })
     }
     return tx.partnerLink.update({
       where: { id: link.id },
@@ -102,7 +106,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     await tx.partnerLink.delete({ where: { id: link.id } })
     if (link.isDefault) {
       const next = await tx.partnerLink.findFirst({
-        where: { partnerId: link.partnerId },
+        where: { partnerId: link.partnerId, kind: link.kind },
         orderBy: { createdAt: 'asc' },
         select: { id: true },
       })

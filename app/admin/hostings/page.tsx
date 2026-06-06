@@ -7,11 +7,13 @@ type Row = {
   domain: string
   name: string
   category: string
+  isHosting?: boolean
+  isRegistrar?: boolean
   createdAt: string
   createdBy: string | null
 }
 
-const CATEGORIES = ['vps', 'aff-network', 'other']
+const CATEGORIES = ['vps', 'aff-network', 'registrar', 'other']
 
 export default function HostingsPage() {
   const [rows, setRows] = useState<Row[]>([])
@@ -20,6 +22,8 @@ export default function HostingsPage() {
   const [domain, setDomain] = useState('')
   const [name, setName] = useState('')
   const [category, setCategory] = useState('vps')
+  const [isHosting, setIsHosting] = useState(true)
+  const [isRegistrar, setIsRegistrar] = useState(false)
   const [adding, setAdding] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -53,13 +57,13 @@ export default function HostingsPage() {
       const res = await fetch('/api/admin/hostings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain, name, category }),
+        body: JSON.stringify({ domain, name, category, isHosting, isRegistrar }),
       })
       const d = await res.json()
       if (!res.ok) {
         setErr(d.error ?? 'failed')
       } else {
-        setDomain(''); setName(''); setCategory('vps')
+        setDomain(''); setName(''); setCategory('vps'); setIsHosting(true); setIsRegistrar(false)
         await load()
       }
     } finally { setAdding(false) }
@@ -154,6 +158,18 @@ export default function HostingsPage() {
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
+        {/* Eligibility — which partner affiliate surfaces this provider is allowed on.
+            A provider can serve both (e.g. GoDaddy = hosting + domain registrar). */}
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-white/80">
+            <input type="checkbox" checked={isHosting} onChange={e => setIsHosting(e.target.checked)} />
+            Hosting (server / VPS)
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-white/80">
+            <input type="checkbox" checked={isRegistrar} onChange={e => setIsRegistrar(e.target.checked)} />
+            Registrar (domain)
+          </label>
+        </div>
         {err && <p className="text-xs text-red-400">{err}</p>}
         <button
           type="submit"
@@ -184,7 +200,11 @@ export default function HostingsPage() {
               <tr key={r.id} className="border-b border-white/10 last:border-0 hover:bg-white/[0.02]">
                 <td className="px-4 py-2 text-white font-mono">{r.domain}</td>
                 <td className="px-4 py-2 text-white/85">{r.name}</td>
-                <td className="px-4 py-2 text-white/65 font-mono text-xs">{r.category}</td>
+                <td className="px-4 py-2 text-white/65 font-mono text-xs">
+                  {r.category}
+                  {r.isHosting && <span className="ml-1 text-emerald-300/80" title="Hosting (server)">H</span>}
+                  {r.isRegistrar && <span className="ml-1 text-sky-300/80" title="Registrar (domain)">R</span>}
+                </td>
                 <td className="px-4 py-2 text-white/55 text-xs">{fmt(r.createdAt)}{r.createdBy && <span className="block text-white/30">{r.createdBy}</span>}</td>
                 <td className="px-4 py-2 text-right">
                   <button

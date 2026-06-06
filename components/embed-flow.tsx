@@ -41,6 +41,11 @@ function getTexts(lang: Lang) {
       ? 'Fractera устанавливается на любой VPS с Ubuntu 24.04, 4 ядрами и 6 ГБ RAM.'
       : 'Fractera installs on any Ubuntu 24.04 VPS with 4 cores and 6 GB RAM.',
     providerPrice: isRu ? 'от 3,60 €/мес' : 'from €3.60/mo',
+    domainLabel: isRu ? 'Где купить домен' : 'Where to buy a domain',
+    domainHeader: isRu ? 'Рекомендуемый регистратор домена' : 'Recommended domain registrar',
+    domainDescription: isRu
+      ? 'Домен понадобится позже — для защищённого доступа (HTTPS) к серверу на своём домене.'
+      : 'You will need a domain later — for secure (HTTPS) access on your own domain.',
 
     freeBadge: isRu ? 'ВАШ СЕРВЕР' : 'YOUR OWN SERVER',
     freeSub: isRu ? 'Бесплатно — установка на VPS' : 'Free — install on your VPS',
@@ -161,11 +166,13 @@ type ProgressData = {
   server_token?: string
 }
 
-export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
+export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domainProviderName, domainAffiliateUrl }: {
   lang: Lang
   partnerSlug: string | null
   providerName: string | null
   affiliateUrl: string | null
+  domainProviderName?: string | null
+  domainAffiliateUrl?: string | null
 }) {
   const t = getTexts(lang)
 
@@ -413,6 +420,25 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl }: {
                   </span>
                   <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">↗</span>
                 </a>
+
+                {domainAffiliateUrl && (
+                  <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{t.domainLabel}</p>
+                      <h3 className="text-base font-bold font-serif text-white">{t.domainHeader}</h3>
+                      <p className="text-xs text-white/50 leading-relaxed">{t.domainDescription}</p>
+                    </div>
+                    <a
+                      href={domainAffiliateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="group w-full flex items-center justify-between gap-3 rounded-xl border border-white/20 hover:border-violet-500/60 bg-white/[0.03] hover:bg-violet-500/[0.06] px-5 py-4 transition-all"
+                    >
+                      <span className="text-base font-bold text-white group-hover:text-violet-300 transition-colors">{domainProviderName ?? 'Domain registrar'}</span>
+                      <span className="shrink-0 text-white/60 group-hover:text-violet-300 text-base font-bold transition-colors">↗</span>
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { isTrustedUrl, TRUSTED_PROVIDERS } from '@/lib/trusted-providers'
+import { isTrustedUrlFor, TRUSTED_PROVIDERS, type LinkKind } from '@/lib/trusted-providers'
 
 type Lang = 'ru' | 'en'
 
@@ -13,6 +13,7 @@ type PartnerLink = {
   isDefault: boolean
   forWidget: boolean
   forPage: boolean
+  kind: string
   sortOrder: number
   createdAt: string
 }
@@ -92,6 +93,16 @@ function getTexts(lang: Lang) {
     widgetLinksIntro: isRu
       ? 'Здесь — ссылки, показываемые в iframe-виджете на сайтах партнёра. URL не ограничен whitelist-ом: партнёр несёт ответственность за свой контент.'
       : 'Links shown in the iframe widget on partner blogs. URL is not restricted by the whitelist — the partner is responsible for their own content.',
+
+    // Server / domain sections (two affiliate categories: VPS hosting + registrar)
+    serverTitle: isRu ? 'Партнёрка по серверу (VPS-хостинг)' : 'Server affiliate (VPS hosting)',
+    domainTitle: isRu ? 'Партнёрка по домену (регистратор)' : 'Domain affiliate (registrar)',
+    serverHint: isRu
+      ? 'Affiliate-ссылка вашего VPS-провайдера (например, Contabo). Клиент берёт сервер на фазе IP-потока.'
+      : 'Affiliate link of your VPS provider (e.g. Contabo). The customer buys the server in the IP phase.',
+    domainHint: isRu
+      ? 'Affiliate-ссылка регистратора домена (например, GoDaddy). Клиент берёт домен для защищённой фазы.'
+      : 'Affiliate link of your domain registrar (e.g. GoDaddy). The customer buys a domain for the secure phase.',
 
     // Page tab specific
     pageLinksIntro: isRu
@@ -197,8 +208,10 @@ function WidgetTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; la
         <pre className="text-xs md:text-sm font-mono text-emerald-300 bg-black/60 border border-white/10 rounded-lg p-4 overflow-x-auto leading-relaxed select-all">{snippet}</pre>
       </div>
 
-      {/* Widget links manager */}
-      <LinksManager surface="widget" t={t} intro={t.widgetLinksIntro} />
+      {/* Widget links — server + domain sections */}
+      <p className="text-sm text-white/60 leading-relaxed">{t.widgetLinksIntro}</p>
+      <LinksManager surface="widget" kind="server" t={t} title={t.serverTitle} intro={t.serverHint} />
+      <LinksManager surface="widget" kind="domain" t={t} title={t.domainTitle} intro={t.domainHint} />
     </div>
   )
 }
@@ -227,8 +240,10 @@ function PageTab({ partnerSlug, t, lang }: { partnerSlug: string; t: Texts; lang
       {/* Partner info form */}
       <PartnerInfoForm t={t} />
 
-      {/* Page links manager */}
-      <LinksManager surface="page" t={t} intro={t.pageLinksIntro} />
+      {/* Page links — server + domain sections */}
+      <p className="text-sm text-white/60 leading-relaxed">{t.pageLinksIntro}</p>
+      <LinksManager surface="page" kind="server" t={t} title={t.serverTitle} intro={t.serverHint} />
+      <LinksManager surface="page" kind="domain" t={t} title={t.domainTitle} intro={t.domainHint} />
     </div>
   )
 }
@@ -341,9 +356,11 @@ function PartnerInfoForm({ t }: { t: Texts }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-function LinksManager({ surface, t, intro }: {
+function LinksManager({ surface, kind, t, title, intro }: {
   surface: Surface
+  kind: LinkKind
   t: Texts
+  title: string
   intro: string
 }) {
   const [links, setLinks] = useState<PartnerLink[]>([])
@@ -355,7 +372,7 @@ function LinksManager({ surface, t, intro }: {
   const fetchLinks = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/partner/links?surface=${surface}`)
+      const res = await fetch(`/api/partner/links?surface=${surface}&kind=${kind}`)
       if (res.ok) {
         const data = await res.json()
         setLinks(data.links ?? [])
@@ -363,7 +380,7 @@ function LinksManager({ surface, t, intro }: {
     } finally {
       setLoading(false)
     }
-  }, [surface])
+  }, [surface, kind])
 
   useEffect(() => { fetchLinks() }, [fetchLinks])
 
@@ -392,7 +409,8 @@ function LinksManager({ surface, t, intro }: {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+      <p className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest">{title}</p>
       <p className="text-sm text-white/60 leading-relaxed">{intro}</p>
 
       {loading ? (
@@ -416,6 +434,7 @@ function LinksManager({ surface, t, intro }: {
                 {editingId === link.id ? (
                   <LinkForm
                     surface={surface}
+                    kind={kind}
                     t={t}
                     initial={link}
                     onCancel={() => setEditingId(null)}
@@ -430,7 +449,7 @@ function LinksManager({ surface, t, intro }: {
                         {link.isDefault && (
                           <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/30">{t.defaultBadge}</span>
                         )}
-                        {isTrustedUrl(link.affiliateUrl) ? (
+                        {isTrustedUrlFor(link.affiliateUrl, kind) ? (
                           <span className="text-xs font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">{t.trustedBadge}</span>
                         ) : (
                           <span className="text-xs font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">{t.notTrustedBadge}</span>
@@ -478,6 +497,7 @@ function LinksManager({ surface, t, intro }: {
           {adding ? (
             <LinkForm
               surface={surface}
+              kind={kind}
               t={t}
               onCancel={() => setAdding(false)}
               onSaved={() => { setAdding(false); fetchLinks() }}
@@ -501,8 +521,9 @@ function LinksManager({ surface, t, intro }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-function LinkForm({ surface, t, initial, onCancel, onSaved, onNotTrusted }: {
+function LinkForm({ surface, kind, t, initial, onCancel, onSaved, onNotTrusted }: {
   surface: Surface
+  kind: LinkKind
   t: Texts
   initial?: PartnerLink
   onCancel: () => void
@@ -513,7 +534,7 @@ function LinkForm({ surface, t, initial, onCancel, onSaved, onNotTrusted }: {
   const [affiliateUrl, setAffiliateUrl] = useState(initial?.affiliateUrl ?? '')
   const [submitting, setSubmitting] = useState(false)
 
-  const isUrlTrusted = affiliateUrl.trim() ? isTrustedUrl(affiliateUrl.trim()) : null
+  const isUrlTrusted = affiliateUrl.trim() ? isTrustedUrlFor(affiliateUrl.trim(), kind) : null
   const needsTrustForSurface = surface === 'page'
   const blocksByTrust = needsTrustForSurface && isUrlTrusted === false
 
@@ -529,9 +550,10 @@ function LinkForm({ surface, t, initial, onCancel, onSaved, onNotTrusted }: {
       const method = initial ? 'PATCH' : 'POST'
       const body: Record<string, unknown> = { providerName, affiliateUrl }
       if (!initial) {
-        // Default: create entry on the active surface only.
+        // Default: create entry on the active surface + kind only.
         body.forWidget = surface === 'widget'
         body.forPage = surface === 'page'
+        body.kind = kind
       }
       const res = await fetch(url, {
         method,
@@ -566,12 +588,15 @@ function LinkForm({ surface, t, initial, onCancel, onSaved, onNotTrusted }: {
           onChange={e => setProviderName(e.target.value)}
           placeholder={t.formProviderPlaceholder}
           maxLength={80}
-          list={surface === 'page' ? 'trusted-providers-list' : undefined}
+          list={surface === 'page' ? `trusted-providers-${kind}` : undefined}
           className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70"
         />
         {surface === 'page' && (
-          <datalist id="trusted-providers-list">
-            {TRUSTED_PROVIDERS.map(p => (
+          <datalist id={`trusted-providers-${kind}`}>
+            {TRUSTED_PROVIDERS.filter(p => kind === 'domain'
+              ? (p.isRegistrar || p.category === 'aff-network')
+              : (p.isHosting !== false)
+            ).map(p => (
               <option key={p.domain} value={p.name} />
             ))}
           </datalist>

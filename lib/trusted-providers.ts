@@ -5,6 +5,32 @@ export type TrustedProvider = {
   domain: string
   name: string
   category: string
+  isHosting?: boolean
+  isRegistrar?: boolean
+}
+
+export type LinkKind = 'server' | 'domain'
+
+// Resolve hosting/registrar flags, deriving sensible defaults from `category`
+// when the explicit booleans are absent (older rows / JSON entries):
+//   registrar → domain only · aff-network → both · vps/other → hosting only.
+function resolveFlags(p: { category?: string; isHosting?: boolean | null; isRegistrar?: boolean | null }): { isHosting: boolean; isRegistrar: boolean } {
+  if (typeof p.isHosting === 'boolean' || typeof p.isRegistrar === 'boolean') {
+    return { isHosting: p.isHosting ?? false, isRegistrar: p.isRegistrar ?? false }
+  }
+  if (p.category === 'registrar') return { isHosting: false, isRegistrar: true }
+  if (p.category === 'aff-network') return { isHosting: true, isRegistrar: true }
+  return { isHosting: true, isRegistrar: false }
+}
+
+// Whether a whitelist entry is allowed for a given affiliate-link kind.
+// Affiliate networks (cj.com, admitad…) wrap links for either kind, so they
+// always pass — this also keeps pre-migration DB rows (whose isRegistrar
+// column defaulted to false) usable for domain links.
+function entryAllows(p: { category?: string; isHosting?: boolean | null; isRegistrar?: boolean | null }, kind: LinkKind): boolean {
+  if (p.category === 'aff-network') return true
+  const f = resolveFlags(p)
+  return kind === 'domain' ? f.isRegistrar : f.isHosting
 }
 
 // Static seed list. Used in two situations:
@@ -19,20 +45,19 @@ const CACHE_TTL_MS = 60_000
 
 async function loadFromDb(): Promise<TrustedProvider[]> {
   try {
-    const rows = await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true } })
+    const rows = await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true, isHosting: true, isRegistrar: true } })
     if (rows.length === 0) {
       // First boot after migration — seed from the static list so the existing
       // partner-page whitelist keeps working without admin intervention.
       try {
         await db.trustedHosting.createMany({
-          data: TRUSTED_PROVIDERS_FALLBACK.map(p => ({
-            domain: p.domain.toLowerCase(),
-            name: p.name,
-            category: p.category,
-          })),
+          data: TRUSTED_PROVIDERS_FALLBACK.map(p => {
+            const f = resolveFlags(p)
+            return { domain: p.domain.toLowerCase(), name: p.name, category: p.category, isHosting: f.isHosting, isRegistrar: f.isRegistrar }
+          }),
           skipDuplicates: true,
         })
-        return await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true } })
+        return await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true, isHosting: true, isRegistrar: true } })
       } catch (err) {
         console.error('[trusted-providers] seed failed', err)
         return TRUSTED_PROVIDERS_FALLBACK
@@ -79,6 +104,36 @@ export async function isTrustedUrlAsync(url: string): Promise<boolean> {
   const entries = await getEntries()
   const domains = normaliseDomains(entries)
   return domains.some(domain => host === domain || host.endsWith('.' + domain))
+}
+
+/**
+ * Kind-aware server-only check against the live DB whitelist. Use on
+ * PartnerLink write paths: a 'server' link must match a hosting-eligible
+ * entry, a 'domain' link a registrar-eligible one (affiliate networks pass
+ * for both). This is the authoritative check (replaces the old sync one).
+ */
+export async function isTrustedUrlForAsync(url: string, kind: LinkKind): Promise<boolean> {
+  const host = extractHost(url)
+  if (!host) return false
+  const entries = await getEntries()
+  return entries.some(e => {
+    const d = e.domain.toLowerCase()
+    return (host === d || host.endsWith('.' + d)) && entryAllows(e, kind)
+  })
+}
+
+/**
+ * Kind-aware synchronous check against the static fallback list — for
+ * client-side UI badges only (the DB list may differ; authoritative checks
+ * use isTrustedUrlForAsync).
+ */
+export function isTrustedUrlFor(url: string, kind: LinkKind): boolean {
+  const host = extractHost(url)
+  if (!host) return false
+  return TRUSTED_PROVIDERS_FALLBACK.some(e => {
+    const d = e.domain.toLowerCase()
+    return (host === d || host.endsWith('.' + d)) && entryAllows(e, kind)
+  })
 }
 
 /**

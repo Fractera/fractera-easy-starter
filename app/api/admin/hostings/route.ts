@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { invalidateTrustedHostingsCache, TRUSTED_PROVIDERS_FALLBACK } from '@/lib/trusted-providers'
 
-const VALID_CATEGORIES = ['vps', 'aff-network', 'other']
+const VALID_CATEGORIES = ['vps', 'aff-network', 'registrar', 'other']
 
 export async function GET(req: NextRequest) {
   const session = await auth()
@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
           domain: p.domain.toLowerCase(),
           name: p.name,
           category: p.category,
+          isHosting: p.isHosting ?? (p.category !== 'registrar'),
+          isRegistrar: p.isRegistrar ?? (p.category === 'registrar' || p.category === 'aff-network'),
         })),
         skipDuplicates: true,
       })
@@ -59,14 +61,19 @@ export async function POST(req: NextRequest) {
   if (session?.user?.email !== 'admin@fractera.ai') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
-  const body = await req.json().catch(() => ({})) as { domain?: string; name?: string; category?: string }
+  const body = await req.json().catch(() => ({})) as { domain?: string; name?: string; category?: string; isHosting?: boolean; isRegistrar?: boolean }
   const domain = (body.domain ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
   const name = (body.name ?? '').trim()
   const category = VALID_CATEGORIES.includes((body.category ?? '').trim()) ? (body.category as string).trim() : 'vps'
+  // Hosting/registrar eligibility. Explicit form values win; otherwise derive
+  // from category. Guarantee at least one is true so the entry is usable.
+  let isHosting = typeof body.isHosting === 'boolean' ? body.isHosting : category !== 'registrar'
+  let isRegistrar = typeof body.isRegistrar === 'boolean' ? body.isRegistrar : (category === 'registrar' || category === 'aff-network')
+  if (!isHosting && !isRegistrar) isHosting = true
   if (!domain || !name) return NextResponse.json({ error: 'domain and name required' }, { status: 400 })
   try {
     const row = await db.trustedHosting.create({
-      data: { domain, name, category, createdBy: session.user.email ?? null },
+      data: { domain, name, category, isHosting, isRegistrar, createdBy: session.user.email ?? null },
     })
     invalidateTrustedHostingsCache()
     return NextResponse.json({ ok: true, row })

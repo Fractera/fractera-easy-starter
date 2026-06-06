@@ -44,7 +44,7 @@ export default async function PartnerSlugPage({
       links: {
         where: { forPage: true },
         orderBy: [{ sortOrder: 'asc' }, { isDefault: 'desc' }, { createdAt: 'asc' }],
-        select: { id: true, providerName: true, affiliateUrl: true, isDefault: true },
+        select: { id: true, providerName: true, affiliateUrl: true, isDefault: true, kind: true },
       },
     },
   })
