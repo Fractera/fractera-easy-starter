@@ -11,6 +11,7 @@ import {
   sendExpiryWarningEmail,
   sendCertExpiryWarningEmail,
   sendCompanyBrainInquiryEmail,
+  sendPartnerWelcomeEmail,
 } from '@/lib/email'
 
 const SAMPLE_SUBDOMAIN = 'happy-elk-42.fractera.ai'
@@ -18,6 +19,7 @@ const SAMPLE_DOMAIN = 'aifa.dev'
 const SAMPLE_TOKEN = 'cmphj5xtp0004l8049ut8i4j4-demo'
 const SAMPLE_IP = '109.199.105.213'
 const SAMPLE_PASSWORD = 'demo-pass-Julia711'
+const SAMPLE_SLUG = 'happy-elk-42'
 
 type TemplateKey =
   | 'welcome'
@@ -31,6 +33,7 @@ type TemplateKey =
   | 'expiry_warning'
   | 'cert_expiry'
   | 'company_brain_inquiry'
+  | 'partner_welcome'
 
 async function dispatch(template: TemplateKey, to: string) {
   switch (template) {
@@ -60,6 +63,10 @@ async function dispatch(template: TemplateKey, to: string) {
       // TLS cert about to lapse (Secure mode). Sent by the daily cert-relay
       // when daysLeft <= 14. Same look as domain_activated + Sponsor/Star CTAs.
       return sendCertExpiryWarningEmail(to, 7, SAMPLE_DOMAIN)
+    case 'partner_welcome':
+      // Sent when a user registers as a partner — partner ID/slug, partner page
+      // URL, widget iframe snippet, and affiliate-program guidance.
+      return sendPartnerWelcomeEmail(to, SAMPLE_SLUG)
     case 'company_brain_inquiry':
       return sendCompanyBrainInquiryEmail({
         email: to,
