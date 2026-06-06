@@ -3,8 +3,6 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { invalidateTrustedHostingsCache, TRUSTED_PROVIDERS_FALLBACK } from '@/lib/trusted-providers'
 
-const VALID_CATEGORIES = ['vps', 'aff-network', 'registrar', 'other']
-
 export async function GET(req: NextRequest) {
   const session = await auth()
   if (session?.user?.email !== 'admin@fractera.ai') {
@@ -20,9 +18,8 @@ export async function GET(req: NextRequest) {
         data: TRUSTED_PROVIDERS_FALLBACK.map(p => ({
           domain: p.domain.toLowerCase(),
           name: p.name,
-          category: p.category,
-          isHosting: p.isHosting ?? (p.category !== 'registrar'),
-          isRegistrar: p.isRegistrar ?? (p.category === 'registrar' || p.category === 'aff-network'),
+          isHosting: p.isHosting === true,
+          isRegistrar: p.isRegistrar === true,
         })),
         skipDuplicates: true,
       })
@@ -35,7 +32,6 @@ export async function GET(req: NextRequest) {
   if (initialCount === 0) await seedIfEmpty()
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
-  const category = req.nextUrl.searchParams.get('category')?.trim() ?? ''
 
   const where: Record<string, unknown> = {}
   if (q) {
@@ -44,7 +40,6 @@ export async function GET(req: NextRequest) {
       { domain: { contains: q, mode: 'insensitive' } },
     ]
   }
-  if (category && VALID_CATEGORIES.includes(category)) where.category = category
 
   // The `total` is the full filtered count from this query — also report
   // the overall total so the admin UI can show "X of Y" when filters are
@@ -61,19 +56,18 @@ export async function POST(req: NextRequest) {
   if (session?.user?.email !== 'admin@fractera.ai') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
-  const body = await req.json().catch(() => ({})) as { domain?: string; name?: string; category?: string; isHosting?: boolean; isRegistrar?: boolean }
+  const body = await req.json().catch(() => ({})) as { domain?: string; name?: string; isHosting?: boolean; isRegistrar?: boolean }
   const domain = (body.domain ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
   const name = (body.name ?? '').trim()
-  const category = VALID_CATEGORIES.includes((body.category ?? '').trim()) ? (body.category as string).trim() : 'vps'
-  // Hosting/registrar eligibility. Explicit form values win; otherwise derive
-  // from category. Guarantee at least one is true so the entry is usable.
-  let isHosting = typeof body.isHosting === 'boolean' ? body.isHosting : category !== 'registrar'
-  let isRegistrar = typeof body.isRegistrar === 'boolean' ? body.isRegistrar : (category === 'registrar' || category === 'aff-network')
+  // Trusted as a server provider and/or a domain registrar. Guarantee at least
+  // one is true so the entry is usable.
+  let isHosting = body.isHosting === true
+  const isRegistrar = body.isRegistrar === true
   if (!isHosting && !isRegistrar) isHosting = true
   if (!domain || !name) return NextResponse.json({ error: 'domain and name required' }, { status: 400 })
   try {
     const row = await db.trustedHosting.create({
-      data: { domain, name, category, isHosting, isRegistrar, createdBy: session.user.email ?? null },
+      data: { domain, name, isHosting, isRegistrar, createdBy: session.user.email ?? null },
     })
     invalidateTrustedHostingsCache()
     return NextResponse.json({ ok: true, row })

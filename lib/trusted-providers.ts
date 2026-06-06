@@ -4,31 +4,24 @@ import { db } from '@/lib/db'
 export type TrustedProvider = {
   domain: string
   name: string
-  category: string
   isHosting?: boolean
   isRegistrar?: boolean
 }
 
 export type LinkKind = 'server' | 'domain'
 
-// Resolve hosting/registrar flags, deriving sensible defaults from `category`
-// when the explicit booleans are absent (older rows / JSON entries):
-//   registrar → domain only · aff-network → both · vps/other → hosting only.
-function resolveFlags(p: { category?: string; isHosting?: boolean | null; isRegistrar?: boolean | null }): { isHosting: boolean; isRegistrar: boolean } {
-  if (typeof p.isHosting === 'boolean' || typeof p.isRegistrar === 'boolean') {
-    return { isHosting: p.isHosting ?? false, isRegistrar: p.isRegistrar ?? false }
-  }
-  if (p.category === 'registrar') return { isHosting: false, isRegistrar: true }
-  if (p.category === 'aff-network') return { isHosting: true, isRegistrar: true }
-  return { isHosting: true, isRegistrar: false }
+// Resolve hosting/registrar flags. If neither is set, default to hosting so an
+// entry is never silently unusable.
+function resolveFlags(p: { isHosting?: boolean | null; isRegistrar?: boolean | null }): { isHosting: boolean; isRegistrar: boolean } {
+  const isHosting = p.isHosting === true
+  const isRegistrar = p.isRegistrar === true
+  if (!isHosting && !isRegistrar) return { isHosting: true, isRegistrar: false }
+  return { isHosting, isRegistrar }
 }
 
-// Whether a whitelist entry is allowed for a given affiliate-link kind.
-// Affiliate networks (cj.com, admitad…) wrap links for either kind, so they
-// always pass — this also keeps pre-migration DB rows (whose isRegistrar
-// column defaulted to false) usable for domain links.
-function entryAllows(p: { category?: string; isHosting?: boolean | null; isRegistrar?: boolean | null }, kind: LinkKind): boolean {
-  if (p.category === 'aff-network') return true
+// Whether a whitelist entry is allowed for a given affiliate-link kind: server
+// links need a trusted hosting provider, domain links a trusted registrar.
+function entryAllows(p: { isHosting?: boolean | null; isRegistrar?: boolean | null }, kind: LinkKind): boolean {
   const f = resolveFlags(p)
   return kind === 'domain' ? f.isRegistrar : f.isHosting
 }
@@ -45,7 +38,7 @@ const CACHE_TTL_MS = 60_000
 
 async function loadFromDb(): Promise<TrustedProvider[]> {
   try {
-    const rows = await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true, isHosting: true, isRegistrar: true } })
+    const rows = await db.trustedHosting.findMany({ select: { domain: true, name: true, isHosting: true, isRegistrar: true } })
     if (rows.length === 0) {
       // First boot after migration — seed from the static list so the existing
       // partner-page whitelist keeps working without admin intervention.
@@ -53,11 +46,11 @@ async function loadFromDb(): Promise<TrustedProvider[]> {
         await db.trustedHosting.createMany({
           data: TRUSTED_PROVIDERS_FALLBACK.map(p => {
             const f = resolveFlags(p)
-            return { domain: p.domain.toLowerCase(), name: p.name, category: p.category, isHosting: f.isHosting, isRegistrar: f.isRegistrar }
+            return { domain: p.domain.toLowerCase(), name: p.name, isHosting: f.isHosting, isRegistrar: f.isRegistrar }
           }),
           skipDuplicates: true,
         })
-        return await db.trustedHosting.findMany({ select: { domain: true, name: true, category: true, isHosting: true, isRegistrar: true } })
+        return await db.trustedHosting.findMany({ select: { domain: true, name: true, isHosting: true, isRegistrar: true } })
       } catch (err) {
         console.error('[trusted-providers] seed failed', err)
         return TRUSTED_PROVIDERS_FALLBACK

@@ -593,10 +593,7 @@ function LinkForm({ surface, kind, t, initial, onCancel, onSaved, onNotTrusted }
         />
         {surface === 'page' && (
           <datalist id={`trusted-providers-${kind}`}>
-            {TRUSTED_PROVIDERS.filter(p => kind === 'domain'
-              ? (p.isRegistrar || p.category === 'aff-network')
-              : (p.isHosting !== false)
-            ).map(p => (
+            {TRUSTED_PROVIDERS.filter(p => kind === 'domain' ? p.isRegistrar === true : p.isHosting === true).map(p => (
               <option key={p.domain} value={p.name} />
             ))}
           </datalist>

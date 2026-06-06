@@ -221,9 +221,8 @@ model TrustedHosting {
   id          String   @id @default(cuid())
   domain      String   @unique // lowercase, no scheme/path
   name        String           // display label
-  category    String   @default("vps") // vps | aff-network | registrar | other (display)
-  isHosting   Boolean  @default(true)  // allowed for partner "server" affiliate links (VPS)
-  isRegistrar Boolean  @default(false) // allowed for partner "domain" affiliate links (registrar)
+  isHosting   Boolean  @default(true)  // trusted as a SERVER provider (partner "server" affiliate links)
+  isRegistrar Boolean  @default(false) // trusted as a DOMAIN registrar (partner "domain" affiliate links)
   createdAt   DateTime @default(now())
   createdBy   String?  // admin email, optional
 }
