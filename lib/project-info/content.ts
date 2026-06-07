@@ -219,6 +219,33 @@ You talk to Brain through its **built-in web chat**, which opens automatically i
 - **Вы говорите Мозгу, Мозг — агентам.** В обычной работе нет отдельного чата для каждого агента — вы управляете Мозгом через встроенный веб-чат в панели администратора (или, по желанию, через Telegram-бот), а Мозг координирует остальных.`,
   },
   {
+    id: 'product-loop',
+    title: 'The Product Loop — a deployments table that goes beyond Vercel',
+    titleRu: 'Продуктовая петля — таблица развёртываний, которая идёт дальше Vercel',
+    body: `Inside the admin panel there is a **Deployments** table that logs every development deployment — the running journal of *how your project gets built*. It deliberately mirrors the familiar Vercel deployments list, then adds the columns a generic cloud host cannot have.
+
+A standard cloud platform shows you *that* a deploy happened: commit, status, branch, duration. Fractera shows you the whole story of the change:
+
+- **Result** — a 1–3 star quality rating (first column). Hermes records each row with a default of three stars; you can change the rating at any time by clicking the stars and saving — your honest feedback on how good the work was.
+- **Platform** — which AI coding agent actually did the work (Claude Code, Codex, Gemini, Qwen, Kimi).
+- **Model** — the exact model used.
+- **Tokens** — the real token cost of producing the change, captured straight from the agent's run (not estimated).
+- **Page** — the URL where you review the change (last column), alongside the familiar commit / status / duration / branch / author / "time ago" cells.
+
+**Why this is the loop.** Hermes takes a decision, delegates the coding to one or more agents, deploys, then records the result and hands you the page link to review. You rate it. Over time the table becomes a feedback record of agent-driven development — which agent and model produce the best results for your project, at what token cost — something a deploy log alone can never tell you. It is the visible heart of Fractera's "product loop": build, deploy, review, rate, improve.`,
+    bodyRu: `Внутри панели администратора есть таблица **Deployments** (Развёртывания), которая фиксирует каждое развёртывание разработки — живой журнал того, *как собирается ваш проект*. Она намеренно повторяет привычный список деплоев Vercel, а затем добавляет колонки, которых у обычного облачного хостинга быть не может.
+
+Стандартная облачная платформа показывает, *что* деплой случился: коммит, статус, ветку, длительность. Fractera показывает всю историю изменения:
+
+- **Результат** — оценка качества от 1 до 3 звёзд (первая колонка). Hermes записывает каждую строку с дефолтом в три звезды; вы можете изменить оценку в любой момент, кликнув по звёздам и сохранив — это ваш честный отзыв о том, насколько хороша работа.
+- **Платформа** — какой именно AI-агент разработки сделал работу (Claude Code, Codex, Gemini, Qwen, Kimi).
+- **Модель** — конкретная использованная модель.
+- **Токены** — реальная стоимость изменения в токенах, взятая прямо из запуска агента (не оценка).
+- **Страница** — URL, где вы проверяете изменение (последняя колонка), рядом с привычными ячейками коммита / статуса / длительности / ветки / автора / «N назад».
+
+**Почему это петля.** Hermes принимает решение, делегирует разработку одному или нескольким агентам, деплоит, затем записывает результат и отдаёт вам ссылку на страницу для проверки. Вы ставите оценку. Со временем таблица становится записью обратной связи по AI-разработке — какой агент и какая модель дают лучший результат для вашего проекта и по какой цене в токенах — то, чего журнал деплоев в одиночку не покажет. Это видимое сердце «продуктовой петли» Fractera: собрать, развернуть, проверить, оценить, улучшить.`,
+  },
+  {
     id: 'memory-flow',
     title: 'How Memory accumulates knowledge and how Brain & agents use it',
     titleRu: 'Как Память накапливает знания и как Мозг и агенты с ней работают',

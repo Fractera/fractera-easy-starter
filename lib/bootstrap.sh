@@ -398,6 +398,12 @@ NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
+# The platforms bridge (bridges/platforms/server.js) loads THIS file via dotenv.
+# Its deployments MCP server (:3215) writes Product Loop rows to the data
+# service (:3300) and needs the data secret + URL here. Additive L2-only —
+# does not affect the L1 deploy MCP or any existing bridge behaviour.
+DATA_SECRET=$DATA_SECRET
+REMOTE_DATA_URL=http://localhost:3300
 # IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
 # or recovery sed command in /opt/fractera/services/auth/.env.local.
 FRACTERA_IP_NODOMAIN_MODE=true
@@ -526,6 +532,13 @@ mcp_servers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
   kimi-bridge:
     url: http://localhost:3214
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Product Loop: Hermes records one row per deployment after delegating +
+  # deploying. Served by bridges/platforms/server.js (DeploymentsMcpServer,
+  # :3215) → data service. Separate from the L1 claude.ai deploy MCP.
+  deployments-bridge:
+    url: http://localhost:3215
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
 
