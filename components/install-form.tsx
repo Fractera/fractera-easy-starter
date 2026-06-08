@@ -429,11 +429,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             </div>
           )}
 
+          {/* Launch is gated by the acknowledgment checkbox(es): passwordAck is
+              always required; emailConfirmed is also required once the server is
+              confirmed fresh and the account has an email. Until they are ticked
+              the button stays in a clearly muted, non-interactive "passive"
+              state (dimmed fill/border/text, no hover, not-allowed cursor). */}
           {(serverStatus === 'fresh' || serverStatus === 'idle') && (
             <button
               onClick={handleInstall}
               disabled={!ip || !password || !passwordAck || (serverStatus === 'fresh' && !!session?.user?.email && !emailConfirmed)}
-              className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/40 hover:border-white/60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-white/[0.02] disabled:border-white/10 disabled:text-white/30 disabled:hover:bg-white/[0.02] disabled:hover:border-white/10"
             >
               {t.launchButton}
             </button>

@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 
 const MCP_SLIDES = Array.from({ length: 10 }, (_, i) => `/mcp-step-by-step/mcp-step${i + 1}.png`)
+// Crossfade timing for the step-by-step slider (mirrors loop-showcase FADE_DURATION feel).
+const MCP_FADE_MS = 450
 
 type Platform = {
   id: string
@@ -30,8 +32,39 @@ export function PlatformSelector() {
   const mcp = content.mcpSection
   const [copied, setCopied] = useState(false)
   const [slide, setSlide] = useState(0)
-  const prevSlide = () => setSlide((s) => (s - 1 + MCP_SLIDES.length) % MCP_SLIDES.length)
-  const nextSlide = () => setSlide((s) => (s + 1) % MCP_SLIDES.length)
+  // Slide transition: fade the current image out, swap src while invisible, fade
+  // back in. `transitioning` guards against clicks landing mid-fade.
+  const [opacity, setOpacity] = useState(1)
+  const [transitioning, setTransitioning] = useState(false)
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({})
+
+  const changeSlide = (compute: (s: number) => number) => {
+    if (transitioning) return
+    setTransitioning(true)
+    setOpacity(0)
+    setTimeout(() => {
+      setSlide(compute)
+      setOpacity(1)
+      setTransitioning(false)
+    }, MCP_FADE_MS)
+  }
+  const prevSlide = () => changeSlide((s) => (s - 1 + MCP_SLIDES.length) % MCP_SLIDES.length)
+  const nextSlide = () => changeSlide((s) => (s + 1) % MCP_SLIDES.length)
+
+  // Warm the browser cache for the current slide and its neighbors so the swap
+  // mid-fade is instant (no blank flash). Keeps the DOM to a single <img> — the
+  // 10 PNGs aren't all mounted at once, only prefetched on demand.
+  useEffect(() => {
+    const len = MCP_SLIDES.length
+    ;[slide, (slide + 1) % len, (slide - 1 + len) % len].forEach((i) => {
+      const img = new window.Image()
+      img.src = MCP_SLIDES[i]
+    })
+  }, [slide])
+
+  // Outer-perimeter glow (same as loop-showcase): shows only when the active
+  // image is loaded and the crossfade has settled; fades out while slides change.
+  const showGlow = opacity === 1 && !!loaded[slide]
 
   async function copyUrl() {
     try {
@@ -108,12 +141,27 @@ export function PlatformSelector() {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="w-[70%] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+          {/* Fixed aspect (all 10 PNGs are ~1278×630) so the crossfade and the
+              perimeter glow never cause a layout jump. The glow is an outset
+              box-shadow — it renders outside the border-box, so overflow-hidden
+              does not clip it. */}
+          <div
+            className={`relative w-[70%] aspect-[1278/630] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition-shadow ease-out ${
+              showGlow
+                ? 'shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]'
+                : 'shadow-[0_0_0px_0px_rgba(139,92,246,0)]'
+            }`}
+            style={{ transitionDuration: `${MCP_FADE_MS}ms` }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={MCP_SLIDES[slide]}
               alt={`MCP deployment step ${slide + 1}`}
-              className="w-full h-auto object-contain"
+              onLoad={() => setLoaded((prev) => ({ ...prev, [slide]: true }))}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity ${
+                opacity === 1 ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDuration: `${MCP_FADE_MS}ms` }}
             />
           </div>
           <button
