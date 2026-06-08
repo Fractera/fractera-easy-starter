@@ -541,6 +541,14 @@ mcp_servers:
     url: http://localhost:3215
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Agent Readiness: one call → readiness snapshot of all 5 coding agents
+  # (installed / logged_in / busy / last-worked) so Hermes delegates with open
+  # eyes. Served by bridges/platforms/server.js (ReadinessMcpServer, :3216).
+  # Facts only; the choose-which-agent logic is the Hermes skill choose-agent.
+  readiness-bridge:
+    url: http://localhost:3216
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
