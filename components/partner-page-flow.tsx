@@ -658,7 +658,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
             </div>
             <p className="text-sm text-white/70 leading-relaxed">{t.deployingBody}</p>
             <ProgressList progress={progress} t={t} />
-            <DomainDnsBlock domainUrl={domainLinks[0]?.url} serverIp={ip} lang={lang} />
+            <DomainDnsBlock domainUrl={domainLinks[0]?.affiliateUrl} serverIp={ip} lang={lang} />
             {progress?.server_token && (
               <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
                 <p className="text-[11px] text-white/55 leading-relaxed">{t.saveTokenNote}</p>
