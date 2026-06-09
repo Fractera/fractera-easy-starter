@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { PartnerDeployOptions } from './partner-deploy-options'
+import { DomainDnsBlock } from './domain-dns-block'
 import { ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 
 type Lang = 'en' | 'ru'
@@ -628,6 +629,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
             </div>
             <p className="text-sm text-white/70 leading-relaxed">{t.deployingBody}</p>
             <ProgressList progress={progress} t={t} />
+            <DomainDnsBlock domainUrl={domainAffiliateUrl} serverIp={ip} lang={lang} />
             {progress?.server_token && (
               <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
                 <p className="text-[11px] text-white/55 leading-relaxed">{t.saveTokenNote}</p>
