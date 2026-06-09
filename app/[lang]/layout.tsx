@@ -10,6 +10,7 @@ import { AskAiWidget } from '@/components/ask-ai-widget'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
+import { buildAlternates } from '@/lib/seo/alternates'
 import { LEGAL } from '@/config/legal'
 
 export async function generateMetadata({
@@ -64,21 +65,11 @@ export async function generateMetadata({
     },
     keywords: m.keywords,
     robots: { index: true, follow: true },
-    alternates: {
-      canonical: isDefault ? 'https://www.fractera.ai/' : `https://www.fractera.ai/${lang}`,
-      languages: {
-        // x-default and the default-language entry both point at the bare
-        // root so Google understands `/` IS the English content (not a
-        // 30x stub) and treats `/en` as an internal alias.
-        'x-default': 'https://www.fractera.ai/',
-        [DEFAULT_LANGUAGE]: 'https://www.fractera.ai/',
-        ...Object.fromEntries(
-          SUPPORTED_LANGS
-            .filter(l => l !== DEFAULT_LANGUAGE)
-            .map(l => [l, `https://www.fractera.ai/${l}`])
-        ),
-      },
-    },
+    // Home-page alternates (subPath ''). Sub-pages override this with their own
+    // generateMetadata + buildAlternates('/slug') so each is self-canonical —
+    // without that override they would inherit canonical = the language root and
+    // Google would fold them into the home page (the bug this fixes).
+    alternates: buildAlternates(lang, ''),
   }
 }
 

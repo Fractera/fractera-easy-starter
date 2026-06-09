@@ -1,6 +1,14 @@
 import { LEGAL, legalAddressBlock } from '@/config/legal'
 import { getLegal } from '@/lib/i18n/legal'
 
+import type { Metadata } from 'next'
+import { buildAlternates } from '@/lib/seo/alternates'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  return { alternates: buildAlternates(lang, '/privacy') }
+}
+
 export default async function PrivacyPage({
   params,
 }: {

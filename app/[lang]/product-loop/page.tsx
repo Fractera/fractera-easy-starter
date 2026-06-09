@@ -1,5 +1,13 @@
 import { getContent } from '@/lib/i18n/content'
 
+import type { Metadata } from 'next'
+import { buildAlternates } from '@/lib/seo/alternates'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  return { alternates: buildAlternates(lang, '/product-loop') }
+}
+
 export default async function ProductLoopPage({
   params,
   searchParams,

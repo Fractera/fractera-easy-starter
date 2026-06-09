@@ -2,6 +2,14 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { PartnersCta, OpenCabinetButton } from './partners-cta'
 
+import type { Metadata } from 'next'
+import { buildAlternates } from '@/lib/seo/alternates'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  return { alternates: buildAlternates(lang, '/partners') }
+}
+
 export default async function PartnersPage({
   params,
 }: {

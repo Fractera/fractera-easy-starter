@@ -1,3 +1,11 @@
+import type { Metadata } from 'next'
+import { buildAlternates } from '@/lib/seo/alternates'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  return { alternates: buildAlternates(lang, '/cookies') }
+}
+
 const COOKIES_CONTENT: Record<string, {
   title: string; updated: string
   s1: { title: string; p1: string }
