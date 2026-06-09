@@ -322,6 +322,7 @@ export function PricingFlow() {
                 <InstallForm
                   onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
                   onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
+                  domainUrl={content.domainProviderSection.providers[0]?.url}
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}

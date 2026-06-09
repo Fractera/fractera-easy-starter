@@ -142,7 +142,7 @@ export type SiteContent = {
     tryAgain: string
     silentWarning: string
     errorDetails: string
-    progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string }
+    progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string; domainTipTitle: string; domainTipBody: string; domainButton: string }
     successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; checkboxLabel: string; closeButton: string }
   }
   featuresHeader: { label: string; h2: string; description: string }

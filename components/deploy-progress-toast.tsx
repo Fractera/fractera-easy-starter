@@ -8,16 +8,23 @@ type ProgressToastStrings = {
   dashboardNote: string
   checkboxLabel: string
   hideButton: string
+  domainTipTitle: string
+  domainTipBody: string
+  domainButton: string
 }
 
 export function DeployProgressToast({
   progress,
   strings,
   onHide,
+  domainUrl,
 }: {
   progress: number
   strings: ProgressToastStrings
   onHide: () => void
+  // Referral domain link (same one shown in the left deploy-options container).
+  // When present, the toast surfaces a "buy a domain while you wait" block.
+  domainUrl?: string
 }) {
   const [confirmed, setConfirmed] = useState(false)
 
@@ -52,6 +59,27 @@ export function DeployProgressToast({
         <p className="text-sm text-violet-200/70 leading-relaxed">
           {strings.dashboardNote}
         </p>
+
+        {/* Make-good-use-of-the-wait: buy a domain. Only when a referral link
+            is available (same link as the left deploy-options container). */}
+        {domainUrl && (
+          <div className="flex flex-col gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4">
+            <p className="text-sm font-semibold text-violet-200 leading-snug">
+              {strings.domainTipTitle}
+            </p>
+            <p className="text-xs text-violet-200/70 leading-relaxed">
+              {strings.domainTipBody}
+            </p>
+            <a
+              href={domainUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="self-start rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-violet-500"
+            >
+              {strings.domainButton}
+            </a>
+          </div>
+        )}
 
         {/* Divider */}
         <div className="h-px bg-violet-500/20" />

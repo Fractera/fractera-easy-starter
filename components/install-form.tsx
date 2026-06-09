@@ -15,10 +15,13 @@ import { SELECTABLE_COMPONENTS, ALL_COMPONENT_IDS, type ComponentId } from '@/li
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
 
-export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel }: {
+export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel, domainUrl }: {
   onSubdomainReady?: (subdomain: string) => void
   onInstallingChange?: (installing: boolean) => void
   onWhiteLabel?: (serverTokenId: string) => void
+  // Referral domain link surfaced in the progress toast (from pricing-flow's
+  // domainProviderSection — the same link as the left deploy-options container).
+  domainUrl?: string
 } = {}) {
   const lang = useLang()
   const [ip, setIp] = useState('')
@@ -550,6 +553,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         progress={progress}
         strings={t.progressToast}
         onHide={() => setShowProgressToast(false)}
+        domainUrl={domainUrl}
       />
     )}
 
