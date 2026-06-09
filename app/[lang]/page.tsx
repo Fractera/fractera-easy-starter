@@ -20,6 +20,8 @@ import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { CompanyBrainSection } from '@/components/sections/company-brain'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 
+/* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
+   not emitted to production on the next deployment.
 function buildFaqSchema(lang: string) {
   const content = getContent(lang)
   return {
@@ -40,6 +42,7 @@ function buildFaqSchema(lang: string) {
     })),
   }
 }
+*/
 
 export default async function HomePage({
   params,
@@ -57,10 +60,12 @@ export default async function HomePage({
 
   return (
     <>
+      {/* FAQ JSON-LD disabled — do NOT delete, re-enable later (kept out of prod).
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFaqSchema(lang)) }}
       />
+      */}
       <main className="min-h-screen bg-black text-white">
         <div className="max-w-5xl mx-auto px-6 pb-20">
           <ContentProvider value={content}>

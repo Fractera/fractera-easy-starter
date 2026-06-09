@@ -12,6 +12,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/cookies', changeFrequency: 'yearly'  as const, priority: 0.2 },
     { path: '/blog',    changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
+    { path: '/skills',       changeFrequency: 'weekly'  as const, priority: 0.7 },
+    { path: '/product-loop', changeFrequency: 'weekly'  as const, priority: 0.7 },
+    { path: '/sponsors',     changeFrequency: 'monthly' as const, priority: 0.5 },
+    { path: '/refund',       changeFrequency: 'yearly'  as const, priority: 0.3 },
     { path: '/partners', changeFrequency: 'monthly' as const, priority: 0.5 },
     { path: '/regional-partners', changeFrequency: 'monthly' as const, priority: 0.5 },
   ]
