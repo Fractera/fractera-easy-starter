@@ -11,6 +11,9 @@ type ProgressToastStrings = {
   domainTipTitle: string
   domainTipBody: string
   domainButton: string
+  dnsButton: string
+  dnsIntro: string
+  dnsCovers: string
 }
 
 export function DeployProgressToast({
@@ -18,6 +21,7 @@ export function DeployProgressToast({
   strings,
   onHide,
   domainUrl,
+  serverIp,
 }: {
   progress: number
   strings: ProgressToastStrings
@@ -25,8 +29,12 @@ export function DeployProgressToast({
   // Referral domain link (same one shown in the left deploy-options container).
   // When present, the toast surfaces a "buy a domain while you wait" block.
   domainUrl?: string
+  // The server IP being deployed to — shown verbatim in the DNS instructions.
+  serverIp?: string
 }) {
   const [confirmed, setConfirmed] = useState(false)
+  const [showDns, setShowDns] = useState(false)
+  const ip = serverIp?.trim() || '<your-server-IP>'
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 sm:p-6">
@@ -70,14 +78,40 @@ export function DeployProgressToast({
             <p className="text-xs text-violet-200/70 leading-relaxed">
               {strings.domainTipBody}
             </p>
-            <a
-              href={domainUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="self-start rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-violet-500"
-            >
-              {strings.domainButton}
-            </a>
+
+            {/* Two full-width actions: buy a domain · set up DNS (toggle). */}
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href={domainUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-violet-600 px-3 py-2 text-center text-sm font-bold text-white transition-colors hover:bg-violet-500"
+              >
+                {strings.domainButton}
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowDns(v => !v)}
+                aria-expanded={showDns}
+                className="rounded-lg border border-violet-500/50 px-3 py-2 text-sm font-bold text-violet-200 transition-colors hover:bg-violet-500/15"
+              >
+                {strings.dnsButton}
+              </button>
+            </div>
+
+            {/* Compact DNS instructions — collapsed by default to keep the modal short. */}
+            {showDns && (
+              <div className="flex flex-col gap-2 rounded-lg border border-violet-500/20 bg-black/30 p-3">
+                <p className="text-xs text-violet-200/70 leading-relaxed">{strings.dnsIntro}</p>
+                <div className="font-mono text-[11px] text-violet-100">
+                  <div className="grid grid-cols-[auto_auto_1fr] gap-x-3">
+                    <span className="text-violet-400">@</span><span className="text-violet-400">A</span><span>{ip}</span>
+                    <span className="text-violet-400">*</span><span className="text-violet-400">A</span><span>{ip}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-violet-200/60 leading-relaxed">{strings.dnsCovers}</p>
+              </div>
+            )}
           </div>
         )}
 

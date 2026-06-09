@@ -554,6 +554,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         strings={t.progressToast}
         onHide={() => setShowProgressToast(false)}
         domainUrl={domainUrl}
+        serverIp={ip}
       />
     )}
 

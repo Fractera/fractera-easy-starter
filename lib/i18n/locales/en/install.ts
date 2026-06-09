@@ -80,6 +80,9 @@ export const install: InstallPart = {
       domainTipTitle: 'How to make good use of the time while we install the software on your server?',
       domainTipBody: 'If you have not bought a domain for your project yet, now is the perfect moment. The project works fine without a personal domain, but a personal domain unlocks the full set of capabilities.',
       domainButton: 'Buy a domain',
+      dnsButton: 'Set up DNS',
+      dnsIntro: 'At your registrar, add two A records pointing to your server IP:',
+      dnsCovers: 'The * record covers every subdomain — admin.<your-domain>, auth.<your-domain>, and so on.',
     },
     successToast: {
       title: 'Your server has been successfully deployed',
