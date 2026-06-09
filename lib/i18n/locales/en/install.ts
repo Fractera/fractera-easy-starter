@@ -81,8 +81,8 @@ export const install: InstallPart = {
       domainTipBody: 'If you have not bought a domain for your project yet, now is the perfect moment. The project works fine without a personal domain, but a personal domain unlocks the full set of capabilities.',
       domainButton: 'Buy a domain',
       dnsButton: 'Set up DNS',
-      dnsIntro: 'At your registrar, add two A records pointing to your server IP:',
-      dnsCovers: 'The * record covers every subdomain — admin.<your-domain>, auth.<your-domain>, and so on.',
+      dnsIntro: 'Point your domain at the server: in your registrar\'s DNS, add these A records — each pointing to your server IP. Then activate the domain inside the workspace.',
+      dnsCovers: 'Tip: a single wildcard record (Host *) instead of the list works too.',
     },
     successToast: {
       title: 'Your server has been successfully deployed',

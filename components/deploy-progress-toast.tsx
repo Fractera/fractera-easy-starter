@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { Loader2 } from 'lucide-react'
 
 type ProgressToastStrings = {
@@ -35,14 +35,17 @@ export function DeployProgressToast({
   const [confirmed, setConfirmed] = useState(false)
   const [showDns, setShowDns] = useState(false)
   const ip = serverIp?.trim() || '<your-server-IP>'
+  // The 8 hostnames covered by one multi-SAN cert (ai-workspace domain/route.ts
+  // SUBDOMAINS). Each needs an A record to the server IP. "@" = the apex domain.
+  const DNS_HOSTS = ['@', 'www', 'auth', 'admin', 'data', 'hermes', 'lightrag', 'chat']
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* Toast panel */}
-      <div className="relative w-full max-w-md flex flex-col gap-5 rounded-2xl bg-gradient-to-br from-violet-950 via-violet-900/60 to-black border border-violet-500/70 p-6 shadow-2xl shadow-violet-500/20">
+      {/* Toast panel — capped at 600px tall, scrolls if content exceeds it. */}
+      <div className="relative w-full max-w-md max-h-[600px] overflow-y-auto flex flex-col gap-5 rounded-2xl bg-gradient-to-br from-violet-950 via-violet-900/60 to-black border border-violet-500/70 p-6 shadow-2xl shadow-violet-500/20">
 
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -72,12 +75,33 @@ export function DeployProgressToast({
             is available (same link as the left deploy-options container). */}
         {domainUrl && (
           <div className="flex flex-col gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4">
-            <p className="text-sm font-semibold text-violet-200 leading-snug">
-              {strings.domainTipTitle}
-            </p>
-            <p className="text-xs text-violet-200/70 leading-relaxed">
-              {strings.domainTipBody}
-            </p>
+            {showDns ? (
+              /* DNS mode: replace the invite copy with how-it-works + all records. */
+              <>
+                <p className="text-xs text-violet-200/80 leading-relaxed">{strings.dnsIntro}</p>
+                <div className="rounded-lg border border-violet-500/20 bg-black/30 p-3 font-mono text-[11px]">
+                  <div className="grid grid-cols-[1.2fr_auto_2fr] gap-x-3 gap-y-1">
+                    <span className="text-violet-400/80">Host</span>
+                    <span className="text-violet-400/80">Type</span>
+                    <span className="text-violet-400/80">Value</span>
+                    {DNS_HOSTS.map(h => (
+                      <Fragment key={h}>
+                        <span className="text-violet-200">{h}</span>
+                        <span className="text-violet-400">A</span>
+                        <span className="text-violet-100">{ip}</span>
+                      </Fragment>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-[11px] text-violet-200/60 leading-relaxed">{strings.dnsCovers}</p>
+              </>
+            ) : (
+              /* Invite mode: encourage buying a domain. */
+              <>
+                <p className="text-sm font-semibold text-violet-200 leading-snug">{strings.domainTipTitle}</p>
+                <p className="text-xs text-violet-200/70 leading-relaxed">{strings.domainTipBody}</p>
+              </>
+            )}
 
             {/* Two full-width actions: buy a domain · set up DNS (toggle). */}
             <div className="grid grid-cols-2 gap-2">
@@ -93,25 +117,15 @@ export function DeployProgressToast({
                 type="button"
                 onClick={() => setShowDns(v => !v)}
                 aria-expanded={showDns}
-                className="rounded-lg border border-violet-500/50 px-3 py-2 text-sm font-bold text-violet-200 transition-colors hover:bg-violet-500/15"
+                className={`rounded-lg border px-3 py-2 text-sm font-bold transition-colors ${
+                  showDns
+                    ? 'border-violet-400 bg-violet-500/20 text-white'
+                    : 'border-violet-500/50 text-violet-200 hover:bg-violet-500/15'
+                }`}
               >
                 {strings.dnsButton}
               </button>
             </div>
-
-            {/* Compact DNS instructions — collapsed by default to keep the modal short. */}
-            {showDns && (
-              <div className="flex flex-col gap-2 rounded-lg border border-violet-500/20 bg-black/30 p-3">
-                <p className="text-xs text-violet-200/70 leading-relaxed">{strings.dnsIntro}</p>
-                <div className="font-mono text-[11px] text-violet-100">
-                  <div className="grid grid-cols-[auto_auto_1fr] gap-x-3">
-                    <span className="text-violet-400">@</span><span className="text-violet-400">A</span><span>{ip}</span>
-                    <span className="text-violet-400">*</span><span className="text-violet-400">A</span><span>{ip}</span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-violet-200/60 leading-relaxed">{strings.dnsCovers}</p>
-              </div>
-            )}
           </div>
         )}
 
