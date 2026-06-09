@@ -40,7 +40,7 @@ export function DomainDnsBlock({
   serverIp,
   lang,
 }: {
-  domainUrl?: string
+  domainUrl?: string | null
   serverIp?: string
   lang: Lang
 }) {
