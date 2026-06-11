@@ -404,6 +404,16 @@ APP_DB_PATH=/opt/fractera/app/data/app.db
 # does not affect the L1 deploy MCP or any existing bridge behaviour.
 DATA_SECRET=$DATA_SECRET
 REMOTE_DATA_URL=http://localhost:3300
+# The Documents page (/documents) ingests knowledge-base files into Company
+# Memory (LightRAG :9621) via /api/documents/ingest. It posts to LightRAG with
+# this key (X-API-Key) — same key the admin app and the rag service use, so the
+# public app authenticates instead of getting a 403. Generated at the secrets
+# step above (openssl rand -hex 32), so it is always present and non-empty.
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+# Lets the Documents page report whether LightRAG has an OpenAI embedding key
+# (read-only) so Activate can say "indexing will/won't finish" honestly.
+RAG_ENV_PATH=/opt/fractera/services/rag/.env
 # IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
 # or recovery sed command in /opt/fractera/services/auth/.env.local.
 FRACTERA_IP_NODOMAIN_MODE=true
