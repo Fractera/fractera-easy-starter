@@ -6,7 +6,8 @@ import type { ReactNode } from 'react'
 
 export function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = []
-  const re = /\*\*([^*]+)\*\*|`([^`]+)`/g
+  // bold | inline-code | [text](url)
+  const re = /\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)/g
   let last = 0
   let m: RegExpExecArray | null
   let i = 0
@@ -14,9 +15,22 @@ export function renderInline(text: string, keyPrefix: string): ReactNode[] {
     if (m.index > last) nodes.push(text.slice(last, m.index))
     if (m[1] !== undefined) {
       nodes.push(<strong key={`${keyPrefix}-b${i}`} className="font-semibold text-zinc-900">{m[1]}</strong>)
-    } else {
+    } else if (m[2] !== undefined) {
       nodes.push(
         <code key={`${keyPrefix}-c${i}`} className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em]">{m[2]}</code>,
+      )
+    } else {
+      const href = m[4]
+      const external = /^https?:/.test(href)
+      nodes.push(
+        <a
+          key={`${keyPrefix}-a${i}`}
+          href={href}
+          {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          className="font-medium text-violet-700 underline hover:text-violet-900"
+        >
+          {m[3]}
+        </a>,
       )
     }
     last = re.lastIndex

@@ -18,10 +18,12 @@ export const IMAGE_MOBILE = 'https://www.fractera.ai/Fractera-Mobail-Architect.j
 // Real screenshot of the workspace (admin panel) shown in the "How it looks" section.
 export const IMAGE_SCREENSHOT = 'https://www.fractera.ai/Fractera-ai-workspace-screenshot.png'
 
+export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
+
 export const ARCHITECT_META = {
-  title: 'AI Workspace Architect — How Fractera Works & What It Is Made Of',
+  title: 'Fractera AI Agent Platform Architecture | Multi-Agent System & RAG',
   description:
-    'The architecture of Fractera AI Workspace, end to end: how an admin drives the system through Hermes (chat Web UI, Telegram) or directly through the coding agents, how a modal subscription layer and MCP keep work resilient, how LightRAG is the central memory that slashes token use, and how the whole thing ships over HTTPS on your domain or plain HTTP on an IP. Illustrated for humans and AI scanners alike.',
+    'Complete architecture of Fractera, an open-source AI agent platform: multi-agent orchestration via Hermes, LightRAG Knowledge Graph memory, five coding agents (Claude Code, Codex, Gemini), and Model Context Protocol (MCP). Self-host your AI dev workspace on your own VPS.',
 }
 
 export type ArchitectSection = {
@@ -41,15 +43,15 @@ export const SECTIONS: ArchitectSection[] = [
     title: 'How Fractera works',
     body: `Fractera turns one bare VPS into a complete AI development workspace. The picture above shows the whole flow; here it is in plain words.
 
-**You drive it through middle layers, never raw infrastructure.** As the admin you have two ways in. You can manage the project **through Hermes** — the brain — using the **Hermes chat Web UI** inside your workspace, and you can also reach the same brain from **Telegram** or any other messenger. Or you can work **directly with the coding agents** in their terminals.
+**You drive it through middle layers, never raw infrastructure.** As the admin you have two ways in. You can manage the project **through Hermes** — the brain — in **natural language** using the **Hermes chat Web UI** inside your workspace, and you can also reach the same brain from **Telegram** or any other messenger. Or you can work **directly with the coding agents** in their terminals.
 
-**It keeps working even without an API subscription.** Between you and a coding agent sits a small **modal sign-in layer**: you authenticate your existing subscription there, and the same window is used to send commands and receive results. **Hermes talks to the coding agents through MCP** that drives that very window — so work stays resilient even when a third-party subscription tool is rate-limited.
+**It keeps working even without an API subscription.** Between you and a coding agent sits a small **modal sign-in layer**: you authenticate your existing subscription there, and the same window is used to send commands and receive results. **Hermes talks to the coding agents through the Model Context Protocol (MCP)** that drives that very window — so work stays resilient even when a third-party subscription tool is rate-limited.
 
-**LightRAG is the central memory — this is where the token savings come from.** Every tool reads and writes a shared **vector database** through its own connector. Recalling exactly the right context instead of re-sending everything cuts token spend dramatically. That is why **LightRAG is the central memory**, shared by every agent and every session.
+**LightRAG is the central memory — this is where the token savings come from.** Every tool reads and writes a shared **vector database** through its own connector. Recalling exactly the right context instead of re-sending everything cuts token spend dramatically. That is why **LightRAG is the central memory** — a **Knowledge Graph RAG** shared by every agent and every session.
 
-**Hermes is the brain; the coding agents do the heavy lifting.** We call Hermes the central brain, but the hardest work — generating code — is done by the **coding agents** such as Claude Code. Hermes is a **light orchestrator**: it tracks each platform's token use, picks the right platform for a task, hands work to it, launches deployments, and talks to GitHub.
+**Hermes is the brain; the coding agents do the heavy lifting.** We call Hermes the central brain, but the hardest work — generating code — is done by the **coding agents** such as Claude Code. Hermes is a light **multi-agent orchestrator**: it tracks each platform's token use, picks the right platform for a task, dispatches the work, launches deployments, and talks to GitHub.
 
-**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. The app itself runs on **Next.js** with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
+**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This **open-source, self-hosted AI platform** runs on **Next.js** on a standard **VPS**, with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
 
 **The output is a secure web app.** On the way out the project is served over a **secure HTTPS connection** when you run it on your own domain, or it runs on a local machine over a plain **IP address** — in which case you secure the connection with one of the available options.`,
   },
@@ -73,9 +75,9 @@ export const SECTIONS: ArchitectSection[] = [
     id: 'hermes',
     level: 2,
     title: 'Hermes — the orchestrator (Company Brain)',
-    body: `**Hermes** is the orchestration agent at the centre of the workspace (\`fractera-hermes\`, dashboard on \`:9119\`). It reads its identity and memory at every wake-up and drives the five coding platforms through their MCP bridges.
+    body: `**Hermes** is the **multi-agent orchestrator** at the centre of the workspace (\`fractera-hermes\`, dashboard on \`:9119\`). It reads its identity and memory at every wake-up and drives the five coding platforms through their MCP bridges — this is the **AI agent orchestration** that makes Fractera a true multi-agent system.
 
-Hermes is deliberately **light**: it does not write the hard code itself. It tracks how many tokens each platform is spending, chooses the platform that fits a task, delegates the work, records every build into the Product Loop journal, launches deployments, and integrates with GitHub. Its wiring lives in \`config.yaml\` (what it can reach); its personality lives in \`SOUL.md\` (who it is).`,
+Hermes is deliberately **light**: it does not write the hard code itself. It tracks how many tokens each platform is spending, chooses the platform that fits a task, dispatches the work to specialized coding assistants, records every build into the Product Loop journal, launches deployments, and integrates with GitHub. Its wiring lives in \`config.yaml\` (what it can reach); its personality lives in \`SOUL.md\` (who it is). See how it connects to everything in the [full workspace map](#schema) below.`,
   },
   {
     id: 'hermes-chat-webui',
@@ -93,15 +95,15 @@ Hermes is deliberately **light**: it does not write the hard code itself. It tra
     id: 'lightrag',
     level: 2,
     title: 'LightRAG — the central memory',
-    body: `**LightRAG** (\`fractera-rag\`, \`:9621\`) is the shared long-term memory of the whole workspace — not just Hermes. It holds a knowledge graph; every agent queries it the same way and writes back to it: Hermes and all five coding platforms.
+    body: `**LightRAG** (\`fractera-rag\`, \`:9621\`) is the shared long-term memory of the whole workspace — not just Hermes. It is a **Knowledge Graph RAG** implementation: every agent queries the same graph and writes back to it — Hermes and all five coding platforms. This is **RAG for AI agents** done right.
 
-That shared memory is the reason Fractera spends so few tokens. Instead of pasting the whole codebase into every prompt, each agent recalls exactly the relevant entities, relations and decisions. Ingest a document once and every agent can use it forever. It needs an embedding/LLM key to be active; without one it stays wired but silent.`,
+That shared memory is the reason Fractera spends so few tokens. Instead of pasting the whole codebase into every prompt, each agent recalls exactly the relevant entities, relations and decisions. Ingest a document once and every agent can use it forever. It needs an embedding/LLM key to be active; without one it stays wired but silent. More background in the [project knowledge base](/mcp-info).`,
   },
   {
     id: 'coding-agents',
     level: 2,
     title: 'Coding agents',
-    body: `Five subscription AI coding platforms run preconfigured on your server and do the heavy lifting of generating code. Each is driven through a bridge that keeps it alive over WebSocket and exposes it to Hermes as an MCP server (ports \`3210–3214\`). You run them on your **existing subscriptions** — no API keys, no per-token billing — and you can switch platform mid-task without losing context, because LightRAG keeps the thread.`,
+    body: `Five subscription **AI coding assistants** run preconfigured on your server and do the heavy lifting of **automated code generation**. Each is driven through a bridge that keeps it alive over WebSocket and exposes it to Hermes as an MCP server (ports \`3210–3214\`). Integrate leading agents like **Claude Code** and **Gemini CLI** via **MCP**, using each one's strengths for multi-file changes or deep code review. You run them on your **existing subscriptions** — no API keys, no per-token billing — and you can switch platform mid-task without losing context, because LightRAG keeps the thread. [See all five platforms on the homepage](/en#platforms).`,
   },
   {
     id: 'claude-code',

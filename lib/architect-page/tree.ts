@@ -86,8 +86,8 @@ const HERMES_NODE: ArchNode = {
   label: 'Hermes — Company Brain',
   kind: 'group',
   description:
-    'The brain plus the two ways a human reaches it. The agent orchestrates ' +
-    'development across the platforms; the Web UI and Telegram are its front doors.',
+    'The brain plus the two ways a human reaches it. The multi-agent orchestrator ' +
+    'coordinates development across the platforms; the Web UI and Telegram are its front doors.',
   children: [
     {
       id: 'hermes-agent',
@@ -237,7 +237,7 @@ const ADMIN_LAYER: ArchNode = {
       port: ':9621',
       description:
         'Shared long-term memory for the WHOLE workspace — not just Hermes. fractera-rag ' +
-        '(LightRAG :9621) holds the knowledge graph; every agent queries it the same way — ' +
+        '(LightRAG :9621) is a Knowledge Graph RAG store; every agent queries it the same way — ' +
         'Hermes and the five coding platforms (Claude Code, Codex, Gemini, Qwen, Kimi) — and ' +
         'writes back to it. That is why it sits here, beside the Bridges and Tools, not under ' +
         'any single agent. The lightrag-memory plugin prefetches relevant pieces and injects ' +
