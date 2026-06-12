@@ -101,6 +101,12 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.next()
   }
 
+  // Same deal: the AI Workspace architecture reference is a single English root
+  // URL (no lang prefix). Pass through so it is NOT redirected to /<lang>/… .
+  if (pathname === '/ai-workspace-architect' || pathname.startsWith('/ai-workspace-architect/')) {
+    return NextResponse.next()
+  }
+
   // Skip API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/debug')) {
     return NextResponse.next()

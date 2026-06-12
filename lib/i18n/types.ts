@@ -15,6 +15,8 @@ export type SiteContent = {
   heroTitle: string
   deployButton: string
   heroButtonCaption?: string
+  // Label for the "learn the architecture" link under the hero benefits block.
+  architectureCta?: string
   description: string
   lightPitch: {
     label: string

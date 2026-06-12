@@ -7,6 +7,7 @@ import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail 
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { getSectionList, getSection, type InfoLang } from '@/lib/project-info/content'
+import { getArchitectSectionList, getArchitectSection, IMAGE_WIDE, ARCHITECT_URL } from '@/lib/architect-page/content'
 
 // Turn the agent-supplied components value into the bootstrap arg string.
 //   undefined / not an array  → undefined  → deploy installs everything (default)
@@ -179,6 +180,23 @@ export const MCP_TOOLS = [
       required: [],
     },
   },
+  {
+    name: 'get_ai_workspace_architect_info',
+    title: 'Get AI Workspace Architecture',
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    description:
+      'Architecture reference for Fractera AI Workspace: what it is made of and how it works (the admin drives it through Hermes — chat Web UI or Telegram — or directly through the five coding agents; a modal subscription sign-in layer + MCP keep work resilient when a subscription is limited; LightRAG is the central memory that slashes token use; Hermes is a light orchestrator while the coding agents do the heavy lifting; the result ships over HTTPS on a custom domain or plain HTTP on an IP). RETURNS A DIAGRAM IMAGE URL you can show the user when they ask what Fractera is or how it works. Call with NO arguments to get the wide illustration URL + the core "how it works" scenario + the section list; call again with a single `section` id to read one entity in depth.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        section: {
+          type: 'string',
+          description: 'A section id from the list (e.g. "hermes", "lightrag", "coding-agents", "claude-code"). Omit to get the illustration, the overview scenario and the section list.',
+        },
+      },
+      required: [],
+    },
+  },
 ]
 
 export async function handleToolCall(
@@ -215,6 +233,31 @@ export async function handleToolCall(
       }
     }
     return { id: found.id, title: found.title, body: found.body }
+  }
+
+  if (name === 'get_ai_workspace_architect_info') {
+    const section = typeof args.section === 'string' ? args.section.trim() : ''
+    if (!section) {
+      const how = getArchitectSection('how-it-works')
+      return {
+        page_url: ARCHITECT_URL,
+        illustration: IMAGE_WIDE,
+        illustration_note:
+          'Wide architecture diagram of Fractera AI Workspace. Show this image when the user asks what Fractera is, what it is made of, or how it works.',
+        overview: how?.body ?? '',
+        sections: getArchitectSectionList().map(({ id, title }) => ({ id, title })),
+        note:
+          'This is the architecture reference for Fractera AI Workspace. The overview above ("How Fractera works") is the key scenario. For one entity in depth, call get_ai_workspace_architect_info again with a single `section` id from the list.',
+      }
+    }
+    const found = getArchitectSection(section)
+    if (!found) {
+      return {
+        status: 'not_found',
+        message: `No section "${section}". Call get_ai_workspace_architect_info with no section to get the valid list.`,
+      }
+    }
+    return { id: found.id, title: found.title, body: found.body, illustration: IMAGE_WIDE }
   }
 
   if (name === 'get_subdomain') {

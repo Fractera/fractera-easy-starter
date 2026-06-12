@@ -11,6 +11,7 @@ type FooterLabels = {
   partners: string
   regionalPartners: string
   knowledgeBase: string
+  architecture: string
   cookieSettings: string
   rights: string
   tocLabel: string
@@ -26,6 +27,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     partners: 'Партнёрская программа',
     regionalPartners: 'Региональные партнёры',
     knowledgeBase: 'База знаний (MCP)',
+    architecture: 'Архитектура AI Workspace',
     cookieSettings: 'Настройки куки',
     rights: 'Все права защищены.',
     tocLabel: 'Содержание сайта',
@@ -51,6 +53,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     partners: 'Partner Program',
     regionalPartners: 'Regional Partners',
     knowledgeBase: 'Knowledge Base (MCP)',
+    architecture: 'AI Workspace Architecture',
     cookieSettings: 'Cookie Settings',
     rights: 'All rights reserved.',
     tocLabel: 'Site contents',
@@ -72,7 +75,11 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
 
 export function SiteFooter() {
   const pathname = usePathname()
-  const lang = pathname?.split('/')[1] || 'en'
+  // On root reference pages (e.g. /mcp-info, /ai-workspace-architect) the first
+  // path segment is NOT a language — fall back to English and keep links pointed
+  // at the real /en/… pages instead of building broken /mcp-info/privacy URLs.
+  const rawSeg = pathname?.split('/')[1] || 'en'
+  const lang = FOOTER_LABELS[rawSeg] ? rawSeg : 'en'
   const t = FOOTER_LABELS[lang] ?? FOOTER_LABELS.en
 
   function openCookieSettings() {
@@ -97,6 +104,7 @@ export function SiteFooter() {
           <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">{t.partners}</a>
           <a href={`/${lang}/regional-partners`} className="hover:text-violet-400 transition-colors">{t.regionalPartners}</a>
           <a href="/mcp-info" className="hover:text-violet-400 transition-colors">{t.knowledgeBase}</a>
+          <a href="/ai-workspace-architect" className="hover:text-violet-400 transition-colors">{t.architecture}</a>
           <button
             type="button"
             onClick={openCookieSettings}

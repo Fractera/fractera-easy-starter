@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { getSectionList, getSection } from '@/lib/project-info/content'
+import { SiteFooter } from '@/components/site-footer'
 
 // STATIC English knowledge base about the whole project = a full copy of the
 // landing content (incl. the entire FAQ) + the architecture/technical sections.
@@ -121,12 +122,20 @@ export default function McpInfoPage() {
   const list = getSectionList('en')
 
   return (
-    <main className="min-h-screen bg-white text-zinc-900">
+    <main className="flex min-h-screen flex-col bg-white text-zinc-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
-      <div className="mx-auto max-w-3xl px-5 py-12">
+      <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
         <header className="mb-10 border-b border-zinc-200 pb-6">
-          <p className="text-xs uppercase tracking-widest text-zinc-400">Project knowledge base · /mcp-info</p>
-          <h1 className="mt-2 text-2xl font-bold">Fractera — Project Knowledge Base</h1>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-zinc-400">Project knowledge base · /mcp-info</p>
+              <h1 className="mt-2 text-2xl font-bold">Fractera — Project Knowledge Base</h1>
+            </div>
+            <a href="/" aria-label="Fractera home" title="Fractera home" className="shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fractera-logo.jpg" alt="Fractera" width={40} height={40} className="h-10 w-10 rounded-lg border border-zinc-200 object-cover" />
+            </a>
+          </div>
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
             A complete reference about the Fractera project — landing content and deep architecture. This page is
             intended for AI agents that scan the site to understand its purpose, answer questions during deployment,
@@ -172,6 +181,8 @@ export default function McpInfoPage() {
           </div>
         </footer>
       </div>
+
+      <SiteFooter />
     </main>
   )
 }

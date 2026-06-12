@@ -72,6 +72,17 @@ export default async function HomePage({
             <section className="flex flex-col gap-32 items-start w-full">
 
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
+              {content.architectureCta && (
+                <div className="w-full flex justify-center">
+                  <a
+                    href="/ai-workspace-architect"
+                    className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
+                  >
+                    {content.architectureCta}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              )}
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
               <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
