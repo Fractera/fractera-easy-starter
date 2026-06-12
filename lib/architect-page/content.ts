@@ -15,6 +15,8 @@ export const ARCHITECT_URL = 'https://www.fractera.ai/ai-workspace-architect'
 // models and markup); the tall one is shown to phones.
 export const IMAGE_WIDE = 'https://www.fractera.ai/Fractera-Web-Architect.jpg'
 export const IMAGE_MOBILE = 'https://www.fractera.ai/Fractera-Mobail-Architect.jpg'
+// Real screenshot of the workspace (admin panel) shown in the "How it looks" section.
+export const IMAGE_SCREENSHOT = 'https://www.fractera.ai/Fractera-ai-workspace-screenshot.png'
 
 export const ARCHITECT_META = {
   title: 'AI Workspace Architect — How Fractera Works & What It Is Made Of',
@@ -47,9 +49,25 @@ export const SECTIONS: ArchitectSection[] = [
 
 **Hermes is the brain; the coding agents do the heavy lifting.** We call Hermes the central brain, but the hardest work — generating code — is done by the **coding agents** such as Claude Code. Hermes is a **light orchestrator**: it tracks each platform's token use, picks the right platform for a task, hands work to it, launches deployments, and talks to GitHub.
 
-**It also runs locally.** Without a paid subscription you can still use AI models — Hermes or Claude Code can run automatically, or you use the manual tools. The app itself runs on **Next.js** with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
+**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. The app itself runs on **Next.js** with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
 
 **The output is a secure web app.** On the way out the project is served over a **secure HTTPS connection** when you run it on your own domain, or it runs on a local machine over a plain **IP address** — in which case you secure the connection with one of the available options.`,
+  },
+  {
+    id: 'how-it-looks',
+    level: 2,
+    title: 'What the AI Workspace looks like',
+    body: `This is what you get inside Fractera right after you deploy — a rich workspace that starts on its own. Click the screenshot above to see it full screen.
+
+**It starts ready.** The workspace opens on the **Hermes chat Web UI**, ready to go. To activate Hermes you set your own key — and the **same key** can activate your **Memory**. Open the **Brain** tab, then the **Memory** tab, and press **Activate** in Memory to start embedding the starter documentation, so it is available at any time — used both as a help desk and by the coding agents.
+
+**Pick your coding models.** The top row lists the **five coding platforms**. Choose one or several you want to work with, open it, and activate its subscription — just follow the prompts; it looks almost exactly like the standard interface. The far-right card is the **Terminal**, handy for watching the development process, and where you can add another code-generation platform if you like.
+
+**Everything is one panel.** On the left, the **Settings** tab opens full control over your app and tools. In the footer you will find buttons to connect your **GitHub** repository, trigger a **deploy** by hand, and buttons that switch on later — when the marketplace of skills and ready-made digitized businesses goes live. Top-right, **Preview** shows the current state of the page you are building and the service pages that let you watch development. Unlike the main app, this view can highlight code and helps you find the right element — routing a request from a selected element straight to the Hermes chat or Telegram.
+
+**It explains and improves itself.** The project ships fully **open-source**, so Hermes — or any model — can read this very codebase and give you a complete, detailed explanation of any feature: how it works and how it is built. You can just as easily ask a model to improve not only your end apps but the **admin panel shown here**. A word of caution: experiment on a **secondary account**, and keep your main one on reliable, proven solutions. If you want to add something, or you found a bug, please do not hesitate to open a **pull request** — we hope your contribution helps strengthen an already powerful architecture.
+
+**Found this while researching modern architectures?** Then it is worth knowing: this whole complex setup on your **own server** takes literally one click. Enter your server credentials, start the deployment, make no settings and no choices — and in about **10 minutes** you get a fully configured app. After that you change your server access and connect a domain, and the security certificates assemble themselves automatically.`,
   },
   {
     id: 'hermes',

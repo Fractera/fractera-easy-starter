@@ -83,6 +83,14 @@ export default async function HomePage({
                   </a>
                 </div>
               )}
+              {content.referenceLinks && (
+                <p className="w-full text-center text-sm text-white/60">
+                  {content.referenceLinks.intro}{' '}
+                  <a href="/ai-workspace-architect" className="font-medium text-violet-300 underline hover:text-violet-200">{content.referenceLinks.architecture}</a>
+                  {' · '}
+                  <a href="/mcp-info" className="font-medium text-violet-300 underline hover:text-violet-200">{content.referenceLinks.knowledgeBase}</a>
+                </p>
+              )}
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
               <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>

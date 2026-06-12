@@ -140,6 +140,10 @@ export default function McpInfoPage() {
             A complete reference about the Fractera project — landing content and deep architecture. This page is
             intended for AI agents that scan the site to understand its purpose, answer questions during deployment,
             and act as a project help desk — and for anyone who wants to learn more while their server is being set up.
+            For the visual architecture, see the{' '}
+            <a href="/ai-workspace-architect" className="font-medium text-violet-700 underline hover:text-violet-900">AI Workspace architecture</a>{' '}
+            page, or go back to{' '}
+            <a href="/" className="font-medium text-violet-700 underline hover:text-violet-900">fractera.ai</a>.
           </p>
         </header>
 

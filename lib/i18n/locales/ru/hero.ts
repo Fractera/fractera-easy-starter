@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
   | 'deployCaptions' | 'importSubstitution'
 >
@@ -30,6 +30,11 @@ export const hero: HeroPart = {
   deployButton: 'Запустить в 1 клик',
   heroButtonCaption: 'Fractera — ваш умный робот-установщик.',
   architectureCta: 'Подробнее об архитектуре AI Workspace',
+  referenceLinks: {
+    intro: 'Углубиться:',
+    architecture: 'архитектура AI Workspace',
+    knowledgeBase: 'база знаний проекта',
+  },
 
   description:
     'Open-source платформа разворачивает на вашем VPS за 10 минут полный AI-стек: Hermes orchestrator, память LightRAG, пять кодинг-платформ (Claude Code, Codex, Gemini CLI, Qwen, Kimi), авторизацию, базу данных и хранилище. Без API-ключей. Без Clerk. Без Supabase. Ваш сервер, ваш стек, ваши данные.',

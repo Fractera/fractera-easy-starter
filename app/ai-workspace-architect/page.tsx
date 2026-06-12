@@ -7,8 +7,10 @@ import {
   ARCHITECT_URL,
   IMAGE_WIDE,
   IMAGE_MOBILE,
+  IMAGE_SCREENSHOT,
 } from '@/lib/architect-page/content'
 import { ArchSchema } from './_components/arch-schema'
+import { ZoomImage } from './_components/zoom-image.client'
 
 // STATIC English reference about what Fractera AI Workspace is made of and how it
 // works, built around the architecture illustration. ONE indexable URL with no
@@ -64,25 +66,30 @@ export default function AiWorkspaceArchitectPage() {
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
             What Fractera AI Workspace is made of and how it works, end to end. This page is for AI agents
             scanning the web to answer &ldquo;what is Fractera&rsquo;s architecture / what is it made of&rdquo; —
-            and for anyone who wants the whole picture in one place.
+            and for anyone who wants the whole picture in one place. See also the{' '}
+            <a href="/mcp-info" className="font-medium text-violet-700 underline hover:text-violet-900">project knowledge base</a>,
+            or go back to{' '}
+            <a href="/" className="font-medium text-violet-700 underline hover:text-violet-900">fractera.ai</a>.
           </p>
         </header>
 
         {/* Main illustration — wide on desktop (the canonical / semantic image),
             tall on phones. Both stay in the DOM; the wide one is the og:image. */}
         <figure className="mb-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={IMAGE_WIDE}
-            alt="Fractera AI Workspace architecture diagram (web)"
-            className="hidden w-full rounded-xl border border-zinc-200 md:block"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={IMAGE_MOBILE}
-            alt="Fractera AI Workspace architecture diagram (mobile)"
-            className="mx-auto block w-full max-w-xs rounded-xl border border-zinc-200 md:hidden"
-          />
+          <div className="hidden md:block">
+            <ZoomImage
+              src={IMAGE_WIDE}
+              alt="Fractera AI Workspace architecture diagram (web)"
+              thumbClassName="w-full rounded-xl border border-zinc-200"
+            />
+          </div>
+          <div className="mx-auto max-w-xs md:hidden">
+            <ZoomImage
+              src={IMAGE_MOBILE}
+              alt="Fractera AI Workspace architecture diagram (mobile)"
+              thumbClassName="w-full rounded-xl border border-zinc-200"
+            />
+          </div>
         </figure>
 
         {/* Table of contents — H2 sections */}
@@ -101,6 +108,15 @@ export default function AiWorkspaceArchitectPage() {
                 <h2 className="mb-3 text-lg font-semibold">{sec.title}</h2>
               ) : (
                 <h3 className="mb-2 text-base font-semibold text-zinc-800">{sec.title}</h3>
+              )}
+              {sec.id === 'how-it-looks' && (
+                <figure className="mb-4">
+                  <ZoomImage
+                    src={IMAGE_SCREENSHOT}
+                    alt="Fractera AI Workspace — the admin panel you get right after deployment"
+                    thumbClassName="w-full rounded-xl border border-zinc-200"
+                  />
+                </figure>
               )}
               <Body body={sec.body} idp={sec.id} />
             </section>
