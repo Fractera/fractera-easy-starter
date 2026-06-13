@@ -22,9 +22,9 @@ export const IMAGE = 'https://www.fractera.ai/Fractera-Development-Loop.jpg'
 export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
 
 export const LOOP_META = {
-  title: 'Fractera Development Loop | How AI Agents Build, Test & Ship Code',
+  title: 'Fractera Autonomous AI Dev Loop | How AI Agents Build, Test & Ship Code',
   description:
-    'How Fractera turns one admin request into tested, deployed, recorded software: Hermes orchestrates, a coding agent (Claude Code, Codex, Gemini, Qwen, Kimi) does the work, and LightRAG memory grounds every step. The agentic AI development loop, self-hosted on your own VPS.',
+    "Inside Fractera's autonomous AI development loop: Hermes runs the multi-agent orchestration, an AI coding agent (Claude Code, Codex, Gemini, Qwen, Kimi) writes the code, and LightRAG Knowledge Graph memory grounds every step — with AI DevOps that builds, deploys and self-corrects. The agentic AI coding pipeline, self-hosted on your own VPS.",
 }
 
 export type LoopSection = {
@@ -41,7 +41,7 @@ export const SECTIONS: LoopSection[] = [
   {
     id: 'how-it-works',
     level: 2,
-    title: 'How the Fractera development loop works',
+    title: 'How the autonomous AI development loop works',
     body: `The diagram above is the **Fractera Development Loop** — the cycle that turns a single request into tested, deployed, recorded software, with no human writing code. Here it is in plain words, following the arrows from the bottom up.
 
 **1. A request comes in.** It starts with a **new admin request** — you ask for something in natural language, through the **Hermes chat Web UI** inside your workspace or from **Telegram**. You describe the outcome; you do not write code.
@@ -67,7 +67,7 @@ export const SECTIONS: LoopSection[] = [
   {
     id: 'hermes',
     level: 2,
-    title: 'Hermes — the orchestrator that drives the loop',
+    title: 'Hermes — multi-agent AI orchestration',
     body: `**Hermes** is the brain at the centre of the loop (\`fractera-hermes\`, dashboard on \`:9119\`). It is the only part that talks to *you*, and the part that decides *what happens next* at every turn of the cycle.
 
 At each wake-up Hermes loads its **identity** from \`SOUL.md\` (who it is: the brain of a Fractera workspace, an orchestrator of software development) and the **project context** from the repo's \`CLAUDE.md\` / \`AGENTS.md\`. It then reads the current project state and the relevant history out of **LightRAG**, so it is grounded before it acts.
@@ -77,7 +77,7 @@ Hermes is intentionally **light**: it plans, it chooses, it dispatches, it recor
   {
     id: 'choosing-agent',
     level: 2,
-    title: 'Choosing the right coding agent',
+    title: 'AI coding agents: choosing the right one for the task',
     body: `Five subscription coding agents run preconfigured on your server — **Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code** — each driven through a bridge that exposes it to Hermes over MCP (ports \`3210–3214\`).
 
 Before delegating, Hermes checks **readiness**: which agents are installed and actually signed in (a green bridge means the process is alive; being logged in to the subscription is a separate fact). From the ready agents it picks the **best fit** for the task — a fast generalist for iteration, a careful planner for sweeping multi-file changes, a large-context model for big reviews.
@@ -87,7 +87,7 @@ Crucially, the agents run on **your existing subscriptions**, not pay-per-token 
   {
     id: 'lightrag',
     level: 2,
-    title: 'LightRAG — the memory at the centre of the loop',
+    title: 'LightRAG — Knowledge Graph RAG memory at the centre of the loop',
     body: `On the diagram, **LightRAG** is the tall column on the right that every stage reads from and writes to — and that is exactly its role. It is the shared long-term memory of the whole workspace (\`fractera-rag\`, \`:9621\`), a **Knowledge Graph RAG** queried by Hermes and all five coding agents.
 
 This shared memory is what makes the loop efficient. Instead of re-explaining the codebase on every request, each stage recalls exactly the relevant context: the project state, the glossary, the completed steps, past decisions. A task that takes ten back-and-forth messages in a vanilla chat often resolves in two or three here, because the model arrives already grounded — and that is where the **token savings** come from.
@@ -97,7 +97,7 @@ It does not learn on its own — it stores only what agents explicitly push, whi
   {
     id: 'instruction-layer',
     level: 2,
-    title: 'The instruction layer each agent reads',
+    title: 'The instruction layer that steers every AI agent',
     body: `The loop is steered by **real files on disk**, not hidden settings — the same files an agent reads as plain text, so you can inspect and shape them.
 
 - **\`SOUL.md\`** — Hermes's identity and operating rules (who it is, how it works). Read at every wake-up.
@@ -110,7 +110,7 @@ Because these are files, the loop is transparent and editable: change the instru
   {
     id: 'request-to-code',
     level: 2,
-    title: 'From request to code',
+    title: 'From request to code: autonomous code generation',
     body: `Inside the loop, a request becomes code in three visible moves.
 
 - **Declare the task.** The agent turns your request into a concrete development task. You can optionally step in to steer or refine it before work begins — the human stays in the loop exactly as much as you want.
@@ -122,7 +122,7 @@ The split between the open \`app/\` layer (where agents build freely) and the gu
   {
     id: 'test-deploy',
     level: 2,
-    title: 'Test, deploy, and the result branch',
+    title: 'AI DevOps: automated build, deploy, and self-correction',
     body: `Writing the code is not the end — the loop **tests and deploys** the change, then branches on the outcome. This is the decision point on the diagram.
 
 - **On error**, the failure is not a dead end: it feeds back into the loop. The agent receives a new task shaped by what went wrong and iterates. The cycle self-corrects instead of stalling.
@@ -133,7 +133,7 @@ Deployment is one motion — the open app layer is rebuilt and reloaded, and you
   {
     id: 'the-record',
     level: 2,
-    title: 'The record: development steps and the deployments tab',
+    title: 'The record: development steps and the Product Loop deployments log',
     body: `When a request finishes, the loop **writes down what happened** — and this recorded history is what lets the next request start smarter.
 
 - **Completed development steps.** The step that drove the work is moved into the completed log with its date — a durable record of what was built and why, read by future agents.
@@ -144,7 +144,7 @@ Both records are pushed back into LightRAG, closing the loop: the memory that gr
   {
     id: 'why-it-compounds',
     level: 2,
-    title: 'Why the loop compounds',
+    title: 'Why the autonomous dev loop compounds',
     body: `A pipeline runs once and forgets. The Fractera loop **compounds**, because every pass leaves the workspace smarter than it found it:
 
 - **Memory grows.** Each request writes its decisions, code and outcomes back into LightRAG, so the next agent starts already knowing them.

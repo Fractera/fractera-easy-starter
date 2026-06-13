@@ -75,7 +75,7 @@ export default function AiDevelopmentLoopPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest text-zinc-400">AI Workspace · development loop</p>
-              <h1 className="mt-2 text-2xl font-bold">The Fractera Development Loop — How AI Agents Build, Test &amp; Ship Code</h1>
+              <h1 className="mt-2 text-2xl font-bold">The Autonomous AI Development Loop — How AI Agents Build, Test &amp; Ship Code</h1>
             </div>
             {/* Return to the site root */}
             <a href="/" aria-label="Fractera home" title="Fractera home" className="shrink-0">
