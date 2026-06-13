@@ -8,6 +8,7 @@ import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { getSectionList, getSection, type InfoLang } from '@/lib/project-info/content'
 import { getArchitectSectionList, getArchitectSection, IMAGE_WIDE, ARCHITECT_URL } from '@/lib/architect-page/content'
+import { getLoopSectionList, getLoopSection, IMAGE as LOOP_IMAGE, LOOP_URL } from '@/lib/development-loop/content'
 
 // Turn the agent-supplied components value into the bootstrap arg string.
 //   undefined / not an array  → undefined  → deploy installs everything (default)
@@ -197,6 +198,23 @@ export const MCP_TOOLS = [
       required: [],
     },
   },
+  {
+    name: 'get_ai_development_loop_info',
+    title: 'Get Fractera Development Loop',
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    description:
+      'Explains the Fractera development loop: how one admin request becomes tested, deployed, recorded code with no human writing it — Hermes orchestrates and loads its identity + project context, picks a ready coding agent (Claude Code, Codex, Gemini, Qwen, Kimi), the agent is enriched (SOUL.md / AGENTS.md / GLOSSARY.md / completed steps), generates a task then code, it is built and deployed, and the result branches (error feeds back; success updates the completed steps and the deployments tab) — all grounded by LightRAG memory at every step. RETURNS A DIAGRAM IMAGE URL you can show the user when they ask how Fractera builds software or how its agents work. Call with NO arguments to get the diagram URL + the "how the loop works" overview + the section list; call again with a single `section` id to read one stage in depth.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        section: {
+          type: 'string',
+          description: 'A section id from the list (e.g. "hermes", "lightrag", "test-deploy", "the-record"). Omit to get the diagram, the overview and the section list.',
+        },
+      },
+      required: [],
+    },
+  },
 ]
 
 export async function handleToolCall(
@@ -258,6 +276,31 @@ export async function handleToolCall(
       }
     }
     return { id: found.id, title: found.title, body: found.body, illustration: IMAGE_WIDE }
+  }
+
+  if (name === 'get_ai_development_loop_info') {
+    const section = typeof args.section === 'string' ? args.section.trim() : ''
+    if (!section) {
+      const how = getLoopSection('how-it-works')
+      return {
+        page_url: LOOP_URL,
+        illustration: LOOP_IMAGE,
+        illustration_note:
+          'The Fractera Development Loop diagram. Show this image when the user asks how Fractera builds software, how its agents work, or what the development loop is.',
+        overview: how?.body ?? '',
+        sections: getLoopSectionList().map(({ id, title }) => ({ id, title })),
+        note:
+          'This explains the Fractera development loop. The overview above ("How the Fractera development loop works") is the key scenario. For one stage in depth, call get_ai_development_loop_info again with a single `section` id from the list.',
+      }
+    }
+    const found = getLoopSection(section)
+    if (!found) {
+      return {
+        status: 'not_found',
+        message: `No section "${section}". Call get_ai_development_loop_info with no section to get the valid list.`,
+      }
+    }
+    return { id: found.id, title: found.title, body: found.body, illustration: LOOP_IMAGE }
   }
 
   if (name === 'get_subdomain') {

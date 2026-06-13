@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'referenceLinks' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
   | 'deployCaptions'
 >
@@ -30,10 +30,12 @@ export const hero: HeroPart = {
   deployButton: 'Launch in 1 click',
   heroButtonCaption: 'Fractera — your smart robot installer.',
   architectureCta: 'More about the AI Workspace architecture',
+  devLoopCta: 'See how the Fractera development loop works',
   referenceLinks: {
     intro: 'Go deeper:',
     architecture: 'AI Workspace architecture',
     knowledgeBase: 'project knowledge base',
+    developmentLoop: 'AI development loop',
   },
 
   description:

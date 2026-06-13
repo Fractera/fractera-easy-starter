@@ -58,6 +58,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }
 
+  // /ai-development-loop — likewise a SINGLE canonical root page (no /[lang]).
+  const developmentLoopEntry = {
+    url: `${base}/ai-development-loop`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }
+
 
   // Per-language entries. The English homepage's /en URL is deliberately
   // skipped here — it duplicates the root and we don't want to advertise
@@ -75,5 +83,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
   )
 
-  return [rootEntry, mcpInfoEntry, architectEntry, ...perLang]
+  return [rootEntry, mcpInfoEntry, architectEntry, developmentLoopEntry, ...perLang]
 }

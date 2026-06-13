@@ -53,7 +53,9 @@ export const SECTIONS: ArchitectSection[] = [
 
 **It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This **open-source, self-hosted AI platform** runs on **Next.js** on a standard **VPS**, with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
 
-**The output is a secure web app.** On the way out the project is served over a **secure HTTPS connection** when you run it on your own domain, or it runs on a local machine over a plain **IP address** — in which case you secure the connection with one of the available options.`,
+**The output is a secure web app.** On the way out the project is served over a **secure HTTPS connection** when you run it on your own domain, or it runs on a local machine over a plain **IP address** — in which case you secure the connection with one of the available options.
+
+To see how this architecture actually *builds* software — how one request becomes tested, deployed code — read the [Fractera development loop](/ai-development-loop).`,
   },
   {
     id: 'how-it-looks',

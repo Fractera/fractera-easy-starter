@@ -107,6 +107,13 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.next()
   }
 
+  // Same deal: the AI Development Loop reference is a single English root URL.
+  // It MUST never get a language version — pass it through unchanged so the proxy
+  // never rewrites it under a /<lang>/ prefix.
+  if (pathname === '/ai-development-loop' || pathname.startsWith('/ai-development-loop/')) {
+    return NextResponse.next()
+  }
+
   // Skip API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/debug')) {
     return NextResponse.next()

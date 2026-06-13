@@ -84,6 +84,20 @@ export function DoublePresentation() {
     </div>
   )
 
+  // Internal-link CTA to the /ai-development-loop reference page, placed between
+  // the animated containers and the three-column feature block (SEO interlinking).
+  const devLoopButton = content.devLoopCta ? (
+    <div className="w-full flex justify-center">
+      <a
+        href="/ai-development-loop"
+        className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
+      >
+        {content.devLoopCta}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  ) : null
+
   const featureBlocks = (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full pt-4">
       {content.featureItems.slice(0, 3).map(({ title, text }, i) => (
@@ -103,6 +117,7 @@ export function DoublePresentation() {
         {header}
         {renderMobileCard(content.dpLeft)}
         {renderMobileCard(content.dpRight)}
+        {devLoopButton}
         {featureBlocks}
       </div>
     )
@@ -115,6 +130,7 @@ export function DoublePresentation() {
         {renderDesktopCard(content.dpLeft, 'left')}
         {renderDesktopCard(content.dpRight, 'right')}
       </div>
+      {devLoopButton}
       {featureBlocks}
     </div>
   )

@@ -17,8 +17,12 @@ export type SiteContent = {
   heroButtonCaption?: string
   // Label for the "learn the architecture" link under the hero benefits block.
   architectureCta?: string
-  // Two in-text reference links shown under the hero (internal linking / SEO).
-  referenceLinks?: { intro: string; architecture: string; knowledgeBase: string }
+  // Button label linking to the /ai-development-loop reference page, shown inside
+  // the "Production AI Coding" section (internal linking / SEO).
+  devLoopCta?: string
+  // In-text reference links shown under the hero (internal linking / SEO) — all
+  // three single-canonical reference pages.
+  referenceLinks?: { intro: string; architecture: string; knowledgeBase: string; developmentLoop: string }
   description: string
   lightPitch: {
     label: string

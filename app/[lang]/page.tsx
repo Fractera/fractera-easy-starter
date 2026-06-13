@@ -89,6 +89,8 @@ export default async function HomePage({
                   <a href="/ai-workspace-architect" className="font-medium text-violet-300 underline hover:text-violet-200">{content.referenceLinks.architecture}</a>
                   {' · '}
                   <a href="/mcp-info" className="font-medium text-violet-300 underline hover:text-violet-200">{content.referenceLinks.knowledgeBase}</a>
+                  {' · '}
+                  <a href="/ai-development-loop" className="font-medium text-violet-300 underline hover:text-violet-200">{content.referenceLinks.developmentLoop}</a>
                 </p>
               )}
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
