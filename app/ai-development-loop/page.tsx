@@ -122,6 +122,20 @@ export default function AiDevelopmentLoopPage() {
           </figcaption>
         </figure>
 
+        {/* Author quote — the idea this whole page implements, linking to the blog story */}
+        <aside className="mb-12 rounded-xl border-l-2 border-violet-300 bg-violet-50/60 py-5 pl-6 pr-5">
+          <blockquote className="text-base font-medium italic leading-relaxed text-zinc-800">
+            &ldquo;I don&rsquo;t write prompts for Claude anymore. I have loops running that prompt Claude and figure out
+            what to do. My job is to write the loops.&rdquo;
+          </blockquote>
+          <figcaption className="mt-2 text-sm text-zinc-500">
+            — Boris Cherny, who leads Claude Code at Anthropic.{' '}
+            <a href="/en/blog/the-end-of-prompt-engineering" className="font-medium text-violet-700 underline hover:text-violet-900">
+              Read why this ends prompt engineering →
+            </a>
+          </figcaption>
+        </aside>
+
         {/* Table of contents — H2 sections */}
         <nav className="mb-12">
           <ol className="list-decimal space-y-1 pl-5 text-sm text-zinc-600">
