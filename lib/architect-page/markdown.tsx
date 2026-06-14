@@ -44,7 +44,12 @@ type Block =
   | { kind: 'p'; text: string }
   | { kind: 'ul'; items: string[] }
   | { kind: 'ol'; items: string[] }
+  | { kind: 'h'; level: 3 | 4 | 5; text: string }
   | { kind: 'hr' }
+
+function slug(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
 
 function parseBody(body: string): Block[] {
   const blocks: Block[] = []
@@ -57,6 +62,12 @@ function parseBody(body: string): Block[] {
     const line = raw.trim()
     if (!line) { flushPara(); flushList(); continue }
     if (line === '---') { flushPara(); flushList(); blocks.push({ kind: 'hr' }); continue }
+    const heading = line.match(/^(#{3,5})\s+(.*)/)
+    if (heading) {
+      flushPara(); flushList()
+      blocks.push({ kind: 'h', level: heading[1].length as 3 | 4 | 5, text: heading[2] })
+      continue
+    }
     const bullet = line.match(/^-\s+(.*)/)
     const numbered = line.match(/^\d+\.\s+(.*)/)
     if (bullet) {
@@ -82,6 +93,20 @@ export function Body({ body, idp }: { body: string; idp: string }) {
     <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-700">
       {blocks.map((b, i) => {
         if (b.kind === 'hr') return <hr key={`${idp}-hr${i}`} className="my-2 border-zinc-200" />
+        if (b.kind === 'h') {
+          const Tag = (`h${b.level}` as 'h3' | 'h4' | 'h5')
+          const cls =
+            b.level === 3
+              ? 'mt-3 text-base font-semibold text-zinc-900'
+              : b.level === 4
+                ? 'mt-2 text-[0.95rem] font-semibold text-zinc-900'
+                : 'mt-1 text-sm font-semibold text-zinc-700'
+          return (
+            <Tag key={`${idp}-h${i}`} id={slug(b.text)} className={`scroll-mt-6 ${cls}`}>
+              {renderInline(b.text, `${idp}-h${i}`)}
+            </Tag>
+          )
+        }
         if (b.kind === 'p') return <p key={`${idp}-p${i}`}>{renderInline(b.text, `${idp}-p${i}`)}</p>
         const cls = b.kind === 'ul' ? 'list-disc' : 'list-decimal'
         const Tag = b.kind === 'ul' ? 'ul' : 'ol'
