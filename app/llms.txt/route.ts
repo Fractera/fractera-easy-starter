@@ -26,8 +26,14 @@ const CONTENT = `# Fractera
 ## Full documentation
 - [Full knowledge base in one file](https://www.fractera.ai/llms-full.txt): complete architecture, Zero-Ops deployment, customization, pricing, the full FAQ, and the legal text.
 - [Project knowledge base for AI agents](https://www.fractera.ai/mcp-info): the same content as a browsable page, queryable section-by-section via the MCP get_project_info tool.
+- [AI Workspace architecture](https://www.fractera.ai/ai-workspace-architect): the complete architecture of the self-hosted workspace — Hermes multi-agent orchestration, LightRAG Knowledge Graph memory, the five coding agents and MCP — illustrated by the architecture diagram. Mirrored for AI agents by the MCP get_ai_workspace_architect_info tool.
+- [The autonomous AI development loop](https://www.fractera.ai/ai-development-loop): how one natural-language request becomes tested, deployed, recorded code — decomposition into development steps, the iterative watchable build, with Hermes, a coding agent and LightRAG memory at every step. Mirrored by the MCP get_ai_development_loop_info tool.
 - [Home](https://www.fractera.ai/): product overview, pricing and FAQ.
 - [Real-world use cases](https://www.fractera.ai/en/cases): production automations teams have built — private team workspaces, lead-dispatch Kanban, an adaptive AI tutor, and an autonomous trend-scraping blog.
+
+## Key diagrams (canonical images)
+- ![Fractera AI Workspace architecture — multi-agent system with Hermes orchestration, LightRAG Knowledge Graph memory and five coding agents on a self-hosted VPS](https://www.fractera.ai/Fractera-Web-Architect.jpg) — the workspace architecture, explained at https://www.fractera.ai/ai-workspace-architect
+- ![Fractera Development Loop — one admin request flows through Hermes, a coding agent and LightRAG memory to tested, deployed, recorded code](https://www.fractera.ai/Fractera-Development-Loop.jpg) — the autonomous development loop, explained at https://www.fractera.ai/ai-development-loop
 `
 
 export function GET() {
