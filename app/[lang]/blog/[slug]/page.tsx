@@ -110,13 +110,17 @@ export default async function BlogPostPage({
 
           {/* Hero video — illustration 1 */}
           <figure className="my-8 flex flex-col gap-3">
-            <div className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_0_60px_-15px_rgba(167,139,250,0.35)]">
+            <div
+              className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_0_60px_-15px_rgba(167,139,250,0.35)]"
+              style={post.heroAspect ? { aspectRatio: post.heroAspect } : undefined}
+            >
               <video
                 src={post.heroVideo}
+                poster={post.heroPoster}
                 controls
                 playsInline
-                preload="metadata"
-                className="w-full bg-black"
+                preload="none"
+                className="h-full w-full bg-black object-cover"
               />
             </div>
             <figcaption className="text-center text-sm text-white/40">

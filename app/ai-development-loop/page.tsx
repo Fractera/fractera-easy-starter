@@ -125,8 +125,8 @@ export default function AiDevelopmentLoopPage() {
         {/* Author quote — the idea this whole page implements, linking to the blog story */}
         <aside className="mb-12 rounded-xl border-l-2 border-violet-300 bg-violet-50/60 py-5 pl-6 pr-5">
           <blockquote className="text-base font-medium italic leading-relaxed text-zinc-800">
-            &ldquo;I don&rsquo;t write prompts for Claude anymore. I have loops running that prompt Claude and figure out
-            what to do. My job is to write the loops.&rdquo;
+            &ldquo;I don&rsquo;t prompt Claude anymore. I have loops running that prompt Claude and figuring out what to
+            do. My job is to write loops.&rdquo;
           </blockquote>
           <figcaption className="mt-2 text-sm text-zinc-500">
             — Boris Cherny, who leads Claude Code at Anthropic.{' '}

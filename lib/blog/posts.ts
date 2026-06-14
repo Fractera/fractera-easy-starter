@@ -2,7 +2,8 @@
 // as /mcp-info, /ai-workspace-architect and /ai-development-loop). Posts are real
 // data here; the /blog index and /blog/<slug> page read from this file, and the
 // blog is intentionally English-only. Inline markup inside text fields supports
-// **bold** and [label](url); blocks add headings, quotes, lists, figures and CTAs.
+// **bold** and [label](url); blocks add headings, quotes, lists, figures, code
+// (monospace schematics) and CTAs.
 
 export type BlogAuthor = { name: string; role: string; avatar?: string }
 
@@ -14,6 +15,7 @@ export type BlogBlock =
   | { kind: 'list'; items: string[] }
   | { kind: 'olist'; items: string[] }
   | { kind: 'figure'; media: 'image' | 'video'; src: string; alt: string; caption?: string; href?: string }
+  | { kind: 'code'; text: string }
   | { kind: 'cta'; text: string; href: string; label: string }
   | { kind: 'note'; text: string }
 
@@ -28,128 +30,173 @@ export type BlogPost = {
   tags: string[]
   author: BlogAuthor
   heroVideo: string
+  heroPoster?: string
+  heroAspect?: string
   ogImage: string
   blocks: BlogBlock[]
 }
 
+const POST_1_LINEAR = `you prompt  ─▶  AI writes code  ─▶  you find the bug  ─▶  you fix the prompt  ─┐
+     ▲                                                                          │
+     └─────────────────────────  by hand, again  ◀─────────────────────────────┘`
+
+const POST_1_LOOP = `you set the goal
+     │
+     ▼
+AI writes code  ─▶  CI runs every check  ─▶  green?  ─▶  ✦ shipped
+     ▲                      │
+     │                      ▼  (red)
+     └──  AI reads the logs and re-prompts itself`
+
 const POSTS: BlogPost[] = [
   {
     slug: 'the-end-of-prompt-engineering',
-    title: 'Prompt Engineering Is Over. The Head of Claude Code Just Named What Comes Next.',
+    title: 'Prompt Engineering Is Dead. Long Live Loop Engineering.',
     subtitle:
-      'Boris Cherny, who leads Claude Code at Anthropic, says he no longer writes prompts — he writes loops. Here is why that single sentence is a tectonic shift, and how we built it into a production system.',
+      'Why the head of Claude Code at Anthropic just signaled the end of the “AI whisperer” era — and what comes next.',
     description:
-      'Boris Cherny, the lead of Claude Code at Anthropic, says he no longer writes prompts for Claude — he writes loops that prompt Claude. Inside the shift from prompt engineering to loop engineering, why verification is the whole game, and how Fractera runs the same agentic loop in production with multi-agent orchestration and LightRAG memory.',
+      'Boris Cherny, who leads Claude Code at Anthropic, says he no longer prompts Claude — he writes loops. Inside the death of prompt engineering and the rise of loop engineering: agentic AI workflows, autonomous self-correcting agents, why verification beats prompt-craft, and how Fractera runs the same loop in production with multi-agent orchestration (Hermes) and LightRAG graph memory.',
     excerpt:
-      'The lead of Claude Code at Anthropic says he stopped writing prompts and started writing loops. That one sentence ends the prompt-engineering era — and it is exactly the architecture we have spent a year building.',
+      'The engineer leading Claude Code at Anthropic just admitted he doesn’t prompt the model anymore — he writes loops that prompt it for him. Here’s why that ends the “AI whisperer” era, and how we turned it into production architecture.',
     date: '2026-06-14',
-    readingMinutes: 6,
-    tags: ['AI engineering', 'Agentic workflows', 'Loop engineering'],
+    readingMinutes: 9,
+    tags: ['Loop engineering', 'Agentic AI', 'AI engineering'],
     author: { name: 'The Fractera Team', role: 'Fractera.ai' },
     heroVideo: '/blog-media/boris-chernoy-post-1.mp4',
+    heroPoster: '/blog-media/boris-chernoy-post-1.jpg',
+    heroAspect: '714 / 466',
     ogImage: 'https://www.fractera.ai/Fractera-Development-Loop.jpg',
     blocks: [
+      { kind: 'h2', text: 'The quote that shattered the illusion' },
       {
         kind: 'p',
-        text: 'A few days ago **Boris Cherny** — who leads engineering on **Claude Code**, Anthropic’s flagship coding agent — said something that quietly splits the history of working with AI into a *before* and an *after*.',
+        text: 'A few days ago, a single quote from **Boris Cherny** — the engineer leading the development of **Claude Code** at **Anthropic** — quietly sent shockwaves through the software community.',
+      },
+      {
+        kind: 'p',
+        text: 'On a public panel, Cherny pulled back the curtain on how the people who build the world’s most sophisticated coding AI actually work with their own models. What he said didn’t just challenge the status quo — it declared an entire emerging discipline obsolete:',
       },
       {
         kind: 'quote',
-        text: 'I don’t write prompts for Claude anymore. I have loops running that prompt Claude and figure out what to do. My job is to write the loops.',
+        text: 'I don’t prompt Claude anymore. I have loops running that prompt Claude and figuring out what to do. My job is to write loops.',
         cite: 'Boris Cherny · Claude Code, Anthropic',
       },
+      { kind: 'p', text: 'Let that sink in.' },
       {
         kind: 'p',
-        text: 'Sit with that for a second. The person steering one of the most capable coding models on earth is telling you that **hand-driving the model no longer scales** — and that the real work has moved somewhere else entirely.',
-      },
-      { kind: 'h2', text: 'The bottleneck was always you' },
-      {
-        kind: 'p',
-        text: 'For two years the industry has been obsessed with **prompt engineering**. We treated the model like a brilliant junior: hand it a task, wait for the answer, spot the mistakes, write another prompt to fix them. In that arrangement **you are the bottleneck** — the slow, human part in the middle of every iteration.',
+        text: 'The man with both hands on the wheel of the best developer model in the world is telling you he took his hands off the wheel. He doesn’t sit in a chat window crafting the perfect paragraph of instructions. He writes code that forces the AI to talk to itself, judge its own mistakes, and fix them inside a closed, autonomous circuit. He builds the machine that steers the model — and then he lets it drive.',
       },
       {
         kind: 'p',
-        text: 'It is micromanagement, and micromanagement does not scale. You burn hours holding context in your head and steering the model by hand, one correction at a time. Fast at the start, exhausting at depth, and impossible to run while you sleep.',
+        text: 'If you’re still spending your days fine-tuning prompts to coax the right block of code out of an LLM, his message is brutally clear: **you’re optimizing a world that is already gone.**',
       },
-      { kind: 'h2', text: 'What loop engineering actually is' },
+
+      { kind: 'h2', text: 'The paradigm shift: from micromanagement to system architecture' },
       {
         kind: 'p',
-        text: 'Loop engineering flips the relationship. Instead of asking the model questions, you **design the environment it runs inside** — a loop where it talks to itself, to your tools, and to the results, until the job is genuinely done.',
+        text: 'To see why this is a tectonic shift, look at how our relationship with generative AI has evolved in just a couple of years.',
+      },
+      { kind: 'h3', text: 'Phase 1 — The linear prompt (the human bottleneck)' },
+      {
+        kind: 'p',
+        text: 'Until recently, the whole industry was obsessed with **prompt engineering**. We treated LLMs like brilliant but easily-distracted junior developers. The workflow was linear, fragile and entirely manual:',
+      },
+      { kind: 'code', text: POST_1_LINEAR },
+      {
+        kind: 'p',
+        text: 'In this paradigm, **the human is the bottleneck.** You write a prompt, read the output, spot a syntax error, paste it back into the chat, and pray the model hasn’t forgotten the context five steps later. It feels productive. It is exhausting, unscalable micromanagement — and it absolutely cannot run while you sleep.',
+      },
+      { kind: 'h3', text: 'Phase 2 — Loop engineering (the autonomous circuit)' },
+      {
+        kind: 'p',
+        text: 'What Cherny is describing is **loop engineering** — agentic workflows where the human steps out of the execution loop entirely. You stop driving the car. You build the track, and let the machine run the laps.',
+      },
+      {
+        kind: 'p',
+        text: 'Instead of writing a prompt to solve a problem, you write a programmatic **loop** that embeds the AI inside an automated cycle of execution and verification:',
       },
       {
         kind: 'olist',
         items: [
-          '**You set the goal**, not the steps — for example, "build this component and get test coverage above 95%."',
-          '**The model acts** — it writes the code.',
-          '**The environment checks it** — the compiler, the tests and the linters run automatically and hand the results straight back.',
-          '**The model corrects itself** — it reads the failing logs, writes its own next prompt ("fix the segfault on line 42"), rewrites the code, and runs the check again.',
+          '**The goal.** A human sets one high-level objective — “build this API endpoint and reach 98% test coverage.”',
+          '**The action.** The AI generates a first draft of the code.',
+          '**The verification.** An automated environment — compilers, linters, unit tests, your CI — runs the code and catches every error.',
+          '**The self-correction.** On a failure, the system captures the stack trace, feeds it back to the AI as a fresh instruction, and orders it to try again.',
         ],
       },
+      { kind: 'code', text: POST_1_LOOP },
       {
         kind: 'p',
-        text: 'The loop closes and repeats until the success criterion is met. You never typed a follow-up. You built the track; the model ran the laps.',
+        text: 'The loop runs at machine speed, churning through dozens of iterations, self-correcting and self-healing until the verification criteria are met. You never typed a single follow-up. You didn’t write the prompts — you built the track, and the model ran every lap by itself.',
       },
-      { kind: 'h2', text: 'Verification is the whole game' },
+
+      { kind: 'h2', text: 'The real skill isn’t writing code. It’s writing the judge.' },
       {
         kind: 'p',
-        text: 'Here is the part most people miss. The hard part of a loop is **not** generating code — models are already excellent at that. The hard part is the **criterion that judges it**. A loop is only ever as good as its verifier.',
+        text: 'Here’s the part almost everyone misses — and it’s the whole game. The hard part of a loop is **not** generating the code. Models are already frighteningly good at that. The hard part is the **thing that decides whether the code is any good.**',
       },
       {
         kind: 'p',
-        text: 'Give it strong, automated checks — real tests, static analysis, a compiler that has to pass — and the model converges on something that actually works. Give it a weak verifier and the very same loop will happily generate an infinite stream of confident, hallucinated garbage. **The skill of the future is designing the checks**, not the prompts.',
+        text: 'Give the loop a strong, ruthless verifier — real tests, static analysis, a compiler that refuses to lie — and it converges on something that genuinely works. Give it a weak one, and that exact same loop will cheerfully produce an infinite river of confident, beautifully-formatted garbage, hallucinating its way to a green checkmark that means nothing.',
       },
-      { kind: 'h2', text: 'Autonomy, not assistance' },
       {
         kind: 'p',
-        text: 'Earlier tools — basic autocomplete, inline copilots — made you **faster at writing code**. A loop is a different species. It turns the model from a smart text editor into an **autonomous teammate** you delegate a whole task to: "go do this, come back when it is done."',
+        text: 'So the skill of the next decade isn’t prompt-craft. It’s **designing the verification** — the bulletproof validation systems that let an AI safely talk to itself without driving off a cliff. That’s a harder, rarer and far more valuable kind of engineering than finding the right words.',
       },
-      { kind: 'h2', text: 'The new technical debt' },
+
+      { kind: 'h2', text: 'From philosophy to production: how we architected the loop' },
       {
         kind: 'p',
-        text: 'It is not free, and two new costs arrive with the loops. The first is **comprehension debt** — when an agent writes and rewrites code hundreds of times behind the scenes, the human’s grasp of that code quietly erodes. The second is **token cost** — a loop can spend a lot of compute to chase down one stubborn bug. The engineer of the future has to treat **compute spend versus result quality** as a first-class design decision, not an afterthought.',
+        text: 'While the rest of the tech world breaks down Cherny’s quote on social media, the real challenge is unglamorous: **how do you build loop-engineering infrastructure that actually works in production — outside Anthropic’s internal labs?**',
       },
-      { kind: 'h2', text: 'How we built this outside Anthropic’s labs' },
       {
         kind: 'p',
-        text: 'Cherny’s view is a glimpse from inside a closed lab. The obvious question is how you run that paradigm **in production, on infrastructure you own** — not only inside Anthropic. That is exactly the architecture we have spent the last year building.',
+        text: 'Close a loop around a single model and you hit the real-world walls fast: context-window degradation, hallucinatory death spirals, and no memory across a project. At **Fractera**, we spent the last year treating Cherny’s philosophy not as a prediction but as an **architectural blueprint** — and built the Fractera Development Loop to survive exactly those failure modes.',
       },
       {
         kind: 'figure',
         media: 'image',
         src: 'https://www.fractera.ai/Fractera-Development-Loop.jpg',
-        alt: 'Fractera Development Loop diagram — one admin request flows through Hermes, a coding agent and LightRAG memory to tested, deployed code',
-        caption: 'The Fractera Development Loop — the same idea, wired into a whole workspace. [Read the full anatomy](/ai-development-loop).',
+        alt: 'Fractera Development Loop diagram — one request flows through Hermes orchestration, coding agents and LightRAG graph memory to tested, deployed code',
+        caption: 'The Fractera Development Loop — Cherny’s idea, wired into a workspace you actually own. [See the full anatomy](/ai-development-loop).',
         href: '/ai-development-loop',
       },
+      { kind: 'h3', text: 'The anatomy of a production-grade loop' },
       {
         kind: 'p',
-        text: 'The diagram above is how the loop lives in the core of **Fractera**. We did not just recreate Cherny’s idea — we extended it from a single self-correcting model into a **production-ready, multi-agent loop**.',
+        text: 'To make loops viable for real software, you have to evolve past one AI talking to itself. You need orchestration, specialized agents, and a persistent memory spine:',
       },
       {
         kind: 'list',
         items: [
-          '**Orchestrator (Hermes).** It takes the high-level goal and picks the best agent for it — Claude Code, Codex, Gemini and more — instead of looping a single model forever.',
-          '**Shared memory (LightRAG).** The classic failure of long AI loops is context loss over distance. A Knowledge Graph memory means the agent does not just patch the last error — it builds on everything it knows about the project, its architecture and its conventions.',
-          '**A closed self-correction loop.** The system writes, deploys, tests, reads the logs, prompts itself, and rewrites — until the change passes. The same loop Cherny describes, running across a whole workspace you own.',
+          '**Multi-agent orchestration (Hermes).** Instead of looping a single model forever, our orchestrator breaks down the high-level command and dispatches the best agent for each micro-task — Claude Code for hard logic, Codex for refactoring, Gemini for fast exploration.',
+          '**A graph-memory spine (LightRAG).** The biggest risk in an autonomous loop is the amnesia effect: loop fifteen times on a stubborn bug and the agent loses sight of the global architecture. A Knowledge Graph RAG acts as a continuous, un-wipeable memory so every looping agent keeps cross-referencing your codebase’s real rules and style.',
+          '**An immutable verification loop.** The loop only terminates when the test-and-deploy suite returns zero errors. If a deployment fails, the logs are instantly contextualized by graph memory and thrown back into the agent ring for an automatic cure.',
         ],
+      },
+
+      { kind: 'h2', text: 'The software engineer’s new job description' },
+      {
+        kind: 'p',
+        text: 'We’re moving away from writing code, past writing prompts, and straight into **building cognitive pipelines.** The craft is no longer the instruction — it’s the system the instruction runs inside.',
       },
       {
         kind: 'p',
-        text: 'Boris Cherny is right: the skill that matters now is **designing systems where the AI talks to itself**. The era of the chat box is ending; the era of autonomous agents and looping architectures has already started.',
+        text: 'And it isn’t free. Two new costs arrive with the loops. **Comprehension debt:** when an agent writes and rewrites a file three hundred times behind the scenes, your grasp of your own codebase quietly erodes — it works, you’re just no longer sure why. And **raw compute:** a loop can burn real money in tokens chasing one bug across a hundred silent attempts. The engineers who win this era treat cost-versus-quality as a deliberate design decision, not a surprise on the invoice.',
       },
       {
         kind: 'cta',
-        text: 'Want the technical anatomy — the routes, the memory, and the build-and-correct cycle, in plain engineering language?',
+        text: 'Want to look under the hood — the orchestration, the graph memory, and the build-test-correct cycle, in rigorous engineering detail?',
         href: '/ai-development-loop',
-        label: 'Read the anatomy of an autonomous AI loop',
+        label: 'Dive into the anatomy of autonomous AI loops',
       },
       {
         kind: 'p',
-        text: 'So here is the real question. Have you started moving from prompts to loops yet — or are you still hunting for the magic words in a chat window?',
+        text: 'The era of prompt engineering is officially behind us. The only question left is the one Cherny already answered for himself: **are you still trying to talk to your AI — or are you building the loops that let it run?**',
       },
       {
         kind: 'note',
-        text: 'Source: a widely shared LinkedIn post by Guillermo Flor surfacing Boris Cherny’s remarks. The quote is reproduced as it circulated; the architecture and the analysis are Fractera’s own.',
+        text: 'Source: a widely-shared LinkedIn post by Guillermo Flor surfacing Boris Cherny’s remarks. The quote is reproduced as it circulated; the architecture and the analysis are Fractera’s own.',
       },
     ],
   },

@@ -110,6 +110,15 @@ export function PostBody({ blocks }: { blocks: BlogBlock[] }) {
                 </a>
               </div>
             )
+          case 'code':
+            return (
+              <pre
+                key={k}
+                className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-[12.5px] leading-snug text-violet-200/80"
+              >
+                <code className="whitespace-pre font-mono">{b.text}</code>
+              </pre>
+            )
           case 'note':
             return (
               <p key={k} className="mt-2 border-t border-white/10 pt-6 text-sm italic leading-relaxed text-white/35">
