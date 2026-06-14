@@ -65,7 +65,7 @@ const POSTS: BlogPost[] = [
     heroVideo: '/blog-media/boris-chernoy-post-1.mp4',
     heroPoster: '/blog-media/boris-chernoy-post-1.jpg',
     heroAspect: '714 / 466',
-    ogImage: 'https://www.fractera.ai/Fractera-Development-Loop.jpg',
+    ogImage: 'https://www.fractera.ai/blog-media/boris-chernoy-post-1.jpg',
     blocks: [
       { kind: 'h2', text: 'The quote that shattered the illusion' },
       {
