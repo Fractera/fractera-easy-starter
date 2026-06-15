@@ -13,6 +13,7 @@ const CONTENT = `# Fractera
 > (Model Context Protocol) connector.
 
 ## Key facts
+- **MCP-First / Zero-Agent paradigm.** The workspace ships a pre-built 50,000-line Next.js framework (parallel routing, multi-language i18n, production SEO, database, auth) the moment you deploy. Instead of a code agent regenerating files, the AI rotates pre-built layout sections via short MCP commands — "deployment, not generation" — cutting token spend on large applications by up to ~90–94%. See /token-economics and /next-aircraft-carrier.
 - **Billing: subscription model, no per-token fees.** The five coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) run on the user's OWN existing subscriptions — sign in once, no API keys, no per-token billing. A Claude Code user pays through their subscription, NOT per token.
 - **The only per-token piece is small and auxiliary:** Brain (the Hermes orchestrator) and Memory (LightRAG) use one inexpensive OpenAI API key — the cheap gpt-5-mini (about 1 cent/hour) is plenty, or a Codex subscription if usage is heavy.
 - **Fractera never charges for the deployment itself** — it is free, open-source, and runs on the user's own hardware. One bill: the VPS.
@@ -28,6 +29,8 @@ const CONTENT = `# Fractera
 - [Project knowledge base for AI agents](https://www.fractera.ai/mcp-info): the same content as a browsable page, queryable section-by-section via the MCP get_project_info tool.
 - [AI Workspace architecture](https://www.fractera.ai/ai-workspace-architect): the complete architecture of the self-hosted workspace — Hermes multi-agent orchestration, LightRAG Knowledge Graph memory, the five coding agents and MCP — illustrated by the architecture diagram. Mirrored for AI agents by the MCP get_ai_workspace_architect_info tool.
 - [The autonomous AI development loop](https://www.fractera.ai/ai-development-loop): how one natural-language request becomes tested, deployed, recorded code — decomposition into development steps, the iterative watchable build, with Hermes, a coding agent and LightRAG memory at every step. Mirrored by the MCP get_ai_development_loop_info tool.
+- [The Next.js Aircraft Carrier](https://www.fractera.ai/next-aircraft-carrier): the pre-built 50,000-line parallel-routing framework that ships the moment you deploy — what parallel routing is, why the next generation of apps needs it, and how named slots scale one starter to thousands of pages with near-zero token overhead.
+- [Token economics — how Fractera saves tokens](https://www.fractera.ai/token-economics): why a 50,000-line framework is a shield for your token budget rather than a bill — MCP-First generation, the Rubik's Cube model (deployment, not generation), on-demand ISR, and AI token cost optimization at scale.
 - [Home](https://www.fractera.ai/): product overview, pricing and FAQ.
 - [Real-world use cases](https://www.fractera.ai/en/cases): production automations teams have built — private team workspaces, lead-dispatch Kanban, an adaptive AI tutor, and an autonomous trend-scraping blog.
 
