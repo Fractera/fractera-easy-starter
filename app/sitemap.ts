@@ -75,6 +75,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }
 
+  // /next-aircraft-carrier — likewise a SINGLE canonical root page (no /[lang]).
+  const aircraftCarrierEntry = {
+    url: `${base}/next-aircraft-carrier`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }
+
 
   // Per-language entries. The English homepage's /en URL is deliberately
   // skipped here — it duplicates the root and we don't want to advertise
@@ -92,5 +100,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
   )
 
-  return [rootEntry, mcpInfoEntry, architectEntry, developmentLoopEntry, tokenEconomicsEntry, ...perLang]
+  return [rootEntry, mcpInfoEntry, architectEntry, developmentLoopEntry, tokenEconomicsEntry, aircraftCarrierEntry, ...perLang]
 }

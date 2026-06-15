@@ -120,6 +120,12 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.next()
   }
 
+  // Same deal: the Next.js Aircraft Carrier reference is a single English root URL.
+  // EN-only by design — pass it through so it is never rewritten under /<lang>/.
+  if (pathname === '/next-aircraft-carrier' || pathname.startsWith('/next-aircraft-carrier/')) {
+    return NextResponse.next()
+  }
+
   // Skip API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/debug')) {
     return NextResponse.next()

@@ -14,6 +14,7 @@ type FooterLabels = {
   architecture: string
   developmentLoop: string
   tokenEconomics: string
+  aircraftCarrier: string
   cookieSettings: string
   rights: string
   tocLabel: string
@@ -32,6 +33,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     architecture: 'Архитектура AI Workspace',
     developmentLoop: 'Цикл AI-разработки',
     tokenEconomics: 'Экономика токенов',
+    aircraftCarrier: 'Авианосец Next.js',
     cookieSettings: 'Настройки куки',
     rights: 'Все права защищены.',
     tocLabel: 'Содержание сайта',
@@ -60,6 +62,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     architecture: 'AI Workspace Architecture',
     developmentLoop: 'AI Development Loop',
     tokenEconomics: 'Token Economics',
+    aircraftCarrier: 'Next.js Aircraft Carrier',
     cookieSettings: 'Cookie Settings',
     rights: 'All rights reserved.',
     tocLabel: 'Site contents',
@@ -113,6 +116,7 @@ export function SiteFooter() {
           <a href="/ai-workspace-architect" className="hover:text-violet-400 transition-colors">{t.architecture}</a>
           <a href="/ai-development-loop" className="hover:text-violet-400 transition-colors">{t.developmentLoop}</a>
           <a href="/token-economics" className="hover:text-violet-400 transition-colors">{t.tokenEconomics}</a>
+          <a href="/next-aircraft-carrier" className="hover:text-violet-400 transition-colors">{t.aircraftCarrier}</a>
           <button
             type="button"
             onClick={openCookieSettings}
