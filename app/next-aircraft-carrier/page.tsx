@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description: CARRIER_META.description,
     url: CARRIER_URL,
     type: 'article',
-    images: [{ url: 'https://www.fractera.ai/fractera-logo.jpg', alt: 'Fractera — the Next.js Aircraft Carrier, a pre-built parallel-routing enterprise boilerplate' }],
+    images: [{ url: 'https://www.fractera.ai/nextjs-parallel-routes.png', alt: 'Fractera Next.js parallel-routing layout — Header, Promo Screen, Left, Right, Center Header, Center, Center Footer, Footer slots with an active-slots checklist' }],
   },
 }
 
@@ -112,6 +112,23 @@ export default function NextAircraftCarrierPage() {
             <span className="text-xs text-zinc-400">Open-source · MIT · self-hosted</span>
           </div>
         </header>
+
+        {/* Static, crawlable illustration of the parallel-routing layout — visible to
+            AI scanners and no-JS clients (the interactive demo on the home page is
+            client-only). Reinforces the "works even without JavaScript" claim. */}
+        <figure className="mb-12">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/nextjs-parallel-routes.png"
+            alt="Next.js parallel-routing layout: Header, Promo Screen, Left, Right, Center Header, Center, Center Footer and Footer slots, with an active-slots checklist on the right"
+            width={862}
+            height={496}
+            className="w-full rounded-xl border border-zinc-200"
+          />
+          <figcaption className="mt-3 text-center text-xs text-zinc-500">
+            The parallel-routing slot matrix — header and footer locked, every other slot toggled on or off. Selecting slots reshapes the layout with no code and no page reload.
+          </figcaption>
+        </figure>
 
         {/* Table of contents — H2 sections */}
         <nav className="mb-12">
