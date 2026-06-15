@@ -34,14 +34,16 @@ export function UltimateScale() {
         {t.columns.map((col, i) => (
           <div
             key={i}
-            className="flex flex-col items-start text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
+            className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
           >
-            <h3 className="text-lg font-bold text-white leading-snug">{col.title}</h3>
-            <div className="my-3 h-px w-12 bg-emerald-500" />
-            <p className="text-[14px] text-white/70 leading-relaxed">{col.text}</p>
+            <div>
+              <h3 className="text-lg font-bold text-white leading-snug">{col.title}</h3>
+              <div className="my-3 h-px w-12 bg-emerald-500" />
+              <p className="text-[14px] text-white/70 leading-relaxed">{col.text}</p>
+            </div>
             <a
               href={col.href}
-              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
+              className="mt-4 self-start inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
             >
               {col.linkLabel}
             </a>
