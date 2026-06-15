@@ -569,6 +569,14 @@ mcp_servers:
     url: http://localhost:3217
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 App Settings: Hermes enumerates/sets the app's TEXT settings (App Settings —
+  # branding/SEO/PWA), flags which the owner has not filled, and explains each. Images
+  # are panel-only. Served by bridges/platforms/server.js (AppSettingsMcpServer, :3218),
+  # same on-disk app-config the App Settings panel writes. Separate from the L1 deploy MCP.
+  app-settings-bridge:
+    url: http://localhost:3218
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
