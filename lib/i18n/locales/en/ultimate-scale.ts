@@ -5,7 +5,6 @@ export const ultimateScale: SiteContent['ultimateScale'] = {
   h2: 'Tens of Thousands of Pages. Connected Logic. Near-Zero Token Cost.',
   description:
     'In the end you get an application that scales to any level — tens, hundreds, a thousand pages, bound together by shared logic and functionality, with near-zero token spend on coding agents. The MCP infrastructure drives the function calls that update one page, several, or sometimes every page at once.',
-  cta: { label: 'Get Your Zero-Overhead Infrastructure Now', href: '#pricing' },
   columns: [
     {
       title: 'A Pre-Built Project Skeleton',

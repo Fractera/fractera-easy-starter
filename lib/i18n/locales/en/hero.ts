@@ -81,6 +81,7 @@ export const hero: HeroPart = {
 
   deployCaptions: {
     afterHero: 'Looks like magic, runs like a pipeline — completely hands-off.',
+    afterUltimateScale: 'Get your zero-overhead infrastructure now.',
     afterLoop: 'The whole pipeline — from server to code — deploys itself. You just click.',
     afterPresentation: 'Hermes and memory come pre-wired — tokens saved, you just build.',
     afterPlatforms: 'Five AI platforms spin up in one click — no keys, no hassle.',

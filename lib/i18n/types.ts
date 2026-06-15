@@ -50,7 +50,6 @@ export type SiteContent = {
     badge: string
     h2: string
     description: string
-    cta: { label: string; href: string }
     columns: { title: string; text: string; linkLabel: string; href: string }[]
     footnote: string
   }
@@ -211,6 +210,7 @@ export type SiteContent = {
   // задано, рендерят кнопку без подписи. EN+RU заданы.
   deployCaptions?: {
     afterHero: string
+    afterUltimateScale: string
     afterLoop: string
     afterPresentation: string
     afterPlatforms: string

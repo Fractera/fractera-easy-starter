@@ -3,9 +3,11 @@
 import { useHeroContent } from '@/lib/i18n/context'
 
 // First H2 after the hero — the "Ultimate Scale" hub. Reuses the canonical section
-// header (badge + serif H2 + description, same as ElonTrillion) and the heroBenefits
-// 3-column grid. Order: badge → H2 → description → pricing CTA → 3 H3 teaser columns
-// (each linking to a deeper page or on-page section) → amber footnote (classic mode).
+// header (badge + serif H2 + description, same as ElonTrillion). The three teasers
+// are bordered rounded cards (same style as the bottom note card) with a hover glow
+// reused verbatim from the carousel (shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]).
+// The pricing CTA itself is the standard DeployButton, rendered by page.tsx right
+// after this section. Order: badge → H2 → description → 3 H3 teaser cards → note card.
 
 export function UltimateScale() {
   const t = useHeroContent().ultimateScale
@@ -26,30 +28,20 @@ export function UltimateScale() {
         </p>
       </div>
 
-      {/* Pricing CTA */}
-      <div className="flex justify-center">
-        <a
-          href={t.cta.href}
-          className="cta-shimmer group relative inline-flex items-center gap-2 overflow-hidden bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-4 rounded-xl text-base transition-colors"
-        >
-          <span className="relative z-10 inline-flex items-center gap-2">
-            {t.cta.label}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </span>
-          <span aria-hidden className="cta-shimmer-sweep pointer-events-none absolute inset-0 z-0" />
-        </a>
-      </div>
-
-      {/* Three H3 teaser columns — each links to a deeper page or on-page section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 pt-2">
+      {/* Three H3 teaser cards — bordered + rounded, violet glow on hover (same as the
+          carousel). Each links to a deeper page or on-page section. */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {t.columns.map((col, i) => (
-          <div key={i} className="flex flex-col items-start text-left">
+          <div
+            key={i}
+            className="flex flex-col items-start text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
+          >
             <h3 className="text-lg font-bold text-white leading-snug">{col.title}</h3>
             <div className="my-3 h-px w-12 bg-emerald-500" />
             <p className="text-[14px] text-white/70 leading-relaxed">{col.text}</p>
             <a
               href={col.href}
-              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
             >
               {col.linkLabel}
             </a>
@@ -57,10 +49,12 @@ export function UltimateScale() {
         ))}
       </div>
 
-      {/* Amber footnote — switch to classic code-generation mode in one click */}
-      <p className="max-w-2xl mx-auto text-center text-xs md:text-sm font-medium text-amber-300/90 leading-snug">
-        {t.footnote}
-      </p>
+      {/* Classic-mode note — full-width bordered card, plain text (no orange clutter). */}
+      <div className="w-full rounded-xl border border-white/15 bg-white/[0.02] px-5 py-4">
+        <p className="text-center text-sm text-white/70 leading-relaxed">
+          {t.footnote}
+        </p>
+      </div>
 
     </div>
   )
