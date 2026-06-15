@@ -201,6 +201,7 @@ export type SiteContent = {
       signature: string
     }
     linkLabel: string
+    imageAlt: string
   }
   faqHeader: { label: string; h2: string; description: string }
   faqItems: FaqItem[]

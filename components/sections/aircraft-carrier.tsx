@@ -140,15 +140,24 @@ export function AircraftCarrier() {
         </p>
       </div>
 
-      {/* Footnote link to the full page */}
-      <div className="flex flex-col items-start md:items-center">
-        <a
-          href="/next-aircraft-carrier"
-          className="inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
-        >
+      {/* Clickable teaser snippet — static screenshot of the slot matrix linking to
+          the full /next-aircraft-carrier page. Carousel glow on hover. */}
+      <a
+        href="/next-aircraft-carrier"
+        className="group block max-w-md mx-auto rounded-xl border border-white/15 bg-white/[0.02] overflow-hidden transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/nextjs-parallel-routes.png"
+          alt={t.imageAlt}
+          width={862}
+          height={496}
+          className="w-full border-b border-white/10"
+        />
+        <span className="flex items-center justify-center gap-1 px-4 py-3 text-sm font-medium text-violet-300 group-hover:text-violet-200 transition-colors">
           {t.linkLabel}
-        </a>
-      </div>
+        </span>
+      </a>
 
     </div>
   )

@@ -22,4 +22,5 @@ export const aircraftCarrier: SiteContent['aircraftCarrier'] = {
     signature: '— a personal view. Roma Armstrong, founder of Fractera · June 15, 2026',
   },
   linkLabel: 'Read the full Aircraft Carrier story →',
+  imageAlt: 'Next.js parallel-routing layout — Header, Promo Screen, Left, Right, Center Header, Center, Center Footer and Footer slots with an active-slots checklist',
 }
