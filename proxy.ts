@@ -114,6 +114,12 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.next()
   }
 
+  // Same deal: the Token Economics reference is a single English root URL.
+  // EN-only by design — pass it through so it is never rewritten under /<lang>/.
+  if (pathname === '/token-economics' || pathname.startsWith('/token-economics/')) {
+    return NextResponse.next()
+  }
+
   // Skip API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/debug')) {
     return NextResponse.next()

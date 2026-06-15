@@ -43,6 +43,17 @@ export type SiteContent = {
   featureItems: { title: string; text: string }[]
   heroBenefitsHeader: { h2: string }
   heroBenefits: { title: string; text: string }[]
+  // First H2 after the hero — the "Ultimate Scale" hub: a near-zero-token scale
+  // claim, a pricing CTA, a 3-column H3 teaser (each column links to a deeper page
+  // or on-page section) and an amber footnote about the one-click classic mode.
+  ultimateScale: {
+    badge: string
+    h2: string
+    description: string
+    cta: { label: string; href: string }
+    columns: { title: string; text: string; linkLabel: string; href: string }[]
+    footnote: string
+  }
   loopShowcase: {
     label: string
     h2: string

@@ -1,25 +1,24 @@
 import type { SiteMeta } from '../../types'
 
 export const meta: SiteMeta = {
-  title: 'Fractera — One-Click Private AI Coding Infrastructure',
+  title: 'Fractera — One-Click Private AI Stack & Zero-Agent Next.js MCP Infrastructure',
   description:
-    'Self-hosted AI development stack: Hermes, LightRAG, five coding platforms, auth, database, and file storage — all on your own VPS. Zero API fees. Zero cloud subscriptions.',
+    "Deploy a complete AI stack & a 50k-line Next.js framework on your VPS. Eliminate context inflation with our Zero-Agent MCP-First architecture. Rotate pre-built layout components like a Rubik's Cube via short execution commands with near-zero token spend.",
   keywords: [
-    'Open-Source AI Orchestrator Platform',
+    'mcp first ai development',
+    'zero agent web infrastructure',
+    'nextjs mcp server deploy',
+    'rubiks cube code architecture',
+    'prevent context window inflation ai',
     'self-hosted AI infrastructure',
     'Hermes orchestrator',
     'LightRAG persistent memory',
     'Claude Code MCP server',
-    'MCP server deployment',
-    'agentic engineering for teams',
-    'multi-model AI dev environment',
-    'zero API fees AI coding',
     'one-click AI deploy VPS',
-    'Coolify for AI',
   ],
-  ogTitle: 'Fractera — One-Click Private AI Coding Infrastructure',
+  ogTitle: 'Fractera — One-Click Private AI Stack & Zero-Agent Next.js MCP Infrastructure',
   ogDescription:
-    'Self-hosted AI development stack: Hermes, LightRAG, five coding platforms, auth, database, and file storage — all on your own VPS. Zero API fees. Zero cloud subscriptions.',
+    "Deploy a complete AI stack & a 50k-line Next.js framework on your VPS. Eliminate context inflation with our Zero-Agent MCP-First architecture. Rotate pre-built layout components like a Rubik's Cube via short execution commands with near-zero token spend.",
   organizationDescription:
-    'Fractera — AI-native self-hosting platform. Curated dev stack (Hermes orchestrator, LightRAG memory, five AI coding platforms) with one-click VPS deployment.',
+    'Fractera — AI-native self-hosting platform built on a Zero-Agent MCP-First architecture. A 50k-line Next.js framework plus a curated AI stack (Hermes orchestrator, LightRAG memory, five AI coding platforms) with one-click VPS deployment.',
 }

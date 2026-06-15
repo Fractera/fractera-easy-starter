@@ -8,7 +8,7 @@ type HeroPart = Pick<SiteContent,
 
 export const hero: HeroPart = {
   heroBadge: 'Open Source — Free Forever',
-  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS',
+  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS for Next.js Parallel Routes & Design-System Web Apps',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",
@@ -39,7 +39,7 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Open-source platform that deploys your complete AI development infrastructure on your own VPS in 10 minutes: Hermes orchestrator, LightRAG memory, five coding platforms (Claude Code, Codex, Gemini CLI, Qwen, Kimi), auth, database, and file storage. Zero API fees. No Clerk. No Supabase. Your server, your stack, your data.',
+    'Deploy a complete, self-hosted AI-native ecosystem on your server in 10 minutes. Fractera delivers a massive Next.js web application (50,000+ lines of code) controlled entirely through an architectural shift: MCP-First Engineering. By shifting the workload from heavy code-generation loops to atomic MCP execution commands, the system eliminates the need for your AI to constantly read and parse the file system. Build, scale, and design with token consumption driven to absolute zero. Your server, your immutable patterns, your zero-waste execution.',
 
   heroBenefitsHeader: {
     h2: 'The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits',

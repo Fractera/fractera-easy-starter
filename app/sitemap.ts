@@ -67,6 +67,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }
 
+  // /token-economics — likewise a SINGLE canonical root page (no /[lang]).
+  const tokenEconomicsEntry = {
+    url: `${base}/token-economics`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }
+
 
   // Per-language entries. The English homepage's /en URL is deliberately
   // skipped here — it duplicates the root and we don't want to advertise
@@ -84,5 +92,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
   )
 
-  return [rootEntry, mcpInfoEntry, architectEntry, developmentLoopEntry, ...perLang]
+  return [rootEntry, mcpInfoEntry, architectEntry, developmentLoopEntry, tokenEconomicsEntry, ...perLang]
 }

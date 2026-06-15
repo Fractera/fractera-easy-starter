@@ -10,9 +10,11 @@ import { faqItems } from './faq'
 import { sponsorship } from './sponsorship'
 import { companyBrain } from './company-brain'
 import { marketplace } from './marketplace'
+import { ultimateScale } from './ultimate-scale'
 
 export const en: SiteContent = {
   ...hero,
+  ultimateScale,
   ...loopShowcase,
   ...presentation,
   ...problem,

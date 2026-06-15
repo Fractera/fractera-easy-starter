@@ -13,6 +13,7 @@ type FooterLabels = {
   knowledgeBase: string
   architecture: string
   developmentLoop: string
+  tokenEconomics: string
   cookieSettings: string
   rights: string
   tocLabel: string
@@ -30,6 +31,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     knowledgeBase: 'База знаний (MCP)',
     architecture: 'Архитектура AI Workspace',
     developmentLoop: 'Цикл AI-разработки',
+    tokenEconomics: 'Экономика токенов',
     cookieSettings: 'Настройки куки',
     rights: 'Все права защищены.',
     tocLabel: 'Содержание сайта',
@@ -57,6 +59,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     knowledgeBase: 'Knowledge Base (MCP)',
     architecture: 'AI Workspace Architecture',
     developmentLoop: 'AI Development Loop',
+    tokenEconomics: 'Token Economics',
     cookieSettings: 'Cookie Settings',
     rights: 'All rights reserved.',
     tocLabel: 'Site contents',
@@ -109,6 +112,7 @@ export function SiteFooter() {
           <a href="/mcp-info" className="hover:text-violet-400 transition-colors">{t.knowledgeBase}</a>
           <a href="/ai-workspace-architect" className="hover:text-violet-400 transition-colors">{t.architecture}</a>
           <a href="/ai-development-loop" className="hover:text-violet-400 transition-colors">{t.developmentLoop}</a>
+          <a href="/token-economics" className="hover:text-violet-400 transition-colors">{t.tokenEconomics}</a>
           <button
             type="button"
             onClick={openCookieSettings}

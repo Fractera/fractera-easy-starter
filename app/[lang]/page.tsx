@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
+import { UltimateScale } from '@/components/sections/ultimate-scale'
 import { ElonTrillion } from '@/components/sections/elon-trillion'
 import { ImportSubstitution } from '@/components/sections/import-substitution'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
@@ -72,6 +73,7 @@ export default async function HomePage({
             <section className="flex flex-col gap-32 items-start w-full">
 
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
+              <UltimateScale />
               {content.architectureCta && (
                 <div className="w-full flex justify-center">
                   <a
