@@ -5,6 +5,7 @@ import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
 import { UltimateScale } from '@/components/sections/ultimate-scale'
+import { AircraftCarrier } from '@/components/sections/aircraft-carrier'
 import { ElonTrillion } from '@/components/sections/elon-trillion'
 import { ImportSubstitution } from '@/components/sections/import-substitution'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
@@ -98,6 +99,7 @@ export default async function HomePage({
               )}
               <UltimateScale />
               <DeployButton caption={content.deployCaptions?.afterUltimateScale} />
+              <div id="aircraft-carrier-wrap" className="w-full scroll-mt-16"><AircraftCarrier /></div>
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
               <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>

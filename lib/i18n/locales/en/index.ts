@@ -11,10 +11,12 @@ import { sponsorship } from './sponsorship'
 import { companyBrain } from './company-brain'
 import { marketplace } from './marketplace'
 import { ultimateScale } from './ultimate-scale'
+import { aircraftCarrier } from './aircraft-carrier'
 
 export const en: SiteContent = {
   ...hero,
   ultimateScale,
+  aircraftCarrier,
   ...loopShowcase,
   ...presentation,
   ...problem,

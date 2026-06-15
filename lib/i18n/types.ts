@@ -184,6 +184,17 @@ export type SiteContent = {
     ctaBody: string
     ctaButton: string
   }
+  // "Next.js Aircraft Carrier" deep-dive section (#aircraft-carrier) — a short
+  // intro + an interactive parallel-routing slot demo (ported from the admin
+  // platform panel) + a primer + a footnote link to /next-aircraft-carrier.
+  aircraftCarrier: {
+    badge: string
+    h2: string
+    intro: string
+    demoHint: string
+    primer: string
+    linkLabel: string
+  }
   faqHeader: { label: string; h2: string; description: string }
   faqItems: FaqItem[]
   testimonial: { blogButton: string; casesButton: string; marketplaceButton: string }
