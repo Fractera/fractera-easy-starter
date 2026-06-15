@@ -17,10 +17,27 @@ export const ECON_URL = 'https://www.fractera.ai/token-economics'
 export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
 
 export const ECON_META = {
-  title: 'How Fractera Saves Tokens & Time | Zero-Agent MCP Token Economics',
+  title: 'AI Token Cost Optimization & Zero-Agent Next.js MCP Architecture | Fractera',
   description:
-    "Why Fractera's 50,000-line Next.js framework drives AI token spend toward near-zero instead of inflating it: a pre-built project skeleton, MCP-first generation through Hermes instead of code-writing agents, and a design system that updates one, several, or thousands of pages at once without code generation.",
+    'Learn how Fractera eliminates context window inflation. Deploy a 50k-line Next.js framework on your VPS that uses atomic MCP commands to drop token spend to absolute zero.',
 }
+
+export const ECON_KEYWORDS = [
+  'ai token cost optimization',
+  'prevent ai context window inflation',
+  'zero token overhead ai framework',
+  'reduce llm api costs',
+  'context window optimization strategies',
+  'mcp server architecture web layouts',
+  'next js on demand isr performance',
+  'model context protocol development workflow',
+  'self hosted web development environment',
+  'deterministic ai code generation',
+  'next js parallel routing seo',
+  'production ready next js starter kit',
+  'immutable code patterns web application',
+  'how to reduce claude code token spend',
+]
 
 export type EconSection = {
   id: string
@@ -35,10 +52,12 @@ export const SECTIONS: EconSection[] = [
   {
     id: 'the-shield',
     level: 2,
-    title: 'The 50,000-Line Framework Is a Shield for Your Budget, Not a Bill',
+    title: 'Preventing AI Context Window Inflation: Why 50,000 Lines of Code Is a Shield, Not a Bill',
     body: `When a developer hears "a 50,000-line template that AI agents work inside", the reflex is fear: a token-devouring monster that burns API limits in three messages. With Fractera the effect is the exact opposite.
 
-The real cost driver in AI-assisted development is not the size of the codebase — it is **context window inflation**. An agent that scans the directory tree, reads hundreds of lines to understand where to insert code, and rewrites half a file pays for all of that, every time. Fractera removes that work. Because roughly **99% of the application — parallel routing, multi-language i18n, production SEO, database structures, auth sessions — is already written and verified**, the agent never has to re-invent or re-read the infrastructure. To build a feature it processes a few lines of clean business logic, not the whole framework. The 50,000 lines are prepaid, monumental stability — an armored shield for your wallet.`,
+The real cost driver in AI-assisted development is not the size of the codebase — it is **context window inflation**. A traditional agent sends files back and forth, scanning the directory tree and re-reading layout scripts to find where to insert code; every pass expands the prompt history exponentially, and you pay for all of it again and again. That is why **reducing LLM API costs** — and the explicit question of **how to reduce Claude Code token spend** — is what every team eventually confronts.
+
+Fractera removes that work with **context window optimization strategies** baked into the architecture. Because roughly **99% of the application — parallel routing, multi-language i18n, production SEO, database structures, auth sessions — is already written and verified**, the immutable 50,000-line skeleton stops the agent from recursively processing layout scripts at all. To build a feature it processes a few lines of clean business logic, not the whole framework. The 50,000 lines are prepaid, monumental stability — an armored shield for your wallet.`,
   },
   {
     id: 'rubiks-cube',
@@ -46,7 +65,7 @@ The real cost driver in AI-assisted development is not the size of the codebase 
     title: "The Rubik's Cube: Finite Faces, Near-Infinite Combinations",
     body: `Fractera treats web architecture like a Rubik's Cube. The application layer is a strictly optimized, deterministic set of pre-built facets — parallel routing slots, global design tokens, synchronized layout structures. You get a complete project skeleton that already contains almost every idea you could need later.
 
-Instead of *creating* new material, the system *combines* what already exists: a strictly limited set of faces on one side, a near-infinite set of combinations on the other. Nothing is generated from scratch when it can be switched on from the skeleton — and switching something on costs a fraction of the tokens that generating it would.`,
+Instead of *creating* new material, the system *combines* what already exists: a strictly limited set of faces on one side, a near-infinite set of combinations on the other. These are **deterministic states** of a **pre-built application framework** — so the AI acts as a selector switch, not an unconstrained code author. This is what **deterministic AI code generation** looks like: nothing is generated from scratch when it can be switched on from the skeleton, and switching something on costs a fraction of the tokens that generating it would.`,
   },
   {
     id: 'generation-by-hermes',
@@ -61,15 +80,15 @@ See the orchestration in full on the [AI Development Loop](/ai-development-loop)
   {
     id: 'design-system',
     level: 2,
-    title: 'The Design System: Change Thousands of Pages Without Code Generation',
+    title: 'The MCP Server Architecture: Updating Layouts with Zero Token Overhead',
     body: `Design is one of the most expensive stages of development. The Fractera Design System removes it from the code-generation budget entirely. Want a new font, a video background, a reused section? You do not run an agent — you apply a rule.
 
-Through the MCP server, a single instruction updates a design token, and on-demand ISR revalidation propagates the change to **one page, several pages, or all of them at once** — in milliseconds, with no code written. It is like running one sequence of moves that builds all six sides of the cube simultaneously. Bulletproof structural stability across thousands of pages, with token consumption driven to nearly zero.`,
+This is **MCP server architecture for web layouts** in practice. A short JSON execution model sent through the Model Context Protocol updates a design token, and **Next.js on-demand ISR** path revalidation propagates the change to **one page, several pages, or all of them at once**. A single ~50ms instruction rewrites the structural environment across an entire array of routes — without executing a full generative code cycle. It is like running one sequence of moves that builds all six sides of the cube simultaneously: bulletproof structural stability across thousands of pages, with token consumption driven to nearly zero.`,
   },
   {
     id: 'scale',
     level: 2,
-    title: 'Tens of Thousands of Pages, Near-Zero Token Cost',
+    title: 'Achieving True AI Token Cost Optimization at Infinite Scale',
     body: `Put the mechanisms together and the result is horizontal scale without the bill. Tens, hundreds, thousands of pages — bound together by shared logic and functionality, all responding to atomic MCP function calls rather than heavy code-generation loops.
 
 A task that takes ten to twenty back-and-forth messages in a vanilla AI chat typically resolves in two or three focused exchanges inside Fractera. You get enterprise-grade scalability with a token-billing overhead driven toward absolute zero — because the heavy framework was engineered once, so your AI agent does not have to.

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteFooter } from '@/components/site-footer'
 import { Body } from '@/lib/architect-page/markdown'
-import { SECTIONS, ECON_META, ECON_URL, GITHUB_REPO } from '@/lib/token-economics/content'
+import { SECTIONS, ECON_META, ECON_KEYWORDS, ECON_URL, GITHUB_REPO } from '@/lib/token-economics/content'
 
 // STATIC English reference on how Fractera saves tokens and time — the
 // senior-developer answer to "won't a 50k-line framework inflate my AI bill?".
@@ -13,6 +13,7 @@ export const dynamic = 'force-static'
 export const metadata: Metadata = {
   title: ECON_META.title,
   description: ECON_META.description,
+  keywords: ECON_KEYWORDS,
   alternates: { canonical: ECON_URL },
   robots: { index: true, follow: true },
   openGraph: {
