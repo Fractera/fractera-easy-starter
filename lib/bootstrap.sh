@@ -684,7 +684,7 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;z-index:200;line-height:1"><a href="https://github.com/Fractera/ai-workspace" style="font-size:8px;color:#fff;mix-blend-mode:difference;text-decoration:none">Powered by Fractera</a></div></body>';
+        sub_filter '</body>' '<div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;z-index:200;line-height:1"><a href="https://github.com/Fractera/ai-workspace" style="font-size:8px;color:#888;text-decoration:none">Powered by Fractera</a></div></body>';
     }
 }
 
