@@ -110,11 +110,38 @@ export function AircraftCarrier() {
         </p>
       </div>
 
-      {/* Primer + footnote link */}
+      {/* Primer */}
       <div className="flex flex-col items-start md:items-center gap-3 text-left md:text-center">
         <p className="max-w-2xl text-sm md:text-base text-white/70 leading-relaxed">
           {t.primer}
         </p>
+      </div>
+
+      {/* Founder's manifesto — always-on pulsing violet glow (same shimmerBorder as
+          the recommended pricing card). Personal, signed, with an inline MCP link. */}
+      <div
+        className="rounded-2xl bg-violet-500/[0.04] px-6 py-7 md:px-8 md:py-9 flex flex-col gap-4"
+        style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(139,92,246,0.7)' }}
+      >
+        {t.manifesto.body.map((para, i) => (
+          <p key={i} className="text-sm md:text-base text-white/85 leading-relaxed">
+            {para}
+          </p>
+        ))}
+        <p className="text-sm md:text-base text-white/85 leading-relaxed">
+          {t.manifesto.mcpLine.pre}
+          <a href="#mcp-section" className="font-medium text-violet-300 underline hover:text-violet-200 transition-colors">
+            {t.manifesto.mcpLine.link}
+          </a>
+          {t.manifesto.mcpLine.post}
+        </p>
+        <p className="text-sm font-medium italic text-violet-200/80 leading-snug pt-1">
+          {t.manifesto.signature}
+        </p>
+      </div>
+
+      {/* Footnote link to the full page */}
+      <div className="flex flex-col items-start md:items-center">
         <a
           href="/next-aircraft-carrier"
           className="inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"

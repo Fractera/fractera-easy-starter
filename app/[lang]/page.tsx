@@ -100,6 +100,7 @@ export default async function HomePage({
               <UltimateScale />
               <DeployButton caption={content.deployCaptions?.afterUltimateScale} />
               <div id="aircraft-carrier-wrap" className="w-full scroll-mt-16"><AircraftCarrier /></div>
+              <DeployButton caption={content.deployCaptions?.afterAircraftCarrier} />
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
               <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>

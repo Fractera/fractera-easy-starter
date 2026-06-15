@@ -193,6 +193,13 @@ export type SiteContent = {
     intro: string
     demoHint: string
     primer: string
+    // Always-glowing founder's manifesto card below the primer. `mcpLine` carries an
+    // inline link that scrolls to the on-page MCP section (#mcp-section).
+    manifesto: {
+      body: string[]
+      mcpLine: { pre: string; link: string; post: string }
+      signature: string
+    }
     linkLabel: string
   }
   faqHeader: { label: string; h2: string; description: string }
@@ -222,6 +229,7 @@ export type SiteContent = {
   deployCaptions?: {
     afterHero: string
     afterUltimateScale: string
+    afterAircraftCarrier: string
     afterLoop: string
     afterPresentation: string
     afterPlatforms: string
