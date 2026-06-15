@@ -140,24 +140,18 @@ export function AircraftCarrier() {
         </p>
       </div>
 
-      {/* Clickable teaser snippet — static screenshot of the slot matrix linking to
-          the full /next-aircraft-carrier page. Carousel glow on hover. */}
-      <a
-        href="/next-aircraft-carrier"
-        className="group block max-w-md mx-auto rounded-xl border border-white/15 bg-white/[0.02] overflow-hidden transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/nextjs-parallel-routes.png"
-          alt={t.imageAlt}
-          width={862}
-          height={496}
-          className="w-full border-b border-white/10"
-        />
-        <span className="flex items-center justify-center gap-1 px-4 py-3 text-sm font-medium text-violet-300 group-hover:text-violet-200 transition-colors">
+      {/* Button + description CTA (same pattern as the hero architectureCta) linking
+          to the full /next-aircraft-carrier page. */}
+      <div className="w-full flex flex-col items-center gap-3">
+        <a
+          href="/next-aircraft-carrier"
+          className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
+        >
           {t.linkLabel}
-        </span>
-      </a>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <p className="w-full text-center text-sm text-white/60">{t.linkDesc}</p>
+      </div>
 
     </div>
   )

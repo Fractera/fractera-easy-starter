@@ -21,6 +21,6 @@ export const aircraftCarrier: SiteContent['aircraftCarrier'] = {
     },
     signature: '— личное мнение. Рома Армстронг, основатель Fractera · 15 июня 2026',
   },
-  linkLabel: 'Полная история Авианосца →',
-  imageAlt: 'Раскладка параллельной маршрутизации Next.js — слоты Header, Promo Screen, Left, Right, Center Header, Center, Center Footer и Footer с чек-листом активных слотов',
+  linkLabel: 'Полная история Авианосца',
+  linkDesc: 'Параллельная маршрутизация, on-demand ISR и почему готовый каркас на 50 000 строк — щит для бюджета токенов, а не статья расходов.',
 }
