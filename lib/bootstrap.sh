@@ -559,6 +559,16 @@ mcp_servers:
     url: http://localhost:3216
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Parallel Routing: Hermes reads/controls the Shell's parallel-routing layout
+  # (parallelRouting flag + active slots) via this server — the SAME on-disk
+  # platform-config the visual Platform selector writes (no external DB). Served by
+  # bridges/platforms/server.js (ParallelRoutingMcpServer, :3217). Two tools:
+  # get_parallel_routing_project_state + activate_or_deactivate_layout_route.
+  # Separate from the L1 claude.ai deploy MCP.
+  parallel-routing-bridge:
+    url: http://localhost:3217
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
