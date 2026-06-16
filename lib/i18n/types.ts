@@ -154,7 +154,6 @@ export type SiteContent = {
       >
     }
     frameworkSelect: {
-      proButton: string
       chooseLabel: string
       soon: string
       repoUrlLabel: string

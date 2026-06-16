@@ -10,6 +10,7 @@ import { DeployProgressToast } from './deploy-progress-toast'
 import { buildUrls } from '@/lib/subdomain-helpers'
 import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
+import { ChevronDown } from 'lucide-react'
 import { SELECTABLE_COMPONENTS, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, isFrameworkReady, type FrameworkId } from '@/lib/frameworks-catalog'
 
@@ -227,34 +228,30 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             {t.title}
           </div>
 
-          {/* Framework / project selector (pivot 2026-06-16): a wide default
-              button for Fractera-Pro, a dropdown of other starters below it, and
-              an optional public-repo URL field. Source: lib/frameworks-catalog. */}
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={() => setFramework('fractera-pro')}
-              className={`w-full px-5 py-3.5 rounded-xl text-base font-bold transition-colors border ${
-                framework === 'fractera-pro'
-                  ? 'bg-white/[0.12] border-white/60 text-white'
-                  : 'bg-white/[0.03] border-white/25 text-white/70 hover:border-white/45'
-              }`}
-            >
-              {t.frameworkSelect.proButton}
-            </button>
-
-            <select
-              value={framework === 'fractera-pro' ? '' : framework}
-              onChange={(e) => setFramework((e.target.value || DEFAULT_FRAMEWORK) as FrameworkId)}
-              className="w-full bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white outline-none focus:border-white/70 transition-colors"
-            >
-              <option value="" className="bg-black">{t.frameworkSelect.chooseLabel}</option>
-              {FRAMEWORKS.filter((f) => f.id !== 'fractera-pro').map((f) => (
-                <option key={f.id} value={f.id} disabled={!f.ready} className="bg-black">
-                  {f.label}{f.ready ? '' : ` — ${t.frameworkSelect.soon}`}
-                </option>
-              ))}
-            </select>
+          {/* Framework / project selector (pivot 2026-06-16): one dropdown that
+              shows the CURRENT selection (default Fractera-Pro), a small hint below,
+              and an optional public-repo URL field. Source: lib/frameworks-catalog. */}
+          <div className="flex flex-col gap-2">
+            <div className="relative w-full">
+              <select
+                value={framework}
+                onChange={(e) => setFramework(e.target.value as FrameworkId)}
+                className="w-full appearance-none bg-white/5 border border-white/40 rounded-xl pl-5 pr-12 py-3 text-sm text-white outline-none focus:border-white/70 transition-colors"
+              >
+                {FRAMEWORKS.map((f) => (
+                  <option key={f.id} value={f.id} disabled={!f.ready} className="bg-black">
+                    {f.label}{f.ready ? '' : ` — ${t.frameworkSelect.soon}`}
+                  </option>
+                ))}
+              </select>
+              {/* Custom down-arrow, offset 32px from the right edge. */}
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-white/60"
+                style={{ right: 32 }}
+              />
+            </div>
+            <p className="text-xs text-white/45 pl-1">{t.frameworkSelect.chooseLabel}</p>
 
             {getFramework(framework).needsRepoUrl && (
               <div className="flex flex-col gap-1.5">

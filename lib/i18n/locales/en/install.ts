@@ -66,8 +66,7 @@ export const install: InstallPart = {
       },
     },
     frameworkSelect: {
-      proButton: 'Deploy Fractera-Pro',
-      chooseLabel: 'or choose another starter',
+      chooseLabel: 'Click to choose another starter',
       soon: 'coming soon',
       repoUrlLabel: 'Your public repository',
       repoUrlPlaceholder: 'https://github.com/you/your-repo',
