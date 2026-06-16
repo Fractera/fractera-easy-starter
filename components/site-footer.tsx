@@ -10,6 +10,7 @@ type FooterLabels = {
   cookies: string
   partners: string
   regionalPartners: string
+  documentation: string
   knowledgeBase: string
   architecture: string
   developmentLoop: string
@@ -29,6 +30,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     cookies: 'Политика куки',
     partners: 'Партнёрская программа',
     regionalPartners: 'Региональные партнёры',
+    documentation: 'Документация',
     knowledgeBase: 'База знаний (MCP)',
     architecture: 'Архитектура AI Workspace',
     developmentLoop: 'Цикл AI-разработки',
@@ -58,6 +60,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     cookies: 'Cookie Policy',
     partners: 'Partner Program',
     regionalPartners: 'Regional Partners',
+    documentation: 'Documentation',
     knowledgeBase: 'Knowledge Base (MCP)',
     architecture: 'AI Workspace Architecture',
     developmentLoop: 'AI Development Loop',
@@ -112,6 +115,7 @@ export function SiteFooter() {
           <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">{t.cookies}</a>
           <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">{t.partners}</a>
           <a href={`/${lang}/regional-partners`} className="hover:text-violet-400 transition-colors">{t.regionalPartners}</a>
+          <a href={`/${lang}/documentation`} className="hover:text-violet-400 transition-colors">{t.documentation}</a>
           <a href="/mcp-info" className="hover:text-violet-400 transition-colors">{t.knowledgeBase}</a>
           <a href="/ai-workspace-architect" className="hover:text-violet-400 transition-colors">{t.architecture}</a>
           <a href="/ai-development-loop" className="hover:text-violet-400 transition-colors">{t.developmentLoop}</a>
