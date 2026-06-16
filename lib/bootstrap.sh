@@ -522,6 +522,11 @@ memory:
 plugins:
   enabled:
     - fractera-platforms
+    # Access-tier enforcement (MCP-REGISTRY §8.3/§8.6): pre_tool_call gate blocks any tool
+    # whose required tier exceeds this process's ceiling (env FRACTERA_AGENT_MAX_TIER, default
+    # owner). Reads bridges/platforms/mcp-access-manifest.json. Dir ships with the ai-workspace
+    # clone and is copied to /root/.hermes/plugins by install_hermes_plugins.
+    - fractera-access-control
 
 mcp_servers:
   claude-bridge:
@@ -562,8 +567,8 @@ mcp_servers:
   # L2 Parallel Routing: Hermes reads/controls the Shell's parallel-routing layout
   # (parallelRouting flag + active slots) via this server — the SAME on-disk
   # platform-config the visual Platform selector writes (no external DB). Served by
-  # bridges/platforms/server.js (ParallelRoutingMcpServer, :3217). Two tools:
-  # get_parallel_routing_project_state + activate_or_deactivate_layout_route.
+  # bridges/platforms/server.js (ParallelRoutingMcpServer, :3217). Tools (owner tier):
+  # owner_parallel_routing_get_state + owner_parallel_routing_toggle_slot + footer_slot_owner_*.
   # Separate from the L1 claude.ai deploy MCP.
   parallel-routing-bridge:
     url: http://localhost:3217
@@ -575,6 +580,14 @@ mcp_servers:
   # same on-disk app-config the App Settings panel writes. Separate from the L1 deploy MCP.
   app-settings-bridge:
     url: http://localhost:3218
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Public Consultant (tier=public): first non-owner MCP — tools safe for an anonymous site
+  # visitor, for the future public-consultant chat (left-slot, ai-elements). Served by
+  # bridges/platforms/server.js (PublicConsultantMcpServer, :3219). v1 tool:
+  # public_footer_list_pages (read-only, via data service). Separate from the L1 deploy MCP.
+  public-consultant-bridge:
+    url: http://localhost:3219
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
 
