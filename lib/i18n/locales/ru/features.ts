@@ -43,6 +43,7 @@ export const features: FeaturesPart = {
 
   testimonial: {
     blogButton: 'Блог',
+    docsButton: 'Документация',
     casesButton: 'Кейсы студентов',
     marketplaceButton: 'Fractera Marketplace',
   },

@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react'
 import type { BlogBlock } from '@/lib/blog/posts'
 
+// Stable anchor id for a heading, so a table of contents (used by the Documentation
+// pages) can link to it. Additive: blog headings simply gain an id, no visual change.
+export function headingId(text: string): string {
+  return text.toLowerCase().replace(/\*\*/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)
+}
+
 // Dark-theme inline renderer for blog prose: **bold** and [label](url).
 function inline(text: string, kp: string): ReactNode[] {
   const nodes: ReactNode[] = []
@@ -41,13 +47,13 @@ export function PostBody({ blocks }: { blocks: BlogBlock[] }) {
         switch (b.kind) {
           case 'h2':
             return (
-              <h2 key={k} className="mt-6 text-2xl font-bold tracking-tight text-white md:text-xl">
+              <h2 key={k} id={headingId(b.text)} className="mt-6 scroll-mt-24 text-2xl font-bold tracking-tight text-white md:text-xl">
                 {inline(b.text, k)}
               </h2>
             )
           case 'h3':
             return (
-              <h3 key={k} className="mt-4 text-lg font-semibold text-white">
+              <h3 key={k} id={headingId(b.text)} className="mt-4 scroll-mt-24 text-lg font-semibold text-white">
                 {inline(b.text, k)}
               </h3>
             )

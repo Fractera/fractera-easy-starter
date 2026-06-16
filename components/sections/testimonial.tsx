@@ -44,6 +44,9 @@ export function FractеraTestimonial() {
             <a href="/blog" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
               {content.testimonial.blogButton}
             </a>
+            <a href="/documentation" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
+              {content.testimonial.docsButton}
+            </a>
             <a href="/cases" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 text-sm font-medium text-white/60 hover:text-white hover:border-white/40 transition-colors">
               {content.testimonial.casesButton}
             </a>

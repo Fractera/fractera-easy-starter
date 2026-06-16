@@ -205,7 +205,7 @@ export type SiteContent = {
   }
   faqHeader: { label: string; h2: string; description: string }
   faqItems: FaqItem[]
-  testimonial: { blogButton: string; casesButton: string; marketplaceButton: string }
+  testimonial: { blogButton: string; docsButton: string; casesButton: string; marketplaceButton: string }
   sponsorship: {
     label: string
     h2: string
