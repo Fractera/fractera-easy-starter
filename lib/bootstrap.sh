@@ -611,6 +611,64 @@ HERMESEOF
   fi
 fi
 
+# === Hermes PUBLIC consultant config (SEPARATE process, tier ceiling = user) ===
+# A 2nd Hermes instance (own HERMES_HOME=/root/.hermes-public) serves the public-page
+# consultant widget via the Shell's /api/consultant. STRICT SUBSET by construction
+# (MCP-REGISTRY §8.3/§12, next-step "Интерактивный консультант"): ONLY public/user-tier
+# tools, NO owner bridges (:3210–3218), NO fractera-platforms delegation, NO Company Brain
+# memory (owner knowledge stays private from anonymous visitors). The access-control
+# plugin (env FRACTERA_AGENT_MAX_TIER=user, set at pm2 start) is the 2nd-rubezh ceiling.
+# Additive + gated (MCP isolation contract п.4): owner config above is untouched.
+if [ -d "/root/.hermes" ]; then
+  mkdir -p /root/.hermes-public/plugins
+  # ONLY the access-control plugin — NOT fractera-platforms (that grants owner delegation).
+  cp -r /opt/fractera/services/hermes-plugins/fractera-access-control /root/.hermes-public/plugins/ 2>/dev/null || true
+  cat > /root/.hermes-public/config.yaml <<HERMESPUBEOF
+model:
+  provider: openai-api
+  model: gpt-5-mini
+  default: gpt-5-mini
+  fallback_provider: anthropic
+  fallback_model: claude-opus-4.7
+
+# NO memory block on purpose: the public consultant must NOT read the owner's Company
+# Brain (LightRAG). Owner knowledge never reaches an anonymous visitor.
+
+plugins:
+  enabled:
+    # Tier-ceiling enforcement ONLY. NO fractera-platforms (owner delegation) here.
+    - fractera-access-control
+
+mcp_servers:
+  # PUBLIC-tier toolset ONLY — defense by construction. owner bridges (:3210–3218) are
+  # intentionally absent so an anonymous visitor physically cannot reach owner tools.
+  public-consultant-bridge:
+    url: http://localhost:3219
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+  # Client-actions: tools the consultant PROPOSES and the BROWSER executes
+  # (navigate/locale/theme/width). §8.3, manifest execution:"client", MCP-REGISTRY §12.
+  client-actions-bridge:
+    url: http://localhost:3220
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
+
+dashboard:
+  theme: fractera-black
+
+logging:
+  level: INFO
+HERMESPUBEOF
+  # Own credential pool / key (isolated OpenAI quota — anonymous traffic never drains the
+  # owner's key). Filled later via the public key-entry flow + admin requirement.
+  if ! grep -q "OPENAI_API_KEY=" /root/.hermes-public/.env 2>/dev/null; then
+    printf "# Fractera public consultant — its OWN OpenAI key (isolated from owner)\nOPENAI_API_KEY=\n" >> /root/.hermes-public/.env
+  fi
+  if ! grep -q "MCP_SECRET=" /root/.hermes-public/.env 2>/dev/null; then
+    printf "MCP_SECRET=$HERMES_MCP_SECRET\n" >> /root/.hermes-public/.env
+  fi
+fi
+
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 log_email "build_start" "Building services (this takes 5-10 min)" 40
@@ -636,6 +694,12 @@ maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/u
 # the deps are cached and later restarts are fast.
 # → reports/errors/hermes-startup-race-secure-healthcheck.md
 maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
+# Hermes PUBLIC consultant instance — SEPARATE HERMES_HOME, tier ceiling=user, loopback
+# :9129. Serves the public-page consultant widget via /api/consultant. Owner tools are
+# absent from its config (defense by construction); FRACTERA_AGENT_MAX_TIER=user caps it
+# via the access-control plugin. Gated on its config existing (created above, brain only).
+# → next-step "Интерактивный консультант", MCP-REGISTRY §8.3/§12. Additive (contract п.4).
+maybe_step "brain" "start_hermes_public" "Hermes public consultant service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && [ -f /root/.hermes-public/config.yaml ] && HERMES_HOME=/root/.hermes-public FRACTERA_AGENT_MAX_TIER=user pm2 start \$HERMES_BIN --name fractera-hermes-public --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9129 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9129/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
 # Messaging gateway — the process that connects to Telegram/Discord/etc and
 # polls for messages. The dashboard above does NOT poll messengers; without
 # this process a saved Telegram token does nothing (the old "press Gateway run"
