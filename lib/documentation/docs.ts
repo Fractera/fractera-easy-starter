@@ -29,7 +29,7 @@ const DOCS: DocEntry[] = [
     summary:
       'One small AI button, a huge arsenal of MCP tools, and an evolving intelligence with global memory — the minimal interface that turns a website into a conversation.',
     date: '2026-06-16',
-    readingMinutes: 7,
+    readingMinutes: 12,
     tags: ['AI consultant', 'MCP', 'Agentic UX', 'Self-hosted'],
     blocks: [
       // ── Intro — engaging, "wow, I want this" ────────────────────────────────
@@ -74,25 +74,141 @@ const DOCS: DocEntry[] = [
         text: 'The deep reason it works is a single, honest boundary: **the brain lives on the server, the action happens in the browser.** A server tool can know what is possible, read configuration, converse, and *propose* an action — but it cannot reach into your open tab. So the per-visitor things (your language, your theme, your navigation) are executed by an agent that lives **inside the browser**, while shared, workspace-wide changes stay server-side. That split is what makes “switch me to French” actually switch the page, instantly, with no reload.',
       },
       {
-        kind: 'h3', text: 'Who can do what — without anyone studying a manual' },
+        kind: 'p',
+        text: 'A quick way to feel the boundary: a server-side tool that writes the *default* theme honestly changes the on-disk default, but your already-open tab will not change — the server has no handle to your live tab, and your browser keeps its own theme in `localStorage`. Per-visitor view changes therefore must run client-side.',
+      },
+
+      // ── Access tiers ─────────────────────────────────────────────────────────
+      { kind: 'h2', text: 'Access tiers — who can do what, without studying a manual' },
+      {
+        kind: 'p',
+        text: 'Every tool carries one of three access tiers, and they nest: `public ⊆ user ⊆ owner`. Tier is decided **on the server from the session**, never trusted from the browser.',
+      },
       {
         kind: 'list',
         items: [
-          '**A guest** (no login) acts only on their own view: language, theme, readability, finding pages. Nothing private, nothing shared.',
-          '**A signed-in user** can reach **their own** data — their orders, their invoices, their requests — scoped to their identity, never anyone else’s.',
-          '**The owner/administrator** changes shared configuration and global defaults, and grows the project itself.',
+          '**public** — a guest (no login). Acts only on their own view: language, theme, readability, finding pages. Nothing private, nothing shared.',
+          '**user** — a signed-in end-user. Reaches **their own** data — orders, invoices, requests — scoped to their identity, never anyone else’s.',
+          '**owner** — the administrator. Changes shared configuration and global defaults, and grows the project itself.',
         ],
       },
       {
         kind: 'p',
-        text: 'When you ask for something your role cannot do, the consultant does not dead-end you. If it needs your identity (your own data) or a higher role, it tells you plainly and offers a **sign-in button** — sign in, and the same request just works.',
+        text: 'A simplified sketch of how the tier is resolved from the request — the real source uses your auth session:',
+      },
+      {
+        kind: 'code',
+        text: `// lib/consultant/tier.ts (simplified)
+async function resolveTier(req) {
+  const session = await getSession(req)      // reads the auth cookie
+  if (!session) return 'public'              // anonymous visitor
+  if (session.roles.includes('admin')) return 'owner'
+  return 'user'                              // signed-in end-user
+}`,
+      },
+
+      // ── The button + modal ───────────────────────────────────────────────────
+      { kind: 'h2', text: 'The entry point: one floating button on every page' },
+      {
+        kind: 'p',
+        text: 'The consultant is a fixed button in the bottom-right corner, mounted globally so it appears on **every** page (it is deliberately NOT tied to any optional layout feature). It opens a small docked chat. The button only renders when the agent is actually reachable — if the brain is not connected, there is no dead button.',
+      },
+      {
+        kind: 'code',
+        text: `// the widget asks the server whether the consultant is live
+const { available, tier, keyConfigured } = await fetch('/api/consultant').then(r => r.json())
+if (!available) return null                  // agent offline → no button
+// otherwise render the floating button + modal, with a tier badge: "You: Guest/User/Owner"`,
+      },
+
+      // ── Client actions ───────────────────────────────────────────────────────
+      { kind: 'h2', text: 'Client actions: the server proposes, the browser executes' },
+      {
+        kind: 'p',
+        text: 'Per-visitor actions (navigate, set language, set theme, set width) are tools the agent **proposes** but the browser **executes**. The server-side tool does no work — it returns a small deferred envelope. The chat turns that envelope into a button; a click runs a matching browser handler.',
+      },
+      {
+        kind: 'code',
+        text: `// the server tool returns an envelope, it does NOT act:
+{ "__client_action__": true, "tool": "public_view_set_locale", "args": { "locale": "fr" } }
+
+// the browser runs ONLY a known name mapped to a known handler, after validating args:
+function runAction(action) {
+  switch (action.tool) {
+    case 'public_view_navigate_page': return router.push(action.args.to)
+    case 'public_view_set_locale':    return router.replace(\`/\${action.args.locale}/...\`)
+    case 'public_view_set_theme':     return setTheme(action.args.mode)
+    case 'public_view_set_width':     return setWidth(action.args.width)
+  }
+}`,
+      },
+      {
+        kind: 'p',
+        text: 'This is the client-side safety boundary: the browser never executes an arbitrary instruction from the stream — only an **allowlisted** action name, with its arguments validated (e.g. the language must be one the site is actually configured for). The button click itself is the confirmation, so there is no heavy “are you sure?” ritual for harmless cosmetics.',
+      },
+
+      // ── The public agent process + security ──────────────────────────────────
+      { kind: 'h2', text: 'A separate, sandboxed agent for the public — safe by construction' },
+      {
+        kind: 'p',
+        text: 'The public consultant runs as its **own** agent process, separate from the owner/operator agent. Its toolset is a strict subset: it simply does **not contain** the owner tools, so an anonymous visitor cannot reach them — not because a check blocks them, but because they are not there. A second runtime guard caps the process at tier `user` for defense in depth.',
+      },
+      {
+        kind: 'code',
+        text: `# the public agent process is launched with a tier ceiling and its OWN home/key
+HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard --port 9129
+# its config lists ONLY public-tier tool servers — no owner tool servers, no shared memory`,
+      },
+      {
+        kind: 'p',
+        text: 'It binds to loopback only; visitors never reach it directly — they talk to a thin server endpoint that holds the agent token server-side. It also uses its **own** API key, so anonymous traffic can never drain the owner’s key or quota.',
+      },
+
+      // ── Talking to the agent ─────────────────────────────────────────────────
+      { kind: 'h2', text: 'Talking to the agent: one endpoint, one turn' },
+      {
+        kind: 'p',
+        text: 'The widget only ever talks to a single server endpoint, `/api/consultant`. That endpoint resolves the tier, relays the message to the public agent, and returns a structured turn: the assistant text plus any proposed action buttons (and, when relevant, an authentication prompt or a key-needed flag).',
+      },
+      {
+        kind: 'code',
+        text: `// POST /api/consultant  →  one consultant turn
+{
+  "text": "Admin configured EN, DE, FR. Spanish isn't available — switch to:",
+  "actions": [
+    { "tool": "public_view_set_locale", "args": { "locale": "fr" }, "label": "Français" },
+    { "tool": "public_view_set_locale", "args": { "locale": "de" }, "label": "Deutsch" }
+  ]
+}`,
+      },
+
+      // ── Role / auth escalation ───────────────────────────────────────────────
+      { kind: 'h2', text: 'When a request needs sign-in' },
+      {
+        kind: 'p',
+        text: 'When you ask for something your tier cannot do, the consultant does not dead-end you — and it does not blindly assume “admin.” The agent itself decides which of two situations applies, and the widget shows the matching message plus a sign-in button:',
+      },
+      {
+        kind: 'list',
+        items: [
+          '**Personal data** — you asked about **your own** records (orders, invoices, profile). It says: “to access your personal information, please sign in to your account.” After login your session carries your identity, and a user-tier tool returns only your data.',
+          '**Role capability** — you asked for an action not registered for your role. It says: “this function isn’t registered for your role — it may exist for a signed-in user or the administrator.”',
+        ],
+      },
+      {
+        kind: 'p',
+        text: 'Both lead to a normal sign-in that returns you right back where you were, so you can simply repeat the request. Signing in just establishes your real role and identity; an administrator is not blocked.',
       },
 
       // ── Growing the project ──────────────────────────────────────────────────
       { kind: 'h2', text: 'It grows with you — new tools in plain language' },
       {
         kind: 'p',
-        text: 'If you want to add new tools or skills, you use the built-in service page **AI Draft Settings**. There you describe, in free form, a request to create a new MCP server, a skill, or an instruction. A specialized AI agent picks up that request and — working together with you — turns it into **another tool in your platform.** You pick who the tool is for (a guest, a signed-in user, or the owner) right as you draft it.',
+        text: 'Growing the toolset is a first-class part of the architecture, not an afterthought. If you want to add new tools or skills, open the built-in service page at **[your-domain]/ai-draft-settings**. There you describe, in free form, a request to create a new MCP server, a skill, or an instruction — and you pick **who the tool is for** (a guest, a signed-in user, or the owner) right as you draft it. A specialized AI agent picks up that request and, working together with you, turns it into **another tool in your platform.**',
+      },
+      {
+        kind: 'p',
+        text: 'The draft you write captures exactly what the real tool needs: its **tier** (public / user / owner), whether it is **read-only or changes state**, and a preview of its tool name. That makes the access decision the moment the tool is conceived — the same tier model described above.',
       },
       {
         kind: 'p',
@@ -103,9 +219,27 @@ const DOCS: DocEntry[] = [
         items: [
           '**Deploy** — and you immediately have a working site with the consultant button.',
           '**Ask** — the first simple tasks work out of the box.',
-          '**Draft** — describe a new tool on AI Draft Settings; an agent materializes it.',
+          '**Draft** — describe a new tool at **[your-domain]/ai-draft-settings**; pick its tier; an agent materializes it.',
           '**Extend** — drop to the terminal or local dev when you want full control. You own the code.',
         ],
+      },
+
+      // ── End-to-end example ───────────────────────────────────────────────────
+      { kind: 'h2', text: 'A worked example: “switch this site to Spanish”' },
+      {
+        kind: 'olist',
+        items: [
+          'The button is visible because the agent is reachable; you open the modal and ask.',
+          'The endpoint resolves your tier (public) and relays the message to the public agent.',
+          'The agent reads the configured languages, sees EN/DE/FR and that Spanish is missing.',
+          'It proposes a `public_view_set_locale` action for each available language — each returns the deferred envelope.',
+          'The chat shows the explanation text plus two buttons: **Français**, **Deutsch**.',
+          'You click **Français**; the browser validates `fr` is configured and runs `router.replace(\'/fr/...\')`. The site is now French.',
+        ],
+      },
+      {
+        kind: 'p',
+        text: 'The “magic” is plain client-side navigation. The server only **knew** and **proposed**; the browser **did**. That is the whole pattern, end to end.',
       },
 
       // ── Why it is different (real advantages) ────────────────────────────────

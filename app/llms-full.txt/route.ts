@@ -26,11 +26,66 @@ const INTRO = `# Fractera — full knowledge base
 > architecture, Zero-Ops deployment, customization, pricing, the full FAQ,
 > real-world use cases, the workspace architecture, the development loop, the
 > Next.js Aircraft Carrier (the pre-built 50,000-line parallel-routing framework),
-> the token economics of the MCP-First / Zero-Agent paradigm, and the legal text.
+> the token economics of the MCP-First / Zero-Agent paradigm, the interactive
+> AI consultant, and the legal text.
 > The same content is queryable section-by-section via the MCP connector at
 > https://www.fractera.ai/api/mcp (get_project_info,
 > get_ai_workspace_architect_info, get_ai_development_loop_info).
 `
+
+const CONSULTANT = `# The interactive AI consultant — one button on every page
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/one-button-workspace-ai-consultant
+
+A deployed Fractera workspace ships a floating "AI consultant" button in the
+bottom-right corner of every public page (mounted globally, not tied to any
+optional layout feature). Clicking it opens a small chat where any visitor can
+ask questions OR request actions in natural language; the agent answers and may
+return clickable action buttons.
+
+## The core boundary: brain on the server, action in the browser
+A server-side tool can know what is possible, read config, converse and PROPOSE
+an action, but it cannot reach into a live browser tab. So per-visitor view
+actions (language, theme, width, navigation) are executed CLIENT-side by the
+chat widget, while shared, workspace-wide changes stay server-side. This is why
+"switch me to French" actually switches the page instantly, with no reload.
+
+## Access tiers (public / user / owner), resolved server-side
+Tiers nest: public is a guest (own view only), user is a signed-in end-user
+(their own data, scoped to their identity), owner is the administrator (shared
+config, global defaults, growing the project). The tier is decided on the
+server from the session, never trusted from the browser.
+
+## Client actions: server proposes, browser executes
+Per-visitor tools (navigate / set locale / set theme / set width) return a small
+deferred envelope { "__client_action__": true, tool, args } instead of acting.
+The chat renders it as a button; clicking runs an ALLOWLISTED browser handler
+after validating arguments (e.g. the language must be one the site is configured
+for). The browser never executes an arbitrary instruction from the stream.
+
+## Safe by construction
+The public consultant runs as its OWN sandboxed agent process whose toolset is a
+strict subset — owner tools are simply absent, so an anonymous visitor cannot
+reach them. A runtime guard caps the process at tier "user" for defense in depth,
+it binds to loopback (visitors talk only to the /api/consultant endpoint, which
+holds the agent token server-side), and it uses its own API key so anonymous
+traffic never drains the owner's quota.
+
+## Sign-in escalation
+If a request needs the visitor's identity (their own data) or a higher role, the
+agent itself picks the right message — "sign in to access your personal
+information" vs "this function isn't registered for your role" — and offers a
+sign-in button that returns the visitor to where they were. Signing in just
+establishes the real role/identity; an administrator is not blocked.
+
+## Growing the toolset
+New tools/skills are authored at <your-domain>/ai-draft-settings: describe a new
+MCP server, skill or instruction in free form and pick who it is for (guest /
+signed-in user / owner). A specialized agent turns the draft into a real tool.
+The workspace also ships with source code, a terminal and local development, so
+it can be extended without limit. The consultant grows as the toolset grows:
+one small button fronting an evolving set of MCP tools, an orchestrator (Hermes)
+and global graph memory (LightRAG).`
 
 export function GET() {
   const lang = 'en' as const
@@ -88,7 +143,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
