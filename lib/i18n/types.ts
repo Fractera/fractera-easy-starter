@@ -153,6 +153,14 @@ export type SiteContent = {
         { name: string; desc: string }
       >
     }
+    frameworkSelect: {
+      proButton: string
+      chooseLabel: string
+      soon: string
+      repoUrlLabel: string
+      repoUrlPlaceholder: string
+      repoUrlHint: string
+    }
     launchButton: string
     credentials: string
     installFailed: string

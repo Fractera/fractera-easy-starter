@@ -5,6 +5,7 @@ import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
+import { isFrameworkId, resolveSlotRepoUrl, DEFAULT_FRAMEWORK } from '@/lib/frameworks-catalog'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -14,8 +15,15 @@ export const maxDuration = 300
 // (iframe third-party cookies are not reliable, so we use a localStorage
 // token issued at signup time).
 export async function POST(req: NextRequest) {
-  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown; components?: unknown }
+  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown; components?: unknown; framework?: unknown; repoUrl?: unknown }
   try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
+
+  // App-slot project (pivot 2026-06-16) — additive parity with /api/install.
+  // Resolve the effective repo URL (preset → catalog repo; own-repo → user URL;
+  // fractera-pro → '') and thread it into deployToServer below (sanitized +
+  // env-passed to bootstrap). Default (fractera-pro/absent) stays byte-identical.
+  const slotFramework = isFrameworkId(body.framework) ? body.framework : DEFAULT_FRAMEWORK
+  const slotRepoUrl = resolveSlotRepoUrl(slotFramework, typeof body.repoUrl === 'string' ? body.repoUrl : undefined)
 
   // Selective install (S7) — additive parity with /api/install. The partner
   // surfaces send `components` ONLY in custom mode:
@@ -141,6 +149,8 @@ export async function POST(req: NextRequest) {
       serverToken: serverToken.token,
       serverId: serverToken.id,
       components: componentsArg,
+      framework: slotFramework,
+      repoUrl: slotRepoUrl || undefined,
     })
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)

@@ -11,6 +11,7 @@ import { buildUrls } from '@/lib/subdomain-helpers'
 import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SELECTABLE_COMPONENTS, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
+import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, isFrameworkReady, type FrameworkId } from '@/lib/frameworks-catalog'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
@@ -52,6 +53,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   // `components`); custom mode sends the checked subset (may be empty = no AI).
   const [customMode, setCustomMode] = useState(false)
   const [selected, setSelected] = useState<ComponentId[]>(ALL_COMPONENT_IDS)
+  // Which project lands in the app slot (:3000). Default = Fractera-Pro (our
+  // reference project). 'own-repo' reveals the repo-URL field. → frameworks-catalog.
+  const [framework, setFramework] = useState<FrameworkId>(DEFAULT_FRAMEWORK)
+  const [repoUrl, setRepoUrl] = useState('')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: session, status: sessionStatus } = useSession()
 
@@ -59,6 +64,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   useEffect(() => {
     if (serverStatus !== 'fresh') setEmailConfirmed(false)
   }, [serverStatus])
+
+  // Pre-select the framework from `?framework=` so a partner/marketing link can
+  // land the user straight on a given starter (default = Fractera-Pro otherwise).
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('framework')
+    if (raw) {
+      const fw = resolveFrameworkParam(raw)
+      setFramework(isFrameworkReady(fw) ? fw : DEFAULT_FRAMEWORK)
+    }
+  }, [])
 
   // Tick every second while installing — for elapsed time and silence detection
   useEffect(() => {
@@ -117,7 +132,15 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       headers: { 'Content-Type': 'application/json' },
       // In custom mode send the explicit subset (even if empty → server-only);
       // in full mode omit `components` so bootstrap installs everything.
-      body: JSON.stringify({ ip, login, password, session_id, ...(customMode ? { components: selected } : {}) }),
+      // framework/repoUrl are additive optional fields (default = fractera-pro;
+      // temporarily handled as the empty-Next path server-side until Fractera-Pro
+      // becomes a real pluggable repo).
+      body: JSON.stringify({
+        ip, login, password, session_id,
+        ...(customMode ? { components: selected } : {}),
+        ...(framework !== DEFAULT_FRAMEWORK ? { framework } : {}),
+        ...(framework === 'own-repo' && repoUrl.trim() ? { repoUrl: repoUrl.trim() } : {}),
+      }),
     }).catch(() => {})
 
     let prevDoneCount = 0
@@ -202,6 +225,50 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         <div className="flex flex-col gap-4">
           <div className="text-sm text-white font-bold uppercase tracking-widest">
             {t.title}
+          </div>
+
+          {/* Framework / project selector (pivot 2026-06-16): a wide default
+              button for Fractera-Pro, a dropdown of other starters below it, and
+              an optional public-repo URL field. Source: lib/frameworks-catalog. */}
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => setFramework('fractera-pro')}
+              className={`w-full px-5 py-3.5 rounded-xl text-base font-bold transition-colors border ${
+                framework === 'fractera-pro'
+                  ? 'bg-white/[0.12] border-white/60 text-white'
+                  : 'bg-white/[0.03] border-white/25 text-white/70 hover:border-white/45'
+              }`}
+            >
+              {t.frameworkSelect.proButton}
+            </button>
+
+            <select
+              value={framework === 'fractera-pro' ? '' : framework}
+              onChange={(e) => setFramework((e.target.value || DEFAULT_FRAMEWORK) as FrameworkId)}
+              className="w-full bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white outline-none focus:border-white/70 transition-colors"
+            >
+              <option value="" className="bg-black">{t.frameworkSelect.chooseLabel}</option>
+              {FRAMEWORKS.filter((f) => f.id !== 'fractera-pro').map((f) => (
+                <option key={f.id} value={f.id} disabled={!f.ready} className="bg-black">
+                  {f.label}{f.ready ? '' : ` — ${t.frameworkSelect.soon}`}
+                </option>
+              ))}
+            </select>
+
+            {getFramework(framework).needsRepoUrl && (
+              <div className="flex flex-col gap-1.5">
+                <input
+                  type="text"
+                  placeholder={t.frameworkSelect.repoUrlPlaceholder}
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  aria-label={t.frameworkSelect.repoUrlLabel}
+                  className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
+                />
+                <p className="text-xs text-white/45 leading-relaxed pl-1">{t.frameworkSelect.repoUrlHint}</p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">

@@ -243,6 +243,50 @@ echo "$DEPLOYED_COMMIT" > /opt/fractera/DEPLOYED_COMMIT
 echo "$DEPLOYED_BRANCH" > /opt/fractera/DEPLOYED_BRANCH
 echo "=== DEPLOYED: branch=$DEPLOYED_BRANCH commit=$DEPLOYED_COMMIT ===" >> "$LOG_FILE"
 
+# === App slot materialization (pivot 2026-06-16) ===========================
+# /opt/fractera/app is a SWAPPABLE slot. By default it stays as the app/ that
+# shipped in the ai-workspace clone above (our reference project) — so the default
+# deploy is byte-identical to pre-pivot behaviour. When the install form requests a
+# different project we replace the slot HERE — after the clone, BEFORE deps_app /
+# build_app / start_app below — so the existing `--prefix app` machinery builds and
+# starts the guest transparently. Inputs (set by deploy.ts; unset => default):
+#   FRACTERA_APP_FRAMEWORK : fractera-pro | next | own-repo | <preset id>  (label only)
+#   FRACTERA_APP_REPO_URL  : public git URL to clone into the slot, already RESOLVED by
+#                            the FES install route (preset -> its catalog repo; own-repo
+#                            -> the user's URL; fractera-pro -> empty = keep reference app)
+# FIRST CUT = CONTRACT B ONLY: a long-lived Node process on :3000, exactly like
+# Next (`npm run build` + `npm start`) — covers Next / Nuxt / Remix / SvelteKit-node
+# and any Node guest repo. CONTRACT A (static-folder projects served by a file
+# server) is deferred — see next-step Ф3.2.
+APP_SLOT_FRAMEWORK="${FRACTERA_APP_FRAMEWORK:-fractera-pro}"
+APP_SLOT_REPO_URL="${FRACTERA_APP_REPO_URL:-}"
+APP_SLOT_CONTRACT="B"
+if [ -n "$APP_SLOT_REPO_URL" ]; then
+  # A repo URL is present (resolved by the FES install route: preset -> its catalog
+  # repo; own-repo -> the user's URL). Clone it into the slot.
+  echo "=== App slot: cloning '$APP_SLOT_FRAMEWORK' from $APP_SLOT_REPO_URL ===" >> "$LOG_FILE"
+  rm -rf /opt/fractera/app
+  git clone --depth 1 "$APP_SLOT_REPO_URL" /opt/fractera/app >> "$LOG_FILE" 2>&1 \
+    || fail "Cannot clone slot repository: $APP_SLOT_REPO_URL"
+  # Contract-B guard: the guest must be a Node app with build+start scripts and serve
+  # :3000 on 'npm start'. If it is a static-only project (no start script) we stop with
+  # a clear message rather than half-deploy - contract A lands later.
+  [ -f /opt/fractera/app/package.json ] \
+    || fail "Slot repo has no package.json - not a supported Node project yet"
+  grep -q '"start"' /opt/fractera/app/package.json \
+    || fail "Slot repo has no start script - only Next-like Node projects (contract B) are supported in this release; static projects (React/Vue/etc.) are coming soon"
+  # TODO (Ф3.2, developer E2E): some Node frameworks need PORT=3000 explicitly, and the
+  # native-modules install below (lightningcss/tailwind-oxide) is tuned for our Next app.
+else
+  # No repo URL -> keep the app/ from the ai-workspace clone (default reference app,
+  # e.g. temporary fractera-pro). No-op -> default deploy unchanged.
+  echo "=== App slot: keeping default reference app (framework=$APP_SLOT_FRAMEWORK) ===" >> "$LOG_FILE"
+fi
+# Record the resolved slot so the admin panel / activation skill knows the stack.
+cat > /opt/fractera/app-slot.json <<SLOTEOF
+{"framework":"$APP_SLOT_FRAMEWORK","contract":"$APP_SLOT_CONTRACT","repoUrl":"$APP_SLOT_REPO_URL"}
+SLOTEOF
+
 # Record the resolved component selection as a JSON array. The deployed admin
 # reads this (S5: GET /api/config/components) to show only the chosen tools in
 # the carousel / settings. Missing file on old servers => admin shows all.
@@ -522,11 +566,6 @@ memory:
 plugins:
   enabled:
     - fractera-platforms
-    # Access-tier enforcement (MCP-REGISTRY §8.3/§8.6): pre_tool_call gate blocks any tool
-    # whose required tier exceeds this process's ceiling (env FRACTERA_AGENT_MAX_TIER, default
-    # owner). Reads bridges/platforms/mcp-access-manifest.json. Dir ships with the ai-workspace
-    # clone and is copied to /root/.hermes/plugins by install_hermes_plugins.
-    - fractera-access-control
 
 mcp_servers:
   claude-bridge:
@@ -582,14 +621,6 @@ mcp_servers:
     url: http://localhost:3218
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Public Consultant (tier=public): first non-owner MCP — tools safe for an anonymous site
-  # visitor, for the future public-consultant chat (left-slot, ai-elements). Served by
-  # bridges/platforms/server.js (PublicConsultantMcpServer, :3219). v1 tool:
-  # public_footer_list_pages (read-only, via data service). Separate from the L1 deploy MCP.
-  public-consultant-bridge:
-    url: http://localhost:3219
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
@@ -611,64 +642,6 @@ HERMESEOF
   fi
 fi
 
-# === Hermes PUBLIC consultant config (SEPARATE process, tier ceiling = user) ===
-# A 2nd Hermes instance (own HERMES_HOME=/root/.hermes-public) serves the public-page
-# consultant widget via the Shell's /api/consultant. STRICT SUBSET by construction
-# (MCP-REGISTRY §8.3/§12, next-step "Интерактивный консультант"): ONLY public/user-tier
-# tools, NO owner bridges (:3210–3218), NO fractera-platforms delegation, NO Company Brain
-# memory (owner knowledge stays private from anonymous visitors). The access-control
-# plugin (env FRACTERA_AGENT_MAX_TIER=user, set at pm2 start) is the 2nd-rubezh ceiling.
-# Additive + gated (MCP isolation contract п.4): owner config above is untouched.
-if [ -d "/root/.hermes" ]; then
-  mkdir -p /root/.hermes-public/plugins
-  # ONLY the access-control plugin — NOT fractera-platforms (that grants owner delegation).
-  cp -r /opt/fractera/services/hermes-plugins/fractera-access-control /root/.hermes-public/plugins/ 2>/dev/null || true
-  cat > /root/.hermes-public/config.yaml <<HERMESPUBEOF
-model:
-  provider: openai-api
-  model: gpt-5-mini
-  default: gpt-5-mini
-  fallback_provider: anthropic
-  fallback_model: claude-opus-4.7
-
-# NO memory block on purpose: the public consultant must NOT read the owner's Company
-# Brain (LightRAG). Owner knowledge never reaches an anonymous visitor.
-
-plugins:
-  enabled:
-    # Tier-ceiling enforcement ONLY. NO fractera-platforms (owner delegation) here.
-    - fractera-access-control
-
-mcp_servers:
-  # PUBLIC-tier toolset ONLY — defense by construction. owner bridges (:3210–3218) are
-  # intentionally absent so an anonymous visitor physically cannot reach owner tools.
-  public-consultant-bridge:
-    url: http://localhost:3219
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # Client-actions: tools the consultant PROPOSES and the BROWSER executes
-  # (navigate/locale/theme/width). §8.3, manifest execution:"client", MCP-REGISTRY §12.
-  client-actions-bridge:
-    url: http://localhost:3220
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-
-dashboard:
-  theme: fractera-black
-
-logging:
-  level: INFO
-HERMESPUBEOF
-  # Own credential pool / key (isolated OpenAI quota — anonymous traffic never drains the
-  # owner's key). Filled later via the public key-entry flow + admin requirement.
-  if ! grep -q "OPENAI_API_KEY=" /root/.hermes-public/.env 2>/dev/null; then
-    printf "# Fractera public consultant — its OWN OpenAI key (isolated from owner)\nOPENAI_API_KEY=\n" >> /root/.hermes-public/.env
-  fi
-  if ! grep -q "MCP_SECRET=" /root/.hermes-public/.env 2>/dev/null; then
-    printf "MCP_SECRET=$HERMES_MCP_SECRET\n" >> /root/.hermes-public/.env
-  fi
-fi
-
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 log_email "build_start" "Building services (this takes 5-10 min)" 40
@@ -679,7 +652,7 @@ step "build_bridges_app" "Building admin (production)"   "npm run build --prefix
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"    "Starting shell service"   "cd /opt/fractera/app && PUBLIC_HERMES_URL=http://127.0.0.1:9129 PUBLIC_HERMES_TOKEN=$HERMES_MCP_SECRET pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
+step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
@@ -694,12 +667,6 @@ maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/u
 # the deps are cached and later restarts are fast.
 # → reports/errors/hermes-startup-race-secure-healthcheck.md
 maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
-# Hermes PUBLIC consultant instance — SEPARATE HERMES_HOME, tier ceiling=user, loopback
-# :9129. Serves the public-page consultant widget via /api/consultant. Owner tools are
-# absent from its config (defense by construction); FRACTERA_AGENT_MAX_TIER=user caps it
-# via the access-control plugin. Gated on its config existing (created above, brain only).
-# → next-step "Интерактивный консультант", MCP-REGISTRY §8.3/§12. Additive (contract п.4).
-maybe_step "brain" "start_hermes_public" "Hermes public consultant service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && [ -f /root/.hermes-public/config.yaml ] && HERMES_HOME=/root/.hermes-public FRACTERA_AGENT_MAX_TIER=user HERMES_DASHBOARD_SESSION_TOKEN=$HERMES_MCP_SECRET pm2 start \$HERMES_BIN --name fractera-hermes-public --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9129 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9129/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
 # Messaging gateway — the process that connects to Telegram/Discord/etc and
 # polls for messages. The dashboard above does NOT poll messengers; without
 # this process a saved Telegram token does nothing (the old "press Gateway run"

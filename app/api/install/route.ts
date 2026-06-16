@@ -7,15 +7,24 @@ import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
+import { isFrameworkId, resolveSlotRepoUrl, DEFAULT_FRAMEWORK } from '@/lib/frameworks-catalog'
 
 export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
-  const { ip, login, password, session_id, platform, serverToken: existingToken, components } = await req.json()
+  const { ip, login, password, session_id, platform, serverToken: existingToken, components, framework, repoUrl } = await req.json()
 
   if (!ip || !login || !password || !session_id) {
     return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
   }
+
+  // App-slot project (pivot 2026-06-16): the form sends `framework` (a curated
+  // starter) and, for own-repo, `repoUrl`. We resolve the effective repo URL to clone
+  // into the slot: own-repo → the user's URL; a preset (e.g. next) → its catalog repo;
+  // fractera-pro → '' (no clone → keep the cloned reference app). Threaded into
+  // deployToServer, which sanitizes + env-passes to bootstrap. Default stays byte-identical.
+  const slotFramework = isFrameworkId(framework) ? framework : DEFAULT_FRAMEWORK
+  const slotRepoUrl = resolveSlotRepoUrl(slotFramework, typeof repoUrl === 'string' ? repoUrl : undefined)
 
   // Selective install (S2). The form sends `components` ONLY in custom mode:
   //   - absent/undefined → full install (componentsArg stays undefined → bootstrap installs all)
@@ -117,7 +126,14 @@ export async function POST(req: NextRequest) {
     const existing = await db.serverToken.findUnique({ where: { token: tokenForBootstrap }, select: { id: true } }).catch(() => null)
     if (existing) serverIdForBootstrap = existing.id
   }
-  await deployToServer({ ip, login, password, session_id, platform, serverToken: tokenForBootstrap, serverId: serverIdForBootstrap, components: componentsArg })
+  await deployToServer({
+    ip, login, password, session_id, platform,
+    serverToken: tokenForBootstrap, serverId: serverIdForBootstrap, components: componentsArg,
+    // App-slot project (pivot 2026-06-16) — additive; default (fractera-pro/absent)
+    // keeps the deploy byte-identical. deploy.ts sanitizes + env-passes to bootstrap.
+    framework: slotFramework,
+    repoUrl: slotRepoUrl || undefined,
+  })
 
   return NextResponse.json({ session_id, status: 'installing' })
 }
