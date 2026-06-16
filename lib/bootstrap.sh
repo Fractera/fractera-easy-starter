@@ -679,7 +679,7 @@ step "build_bridges_app" "Building admin (production)"   "npm run build --prefix
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
+step "start_app"    "Starting shell service"   "cd /opt/fractera/app && PUBLIC_HERMES_URL=http://127.0.0.1:9129 PUBLIC_HERMES_TOKEN=$HERMES_MCP_SECRET pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
@@ -699,7 +699,7 @@ maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/l
 # absent from its config (defense by construction); FRACTERA_AGENT_MAX_TIER=user caps it
 # via the access-control plugin. Gated on its config existing (created above, brain only).
 # → next-step "Интерактивный консультант", MCP-REGISTRY §8.3/§12. Additive (contract п.4).
-maybe_step "brain" "start_hermes_public" "Hermes public consultant service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && [ -f /root/.hermes-public/config.yaml ] && HERMES_HOME=/root/.hermes-public FRACTERA_AGENT_MAX_TIER=user pm2 start \$HERMES_BIN --name fractera-hermes-public --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9129 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9129/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
+maybe_step "brain" "start_hermes_public" "Hermes public consultant service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && [ -f /root/.hermes-public/config.yaml ] && HERMES_HOME=/root/.hermes-public FRACTERA_AGENT_MAX_TIER=user HERMES_DASHBOARD_SESSION_TOKEN=$HERMES_MCP_SECRET pm2 start \$HERMES_BIN --name fractera-hermes-public --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9129 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9129/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
 # Messaging gateway — the process that connects to Telegram/Discord/etc and
 # polls for messages. The dashboard above does NOT poll messengers; without
 # this process a saved Telegram token does nothing (the old "press Gateway run"
