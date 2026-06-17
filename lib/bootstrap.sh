@@ -477,6 +477,13 @@ NEXTAUTH_URL=http://$SERVER_IP:3001
 DATABASE_URL=file:/opt/fractera/app/data/app.db
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002$IP_ORIGINS
 FRACTERA_IP_NODOMAIN_MODE=true
+# Optional sign-in methods — seeded EMPTY. The owner fills these from
+# Admin -> Login methods only in secure mode (custom domain + HTTPS). While a
+# value is empty its provider stays off and its button is hidden on /login.
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+RESEND_API_KEY=
+AUTH_RESEND_FROM=
 ENVEOF
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF

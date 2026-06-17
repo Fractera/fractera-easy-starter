@@ -102,7 +102,7 @@ const DOCS: DocEntry[] = [
 async function resolveTier(req) {
   const session = await getSession(req)      // reads the auth cookie
   if (!session) return 'public'              // anonymous visitor
-  if (session.roles.includes('admin')) return 'owner'
+  if (session.roles.includes('architect')) return 'owner'
   return 'user'                              // signed-in end-user
 }`,
       },
@@ -253,6 +253,36 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
           '**Sovereign and open.** It runs on your own server, ships with source, and is built to scale — no lock-in, no black box.',
           '**Safe by construction.** A guest physically cannot reach owner tools; private data is scoped to the person who owns it.',
         ],
+      },
+
+      // ── Capabilities by access tier ──────────────────────────────────────────
+      // NB: per the temporary sync rule, every new MCP tool / skill adds a line here with
+      // its access tier (public / user / owner). This list grows as capabilities are built.
+      { kind: 'h2', text: 'What you can ask — by access level' },
+      {
+        kind: 'p',
+        text: 'The consultant answers strictly from the capabilities the project declares — it won’t invent data. What’s available depends on who you are. This list grows as new tools are added to the project.',
+      },
+      { kind: 'h3', text: 'Anyone (guest, no sign-in)' },
+      {
+        kind: 'list',
+        items: [
+          '**Switch the theme** — light, dark or system, for your own view.',
+          '**Change the language** — to any language the site is configured for.',
+          '**Change the content width** — narrower or wider, for your own view.',
+          '**Navigate** — “open the pricing page”, “take me to …”.',
+          '**Discover pages** — “what sections does this site have?”.',
+        ],
+      },
+      { kind: 'h3', text: 'Signed-in user (your own data)' },
+      {
+        kind: 'p',
+        text: 'After you sign in, the consultant can work with YOUR own records — scoped to your account, never anyone else’s. Ask and it offers a sign-in button. Examples a project can enable: your orders / purchase history, your invoices or payments, your profile or subscription, your viewing/activity history.',
+      },
+      { kind: 'h3', text: 'Owner / administrator (the workspace operator)' },
+      {
+        kind: 'p',
+        text: 'The site owner — signed in under their role — manages the project itself: global defaults (a default theme/language for everyone), creating new pages and services, and adding new tools or skills (drafted at [your-domain]/ai-draft-settings). The public consultant never performs these; it recognises the request and points you to sign in.',
       },
 
       // ── Reminder ─────────────────────────────────────────────────────────────
