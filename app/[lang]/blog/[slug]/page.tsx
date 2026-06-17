@@ -81,6 +81,17 @@ export default async function BlogPostPage({
         { '@type': 'ListItem', position: 3, name: post.title, item: url },
       ],
     },
+    ...(post.faq && post.faq.length > 0
+      ? [{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: post.faq.map(f => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
+        }]
+      : []),
   ]
 
   return (
@@ -88,11 +99,16 @@ export default async function BlogPostPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="min-h-screen bg-black text-white">
         <article className="mx-auto w-full max-w-3xl px-6 py-16 md:py-12">
-          {/* Breadcrumb / back */}
-          <a href={`/${lang}/blog`} className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-            All articles
-          </a>
+          {/* Breadcrumb — matches the BreadcrumbList JSON-LD above */}
+          <nav aria-label="Breadcrumb" className="text-sm text-white/40">
+            <ol className="flex flex-wrap items-center gap-1.5">
+              <li><a href={`/${lang}`} className="hover:text-white">Fractera</a></li>
+              <li aria-hidden className="text-white/25">/</li>
+              <li><a href={`/${lang}/blog`} className="hover:text-white">Blog</a></li>
+              <li aria-hidden className="text-white/25">/</li>
+              <li aria-current="page" className="truncate text-white/60">{post.title}</li>
+            </ol>
+          </nav>
 
           {/* Header */}
           <header className="mt-6 flex flex-col gap-5 border-b border-white/10 pb-8">
@@ -136,6 +152,21 @@ export default async function BlogPostPage({
 
           {/* Body */}
           <PostBody blocks={post.blocks} />
+
+          {/* FAQ — mirrors the FAQPage JSON-LD above (rich-result eligible) */}
+          {post.faq && post.faq.length > 0 && (
+            <section aria-labelledby="faq-heading" className="mt-12 border-t border-white/10 pt-10">
+              <h2 id="faq-heading" className="text-2xl font-bold tracking-tight">Frequently asked questions</h2>
+              <dl className="mt-6 flex flex-col gap-4">
+                {post.faq.map((f, i) => (
+                  <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                    <dt className="text-base font-semibold text-white">{f.q}</dt>
+                    <dd className="mt-2 text-[15px] leading-relaxed text-white/60">{f.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
 
           {/* Footer CTA back to blog */}
           <div className="mt-12 border-t border-white/10 pt-8">

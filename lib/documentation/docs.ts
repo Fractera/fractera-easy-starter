@@ -301,6 +301,20 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
         text: 'For a detailed technical investigation, query the project’s **LightRAG vector store** — the workspace’s global memory. The most natural way to do that is through the **Hermes agent in the administrator flow**, which can retrieve and explain any part of the architecture on demand. This page only opens the door; the vector store holds the whole house.',
       },
     ],
+    faq: [
+      {
+        q: "What can a guest visitor ask the AI consultant without signing in?",
+        a: "A guest (no account, no sign-in) can switch the site language, change the theme (light/dark/system), adjust the content width, navigate to any page by describing it, and discover what sections the site has. All of these act only on their own browser view — nothing shared changes.",
+      },
+      {
+        q: "How does the consultant know what the site can do for a signed-in user?",
+        a: "The consultant reads a curated capability declaration that the project owner configures at [your-domain]/ai-draft-settings. Each capability is tagged with its access tier (public / user / owner). When you ask for something your tier does not cover, the consultant offers a sign-in button rather than pretending it can help.",
+      },
+      {
+        q: "Can the AI consultant change something visible to everyone on the site, or only my own view?",
+        a: "Per-visitor actions (language, theme, width, navigation) change only your own browser view and never affect other visitors. Owner-tier actions — like setting a new global default theme — are deliberately absent from the public consultant process. Defense by construction: the public agent's toolset simply does not contain owner tools.",
+      },
+    ],
   },
   {
     slug: 'authentication-roles-and-providers',

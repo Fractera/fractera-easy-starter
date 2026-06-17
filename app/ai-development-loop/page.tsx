@@ -32,6 +32,21 @@ export const metadata: Metadata = {
   },
 }
 
+const FAQ_ITEMS = [
+  {
+    q: 'What is the Fractera autonomous development loop?',
+    a: 'It is the autonomous cycle where one natural-language request becomes tested, deployed, recorded code with no human writing code. Hermes orchestrates, a chosen coding agent (Claude Code, Codex, Gemini, Qwen, or Kimi) writes the code, the build suite checks it, and on failure the loop self-corrects by feeding the error back as a new task.',
+  },
+  {
+    q: 'How does LightRAG memory fit into the development loop?',
+    a: 'LightRAG is the shared Knowledge Graph memory that grounds every step of the loop. Hermes reads project context, coding history, glossary, and architecture from it before picking an agent. The agent reads the same store before writing code. After a successful deploy the outcome is written back — so the loop starts smarter every cycle instead of from scratch.',
+  },
+  {
+    q: 'Can I run the autonomous development loop on my own server?',
+    a: 'Yes. Fractera deploys the entire stack — Hermes, five coding agents, LightRAG memory, and the deploy pipeline — to your own VPS in about 10 minutes with one click. You own the server, the code, and the memory.',
+  },
+]
+
 // Two linked entities: the page (TechArticle) and the software it describes
 // (SoftwareApplication, the shared @id), so Google understands this describes an
 // open-source developer platform's development workflow, not just an article.
@@ -63,6 +78,23 @@ const JSON_LD = [
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     sameAs: [GITHUB_REPO],
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
+      { '@type': 'ListItem', position: 2, name: 'AI Development Loop', item: LOOP_URL },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
 ]
 
 export default function AiDevelopmentLoopPage() {
@@ -71,6 +103,15 @@ export default function AiDevelopmentLoopPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
 
       <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
+        {/* Breadcrumb — matches the BreadcrumbList JSON-LD above */}
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-zinc-400">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li><a href="/" className="hover:text-zinc-700 hover:underline">Fractera</a></li>
+            <li aria-hidden className="text-zinc-300">/</li>
+            <li aria-current="page" className="text-zinc-500">AI Development Loop</li>
+          </ol>
+        </nav>
+
         <header className="mb-8 border-b border-zinc-200 pb-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -186,6 +227,21 @@ export default function AiDevelopmentLoopPage() {
             </section>
           ))}
         </div>
+      </div>
+
+      {/* FAQ — mirrors the FAQPage JSON-LD above (rich-result eligible) */}
+      <div className="mx-auto w-full max-w-3xl px-5 pb-16">
+        <section aria-labelledby="faq-heading" className="border-t border-zinc-200 pt-10">
+          <h2 id="faq-heading" className="mb-6 text-lg font-semibold">Frequently asked questions</h2>
+          <dl className="flex flex-col gap-4">
+            {FAQ_ITEMS.map((f, i) => (
+              <div key={i} className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
+                <dt className="text-sm font-semibold text-zinc-900">{f.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-zinc-600">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       </div>
 
       <SiteFooter />

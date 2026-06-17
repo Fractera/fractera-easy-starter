@@ -34,6 +34,7 @@ export type BlogPost = {
   heroAspect?: string
   ogImage: string
   blocks: BlogBlock[]
+  faq?: { q: string; a: string }[]
 }
 
 const POST_1_LINEAR = `you prompt  ─▶  AI writes code  ─▶  you find the bug  ─▶  you fix the prompt  ─┐
@@ -196,7 +197,21 @@ const POSTS: BlogPost[] = [
       },
       {
         kind: 'note',
-        text: 'Source: a widely-shared LinkedIn post by Guillermo Flor surfacing Boris Cherny’s remarks. The quote is reproduced as it circulated; the architecture and the analysis are Fractera’s own.',
+        text: "Source: a widely-shared LinkedIn post by Guillermo Flor surfacing Boris Cherny’s remarks. The quote is reproduced as it circulated; the architecture and the analysis are Fractera’s own.",
+      },
+    ],
+    faq: [
+      {
+        q: 'What is "loop engineering" and why is it replacing prompt engineering?',
+        a: "Loop engineering means writing automated workflows that prompt the AI, run its output through a verifier (tests, CI, a compiler), feed failures back as new instructions, and repeat — until the result is correct. Boris Cherny, who leads Claude Code at Anthropic, said he no longer crafts prompts by hand: he writes the loops that do it for him. The key insight is that the bottleneck was never the prompt — it was the human in the feedback cycle.",
+      },
+      {
+        q: "How does Fractera implement the agentic development loop in production?",
+        a: "Fractera runs Hermes as the orchestrator: it reads project context from LightRAG graph memory, picks the right coding agent (Claude Code, Codex, Gemini, Qwen, or Kimi) for each task, hands it a grounded context set, and loops on the build result — feeding errors back as new tasks until the code is green and deployed. The outcome is recorded in LightRAG so every subsequent loop starts smarter.",
+      },
+      {
+        q: "Do I need to write code to run the autonomous development loop with Fractera?",
+        a: "No. You describe the goal in natural language — through the Hermes chat inside your workspace or from Telegram. Hermes turns that into a concrete coding task, picks the best agent, and runs the loop. You watch the project take shape in real time; no code is written by you.",
       },
     ],
   },

@@ -27,17 +27,51 @@ export const metadata: Metadata = {
   },
 }
 
-const JSON_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'TechArticle',
-  headline: 'Fractera — Project Knowledge Base for AI Agents',
-  description:
-    'Static knowledge base about Fractera for AI agents scanning the site to learn its purpose, answer questions during deployment, and act as a project help desk.',
-  audience: { '@type': 'Audience', audienceType: 'AI agents, developers' },
-  about: 'Fractera — open-source AI-native self-hosting platform for your own VPS',
-  url: 'https://www.fractera.ai/mcp-info',
-  inLanguage: 'en',
-}
+const FAQ_ITEMS = [
+  {
+    q: 'What is the Fractera MCP connector used for?',
+    a: 'The Fractera MCP connector lets Claude (and any MCP-compatible AI assistant) deploy a private Fractera AI workspace directly from the chat. It asks a few questions and calls a single tool that provisions a VPS, runs the install, and streams real-time progress — no manual setup required.',
+  },
+  {
+    q: 'Does Fractera work without a custom domain?',
+    a: 'Yes. The default deploy is "IP-first": your workspace goes live at http://<your-IP>:3002 in about 10 minutes, with no DNS or certificate wait. Attaching your own domain with HTTPS is an optional later step done from inside the workspace (Admin → Personal Domain).',
+  },
+  {
+    q: 'Is Fractera open-source and self-hosted?',
+    a: 'Yes. The AI workspace layer (ai-workspace) is open-source under MIT. It runs entirely on your own VPS — no data leaves your server. You own the code, the database, and the AI memory.',
+  },
+]
+
+const JSON_LD = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: 'Fractera — Project Knowledge Base for AI Agents',
+    description:
+      'Static knowledge base about Fractera for AI agents scanning the site to learn its purpose, answer questions during deployment, and act as a project help desk.',
+    audience: { '@type': 'Audience', audienceType: 'AI agents, developers' },
+    about: 'Fractera — open-source AI-native self-hosting platform for your own VPS',
+    url: 'https://www.fractera.ai/mcp-info',
+    inLanguage: 'en',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
+      { '@type': 'ListItem', position: 2, name: 'Project Knowledge Base', item: 'https://www.fractera.ai/mcp-info' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+]
 
 // --- tiny dependency-free markdown rendering (bold, code, lists, paragraphs) ---
 
@@ -139,6 +173,15 @@ export default function McpInfoPage() {
     <main className="flex min-h-screen flex-col bg-white text-zinc-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
+        {/* Breadcrumb — matches the BreadcrumbList JSON-LD above */}
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-zinc-400">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li><a href="/" className="hover:text-zinc-700 hover:underline">Fractera</a></li>
+            <li aria-hidden className="text-zinc-300">/</li>
+            <li aria-current="page" className="text-zinc-500">Project Knowledge Base</li>
+          </ol>
+        </nav>
+
         <header className="mb-10 border-b border-zinc-200 pb-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -180,6 +223,19 @@ export default function McpInfoPage() {
             )
           })}
         </div>
+
+        {/* FAQ — mirrors the FAQPage JSON-LD above (rich-result eligible) */}
+        <section aria-labelledby="faq-heading" className="mt-16 border-t border-zinc-200 pt-10">
+          <h2 id="faq-heading" className="mb-6 text-lg font-semibold">Frequently asked questions</h2>
+          <dl className="flex flex-col gap-4">
+            {FAQ_ITEMS.map((f, i) => (
+              <div key={i} className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
+                <dt className="text-sm font-semibold text-zinc-900">{f.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-zinc-600">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
         <footer className="mt-16 border-t border-zinc-200 pt-6 text-xs text-zinc-400">
           <p>Fractera · open-source AI-native self-hosting · <a href="/" className="hover:underline">fractera.ai</a></p>

@@ -36,6 +36,21 @@ export const metadata: Metadata = {
   },
 }
 
+const FAQ_ITEMS = [
+  {
+    q: 'What is the "Next.js Aircraft Carrier" in Fractera?',
+    a: 'It is a fully pre-built, parallel-routing Next.js application (around 50,000 lines) that ships the moment you deploy Fractera. Eight layout slots (Header, Footer, Left, Right, Center, Promo Screen, Center Header, Center Footer) can be toggled on or off without page reloads, and AI agents can reconfigure the entire layout without human intervention.',
+  },
+  {
+    q: 'Does the parallel-routing framework hurt AI token efficiency?',
+    a: 'No — it saves tokens. Each slot is a discrete file with a clear, predictable boundary. An AI agent opens, reads, or rewrites exactly the slot it needs without touching the rest of the layout. That is the opposite of a monolithic page where the agent must parse thousands of unrelated lines to change one section.',
+  },
+  {
+    q: "Can I use this boilerplate without Fractera's platform?",
+    a: 'The framework is open-source (MIT). You can run it on any Node.js host. Fractera adds the AI development loop, LightRAG memory, Hermes orchestration, and a one-click VPS deploy on top — so the same codebase you get as a standalone starter runs with full AI-native tooling inside Fractera.',
+  },
+]
+
 // Two linked entities: the page (TechArticle) and the software it describes
 // (SoftwareApplication, the shared @id).
 const JSON_LD = [
@@ -65,6 +80,23 @@ const JSON_LD = [
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     sameAs: [GITHUB_REPO],
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
+      { '@type': 'ListItem', position: 2, name: 'The Next.js Aircraft Carrier', item: CARRIER_URL },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
 ]
 
 export default function NextAircraftCarrierPage() {
@@ -73,6 +105,15 @@ export default function NextAircraftCarrierPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
 
       <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
+        {/* Breadcrumb — matches the BreadcrumbList JSON-LD above */}
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-zinc-400">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li><a href="/" className="hover:text-zinc-700 hover:underline">Fractera</a></li>
+            <li aria-hidden className="text-zinc-300">/</li>
+            <li aria-current="page" className="text-zinc-500">The Next.js Aircraft Carrier</li>
+          </ol>
+        </nav>
+
         <header className="mb-8 border-b border-zinc-200 pb-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -176,6 +217,19 @@ export default function NextAircraftCarrierPage() {
             </section>
           ))}
         </div>
+
+        {/* FAQ — mirrors the FAQPage JSON-LD above (rich-result eligible) */}
+        <section aria-labelledby="faq-heading" className="mt-16 border-t border-zinc-200 pt-10">
+          <h2 id="faq-heading" className="mb-6 text-lg font-semibold">Frequently asked questions</h2>
+          <dl className="flex flex-col gap-4">
+            {FAQ_ITEMS.map((f, i) => (
+              <div key={i} className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
+                <dt className="text-sm font-semibold text-zinc-900">{f.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-zinc-600">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       </div>
 
       <SiteFooter />
