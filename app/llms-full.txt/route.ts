@@ -27,7 +27,7 @@ const INTRO = `# Fractera — full knowledge base
 > real-world use cases, the workspace architecture, the development loop, the
 > Next.js Aircraft Carrier (the pre-built 50,000-line parallel-routing framework),
 > the token economics of the MCP-First / Zero-Agent paradigm, the interactive
-> AI consultant, and the legal text.
+> AI consultant, the authentication scheme (roles & providers), and the legal text.
 > The same content is queryable section-by-section via the MCP connector at
 > https://www.fractera.ai/api/mcp (get_project_info,
 > get_ai_workspace_architect_info, get_ai_development_loop_info).
@@ -87,6 +87,66 @@ it can be extended without limit. The consultant grows as the toolset grows:
 one small button fronting an evolving set of MCP tools, an orchestrator (Hermes)
 and global graph memory (LightRAG).`
 
+const AUTHENTICATION = `# Authentication, roles & providers
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/authentication-roles-and-providers
+
+Every deployed Fractera workspace ships a complete, production-shaped sign-in
+system already wired in — you do not assemble it, you turn parts of it on. It is
+built on NextAuth (Auth.js) running as a dedicated authentication service on its
+own port, with JWT sessions carried in a signed cookie shared across the project's
+subdomains. Under the hood it uses a database adapter together with the providers
+so that modern sign-ins persist correctly.
+
+## One account, many providers — no duplicates
+You start with email + password. The moment you paste a provider's credentials in
+the secure admin settings, its sign-in button appears automatically; remove the
+credentials and it disappears — nothing to redeploy. Two providers are pre-wired:
+Google OAuth and a magic-link (email) flow. A single identity can sign in through
+several providers and remain ONE account: the system links each new provider to
+the existing user (matched by email) instead of creating a duplicate.
+
+## The required tables
+Four tables back it: users (one row per person — email, display name, the role
+list, sign-in method, verification and active/blocked status, and the user's image
+such as a Google avatar, plus locale/timezone and a bio); accounts (one row per
+external provider linked to a user — the link that enables one-account-many-
+providers); sessions (present for completeness; sessions actually live in the
+cookie); and verification_tokens (the single-use tokens behind magic-link sign-in).
+The database activates on first use and self-migrates.
+
+## Roles
+Roles are stored as a LIST of strings, so one user can hold several at once. Three
+are access tiers the platform enforces — guest, user, architect (the owner / top
+tier). The rest are a ready business vocabulary: buyer, vip_user, subscriber_lite,
+subscriber_standard, subscriber_max, manager, senior_manager, support_manager,
+delivery_manager, finance, content_editor, admin. The very first person to sign in
+becomes the architect automatically (through any provider), and the architect
+cannot remove their own architect rights — only another architect can change
+someone else's roles. From your own application layer you can read users and grant
+or revoke roles, driving the permission model from your product code.
+
+## Coverage and modes
+The same identity covers every surface — the public site, the admin platform, each
+coding agent, the LightRAG vector memory, the Hermes brain and the built-in web
+chat — directly or through the reverse proxy. There are two modes: an open
+onboarding mode on a bare IP, and a strict, role-gated secure mode once you attach
+a custom domain with HTTPS (which also locks the host firewall to web ports only).
+
+## Starting simple, and growing safely
+The default email+password start has one honest limit: there is no built-in
+lost-password recovery — fine for an early stage, and exactly why adding a
+passwordless provider (Google or magic-link) early is recommended. Auth.js ships
+80+ built-in providers (Google, GitHub, Apple, Microsoft Entra ID, Auth0, Okta,
+Keycloak, Discord, Facebook, LinkedIn, Twitch, GitLab, Slack, Spotify, Reddit,
+Yandex, VK, Kakao, Naver, LINE, Notion, Salesforce, Zoom and many more) and the
+four-table schema scales to all of them without structural change. Rule of thumb:
+add the providers you want early, while the codebase is small. If your app is
+already large and in production with real customers, do NOT experiment with auth
+on it — deploy a separate server, test new providers there, and have an AI agent
+study how auth is wired in your specific project first; a botched change can leave
+the app running but locked for sign-in.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -143,7 +203,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
