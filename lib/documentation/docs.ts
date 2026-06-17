@@ -18,6 +18,11 @@ export type DocEntry = {
   readingMinutes: number
   tags: string[]
   blocks: BlogBlock[]
+  // Optional hero diagram, rendered responsively (mobile portrait / web landscape).
+  // `web` doubles as the page's og:image (social/SEO snippet).
+  image?: { mobile: string; web: string; alt: string }
+  // Optional FAQ rendered at the bottom of the page + emitted as FAQPage JSON-LD.
+  faq?: { q: string; a: string }[]
 }
 
 const DOCS: DocEntry[] = [
@@ -307,6 +312,25 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
     date: '2026-06-17',
     readingMinutes: 11,
     tags: ['Authentication', 'Roles', 'OAuth', 'NextAuth', 'Self-hosted'],
+    image: {
+      mobile: '/Fractera-Mobail-Auth.jpg',
+      web: '/Fractera-Web-Auth.jpg',
+      alt: 'Fractera Auth architecture diagram — a Next.js 16+ web app (13 parallel-routing slots, the Fractera design system, projects) over the AUTH layer, with the Hermes WebUI agent, code agents, a SQLite local database, LightRAG vector memory and object local storage, all running on the user’s own server.',
+    },
+    faq: [
+      {
+        q: 'Does Fractera support Google and email magic-link sign-in?',
+        a: 'Yes — both ship built in. You start on email + password, then paste Google or Resend credentials in the secure admin settings and the matching sign-in button appears automatically. Under the hood Auth.js also supports 80+ other providers you can grow into.',
+      },
+      {
+        q: 'Can one person sign in with several providers without creating duplicate accounts?',
+        a: 'Yes. A single identity links multiple providers through the accounts table — sign up by email, later add Google, and both point to the same user record. No duplicate users, no tangled profiles.',
+      },
+      {
+        q: 'Is a “guest” just an anonymous visitor?',
+        a: 'No. A guest is a real, on-demand identity created the moment an unauthenticated visitor starts doing something worth saving — a cart, a chat. Their work is persisted in the database and attaches automatically to their real account when they sign up, with no data migration.',
+      },
+    ],
     blocks: [
       // ── Intro ────────────────────────────────────────────────────────────────
       {
