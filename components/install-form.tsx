@@ -44,7 +44,14 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [detectedSubdomain, setDetectedSubdomain] = useState<string | null>(null)
   const [freeServerTokenId, setFreeServerTokenId] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
-  const [destroying, setDestroying] = useState(false)
+  // Wipe ("Clear the server") flow. We don't listen to the real wipe-complete
+  // event — instead a fixed 30s yellow countdown gives clear visual feedback
+  // (the SSH wipe reliably finishes within that window). The fetch result still
+  // decides the error branch (bad IP / login / password → retry + hint).
+  const [wipePhase, setWipePhase] = useState<'idle' | 'wiping' | 'error'>('idle')
+  const [wipeLeft, setWipeLeft] = useState(30)
+  const wipeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const wipeErroredRef = useRef(false)
   const [emailConfirmed, setEmailConfirmed] = useState(false)
   // Security acknowledgment: the user must confirm they will change the server
   // password after deployment (Fractera never stores it). Always required —
@@ -84,6 +91,54 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   }, [installing])
 
   // No auto-check on keystroke — user clicks Check button manually
+
+  // Clear the running wipe countdown (on unmount / error / completion).
+  useEffect(() => () => { if (wipeTimerRef.current) clearInterval(wipeTimerRef.current) }, [])
+
+  function stopWipeTimer() {
+    if (wipeTimerRef.current) { clearInterval(wipeTimerRef.current); wipeTimerRef.current = null }
+  }
+
+  // "Clear the server" — fires the wipe and runs a fixed 30s yellow countdown.
+  // On success (countdown reaches 0 with no error) → toast + flip the server to
+  // 'fresh', which reveals the two acknowledgments (password + email) and the
+  // launch button. On a fetch error (e.g. wrong credentials) → error branch.
+  function handleWipe() {
+    if (wipePhase === 'wiping') return
+    wipeErroredRef.current = false
+    setWipePhase('wiping')
+    setWipeLeft(30)
+
+    fetch('/api/destroy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: detectedSubdomain ?? undefined }),
+    })
+      .then(res => { if (!res.ok) throw new Error('wipe failed') })
+      .catch(() => {
+        wipeErroredRef.current = true
+        stopWipeTimer()
+        setWipePhase('error')
+      })
+
+    wipeTimerRef.current = setInterval(() => {
+      setWipeLeft(prev => {
+        if (prev <= 1) {
+          stopWipeTimer()
+          if (!wipeErroredRef.current) {
+            toast.success(t.wipe.clearedToast, { duration: 8000 })
+            localStorage.removeItem('fractera_domain')
+            setDetectedSubdomain(null)
+            onSubdomainReady?.('')
+            setServerStatus('fresh')
+            setWipePhase('idle')
+          }
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
 
   async function checkNow() {
     if (!ip || !login || !password) return
@@ -394,33 +449,45 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 </button>
               )}
 
-              <div className="flex flex-wrap gap-2 mt-1">
-                <button
-                  onClick={async () => {
-                    if (destroying) return
-                    setDestroying(true)
-                    try {
-                      await fetch('/api/destroy', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ip: ip.trim(), login: login.trim(), password, domain: detectedSubdomain ?? undefined }),
-                      })
-                      localStorage.removeItem('fractera_domain')
-                      setServerStatus('fresh')
-                      setDetectedSubdomain(null)
-                      onSubdomainReady?.('')
-                    } catch {
-                      setServerStatus('fresh')
-                      setDetectedSubdomain(null)
-                    } finally {
-                      setDestroying(false)
-                    }
-                  }}
-                  disabled={destroying}
-                  className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/60 transition-colors px-3 py-1.5 rounded-lg disabled:opacity-40"
-                >
-                  {destroying ? t.removing : t.deleteReinstall}
-                </button>
+              <div className="flex flex-col gap-2 mt-1">
+                {/* Idle — full-width "Clear the server" button. */}
+                {wipePhase === 'idle' && (
+                  <button
+                    onClick={handleWipe}
+                    className="w-full text-sm font-semibold text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 hover:border-red-400/70 transition-colors px-6 py-3 rounded-xl"
+                  >
+                    {t.wipe.clearButton}
+                  </button>
+                )}
+
+                {/* Wiping — fixed 30s yellow countdown bar shrinking right→left. */}
+                {wipePhase === 'wiping' && (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-yellow-300 font-medium">{t.wipe.clearing}</p>
+                      <p className="text-sm text-yellow-300 font-bold tabular-nums">{wipeLeft}s</p>
+                    </div>
+                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-400 rounded-full transition-[width] duration-1000 ease-linear"
+                        style={{ width: `${(wipeLeft / 30) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Error — full-width retry, hint below it. */}
+                {wipePhase === 'error' && (
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={handleWipe}
+                      className="w-full text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/40 hover:border-white/60 transition-colors px-6 py-3 rounded-xl"
+                    >
+                      {t.tryAgain}
+                    </button>
+                    <p className="text-xs text-yellow-300/90 leading-relaxed px-1">{t.wipe.errorHint}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

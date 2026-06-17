@@ -44,6 +44,12 @@ export const install: InstallPart = {
     renewSsl: 'Renew SSL certificates',
     removing: 'Removing…',
     deleteReinstall: 'Delete and reinstall fresh',
+    wipe: {
+      clearButton: 'Clear the server',
+      clearing: 'Clearing the server…',
+      clearedToast: 'Server cleared — you can deploy now.',
+      errorHint: 'Carefully check the details you entered — the IP address, login and password — then try again.',
+    },
     cantReach: 'Could not reach server. You can still try installing.',
     updatesTo: 'Installation updates will be sent to',
     emailConfirmCheck: 'I understand and have access to this email address',

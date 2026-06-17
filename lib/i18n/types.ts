@@ -137,6 +137,7 @@ export type SiteContent = {
     renewSsl: string
     removing: string
     deleteReinstall: string
+    wipe: { clearButton: string; clearing: string; clearedToast: string; errorHint: string }
     cantReach: string
     updatesTo: string
     emailConfirmCheck: string
