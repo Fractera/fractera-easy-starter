@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/blog/the-end-of-prompt-engineering', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
+    { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
     { path: '/skills',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/product-loop', changeFrequency: 'weekly'  as const, priority: 0.7 },
