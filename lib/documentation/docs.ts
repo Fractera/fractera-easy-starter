@@ -342,7 +342,7 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
       {
         kind: 'list',
         items: [
-          '**guest** — an anonymous visitor browsing your catalogue or docs before signing in.',
+          '**guest** — a real, on-demand identity (not just an anonymous viewer): created the moment an unauthenticated visitor starts doing something worth saving — a cart, a chat — so their work persists and carries over when they sign up. See "Guest authentication" below.',
           '**user** — any signed-in person; the baseline for “my profile / my data”.',
           '**architect** — the owner who builds and publishes the project (the top tier; gates the admin workspace).',
           '**buyer** — a customer placing orders and using a cart in a shop.',
@@ -366,6 +366,21 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
         text: 'See the starter template in action — a live deployment where the per-role playgrounds will land:',
         href: 'https://aifa.dev',
         label: 'Open the live starter (aifa.dev)',
+      },
+
+      // ── Guest authentication ─────────────────────────────────────────────────
+      { kind: 'h2', text: 'Guest authentication — keep a visitor’s work before they sign up' },
+      {
+        kind: 'p',
+        text: 'Most pages need no identity at all. But picture a visitor who starts using your shop and drops a few items into the cart, or someone who writes a couple of messages to your chat / online consultant — and only **then** decides to sign up. You do not want their cart and their messages to vanish. The usual trick is to stash drafts in the browser, but that is fragile and awkward to carry into a real account.',
+      },
+      {
+        kind: 'p',
+        text: 'Guest authentication solves this elegantly. You **mark the pages** where it should kick in (the cart, the chat, a checkout step). When an unauthenticated visitor reaches one of those pages, the app **quietly creates a real guest identity** for them — no form, no password — and from that moment everything they do is saved in the database against that identity. When they later create a full account, all of it — the cart, the messages, the history — **attaches to their new account automatically**, with their email and settings layered on top. Nothing is lost, and there is no data migration.',
+      },
+      {
+        kind: 'note',
+        text: 'The key idea: a guest is a **real, persistent identity**, not a throwaway anonymous visitor. You simply flag the pages that should turn an anonymous visitor into a guest; visiting them triggers the guest sign-in under the hood, and the eventual sign-up promotes the very same record.',
       },
 
       // ── The technical picture (general) ──────────────────────────────────────
