@@ -2,11 +2,18 @@
 
 import { Bot, Brain, Code2, Globe, Database, ShoppingBag } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
+import { useLang } from '@/lib/i18n/use-lang'
 
 const HERO_BENEFIT_ICONS = [Bot, Brain, Code2, Globe, Database, ShoppingBag]
 
+// The one real link: the "Pre-Configured Secure Database & Auth Stack" card
+// (index 4 in heroBenefits, same position in every locale) points at the new
+// Authentication documentation guide. The other cards carry placeholder links.
+const AUTH_BENEFIT_INDEX = 4
+
 export function Hero() {
   const content = useHeroContent()
+  const lang = useLang()
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col -mx-6 w-[calc(100%+3rem)]">
@@ -51,17 +58,36 @@ export function Hero() {
         <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
           {content.heroBenefitsHeader.h2}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
+        {/* Six benefit cards reuse the UltimateScale design verbatim: bordered rounded
+            card, violet glow on hover, and a link pinned to the BOTTOM via flex
+            justify-between. The Auth card links to the new documentation guide; the
+            rest carry placeholder links for now. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
           {content.heroBenefits.map(({ title, text }, i) => {
             const Icon = HERO_BENEFIT_ICONS[i]
+            const href = i === AUTH_BENEFIT_INDEX
+              ? `/${lang}/documentation/authentication-roles-and-providers`
+              : '#'
             return (
-              <div key={i} className="flex flex-col items-center text-center md:items-start md:text-left">
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon className="w-5 h-5 shrink-0 text-violet-400" />
-                  <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
+              <div
+                key={i}
+                className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-5 h-5 shrink-0 text-violet-400" />
+                    <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
+                  </div>
+                  <div className="my-3 h-px w-12 bg-violet-500" />
+                  <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
                 </div>
-                <div className="mb-3 h-px w-12 bg-violet-500" />
-                <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
+                <a
+                  href={href}
+                  className="mt-4 self-start inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
+                >
+                  {content.heroBenefitsHeader.cardLink}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
               </div>
             )
           })}

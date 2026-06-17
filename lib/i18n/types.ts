@@ -41,7 +41,7 @@ export type SiteContent = {
     videoUrl: string
   }
   featureItems: { title: string; text: string }[]
-  heroBenefitsHeader: { h2: string }
+  heroBenefitsHeader: { h2: string; cardLink: string }
   heroBenefits: { title: string; text: string }[]
   // First H2 after the hero — the "Ultimate Scale" hub: a near-zero-token scale
   // claim, a pricing CTA, a 3-column H3 teaser (each column links to a deeper page

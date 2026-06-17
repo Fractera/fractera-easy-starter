@@ -43,6 +43,7 @@ export const hero: HeroPart = {
 
   heroBenefitsHeader: {
     h2: 'The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits',
+    cardLink: 'Learn more',
   },
 
   featureItems: [

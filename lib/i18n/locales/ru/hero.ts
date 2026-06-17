@@ -43,6 +43,7 @@ export const hero: HeroPart = {
 
   heroBenefitsHeader: {
     h2: 'Суверенная платформа AI-разработки на вашем железе — все ИИ-агенты работают через подписку, без оплаты за токены и без лимитов',
+    cardLink: 'Подробнее',
   },
 
   featureItems: [
