@@ -39,7 +39,7 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Deploy a complete, self-hosted AI-native ecosystem on your server in 10 minutes. Fractera delivers a massive Next.js web application (50,000+ lines of code) controlled entirely through an architectural shift: MCP-First Engineering. By shifting the workload from heavy code-generation loops to atomic MCP execution commands, the system eliminates the need for your AI to constantly read and parse the file system. Build, scale, and design with token consumption driven to absolute zero. Your server, your immutable patterns, your zero-waste execution.',
+    'Deploy a complete, self-hosted AI-native ecosystem on your server in 10 minutes. Fractera lands a production-grade starter on your VPS — Next.js (our 50,000-line reference app) or any other framework, including any public repository — all controlled through one architectural shift: MCP-First Engineering. By moving the workload from heavy code-generation loops to atomic MCP execution commands, the system frees your AI from constantly reading and parsing the file system. Build, scale, and design with token consumption driven toward zero. Your server, your immutable patterns, your zero-waste execution.',
 
   heroBenefitsHeader: {
     h2: 'The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits',
