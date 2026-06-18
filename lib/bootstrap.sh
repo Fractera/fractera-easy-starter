@@ -628,6 +628,14 @@ mcp_servers:
     url: http://localhost:3218
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 AI Draft: any of the 6 coding agents calls owner_draft_create_record to propose
+  # a new skill or MCP connector. Generates source skeleton + tasks from description,
+  # publishes the draft to AI-DRAFT-SETTINGS/ via the app API (:3000). §8.2 dry_run flow.
+  # Served by bridges/platforms/server.js (AiDraftMcpServer, :3221). Step 123.
+  ai-draft-bridge:
+    url: http://localhost:3221
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
