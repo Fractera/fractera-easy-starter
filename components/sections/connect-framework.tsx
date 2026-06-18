@@ -3,18 +3,22 @@
 import { useState } from 'react'
 import { useHeroContent } from '@/lib/i18n/context'
 
-// Framework display-name → logo file in /public/framework-logos (Devicon, MIT).
-// Only names present here render a logo; the rest fall back to a letter chip.
-// Logos sit on a white chip so dark/monochrome marks (Next.js, Remix, Express…)
-// stay visible on the dark card background.
+// Framework display-name → logo file in /public/framework-icons.
+// Dark-optimized brand marks (designed for a dark background — no white chip
+// needed). Names not present fall back to a letter chip (Hono, Reflex have no
+// official logo). vue/react-router/solidstart/remix are colored brand marks,
+// also visible on the dark card.
 const ICON: Record<string, string> = {
-  'Next.js': 'nextjs', 'React': 'react', 'Vue': 'vue', 'Astro': 'astro',
-  'SvelteKit': 'sveltekit', 'Nuxt': 'nuxt', 'React Router': 'react-router',
-  'SolidStart': 'solidstart', 'Remix': 'remix', 'Express': 'express',
-  'Django': 'django', 'Laravel': 'laravel', 'Symfony': 'symfony', 'Rails': 'rails',
-  'Phoenix': 'phoenix', 'Quarkus': 'quarkus', '.NET': 'dotnet', 'Go': 'go',
-  'Rust': 'rust', 'Java': 'java', 'Python': 'python', 'Prisma': 'prisma',
-  'SQLAlchemy': 'sqlalchemy', 'JavaScript': 'javascript',
+  'Next.js': 'next-js-dark', 'React': 'react', 'Vue': 'vue', 'Astro': 'astro-dark',
+  'SvelteKit': 'svelte', 'Nuxt': 'nuxt', 'React Router': 'react-router',
+  'TanStack Start': 'tanstack-dark', 'SolidStart': 'solidstart', 'Remix': 'remix',
+  'Redwood': 'redwoodsdk', 'Express': 'express-dark',
+  'Django': 'django-dark', 'Laravel': 'laravel-dark', 'Symfony': 'symfony-dark',
+  'Rails': 'rails-dark', 'Phoenix': 'phoenix', 'Quarkus': 'quarkus-dark',
+  'Micronaut': 'micronaut-dark', '.NET': 'dotnet', 'Go': 'go', 'Rust': 'rust-dark',
+  'Java': 'java-dark', 'Python': 'python', 'Drizzle': 'drizzle-dark',
+  'Prisma': 'prisma-dark', 'Kysely': 'kysely-dark', 'TypeORM': 'typeorm',
+  'SQLAlchemy': 'sqlalchemy-dark', 'JavaScript': 'javascript',
 }
 
 // "Connect your framework" — sits directly under the pricing/deploy block.
@@ -55,15 +59,12 @@ export function ConnectFramework() {
               className="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 transition-all duration-300 hover:border-violet-500/40 hover:bg-violet-500/[0.06] hover:shadow-[0_0_30px_2px_rgba(139,92,246,0.3)]"
             >
               {ICON[name] ? (
-                <span
-                  aria-hidden
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white p-1"
-                >
+                <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <img
-                    src={`/framework-logos/${ICON[name]}.svg`}
+                    src={`/framework-icons/${ICON[name]}.svg`}
                     alt=""
-                    width={20}
-                    height={20}
+                    width={24}
+                    height={24}
                     loading="lazy"
                     className="h-full w-full object-contain"
                   />
