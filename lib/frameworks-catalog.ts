@@ -58,6 +58,12 @@ export type FrameworkEntry = {
   ready?: boolean
 }
 
+// Single source of truth for the FNS repo URL. TEMPORARY: until the standalone
+// Fractera-Pro repo exists and the static-folder (contract A) / own-repo paths are
+// wired, EVERY ready B-path resolves here (fractera-pro default, Next.js preset, and
+// — temporarily — own-repo). One const so the future un-revert is a single edit.
+export const FNS_REPO = 'https://github.com/Fractera/fractera-next-starter.git'
+
 // Order = dropdown order. `fractera-pro` is the wide default button, shown above
 // the dropdown in the form; the rest populate the "choose your framework" list.
 export const FRAMEWORKS: FrameworkEntry[] = [
@@ -66,8 +72,8 @@ export const FRAMEWORKS: FrameworkEntry[] = [
   // path always lands a real external repo in the slot — never the (now-empty) bundled
   // substrate app, which would fail the build. Point this at the real Fractera-Pro repo
   // once it is built.
-  { id: 'fractera-pro', contract: 'B', repo: 'https://github.com/Fractera/fractera-next-starter.git', label: 'Fractera-Pro', ready: true },
-  { id: 'next',  contract: 'B', repo: 'https://github.com/Fractera/fractera-next-starter.git', label: 'Next.js', ready: true },
+  { id: 'fractera-pro', contract: 'B', repo: FNS_REPO, label: 'Fractera-Pro', ready: true },
+  { id: 'next',  contract: 'B', repo: FNS_REPO, label: 'Next.js', ready: true },
   { id: 'own-repo', contract: 'B', label: 'Your repository', needsRepoUrl: true, ready: true },
   { id: 'react', contract: 'A', label: 'React' },
   { id: 'vue',   contract: 'A', label: 'Vue' },
@@ -81,11 +87,14 @@ export function isFrameworkReady(id: FrameworkId): boolean {
 }
 
 // Resolve the repo URL to clone into the slot for a chosen framework.
-//   own-repo → the user-supplied URL · preset (incl. fractera-pro) → its catalog `repo`
-//   · only a contract-A preset (no repo, currently disabled) → '' (no clone). Every
-//   READY framework now resolves to a real external repo — no bundled-app fallback.
+//   own-repo → TEMPORARILY ignores the user URL and clones FNS (the own-repo path is
+//     not wired yet; cloning an arbitrary user repo is deferred). Restore by returning
+//     `(ownRepoUrl ?? '').trim()` once arbitrary repos are supported.
+//   preset (incl. fractera-pro) → its catalog `repo` (= FNS for now)
+//   contract-A preset (no repo, currently disabled) → '' (no clone).
+//   Every READY framework now resolves to a real external repo — no bundled-app fallback.
 export function resolveSlotRepoUrl(id: FrameworkId, ownRepoUrl?: string): string {
-  if (id === 'own-repo') return (ownRepoUrl ?? '').trim()
+  if (id === 'own-repo') return FNS_REPO // TEMPORARY: ignore user URL, deploy FNS
   return getFramework(id).repo ?? ''
 }
 
