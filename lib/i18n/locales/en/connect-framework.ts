@@ -5,9 +5,9 @@ type ConnectFrameworkPart = Pick<SiteContent, 'connectFramework'>
 export const connectFramework: ConnectFrameworkPart = {
   connectFramework: {
     badge: 'Any framework · Any repository',
-    h2: 'Connect your framework — deploy a starter of anything onto your VPS',
+    h2: 'Connect your framework — deploy an AI-workspace starter on your VPS',
     description:
-      'Fractera is not locked to one stack. The vision is simple: pick a framework, deploy a clean starter of it onto your own server in one click — or point us at any public repository. We are wiring frameworks one by one; the Next.js starter ships today, and more are landing as we expand the deploy pipeline.',
+      'Any framework you bring is automatically optimized for the built-in local database and local file storage, ships with authentication out of the box, and integrates with the on-server AI agents — all in one click on your own server.',
     // Curated, ordered list. Names are proper nouns shared across locales.
     frameworks: [
       'Next.js',
