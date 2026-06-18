@@ -35,37 +35,38 @@ export type FrameworkId =
   | 'svelte'       // SvelteKit adapter-static
   | 'own-repo'     // user-provided public repository (detected A/B on the fly)
   // ── Roadmap presets (NOT ready — "coming soon", disabled in the dropdown). ──
-  // Enumerated so the catalog + marketing grid reflect the vision: deploy a
-  // starter of ANY framework. The deploy pipeline still wires only the ready
-  // contract-B family above; these resolve to no repo until their starter lands.
-  | 'sveltekit'    // SvelteKit (node adapter → contract B)
+  // WEBSITE-BUILDING tools only: web frameworks, meta-frameworks, static-site
+  // generators. NO bare languages, NO ORMs/query builders. The deploy pipeline
+  // still wires only the ready contract-B family above; these resolve to no repo
+  // until their starter lands.
+  | 'sveltekit'    // SvelteKit (node → B)
   | 'nuxt'         // Nuxt (node → B)
+  | 'remix'        // Remix (node → B)
+  | 'gatsby'       // Gatsby (static → A)
+  | 'solid-start'  // SolidStart (node → B)
+  | 'qwik'         // Qwik (node → B)
   | 'react-router' // React Router (framework mode → B)
   | 'tanstack-start' // TanStack Start (node → B)
-  | 'solid-start'  // SolidStart (node → B)
+  | 'hugo'         // Hugo (static SSG → A)
+  | 'jekyll'       // Jekyll (static SSG → A)
+  | 'eleventy'     // Eleventy / 11ty (static SSG → A)
+  | 'vite'         // Vite (static → A)
+  | 'ember'        // Ember (static → A)
   | 'redwood'      // RedwoodJS (node → B)
-  | 'remix'        // Remix (node → B)
   | 'express'      // Express (node → B)
+  | 'nestjs'       // NestJS (node → B)
+  | 'fastify'      // Fastify (node → B)
   | 'hono'         // Hono (node → B)
-  | 'reflex'       // Reflex (Python web → B)
   | 'django'       // Django (Python → B)
+  | 'flask'        // Flask (Python → B)
+  | 'fastapi'      // FastAPI (Python → B)
+  | 'reflex'       // Reflex (Python web → B)
   | 'laravel'      // Laravel (PHP → B)
   | 'symfony'      // Symfony (PHP → B)
   | 'rails'        // Ruby on Rails (B)
   | 'phoenix'      // Phoenix / Elixir (B)
-  | 'quarkus'      // Quarkus / Java (B)
-  | 'micronaut'    // Micronaut / Java (B)
-  | 'dotnet'       // .NET (B)
-  | 'go'           // Go (B)
-  | 'rust'         // Rust (B)
-  | 'java'         // Java (B)
-  | 'python'       // Python (B)
-  | 'javascript'   // plain JavaScript (static → A)
-  | 'drizzle'      // Drizzle ORM (library — paired with a B host)
-  | 'prisma'       // Prisma ORM (library)
-  | 'kysely'       // Kysely query builder (library)
-  | 'typeorm'      // TypeORM (library)
-  | 'sqlalchemy'   // SQLAlchemy (library)
+  | 'spring'       // Spring (Java → B)
+  | 'dotnet'       // .NET / ASP.NET (B)
 
 export type FrameworkEntry = {
   id: FrameworkId
@@ -119,32 +120,32 @@ export const FRAMEWORKS: FrameworkEntry[] = [
   //    contract-B family is untouched. ──
   { id: 'sveltekit', contract: 'B', label: 'SvelteKit' },
   { id: 'nuxt', contract: 'B', label: 'Nuxt' },
+  { id: 'remix', contract: 'B', label: 'Remix' },
+  { id: 'gatsby', contract: 'A', label: 'Gatsby' },
+  { id: 'solid-start', contract: 'B', label: 'SolidStart' },
+  { id: 'qwik', contract: 'B', label: 'Qwik' },
   { id: 'react-router', contract: 'B', label: 'React Router' },
   { id: 'tanstack-start', contract: 'B', label: 'TanStack Start' },
-  { id: 'solid-start', contract: 'B', label: 'SolidStart' },
+  { id: 'hugo', contract: 'A', label: 'Hugo' },
+  { id: 'jekyll', contract: 'A', label: 'Jekyll' },
+  { id: 'eleventy', contract: 'A', label: 'Eleventy' },
+  { id: 'vite', contract: 'A', label: 'Vite' },
+  { id: 'ember', contract: 'A', label: 'Ember' },
   { id: 'redwood', contract: 'B', label: 'Redwood' },
-  { id: 'remix', contract: 'B', label: 'Remix' },
   { id: 'express', contract: 'B', label: 'Express' },
+  { id: 'nestjs', contract: 'B', label: 'NestJS' },
+  { id: 'fastify', contract: 'B', label: 'Fastify' },
   { id: 'hono', contract: 'B', label: 'Hono' },
-  { id: 'reflex', contract: 'B', label: 'Reflex' },
   { id: 'django', contract: 'B', label: 'Django' },
+  { id: 'flask', contract: 'B', label: 'Flask' },
+  { id: 'fastapi', contract: 'B', label: 'FastAPI' },
+  { id: 'reflex', contract: 'B', label: 'Reflex' },
   { id: 'laravel', contract: 'B', label: 'Laravel' },
   { id: 'symfony', contract: 'B', label: 'Symfony' },
   { id: 'rails', contract: 'B', label: 'Rails' },
   { id: 'phoenix', contract: 'B', label: 'Phoenix' },
-  { id: 'quarkus', contract: 'B', label: 'Quarkus' },
-  { id: 'micronaut', contract: 'B', label: 'Micronaut' },
+  { id: 'spring', contract: 'B', label: 'Spring' },
   { id: 'dotnet', contract: 'B', label: '.NET' },
-  { id: 'go', contract: 'B', label: 'Go' },
-  { id: 'rust', contract: 'B', label: 'Rust' },
-  { id: 'java', contract: 'B', label: 'Java' },
-  { id: 'python', contract: 'B', label: 'Python' },
-  { id: 'javascript', contract: 'A', label: 'JavaScript' },
-  { id: 'drizzle', contract: 'B', label: 'Drizzle' },
-  { id: 'prisma', contract: 'B', label: 'Prisma' },
-  { id: 'kysely', contract: 'B', label: 'Kysely' },
-  { id: 'typeorm', contract: 'B', label: 'TypeORM' },
-  { id: 'sqlalchemy', contract: 'B', label: 'SQLAlchemy' },
 ]
 
 export function isFrameworkReady(id: FrameworkId): boolean {

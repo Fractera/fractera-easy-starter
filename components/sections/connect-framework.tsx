@@ -9,16 +9,15 @@ import { useHeroContent } from '@/lib/i18n/context'
 // official logo). vue/react-router/solidstart/remix are colored brand marks,
 // also visible on the dark card.
 const ICON: Record<string, string> = {
-  'Next.js': 'next-js-dark', 'React': 'react', 'Vue': 'vue', 'Astro': 'astro-dark',
-  'SvelteKit': 'svelte', 'Nuxt': 'nuxt', 'React Router': 'react-router',
-  'TanStack Start': 'tanstack-dark', 'SolidStart': 'solidstart', 'Remix': 'remix',
-  'Redwood': 'redwoodsdk', 'Express': 'express-dark',
-  'Django': 'django-dark', 'Laravel': 'laravel-dark', 'Symfony': 'symfony-dark',
-  'Rails': 'rails-dark', 'Phoenix': 'phoenix', 'Quarkus': 'quarkus-dark',
-  'Micronaut': 'micronaut-dark', '.NET': 'dotnet', 'Go': 'go', 'Rust': 'rust-dark',
-  'Java': 'java-dark', 'Python': 'python', 'Drizzle': 'drizzle-dark',
-  'Prisma': 'prisma-dark', 'Kysely': 'kysely-dark', 'TypeORM': 'typeorm',
-  'SQLAlchemy': 'sqlalchemy-dark', 'JavaScript': 'javascript',
+  'Next.js': 'next-js-dark', 'React': 'react', 'Vue': 'vue', 'Angular': 'angular',
+  'SvelteKit': 'svelte', 'Nuxt': 'nuxt', 'Astro': 'astro-dark', 'Remix': 'remix',
+  'Gatsby': 'gatsby', 'SolidStart': 'solidstart', 'Qwik': 'qwik',
+  'React Router': 'react-router', 'TanStack Start': 'tanstack-dark', 'Hugo': 'hugo',
+  'Jekyll': 'jekyll', 'Eleventy': 'eleventy', 'Vite': 'vite', 'Ember': 'ember',
+  'Redwood': 'redwoodsdk', 'Express': 'express-dark', 'NestJS': 'nest-js',
+  'Fastify': 'fastify', 'Django': 'django-dark', 'Flask': 'flask', 'FastAPI': 'fastapi',
+  'Laravel': 'laravel-dark', 'Symfony': 'symfony-dark', 'Rails': 'rails-dark',
+  'Phoenix': 'phoenix', 'Spring': 'spring', '.NET': 'dotnet',
 }
 
 // "Connect your framework" — sits directly under the pricing/deploy block.

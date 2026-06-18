@@ -101,6 +101,9 @@ export default async function HomePage({
               <UltimateScale />
               <DeployButton caption={content.deployCaptions?.afterUltimateScale} />
               <div id="aircraft-carrier-wrap" className="w-full scroll-mt-16"><AircraftCarrier /></div>
+              {/* "Connect your framework" — placed directly under the aircraft-carrier
+                  section (above the VPS/pricing block) per the concept reframe. */}
+              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
               <DeployButton caption={content.deployCaptions?.afterAircraftCarrier} />
               {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
               <DeployButton caption={content.deployCaptions?.afterHero} />
@@ -122,11 +125,6 @@ export default async function HomePage({
               <div className="w-full max-w-4xl">
                 <PlatformSelector />
               </div>
-
-              {/* "Connect your framework" — reframes the product from "we deploy a
-                  50k-line Next app" to "deploy a starter of ANY framework (or any
-                  public repo)". Placed directly under the pricing/deploy block. */}
-              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
 
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <DeployButton caption={content.deployCaptions?.afterFeatures} />
