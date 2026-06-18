@@ -18,14 +18,15 @@
 // contract + build/run metadata only — never user-facing copy beyond a short label
 // that is itself overridden by locales where present.
 //
-// TEMPORARY (pivot day): `fractera-pro` is wired to the SAME handler as the empty
-// Next starter until the reference project becomes a real pluggable repo. The
-// marketing pitch stays honest — the default button is named after the product.
+// TEMPORARY (pivot day): `fractera-pro` clones the SAME repo as the Next.js preset
+// (FNS) until the standalone Fractera-Pro repo is built. The marketing pitch stays
+// honest — the default button is named after the product. Both the default and the
+// explicit Next.js choice therefore deploy FNS into the slot.
 
 export type RuntimeContract = 'A' | 'B'
 
 export type FrameworkId =
-  | 'fractera-pro' // our reference project (default) — temporarily = empty Next handler
+  | 'fractera-pro' // our reference project (default) — temporarily clones FNS (repo not built yet)
   | 'next'         // empty Next.js starter
   | 'react'        // Vite + React (static)
   | 'vue'          // Vite + Vue (static)
@@ -60,7 +61,12 @@ export type FrameworkEntry = {
 // Order = dropdown order. `fractera-pro` is the wide default button, shown above
 // the dropdown in the form; the rest populate the "choose your framework" list.
 export const FRAMEWORKS: FrameworkEntry[] = [
-  { id: 'fractera-pro', contract: 'B', label: 'Fractera-Pro', ready: true },
+  // TEMPORARY: the standalone Fractera-Pro repo does not exist yet, so the default
+  // button clones FNS (same repo as the Next.js preset). This guarantees the DEFAULT
+  // path always lands a real external repo in the slot — never the (now-empty) bundled
+  // substrate app, which would fail the build. Point this at the real Fractera-Pro repo
+  // once it is built.
+  { id: 'fractera-pro', contract: 'B', repo: 'https://github.com/Fractera/fractera-next-starter.git', label: 'Fractera-Pro', ready: true },
   { id: 'next',  contract: 'B', repo: 'https://github.com/Fractera/fractera-next-starter.git', label: 'Next.js', ready: true },
   { id: 'own-repo', contract: 'B', label: 'Your repository', needsRepoUrl: true, ready: true },
   { id: 'react', contract: 'A', label: 'React' },
@@ -75,8 +81,9 @@ export function isFrameworkReady(id: FrameworkId): boolean {
 }
 
 // Resolve the repo URL to clone into the slot for a chosen framework.
-//   own-repo → the user-supplied URL · preset → its catalog `repo` · else → '' (no
-// clone, keep the default reference app, e.g. temporary fractera-pro).
+//   own-repo → the user-supplied URL · preset (incl. fractera-pro) → its catalog `repo`
+//   · only a contract-A preset (no repo, currently disabled) → '' (no clone). Every
+//   READY framework now resolves to a real external repo — no bundled-app fallback.
 export function resolveSlotRepoUrl(id: FrameworkId, ownRepoUrl?: string): string {
   if (id === 'own-repo') return (ownRepoUrl ?? '').trim()
   return getFramework(id).repo ?? ''
