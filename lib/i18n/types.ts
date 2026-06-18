@@ -70,6 +70,24 @@ export type SiteContent = {
   dpRight: { imageSrc: string; title: string; description: string }
   platformsHeader: { label: string; h2: string; description: string; disclaimer: string }
   platformCards: { title: string; subtitle: string; company: string }[]
+  // "Connect your framework" — marketing section directly under the pricing/deploy
+  // block. Reframes the product from "we deploy a 50k-line Next app" to "deploy a
+  // starter of ANY framework (or any public repository)". VISION-toned: today the
+  // deploy pipeline wires only the Next starter (FNS); the framework cards are
+  // placeholders (href="/#") leading to upcoming per-framework guides. `frameworks`
+  // is the curated ordered list of card labels; `collapsedCount` is how many show
+  // before "Show all". `showAll`/`hide` are the toggle button labels; `hint` is the
+  // orange line below the grid.
+  connectFramework: {
+    badge: string
+    h2: string
+    description: string
+    frameworks: string[]
+    collapsedCount: number
+    showAll: string
+    hide: string
+    hint: string
+  }
   problemHeader: { label: string; h2: string; description: string }
   problemLabel: string
   solutionLabel: string

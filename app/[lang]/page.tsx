@@ -13,6 +13,7 @@ import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
 import { ProblemSection } from '@/components/sections/problem-section'
 import { PricingFlow } from '@/components/sections/pricing-flow'
+import { ConnectFramework } from '@/components/sections/connect-framework'
 import { PlatformSelector } from '@/components/platform-selector'
 import { DeployButton } from '@/components/deploy-button'
 import { FeaturesGrid } from '@/components/sections/features-grid'
@@ -121,6 +122,11 @@ export default async function HomePage({
               <div className="w-full max-w-4xl">
                 <PlatformSelector />
               </div>
+
+              {/* "Connect your framework" — reframes the product from "we deploy a
+                  50k-line Next app" to "deploy a starter of ANY framework (or any
+                  public repo)". Placed directly under the pricing/deploy block. */}
+              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
 
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <DeployButton caption={content.deployCaptions?.afterFeatures} />

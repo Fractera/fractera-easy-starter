@@ -8,7 +8,7 @@ type HeroPart = Pick<SiteContent,
 
 export const hero: HeroPart = {
   heroBadge: 'Open Source — Free Forever',
-  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS for Next.js Parallel Routes & Design-System Web Apps',
+  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS — Deploy a Starter of Any Framework or Any Repository',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",

@@ -34,6 +34,38 @@ export type FrameworkId =
   | 'astro'        // Astro static
   | 'svelte'       // SvelteKit adapter-static
   | 'own-repo'     // user-provided public repository (detected A/B on the fly)
+  // ── Roadmap presets (NOT ready — "coming soon", disabled in the dropdown). ──
+  // Enumerated so the catalog + marketing grid reflect the vision: deploy a
+  // starter of ANY framework. The deploy pipeline still wires only the ready
+  // contract-B family above; these resolve to no repo until their starter lands.
+  | 'sveltekit'    // SvelteKit (node adapter → contract B)
+  | 'nuxt'         // Nuxt (node → B)
+  | 'react-router' // React Router (framework mode → B)
+  | 'tanstack-start' // TanStack Start (node → B)
+  | 'solid-start'  // SolidStart (node → B)
+  | 'redwood'      // RedwoodJS (node → B)
+  | 'remix'        // Remix (node → B)
+  | 'express'      // Express (node → B)
+  | 'hono'         // Hono (node → B)
+  | 'reflex'       // Reflex (Python web → B)
+  | 'django'       // Django (Python → B)
+  | 'laravel'      // Laravel (PHP → B)
+  | 'symfony'      // Symfony (PHP → B)
+  | 'rails'        // Ruby on Rails (B)
+  | 'phoenix'      // Phoenix / Elixir (B)
+  | 'quarkus'      // Quarkus / Java (B)
+  | 'micronaut'    // Micronaut / Java (B)
+  | 'dotnet'       // .NET (B)
+  | 'go'           // Go (B)
+  | 'rust'         // Rust (B)
+  | 'java'         // Java (B)
+  | 'python'       // Python (B)
+  | 'javascript'   // plain JavaScript (static → A)
+  | 'drizzle'      // Drizzle ORM (library — paired with a B host)
+  | 'prisma'       // Prisma ORM (library)
+  | 'kysely'       // Kysely query builder (library)
+  | 'typeorm'      // TypeORM (library)
+  | 'sqlalchemy'   // SQLAlchemy (library)
 
 export type FrameworkEntry = {
   id: FrameworkId
@@ -80,6 +112,39 @@ export const FRAMEWORKS: FrameworkEntry[] = [
   { id: 'angular', contract: 'A', label: 'Angular' },
   { id: 'astro', contract: 'A', label: 'Astro' },
   { id: 'svelte', contract: 'A', label: 'Svelte' },
+  // ── Roadmap presets — ready omitted (= not ready). Shown "coming soon"
+  //    in the dropdown (disabled) and as placeholder cards in the marketing
+  //    "Connect your framework" grid. Contract is the EXPECTED runtime once
+  //    wired; resolveSlotRepoUrl returns '' for them (no repo yet) — the ready
+  //    contract-B family is untouched. ──
+  { id: 'sveltekit', contract: 'B', label: 'SvelteKit' },
+  { id: 'nuxt', contract: 'B', label: 'Nuxt' },
+  { id: 'react-router', contract: 'B', label: 'React Router' },
+  { id: 'tanstack-start', contract: 'B', label: 'TanStack Start' },
+  { id: 'solid-start', contract: 'B', label: 'SolidStart' },
+  { id: 'redwood', contract: 'B', label: 'Redwood' },
+  { id: 'remix', contract: 'B', label: 'Remix' },
+  { id: 'express', contract: 'B', label: 'Express' },
+  { id: 'hono', contract: 'B', label: 'Hono' },
+  { id: 'reflex', contract: 'B', label: 'Reflex' },
+  { id: 'django', contract: 'B', label: 'Django' },
+  { id: 'laravel', contract: 'B', label: 'Laravel' },
+  { id: 'symfony', contract: 'B', label: 'Symfony' },
+  { id: 'rails', contract: 'B', label: 'Rails' },
+  { id: 'phoenix', contract: 'B', label: 'Phoenix' },
+  { id: 'quarkus', contract: 'B', label: 'Quarkus' },
+  { id: 'micronaut', contract: 'B', label: 'Micronaut' },
+  { id: 'dotnet', contract: 'B', label: '.NET' },
+  { id: 'go', contract: 'B', label: 'Go' },
+  { id: 'rust', contract: 'B', label: 'Rust' },
+  { id: 'java', contract: 'B', label: 'Java' },
+  { id: 'python', contract: 'B', label: 'Python' },
+  { id: 'javascript', contract: 'A', label: 'JavaScript' },
+  { id: 'drizzle', contract: 'B', label: 'Drizzle' },
+  { id: 'prisma', contract: 'B', label: 'Prisma' },
+  { id: 'kysely', contract: 'B', label: 'Kysely' },
+  { id: 'typeorm', contract: 'B', label: 'TypeORM' },
+  { id: 'sqlalchemy', contract: 'B', label: 'SQLAlchemy' },
 ]
 
 export function isFrameworkReady(id: FrameworkId): boolean {

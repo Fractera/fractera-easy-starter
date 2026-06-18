@@ -4,6 +4,7 @@ import { loopShowcase } from './loop-showcase'
 import { presentation } from './presentation'
 import { problem } from './problem'
 import { pricing } from './pricing'
+import { connectFramework } from './connect-framework'
 import { install } from './install'
 import { features } from './features'
 import { faqItems } from './faq'
@@ -21,6 +22,7 @@ export const en: SiteContent = {
   ...presentation,
   ...problem,
   ...pricing,
+  ...connectFramework,
   ...install,
   ...features,
   ...sponsorship,
