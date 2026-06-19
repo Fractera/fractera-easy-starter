@@ -15,8 +15,16 @@ export function Hero() {
   const content = useHeroContent()
   const lang = useLang()
 
+  // Full-bleed ONLY for the hero: span the viewport but cap at 1920px, centered.
+  // Breaks out of the page's max-w-5xl container via a centered margin trick (the rest of
+  // the page stays constrained). width = min(100vw,1920px) = 2·min(50vw,960px); the margin
+  // places its left edge at viewport-center − that half, so it is full-bleed up to 1920 then
+  // centered. html{overflow-x:clip} (globals) absorbs the scrollbar overshoot.
   return (
-    <div className="relative min-h-screen overflow-hidden flex flex-col -mx-6 w-[calc(100%+3rem)]">
+    <div
+      className="relative min-h-screen overflow-hidden flex flex-col"
+      style={{ width: 'min(100vw, 1920px)', marginInline: 'calc(50% - min(50vw, 960px))' }}
+    >
       <video
         className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
         src="/video/ai-loop.mp4"
