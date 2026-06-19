@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
+import { getAllArticles } from '@/lib/news/articles'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
@@ -20,26 +21,13 @@ function formatDate(iso: string): string {
   })
 }
 
-// Placeholder feed — real news entries arrive in a later step (same data-driven
-// shape as documentation's getAllDocs()). One representative card for now.
-const NEWS = [
-  {
-    slug: '#',
-    date: '2026-06-19',
-    readingMinutes: 1,
-    title: 'Fractera News is live — chronological, AI-searchable project updates',
-    summary:
-      'From now on every change to the project lands here in order, and is embedded into the on-server vector knowledge base at the same time — so you can search the full history with AI from inside your workspace.',
-  },
-]
-
 export default async function NewsPage({
   params,
 }: {
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const news = NEWS
+  const news = getAllArticles()
 
   const breadcrumb = {
     '@context': 'https://schema.org',
@@ -72,7 +60,7 @@ export default async function NewsPage({
             {news.map(item => (
               <li key={item.title}>
                 <a
-                  href={item.slug === '#' ? '#' : `/${lang}/news/${item.slug}`}
+                  href={`/${lang}/news/${item.slug}`}
                   className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-white/[0.02]"
                 >
                   <div className="flex items-center gap-3 text-xs text-white/40">

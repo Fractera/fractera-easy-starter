@@ -12,6 +12,7 @@ export const connectFramework: ConnectFrameworkPart = {
     // frameworks, static-site generators). No bare languages, no ORMs/query builders.
     // Names are proper nouns shared across locales.
     frameworks: [
+      'Fractera Pro',
       'Next.js',
       'React',
       'Vue',

@@ -12,6 +12,7 @@ export const connectFramework: ConnectFrameworkPart = {
     // статических сайтов). Без «голых» языков и без ORM/query-билдеров.
     // Имена собственные — общие для всех локалей.
     frameworks: [
+      'Fractera Pro',
       'Next.js',
       'React',
       'Vue',

@@ -16,6 +16,7 @@ export function SiteHeader() {
   const { openModal } = useAuthModal()
   const { openServers, openSubscription, openPurchases, openPartnerCabinet } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [deployOpen, setDeployOpen] = useState(false)
   const [fwOpen, setFwOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
@@ -40,22 +41,52 @@ export function SiteHeader() {
           </Link>
 
           {/* Separator + nav to the right of the wordmark, in this exact order:
-              Docs · Deployments · Frameworks (dropdown) · Company Brain · News.
+              Deploy (dropdown) · Frameworks (dropdown) · Company Brain · Docs · News.
               Desktop only (>=780px); below that they collapse into the hamburger. */}
           <div className="hidden min-[780px]:flex items-center gap-3 ml-1">
             <span className="h-5 w-px bg-white/25" aria-hidden />
-            <Link
-              href={`/${lang}/documentation`}
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              Docs
-            </Link>
-            <Link
-              href={`/${lang}/deployments`}
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              Deployments
-            </Link>
+
+            {/* Deploy dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDeployOpen(v => !v)}
+                className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
+              >
+                Deploy
+                <svg
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${deployOpen ? 'rotate-180' : ''}`}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+
+              {deployOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setDeployOpen(false)} />
+                  <div className="absolute left-0 top-full mt-1 z-50 w-52 bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
+                    <Link
+                      href={`/${lang}/deployments`}
+                      onClick={() => setDeployOpen(false)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
+                    >
+                      Manual VPS Deploy
+                    </Link>
+                    <a
+                      href="/#"
+                      onClick={() => setDeployOpen(false)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
+                    >
+                      MCP Deploy
+                    </a>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Frameworks dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -83,7 +114,15 @@ export function SiteHeader() {
                         onClick={() => setFwOpen(false)}
                         className="group flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
                       >
-                        {ICON[name] ? (
+                        {name === 'Fractera Pro' ? (
+                          <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center">
+                            <img
+                              src="/favicon-32x32.png"
+                              alt="" width={20} height={20} loading="lazy"
+                              className="h-full w-full object-contain rounded-sm"
+                            />
+                          </span>
+                        ) : ICON[name] ? (
                           <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center">
                             <img
                               src={`/framework-icons/${ICON[name]}.svg`}
@@ -114,6 +153,12 @@ export function SiteHeader() {
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
               Company Brain
+            </Link>
+            <Link
+              href={`/${lang}/documentation`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Docs
             </Link>
             <Link
               href={`/${lang}/news`}
@@ -265,21 +310,21 @@ export function SiteHeader() {
       </div>
 
       {/* Mobile nav menu (<780px): the collapsed nav as a vertical list, in the
-          same order — Docs · Deployments · Frameworks · Company Brain · News. */}
+          same order — Deploy · Frameworks · Company Brain · Docs · News. */}
       {mobileOpen && (
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
-            <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Docs
-            </Link>
             <Link href={`/${lang}/deployments`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Deployments
+              Deploy
             </Link>
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Frameworks
             </a>
             <Link href={`/${lang}/company-brain`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Company Brain
+            </Link>
+            <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Docs
             </Link>
             <Link href={`/${lang}/news`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               News
