@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { useLang } from '@/lib/i18n/use-lang'
+import { getContent } from '@/lib/i18n/locales'
+import { ICON } from '@/components/sections/connect-framework'
 
 export function SiteHeader() {
   const pathname = usePathname() ?? ''
@@ -14,9 +16,12 @@ export function SiteHeader() {
   const { openModal } = useAuthModal()
   const { openServers, openSubscription, openPurchases, openPartnerCabinet } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [fwOpen, setFwOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
   const isPartner = !!session?.user?.partnerSlug
   const lang = useLang()
+  const frameworks = getContent(lang).connectFramework.frameworks
   const partnerCabinetLabel = lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet'
 
   if (pathname.includes('/embed')) return null
@@ -27,15 +32,97 @@ export function SiteHeader() {
 
   return (
     <header className="w-full border-b border-white/40 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
-      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div className="w-full px-6 md:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Image src="/fractera-logo.jpg" alt="Fractera" width={28} height={28} className="rounded" />
             <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
           </Link>
+
+          {/* Separator + nav to the right of the wordmark: Docs (opens the
+              documentation index) and a Frameworks dropdown that reuses the
+              connect-framework list (icons + names). Desktop only (>=780px);
+              below that these collapse into the hamburger menu. */}
+          <div className="hidden min-[780px]:flex items-center gap-3 ml-1">
+            <span className="h-5 w-px bg-white/25" aria-hidden />
+            <Link
+              href={`/${lang}/documentation`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Docs
+            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setFwOpen(v => !v)}
+                className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
+              >
+                Frameworks
+                <svg
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${fwOpen ? 'rotate-180' : ''}`}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+
+              {fwOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setFwOpen(false)} />
+                  <div className="absolute left-0 top-full mt-1 z-50 w-64 max-h-[600px] overflow-y-auto bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
+                    {frameworks.map((name) => (
+                      <a
+                        key={name}
+                        href="/#"
+                        onClick={() => setFwOpen(false)}
+                        className="group flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
+                      >
+                        {ICON[name] ? (
+                          <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center">
+                            <img
+                              src={`/framework-icons/${ICON[name]}.svg`}
+                              alt="" width={20} height={20} loading="lazy"
+                              className="h-full w-full object-contain"
+                            />
+                          </span>
+                        ) : (
+                          <span
+                            aria-hidden
+                            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/[0.04] text-[10px] font-bold text-violet-300"
+                          >
+                            {name.charAt(0)}
+                          </span>
+                        )}
+                        <span className="text-sm font-medium text-white/85 group-hover:text-white truncate transition-colors">
+                          {name}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <Link
+              href={`/${lang}/company-brain`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Company Brain
+            </Link>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Deployments — first button immediately left of the avatar. Desktop
+              only (>=780px); on mobile it lives in the hamburger menu. */}
+          <Link
+            href={`/${lang}/deployments`}
+            className="hidden min-[780px]:inline-flex text-sm font-medium text-white/80 hover:text-white transition-colors"
+          >
+            Deployments
+          </Link>
+
           {status === 'loading' && (
             <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse" />
           )}
@@ -150,8 +237,51 @@ export function SiteHeader() {
 
             </div>
           )}
+
+          {/* Hamburger — mobile only (<780px). Toggles the nav links that the
+              desktop bar shows inline. */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(v => !v)}
+            aria-label="Menu"
+            aria-expanded={mobileOpen}
+            className="min-[780px]:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {mobileOpen ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <>
+                  <path d="M3 6h18" />
+                  <path d="M3 12h18" />
+                  <path d="M3 18h18" />
+                </>
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* Mobile nav menu (<780px): the collapsed Docs / Frameworks / Company
+          Brain / Deployments buttons as a vertical list. */}
+      {mobileOpen && (
+        <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
+          <div className="flex flex-col px-6 py-2">
+            <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Docs
+            </Link>
+            <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Frameworks
+            </a>
+            <Link href={`/${lang}/company-brain`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Company Brain
+            </Link>
+            <Link href={`/${lang}/deployments`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Deployments
+            </Link>
+          </div>
+        </nav>
+      )}
     </header>
   )
 }

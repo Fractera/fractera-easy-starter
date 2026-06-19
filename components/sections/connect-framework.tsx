@@ -8,7 +8,7 @@ import { useHeroContent } from '@/lib/i18n/context'
 // needed). Names not present fall back to a letter chip (Hono, Reflex have no
 // official logo). vue/react-router/solidstart/remix are colored brand marks,
 // also visible on the dark card.
-const ICON: Record<string, string> = {
+export const ICON: Record<string, string> = {
   'Next.js': 'next-js-dark', 'React': 'react', 'Vue': 'vue', 'Angular': 'angular',
   'SvelteKit': 'svelte', 'Nuxt': 'nuxt', 'Astro': 'astro-dark', 'Remix': 'remix',
   'Gatsby': 'gatsby', 'SolidStart': 'solidstart', 'Qwik': 'qwik',
