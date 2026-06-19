@@ -31,7 +31,7 @@ export function Hero() {
         autoPlay loop muted playsInline
       />
       <div className="relative z-10 flex flex-col flex-1 min-h-screen">
-        <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-3xl mx-auto">
+        <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-[1250px] mx-auto">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
             <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
