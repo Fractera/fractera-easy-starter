@@ -5,12 +5,31 @@
 
 import type { BlogBlock } from '@/lib/blog/posts'
 
+// Per-language overrides. A locale may override just the SEO surface, or supply a
+// fully translated page (subtitle + blocks + faq). `blocks`, when present, replaces
+// the body entirely; otherwise `headings` (English H2 text -> localized label) does
+// a light heading-only localization. Fall back to the base (EN) values for anything
+// not provided.
+export type NewsLocale = {
+  seoTitle?: string
+  title?: string
+  subtitle?: string
+  description?: string
+  summary?: string
+  keywords?: string
+  headings?: Record<string, string>
+  blocks?: BlogBlock[]
+  faq?: { q: string; a: string }[]
+}
+
 export type NewsArticle = {
   slug: string
-  title: string
+  title: string           // visible H1 / breadcrumb / index card
+  seoTitle?: string       // <title> + og/twitter title — kept distinct from H1 on purpose
   subtitle?: string
-  description: string     // SEO meta description
+  description: string      // SEO meta description
   summary: string         // one-liner shown in the flat index list
+  keywords?: string        // meta keywords + JSON-LD keywords (comma-separated)
   date: string            // ISO date
   readingMinutes: number
   tags: string[]
@@ -19,21 +38,238 @@ export type NewsArticle = {
   ogImage: string         // path relative to /public or absolute URL
   blocks: BlogBlock[]
   faq?: { q: string; a: string }[]
+  i18n?: Record<string, NewsLocale>
+}
+
+// Resolve an article's user-facing strings for a given language, applying any
+// i18n override and falling back to the base (EN) values. H2 block texts are
+// swapped per the `headings` map so both the rendered headings and the
+// data-driven table of contents localize together (and keep matching anchors).
+export function resolveArticle(article: NewsArticle, lang: string) {
+  const loc = article.i18n?.[lang]
+  const title = loc?.title ?? article.title
+  const blocks = loc?.blocks
+    ?? (loc?.headings
+      ? article.blocks.map(b =>
+          b.kind === 'h2' && loc.headings?.[b.text]
+            ? { ...b, text: loc.headings[b.text] }
+            : b,
+        )
+      : article.blocks)
+  return {
+    title,
+    seoTitle: loc?.seoTitle ?? article.seoTitle ?? title,
+    subtitle: loc?.subtitle ?? article.subtitle,
+    description: loc?.description ?? article.description,
+    summary: loc?.summary ?? article.summary,
+    keywords: loc?.keywords ?? article.keywords,
+    blocks,
+    faq: loc?.faq ?? article.faq,
+  }
 }
 
 const ARTICLES: NewsArticle[] = [
   {
     slug: 'ai-draft-settings-evolutionary-pipeline',
-    title: 'AI Draft Settings: The Page Where Your Workspace Learns New Skills',
-    subtitle: 'It comes with every Next.js-based starter, and it is the first piece of a system that lets a project grow its own intelligence over time',
+    title: 'AI Draft Settings: The Instruction & Skill Staging Conveyor for AI Agents',
+    seoTitle: 'AI Draft Settings: Staging Conveyor for Agent Prompts, Skills & MCP Tools',
+    subtitle: 'It ships with every Next.js-based starter — a safe staging layer where people and AI agents draft, test, and store system instructions, skills, and MCP tools before they reach production',
     description:
-      'Meet the AI Draft Settings page — the place where you, or any of your AI agents, propose a new skill, instruction, or connector and stage it safely before it goes live. It ships with every Next.js-based framework today, works by hand or by agent, and is the first link in a seven-stage pipeline for evolving a workspace.',
+      'Discover the AI Draft Settings staging conveyor in Fractera. A secure incubator where developers and MCP agents like Claude Code safely draft, test, and store system instructions, custom skills, and tool configurations before production deployment.',
     summary:
       'A plain-language tour of the AI Draft Settings page — where people and AI agents draft new capabilities together, included as standard with every Next.js-based starter.',
+    keywords:
+      'staging conveyor for agent prompts, custom system instructions, instruction skill staging conveyor, prompt staging incubator, Claude Code tool drafting, framework mcp configuration',
     date: '2026-06-19',
     readingMinutes: 6,
-    tags: ['AI Draft Settings', 'Evolutionary Pipeline', 'Multi-Framework', 'MCP'],
+    tags: ['AI Draft Settings', 'Prompt Staging', 'Agent Skills', 'MCP Tools'],
     author: { name: 'Fractera Team', role: 'Product' },
+    // Per-language overrides. RU is a FULL localization (its own SEO surface +
+    // subtitle + translated body blocks + FAQ), deliberately framed around the
+    // "песочница / инкубатор" angle rather than the EN "staging conveyor" wording,
+    // so Google sees two distinct pages (no duplicate-content / cannibalization).
+    i18n: {
+      ru: {
+        seoTitle: 'AI Draft Settings: Песочница системных промптов, инструкций и навыков ИИ',
+        title: 'AI Draft Settings: Конвейер безопасной отладки инструкций и навыков для ИИ-агентов',
+        description:
+          'Обзор архитектуры AI Draft Settings во Fractera. Изолированная песочница, где разработчики и ИИ-агенты (Claude Code, Hermes) могут безопасно настраивать, тестировать и хранить системные инструкции, промпты и MCP-коннекторы до деплоя в продакшен.',
+        summary:
+          'Разбор страницы AI Draft Settings — изолированной песочницы, где люди и ИИ-агенты безопасно собирают и отлаживают системные промпты, навыки и MCP-коннекторы до отправки в продакшен.',
+        keywords:
+          'песочница системных промптов, отладка инструкций и навыков, кастомные системные промпты, раздувание контекстного окна, инкубатор навыков ИИ, настройка Claude Code MCP',
+        subtitle: 'Входит в каждый стартер на базе Next.js — безопасный слой-песочница, где люди и ИИ-агенты собирают, тестируют и хранят системные инструкции, навыки и MCP-инструменты до отправки в продакшен',
+        blocks: [
+          {
+            kind: 'p',
+            text: 'Fractera добавляет новую страницу в каждое рабочее пространство — **AI Draft Settings**. Это место, где вы или один из ваших ИИ-агентов предлагаете новый навык, новую инструкцию или новый коннектор и держите его в виде безопасного черновика, прежде чем он коснётся боевой конфигурации. И это первый элемент чего-то большего: системы, которая со временем позволяет рабочему пространству наращивать собственный интеллект. Ниже — что делает страница, как ею пользуетесь вы и ваши агенты и куда всё это движется, простыми словами.',
+          },
+          {
+            kind: 'h2',
+            text: 'Диспетчерская для кастомных системных промптов и конфигураций MCP',
+          },
+          {
+            kind: 'p',
+            text: 'Воспринимайте её как диспетчерскую для ИИ-стороны вашего проекта. Обычная админ-панель управляет бизнес-данными — пользователями, заказами, контентом. Эта страница управляет другим: тем, что ваши ИИ-агенты знают и что им разрешено делать. Здесь вы видите и настраиваете инструкции каждого агента, его навыки и MCP-инструменты, которые он может вызывать. Ничто здесь не настраивает функции вашего приложения — это настраивает «умы» за ними.',
+          },
+          {
+            kind: 'h3',
+            text: 'Входит в каждый фреймворк на базе Next.js',
+          },
+          {
+            kind: 'p',
+            text: 'Сегодня страница AI Draft Settings входит в каждый стартер на базе Next.js, который разворачивает Fractera. Её не нужно устанавливать, включать или подключать — как только рабочее пространство поднимается, страница уже на месте и уже связана со всеми шестью ИИ-агентами. (Поддержка других семейств фреймворков на подходе — об этом ближе к концу.)',
+          },
+          {
+            kind: 'list',
+            items: [
+              'Шесть агентов из коробки: Claude Code, Codex CLI, Gemini CLI, Qwen Code, Kimi Code и Hermes',
+              'Живой просмотр реальных файлов инструкций и активных навыков каждого агента — прямо из проекта, в точности как сейчас',
+              'Слой черновиков, где новые идеи безопасно ждут, прежде чем вступят в силу',
+              'MCP-инструменты каждого агента — со списком и редактированием в полноценном редакторе кода',
+              'Защищённая «зона риска» для осознанного удаления — с наглядным сравнением «до и после» и шагом подтверждения',
+            ],
+          },
+          {
+            kind: 'h2',
+            text: 'Два режима сборки: Ручная инженерия промптов vs Автономные пулы агентов',
+          },
+          {
+            kind: 'h3',
+            text: 'Делаем сами, в интерфейсе',
+          },
+          {
+            kind: 'p',
+            text: 'Откройте страницу — увидите две панели. Слева — шесть агентов. Кликните по одному, и справа появятся его реальные инструкции, навыки и зарегистрированные инструменты — ровно так, как они лежат на диске. Эти панели намеренно только для чтения: это источник истины, а не черновик. Черновик — это слой поверх. Вы записываете нужное изменение — новый навык, правку инструкции, идею инструмента — и сохраняете. Черновик помечается как ожидающий и остаётся там, пока с ним что-то не сделают.',
+          },
+          {
+            kind: 'figure',
+            media: 'image',
+            src: '/news/fractera-ai-draft-settings/fractera-ai-draft-settings-screenshot.png',
+            alt: 'Страница AI Draft Settings в живом рабочем пространстве: слева дерево агентов, справа выбранный MCP-коннектор и его реальный исходник',
+            caption: 'Страница AI Draft Settings в живом рабочем пространстве — слева каждый агент и его файлы, справа выбранный элемент и его реальный исходник. Сохранение пишет вашу версию в черновик; реального файла ничто не касается, пока агент не применит изменение.',
+          },
+          {
+            kind: 'h3',
+            text: 'Поручаем агенту',
+          },
+          {
+            kind: 'p',
+            text: 'Страница не только для людей. Любой из агентов тоже может ею пользоваться. Прямо посреди обычной рабочей сессии Claude Code (или любой другой) может вызвать встроенный навык — **`propose-new-agent-skill-or-mcp`** — описать задуманную возможность, и черновик сам появится на странице. Hermes делает то же самое через свой коннектор (**`owner_draft_create_record`** на сервере `ai-draft-bridge`, порт 3221). Самое важное: у каждого агента есть собственная копия этой способности. Она работает, даже если в проекте всего один агент и больше ничего — не нужен общий «мозг», нет единой точки отказа.',
+          },
+          {
+            kind: 'h2',
+            text: 'Безопасный менеджмент промптов: Защита от раздувания контекстного окна',
+          },
+          {
+            kind: 'h3',
+            text: 'Как это работает',
+          },
+          {
+            kind: 'p',
+            text: 'В какой-то момент вы — или один из ваших агентов — захотите изменить поведение агента: обновить инструкцию, добавить навык или подключить новый коннектор. Начать это может любая модель на платформе, потому что эти настройки скопированы каждому агенту. Так задумано: даже если всё ваше рабочее пространство — это один агент (скажем, только Codex или только Hermes), способность всё равно на месте. Ничто в ней не зависит от присутствия одного конкретного агента.',
+          },
+          {
+            kind: 'p',
+            text: 'Вы можете изложить желаемое простыми словами — просто запишите своё пожелание о том, как должен работать агент. Если хотите точнее, можно передать это структурно: через небольшой встроенный терминал или пошагово, с помощью инструмента вроде to-do-списка. Важно чётко понимать одно: запись пожелания — это **не** само техническое решение. Оно пока ничего не собирает. Это заметка — понятное ТЗ на будущее, для инструмента, который позже сгенерирует реальный навык.',
+          },
+          {
+            kind: 'p',
+            text: 'Каждый добавленный черновик помечает родительский контейнер как изменённый — рядом появляется небольшой оранжевый бейдж **req**, и сразу видно, что что-то ждёт. Когда придёт время, вы или агент можете отправить черновик в работу — нажав соответствующую кнопку или в результате логического шага. Тогда ИИ сначала очищает существующую заметку, а затем на странице **Development Steps** создаётся новая запись под названием **Next Step**. Все детали задачи переносятся в неё. Дальше — в зависимости от того, что ещё выполняется и что важнее, — реальную сборку в нужный момент запускает либо агент, либо человек.',
+          },
+          {
+            kind: 'p',
+            text: 'Обратите внимание, чего **не** происходит: черновик никогда не превращается в код автоматически в момент создания. Это сознательный выбор. Запуск сборки прямо тогда мог бы переполнить активное контекстное окно агента, снизить качество кода, который он генерирует в основном процессе, или — в худшем случае — вовсе сломать прогон, например исчерпав ваш бюджет токенов раньше запланированного. Поэтому передача в работу — всегда осознанный шаг, который делают, когда это уместно.',
+          },
+          {
+            kind: 'p',
+            text: 'Если коротко, жизненный цикл — три простых шага:',
+          },
+          {
+            kind: 'olist',
+            items: [
+              '**Создать черновик** — записать нужный навык, инструкцию или коннектор.',
+              '**Перевести в очередь** — когда будете готовы, отправить черновик дальше; он становится записью Next Step на странице Development Steps и ждёт своей очереди.',
+              '**Превратить в реальную сущность** — агент (или вы) собирает настоящий навык, инструкцию или коннектор, и он выходит в работу.',
+            ],
+          },
+          {
+            kind: 'h2',
+            text: 'Перенос валидированных черновиков в рабочую среду продакшена',
+          },
+          {
+            kind: 'p',
+            text: 'Сейчас цикл полуавтоматический — и уже быстрый. Вы описываете нужное на странице AI Draft Settings. Отправляете дальше. Агент берёт задачу, собирает её, и новая способность выходит в работу — часто в той же сессии. Вы задаёте направление; ИИ выполняет сборку.',
+          },
+          {
+            kind: 'p',
+            text: 'Это первая часть большего плана — семиступенчатого конвейера для наращивания навыков рабочего пространства. По мере того как мы добавляем остальное — автоматическое тестирование, отлов регрессий, визуальные диффы, данные об использовании и обратную связь, которая настраивает сама себя, — каждая ступень требует чуть меньше участия человека, чем предыдущая. Конечное состояние — цикл, который выполняется сам от начала до конца, во многом как [автономный цикл разработки Fractera](https://www.fractera.ai/ai-development-loop): возникает потребность, агент её планирует, собирает, проверяет, выпускает и фиксирует результат — и никто не нажимает кнопку.',
+          },
+          {
+            kind: 'quote',
+            text: 'Страница AI Draft Settings — там, где встречаются человеческое намерение и машинная способность. Сегодня ей нужен триггер. Завтра — уже нет.',
+            cite: 'Продуктовая команда Fractera',
+          },
+          {
+            kind: 'h2',
+            text: 'Кросс-платформенная отладка: Готовые транспортные слои под любой стек',
+          },
+          {
+            kind: 'p',
+            text: 'Fractera начиналась с Next.js, но идея никогда не должна была на нём останавливаться. AI-native-разработка не должна принадлежать одному фреймворку. Поэтому мы переносим ту же связку — ту же глубину, что [у разработчиков на Next.js уже есть сегодня](https://www.fractera.ai/next-aircraft-carrier), — на каждый популярный веб-фреймворк и прикладной стек.',
+          },
+          {
+            kind: 'p',
+            text: 'Делаем мы это прямолинейно. Для каждого фреймворка мы собираем отдельный **ai-workspace transport**: готовый интеграционный слой, который подключает этот фреймворк к общим сервисам Fractera, чтобы вам не пришлось самим разбираться в «проводке». Вот полный набор стеков, которые мы берём на борт, — раскройте, чтобы увидеть все:',
+          },
+          {
+            kind: 'frameworks',
+          },
+          {
+            kind: 'h3',
+            text: 'Что получает каждый фреймворк',
+          },
+          {
+            kind: 'list',
+            items: [
+              '**Встроенная база данных** — локальный SQLite через сервис данных Fractera, со слоем данных, который ощущается родным для вашего фреймворка',
+              '**Авторизация** — сессии и простая ролевая модель ([гость, пользователь, архитектор](https://www.fractera.ai/ru/documentation/authentication-roles-and-providers)), подогнанная под то, как ваш фреймворк уже работает с авторизацией',
+              '**Файловое и медиа-хранилище** — локальное объектное хранилище, смонтированное на уровне фреймворка, с готовыми API загрузки и скачивания с первого дня',
+              '**Полный стек ИИ-агентов** — все пять кодинг-агентов (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) плюс «мозг» Hermes, подключённые с первого деплоя',
+              '**Единая MCP-архитектура** — одна и та же tool-first-модель независимо от стека; агенты вызывают инструменты, а не сырые API',
+            ],
+          },
+          {
+            kind: 'p',
+            text: 'Мы выкатываем их по одному, и каждый новый стартер сначала анонсируется здесь, в Новостях.',
+          },
+          {
+            kind: 'cta',
+            text: 'Разверните своё первое AI-оптимизированное рабочее пространство уже сегодня — выберите фреймворк и начните.',
+            href: 'https://www.fractera.ai/',
+            label: 'Развернуть с ИИ',
+          },
+        ],
+        faq: [
+          {
+            q: 'Что такое страница AI Draft Settings и что она делает?',
+            a: 'AI Draft Settings — это страница рабочего пространства, входящая в стандартную поставку каждого стартера Fractera на базе Next.js. Это визуальная диспетчерская для ИИ-стороны вашего проекта: вы видите и редактируете файлы инструкций каждого агента, просматриваете его активные навыки и MCP-инструменты и предлагаете новые возможности через простую систему черновиков. Она объединяет всех шести ИИ-агентов (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code и Hermes) в одном месте, с живыми панелями прямо из файлов проекта.',
+          },
+          {
+            q: 'Как ИИ-агенты взаимодействуют с AI Draft Settings автоматически?',
+            a: 'Любой из шести агентов может вызвать встроенный навык «propose-new-agent-skill-or-mcp» и создать черновик самостоятельно, без участия человека. Hermes добирается до того же места через свой коннектор (инструмент owner_draft_create_record на сервере ai-draft-bridge, порт 3221). У каждого агента есть собственная копия навыка, и он полностью самодостаточен — нет единой точки отказа и зависимости от того, что в этот же момент онлайн какой-то другой агент.',
+          },
+          {
+            q: 'Превращение черновика в реальный навык происходит автоматически?',
+            a: 'Нет — и это сделано намеренно. Создание черновика лишь записывает ТЗ; оно ничего не собирает. Когда вы или агент отправляете черновик дальше, заметка очищается и на странице Development Steps создаётся запись Next Step, где реальная работа планируется и запускается в нужный момент. Автозапуск сборки в момент создания черновика мог бы переполнить контекстное окно агента, ухудшить качество кода в основном процессе или досрочно исчерпать лимиты токенов — поэтому передача в работу всегда осознанный шаг.',
+          },
+          {
+            q: 'Какие фреймворки поддерживает Fractera и какие на подходе?',
+            a: 'Страница AI Draft Settings сегодня поставляется с каждым стартером на базе Next.js. Помимо этого Fractera строит отдельные ai-workspace-транспорты для всех основных веб-фреймворков и стеков, включая React, Vue, Angular, SvelteKit, Nuxt, Astro, Remix, Gatsby, TanStack Start, SolidStart, Qwik, Django, Flask, FastAPI, Laravel, Rails, Phoenix, NestJS, Fastify, Hono, .NET и Spring. Каждый даёт ту же встроенную базу данных, авторизацию, файловое хранилище и полный стек ИИ-агентов — и каждый новый стартер анонсируется здесь, в Новостях, по мере выхода.',
+          },
+        ],
+      },
+    },
     heroImage: '/news/fractera-ai-draft-settings/fractera-ai-draft-settings.jpg',
     ogImage: '/news/fractera-ai-draft-settings/fractera-ai-draft-settings-screenshot.png',
     blocks: [
@@ -45,7 +281,7 @@ const ARTICLES: NewsArticle[] = [
       // ── What is it ───────────────────────────────────────────────────────────
       {
         kind: 'h2',
-        text: 'What the AI Draft Settings page is',
+        text: 'The Control Room for Custom System Instructions & MCP Definitions',
       },
       {
         kind: 'p',
@@ -72,7 +308,7 @@ const ARTICLES: NewsArticle[] = [
       // ── Two ways to use it ───────────────────────────────────────────────────
       {
         kind: 'h2',
-        text: 'Two ways to use it — by hand or by agent',
+        text: 'Drafting Workflows: Manual Engineering vs Autonomous Agent Proposals',
       },
       {
         kind: 'h3',
@@ -100,7 +336,7 @@ const ARTICLES: NewsArticle[] = [
       // ── How it works (lifecycle) ─────────────────────────────────────────────
       {
         kind: 'h2',
-        text: 'From a wish to a working skill',
+        text: 'Safe Prompt Management: Preventing Context Window Inflation',
       },
       {
         kind: 'h3',
@@ -137,7 +373,7 @@ const ARTICLES: NewsArticle[] = [
       // ── Evolving applications ────────────────────────────────────────────────
       {
         kind: 'h2',
-        text: 'Evolving applications — from semi-automatic to fully automatic',
+        text: 'From Verified Draft to Live Execution Environment',
       },
       {
         kind: 'p',
@@ -155,7 +391,7 @@ const ARTICLES: NewsArticle[] = [
       // ── Multi-framework strategy ─────────────────────────────────────────────
       {
         kind: 'h2',
-        text: 'One page today, every framework tomorrow',
+        text: 'Cross-Framework Staging: Pre-Configured Transports for Every Stack',
       },
       {
         kind: 'p',

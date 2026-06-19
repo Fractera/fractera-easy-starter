@@ -1,8 +1,15 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllArticles, getArticle } from '@/lib/news/articles'
+import { getAllArticles, getArticle, resolveArticle } from '@/lib/news/articles'
+import { getNewsUi } from '@/lib/news/ui'
 import { PostBody, headingId } from '../../blog/_components/post-body'
+
+// Language-specific suffix for the <title> tag (the rest of the title is the
+// per-language SEO title resolved from the article's i18n overrides).
+function titleSuffix(lang: string): string {
+  return lang === 'ru' ? 'Новости Fractera' : 'Fractera News'
+}
 
 export function generateStaticParams() {
   return getAllArticles().map(a => ({ slug: a.slug }))
@@ -16,17 +23,19 @@ export async function generateMetadata({
   const { lang, slug } = await params
   const article = getArticle(slug)
   if (!article) return {}
+  const { seoTitle, description, keywords } = resolveArticle(article, lang)
   const ogImageUrl = article.ogImage.startsWith('/')
     ? `https://www.fractera.ai${article.ogImage}`
     : article.ogImage
   return {
-    title: `${article.title} | Fractera News`,
-    description: article.description,
+    title: `${seoTitle} | ${titleSuffix(lang)}`,
+    description,
+    keywords,
     alternates: buildAlternates(lang, `/news/${slug}`),
     robots: { index: true, follow: true },
     openGraph: {
-      title: article.title,
-      description: article.description,
+      title: seoTitle,
+      description,
       url: `https://www.fractera.ai/${lang}/news/${slug}`,
       type: 'article',
       publishedTime: article.date,
@@ -34,8 +43,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: article.title,
-      description: article.description,
+      title: seoTitle,
+      description,
       images: [ogImageUrl],
     },
   }
@@ -59,6 +68,10 @@ export default async function NewsArticlePage({
   const article = getArticle(slug)
   if (!article) notFound()
 
+  // Resolve per-language title / subtitle / description / keywords / blocks / faq.
+  const { title, subtitle, description, keywords, blocks, faq } = resolveArticle(article, lang)
+  const ui = getNewsUi(lang)
+
   const url = `https://www.fractera.ai/${lang}/news/${slug}`
   const ogImageUrl = article.ogImage.startsWith('/')
     ? `https://www.fractera.ai${article.ogImage}`
@@ -66,8 +79,8 @@ export default async function NewsArticlePage({
 
   // Table of contents — built from the article's H2 sections so a reader can see
   // the full scope of what this update covers at a glance (and how many parts it
-  // has). Anchors match the ids PostBody assigns via headingId().
-  const toc = article.blocks
+  // has). Built from the localized blocks so labels AND anchors match PostBody.
+  const toc = blocks
     .filter((b): b is { kind: 'h2'; text: string } => b.kind === 'h2')
     .map(b => ({ id: headingId(b.text), text: b.text.replace(/\*\*/g, '') }))
 
@@ -75,11 +88,11 @@ export default async function NewsArticlePage({
     {
       '@context': 'https://schema.org',
       '@type': 'NewsArticle',
-      headline: article.title,
-      description: article.description,
+      headline: title,
+      description,
       datePublished: article.date,
       dateModified: article.date,
-      inLanguage: 'en',
+      inLanguage: lang,
       author: {
         '@type': 'Organization',
         name: article.author?.name ?? 'Fractera, Inc.',
@@ -92,7 +105,7 @@ export default async function NewsArticlePage({
         logo: { '@type': 'ImageObject', url: 'https://www.fractera.ai/fractera-logo.jpg' },
       },
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-      keywords: article.tags.join(', '),
+      keywords: keywords ?? article.tags.join(', '),
       image: ogImageUrl,
     },
     {
@@ -100,15 +113,15 @@ export default async function NewsArticlePage({
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
-        { '@type': 'ListItem', position: 2, name: 'News', item: `https://www.fractera.ai/${lang}/news` },
-        { '@type': 'ListItem', position: 3, name: article.title, item: url },
+        { '@type': 'ListItem', position: 2, name: ui.breadcrumbNews, item: `https://www.fractera.ai/${lang}/news` },
+        { '@type': 'ListItem', position: 3, name: title, item: url },
       ],
     },
-    ...(article.faq && article.faq.length > 0
+    ...(faq && faq.length > 0
       ? [{
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
-          mainEntity: article.faq.map(f => ({
+          mainEntity: faq.map(f => ({
             '@type': 'Question',
             name: f.q,
             acceptedAnswer: { '@type': 'Answer', text: f.a },
@@ -127,9 +140,9 @@ export default async function NewsArticlePage({
             <ol className="flex flex-wrap items-center gap-1.5">
               <li><a href={`/${lang}`} className="hover:text-white">Fractera</a></li>
               <li aria-hidden className="text-white/25">/</li>
-              <li><a href={`/${lang}/news`} className="hover:text-white">News</a></li>
+              <li><a href={`/${lang}/news`} className="hover:text-white">{ui.breadcrumbNews}</a></li>
               <li aria-hidden className="text-white/25">/</li>
-              <li aria-current="page" className="truncate text-white/60">{article.title}</li>
+              <li aria-current="page" className="truncate text-white/60">{title}</li>
             </ol>
           </nav>
 
@@ -142,14 +155,14 @@ export default async function NewsArticlePage({
                 </span>
               ))}
             </div>
-            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-[26px]">{article.title}</h1>
-            {article.subtitle && (
-              <p className="text-lg leading-relaxed text-white/55 md:text-base">{article.subtitle}</p>
+            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-[26px]">{title}</h1>
+            {subtitle && (
+              <p className="text-lg leading-relaxed text-white/55 md:text-base">{subtitle}</p>
             )}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/40">
               <time dateTime={article.date}>{formatDate(article.date)}</time>
               <span aria-hidden>·</span>
-              <span>{article.readingMinutes} min read</span>
+              <span>{article.readingMinutes} {ui.minRead}</span>
               {article.author && (
                 <>
                   <span aria-hidden>·</span>
@@ -165,7 +178,7 @@ export default async function NewsArticlePage({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={article.heroImage}
-                alt={article.title}
+                alt={title}
                 loading="eager"
                 className="w-full rounded-2xl border border-white/10"
               />
@@ -177,7 +190,7 @@ export default async function NewsArticlePage({
           {toc.length > 0 && (
             <nav aria-label="Contents" className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
               <p className="text-xs font-semibold uppercase tracking-widest text-violet-400/70">
-                In this article · {toc.length} {toc.length === 1 ? 'part' : 'parts'}
+                {ui.tocHeading} · {toc.length}
               </p>
               <ol className="mt-3 flex flex-col gap-2">
                 {toc.map((item, i) => (
@@ -195,14 +208,14 @@ export default async function NewsArticlePage({
           )}
 
           {/* Body */}
-          <PostBody blocks={article.blocks} />
+          <PostBody blocks={blocks} lang={lang} />
 
           {/* FAQ */}
-          {article.faq && article.faq.length > 0 && (
+          {faq && faq.length > 0 && (
             <section aria-labelledby="faq-heading" className="mt-12 border-t border-white/10 pt-10">
-              <h2 id="faq-heading" className="text-2xl font-bold tracking-tight">Frequently asked questions</h2>
+              <h2 id="faq-heading" className="text-2xl font-bold tracking-tight">{ui.faqHeading}</h2>
               <dl className="mt-6 flex flex-col gap-4">
-                {article.faq.map((f, i) => (
+                {faq.map((f, i) => (
                   <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
                     <dt className="text-base font-semibold text-white">{f.q}</dt>
                     <dd className="mt-2 text-[15px] leading-relaxed text-white/60">{f.a}</dd>
@@ -218,7 +231,7 @@ export default async function NewsArticlePage({
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
-              Back to all news
+              {ui.backToNews}
             </a>
           </div>
         </article>

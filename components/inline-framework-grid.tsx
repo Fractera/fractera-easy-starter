@@ -6,12 +6,12 @@ import { ICON } from '@/components/sections/connect-framework'
 
 // Inline framework grid for prose bodies (News / blog), dropped in through the
 // shared PostBody renderer via the `{ kind: 'frameworks' }` block. It mirrors the
-// homepage ConnectFramework grid + show-more/less toggle, but reads the EN content
-// directly (getContent('en')) so it needs no i18n provider and stays a self-
-// contained client island inside a server-rendered article. Names are proper
-// nouns shared across locales, and the News corpus is EN-only, so EN is correct.
-export function InlineFrameworkGrid() {
-  const cf = getContent('en').connectFramework
+// homepage ConnectFramework grid + show-more/less toggle, but reads the content
+// directly via getContent(lang) so it needs no i18n provider and stays a self-
+// contained client island inside a server-rendered article. Framework names are
+// proper nouns shared across locales; only the toggle labels localize.
+export function InlineFrameworkGrid({ lang = 'en' }: { lang?: string }) {
+  const cf = getContent(lang).connectFramework
   const [expanded, setExpanded] = useState(false)
 
   const visible = expanded ? cf.frameworks : cf.frameworks.slice(0, cf.collapsedCount)

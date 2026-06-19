@@ -40,7 +40,7 @@ function inline(text: string, kp: string): ReactNode[] {
   return nodes
 }
 
-export function PostBody({ blocks }: { blocks: BlogBlock[] }) {
+export function PostBody({ blocks, lang = 'en' }: { blocks: BlogBlock[]; lang?: string }) {
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => {
@@ -133,7 +133,7 @@ export function PostBody({ blocks }: { blocks: BlogBlock[] }) {
               </p>
             )
           case 'frameworks':
-            return <InlineFrameworkGrid key={k} />
+            return <InlineFrameworkGrid key={k} lang={lang} />
         }
       })}
     </div>
