@@ -72,7 +72,7 @@ export function SiteHeader() {
                       onClick={() => setDeployOpen(false)}
                       className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
                     >
-                      Manual VPS Deploy
+                      VPS Deploy
                     </Link>
                     <a
                       href="/#"
@@ -309,14 +309,19 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile nav menu (<780px): the collapsed nav as a vertical list, in the
-          same order — Deploy · Frameworks · Company Brain · Docs · News. */}
+      {/* Mobile nav menu (<780px): the collapsed nav as a vertical list. The two
+          Deploy actions are shown flat here (no dropdown) — VPS Deploy · MCP Deploy
+          · Frameworks · Company Brain · Docs · News. The Deploy targets are
+          placeholders for now (final links pending). */}
       {mobileOpen && (
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
-            <Link href={`/${lang}/deployments`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Deploy
-            </Link>
+            <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              VPS Deploy
+            </a>
+            <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              MCP Deploy
+            </a>
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Frameworks
             </a>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { BlogBlock } from '@/lib/blog/posts'
+import { InlineFrameworkGrid } from '@/components/inline-framework-grid'
 
 // Stable anchor id for a heading, so a table of contents (used by the Documentation
 // pages) can link to it. Additive: blog headings simply gain an id, no visual change.
@@ -131,6 +132,8 @@ export function PostBody({ blocks }: { blocks: BlogBlock[] }) {
                 {inline(b.text, k)}
               </p>
             )
+          case 'frameworks':
+            return <InlineFrameworkGrid key={k} />
         }
       })}
     </div>

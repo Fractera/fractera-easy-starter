@@ -18,6 +18,7 @@ export type BlogBlock =
   | { kind: 'code'; text: string }
   | { kind: 'cta'; text: string; href: string; label: string }
   | { kind: 'note'; text: string }
+  | { kind: 'frameworks' }
 
 export type BlogPost = {
   slug: string

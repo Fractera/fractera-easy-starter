@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { getAllArticles, getArticle } from '@/lib/news/articles'
-import { PostBody } from '../../blog/_components/post-body'
+import { PostBody, headingId } from '../../blog/_components/post-body'
 
 export function generateStaticParams() {
   return getAllArticles().map(a => ({ slug: a.slug }))
@@ -63,6 +63,13 @@ export default async function NewsArticlePage({
   const ogImageUrl = article.ogImage.startsWith('/')
     ? `https://www.fractera.ai${article.ogImage}`
     : article.ogImage
+
+  // Table of contents — built from the article's H2 sections so a reader can see
+  // the full scope of what this update covers at a glance (and how many parts it
+  // has). Anchors match the ids PostBody assigns via headingId().
+  const toc = article.blocks
+    .filter((b): b is { kind: 'h2'; text: string } => b.kind === 'h2')
+    .map(b => ({ id: headingId(b.text), text: b.text.replace(/\*\*/g, '') }))
 
   const jsonLd = [
     {
@@ -163,6 +170,28 @@ export default async function NewsArticlePage({
                 className="w-full rounded-2xl border border-white/10"
               />
             </figure>
+          )}
+
+          {/* Table of contents — upfront, so the scope (and how many parts) is
+              clear before reading. Anchor links jump to each H2 section. */}
+          {toc.length > 0 && (
+            <nav aria-label="Contents" className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <p className="text-xs font-semibold uppercase tracking-widest text-violet-400/70">
+                In this article · {toc.length} {toc.length === 1 ? 'part' : 'parts'}
+              </p>
+              <ol className="mt-3 flex flex-col gap-2">
+                {toc.map((item, i) => (
+                  <li key={item.id} className="flex gap-3 text-[15px] leading-snug">
+                    <span aria-hidden className="select-none font-mono text-sm text-white/30">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <a href={`#${item.id}`} className="text-white/65 transition-colors hover:text-violet-300">
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
           )}
 
           {/* Body */}

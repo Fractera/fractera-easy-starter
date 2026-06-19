@@ -147,6 +147,52 @@ on it — deploy a separate server, test new providers there, and have an AI age
 study how auth is wired in your specific project first; a botched change can leave
 the app running but locked for sign-in.`
 
+const DRAFT_SETTINGS = `# AI Draft Settings — where a workspace learns new skills
+
+Reference page (news): https://www.fractera.ai/en/news/ai-draft-settings-evolutionary-pipeline
+Canonical diagram: ![Fractera AI Draft Settings flow — drafts (a terminal and to-dos) become Next Step entries on the Development Steps page, and an AI generation pass writes them into each agent's files: Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code and Hermes](https://www.fractera.ai/news/fractera-ai-draft-settings/fractera-ai-draft-settings.jpg)
+
+Every Next.js-based Fractera starter ships an AI Draft Settings page: the control
+room for the AI side of a project. A normal admin panel manages business data; this
+page manages what the AI agents know and may do — each agent's instruction files, its
+skills, and the MCP tools it can call. It is the first link in a planned seven-stage
+pipeline for evolving a workspace's own intelligence.
+
+## Two ways to use it — by hand or by agent
+In the interface, a dual-panel layout lists the six agents (Claude Code, Codex,
+Gemini CLI, Qwen Code, Kimi Code, Hermes) on the left; selecting one shows its real
+instructions, skills and registered tools on the right, read-only, exactly as they
+sit on disk. A draft layer on top is the scratchpad: you write the change you want
+and save it as a pending draft. Agents can do the same programmatically — any agent
+can call the built-in HTTP skill "propose-new-agent-skill-or-mcp"; Hermes reaches the
+same place through the owner_draft_create_record tool on the ai-draft-bridge server
+(port 3221). Every agent carries its own copy of the skill, so it works even if the
+project runs a single agent and nothing else — no shared brain, no single point of
+failure.
+
+## From a wish to a working skill (and why it is never automatic)
+Writing a wish is NOT the technical work — it is a brief kept for later, in free form
+or structured (a small terminal, or a to-do-style tool). Each draft marks its parent
+container with an orange "req" badge. When you or an agent send the draft into work,
+the AI clears the note and creates a "Next Step" entry on the Development Steps page,
+where the real build is scheduled and run at the right time by an agent or a person.
+Turning a draft into code is deliberately never automatic on creation: doing so could
+crowd the agent's active context window, lower code quality in the main process, or
+burn token limits earlier than planned. The lifecycle is three moves: create a draft,
+move it into the queue (it becomes a Next Step), then turn it into the real skill,
+instruction or connector and ship it.
+
+## From semi-automatic today to fully automatic
+Today the loop is semi-automatic and fast: describe it, send it, an agent builds and
+ships it, often within the same session. As the remaining pipeline stages arrive
+(automatic testing, regression detection, visual diffs, usage data, a self-tuning
+feedback loop), each needs less human help, until the full loop runs end to end with
+nobody pressing a button. The page ships with every Next.js-based starter today;
+dedicated AI-workspace transports bring the same depth (a built-in database,
+authentication, file storage, the full five-agent stack and one MCP architecture) to
+other frameworks — React, Vue, Angular, SvelteKit, Nuxt, Astro, Remix, Django, Flask,
+FastAPI, Laravel, Rails, Phoenix, NestJS and more — announced in News as they go live.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -203,7 +249,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
