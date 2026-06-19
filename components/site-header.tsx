@@ -39,10 +39,9 @@ export function SiteHeader() {
             <span className="text-sm font-semibold tracking-tight text-white">Fractera</span>
           </Link>
 
-          {/* Separator + nav to the right of the wordmark: Docs (opens the
-              documentation index) and a Frameworks dropdown that reuses the
-              connect-framework list (icons + names). Desktop only (>=780px);
-              below that these collapse into the hamburger menu. */}
+          {/* Separator + nav to the right of the wordmark, in this exact order:
+              Docs · Deployments · Frameworks (dropdown) · Company Brain · News.
+              Desktop only (>=780px); below that they collapse into the hamburger. */}
           <div className="hidden min-[780px]:flex items-center gap-3 ml-1">
             <span className="h-5 w-px bg-white/25" aria-hidden />
             <Link
@@ -50,6 +49,12 @@ export function SiteHeader() {
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
               Docs
+            </Link>
+            <Link
+              href={`/${lang}/deployments`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Deployments
             </Link>
             <div className="relative">
               <button
@@ -70,7 +75,7 @@ export function SiteHeader() {
               {fwOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setFwOpen(false)} />
-                  <div className="absolute left-0 top-full mt-1 z-50 w-64 max-h-[600px] overflow-y-auto bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
+                  <div className="thin-scroll absolute left-0 top-full mt-1 z-50 w-64 max-h-[600px] overflow-y-auto bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
                     {frameworks.map((name) => (
                       <a
                         key={name}
@@ -110,19 +115,16 @@ export function SiteHeader() {
             >
               Company Brain
             </Link>
+            <Link
+              href={`/${lang}/news`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              News
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Deployments — first button immediately left of the avatar. Desktop
-              only (>=780px); on mobile it lives in the hamburger menu. */}
-          <Link
-            href={`/${lang}/deployments`}
-            className="hidden min-[780px]:inline-flex text-sm font-medium text-white/80 hover:text-white transition-colors"
-          >
-            Deployments
-          </Link>
-
           {status === 'loading' && (
             <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse" />
           )}
@@ -262,13 +264,16 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile nav menu (<780px): the collapsed Docs / Frameworks / Company
-          Brain / Deployments buttons as a vertical list. */}
+      {/* Mobile nav menu (<780px): the collapsed nav as a vertical list, in the
+          same order — Docs · Deployments · Frameworks · Company Brain · News. */}
       {mobileOpen && (
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
             <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Docs
+            </Link>
+            <Link href={`/${lang}/deployments`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              Deployments
             </Link>
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Frameworks
@@ -276,8 +281,8 @@ export function SiteHeader() {
             <Link href={`/${lang}/company-brain`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Company Brain
             </Link>
-            <Link href={`/${lang}/deployments`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Deployments
+            <Link href={`/${lang}/news`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              News
             </Link>
           </div>
         </nav>
