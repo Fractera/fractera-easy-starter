@@ -289,6 +289,14 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
         kind: 'p',
         text: 'The site owner — signed in under their role — manages the project itself: global defaults (a default theme/language for everyone), creating new pages and services, and adding new tools or skills (drafted at [your-domain]/ai-draft-settings). The public consultant never performs these; it recognises the request and points you to sign in.',
       },
+      {
+        kind: 'list',
+        items: [
+          '**Declare a page, endpoint, or to-do (owner)** — record code work on [your-domain]/architecture: a new page/endpoint to build, a follow-up on a live route, or a deletion request. Skill `declare-architecture-page-or-task`, or tool `owner_arch_create_record`.',
+          '**Bundle the work into a build step (owner)** — collect every pending architecture record into one development step on [your-domain]/development-steps, then clear the records. Tool `owner_arch_send_to_steps`.',
+          '**Propose a new skill or MCP tool (owner)** — draft a new capability at [your-domain]/ai-draft-settings. Skill `propose-new-agent-skill-or-mcp`, or tool `owner_draft_create_record` / `owner_draft_send_to_steps`.',
+        ],
+      },
 
       // ── Reminder ─────────────────────────────────────────────────────────────
       { kind: 'h2', text: 'This page is an introduction — here is where depth lives' },

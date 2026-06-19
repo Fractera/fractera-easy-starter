@@ -70,6 +70,301 @@ export function resolveArticle(article: NewsArticle, lang: string) {
 
 const ARTICLES: NewsArticle[] = [
   {
+    slug: 'architecture-to-development-steps-materializer',
+    title: 'Architecture → Development Steps: Turning a Declared Page into a Real Build',
+    seoTitle: 'Architecture-Driven Development: Declare Pages, Bundle Them Into Build Steps',
+    subtitle: 'It ships with every Next.js-based starter — a visual map of your app where you, or an AI agent, declare the pages and endpoints to build, then send the whole backlog into one development step with a single click',
+    description:
+      'Meet the Architecture page in Fractera: a living map of your app where developers and AI agents declare pages, endpoints, and to-dos, then bundle the pending work into a single development step. The code-development twin of AI Draft Settings.',
+    summary:
+      'A plain-language tour of the Architecture page — where you and your AI agents declare what to build, then turn the whole backlog into one development step, included as standard with every Next.js-based starter.',
+    keywords:
+      'architecture-driven development, declare page before building, visual app backlog, build queue for AI agents, declared route readme, Claude Code page scaffolding, development steps materializer',
+    date: '2026-06-19',
+    readingMinutes: 6,
+    tags: ['Architecture', 'Development Steps', 'Agent Skills', 'MCP Tools'],
+    author: { name: 'Fractera Team', role: 'Product' },
+    // No image asset yet — text-only article. ogImage reuses the generic brand card.
+    ogImage: '/Fractera-start-image.jpg',
+    i18n: {
+      ru: {
+        seoTitle: 'Разработка от архитектуры: объявите страницы, соберите их в шаг сборки',
+        title: 'Architecture → Development Steps: как объявленная страница превращается в реальную сборку',
+        description:
+          'Знакомьтесь со страницей Architecture во Fractera: живая карта приложения, где разработчики и ИИ-агенты объявляют страницы, эндпоинты и задачи, а затем собирают всю накопленную работу в один шаг разработки. Близнец AI Draft Settings — для обычного кода.',
+        summary:
+          'Разбор страницы Architecture — где вы и ваши ИИ-агенты объявляете, что построить, а затем превращаете весь бэклог в один шаг разработки. Входит в каждый стартер на базе Next.js.',
+        keywords:
+          'разработка от архитектуры, объявить страницу до сборки, визуальный бэклог приложения, очередь сборки для ИИ, declared-маршрут readme, материализатор шагов разработки',
+        subtitle: 'Входит в каждый стартер на базе Next.js — визуальная карта приложения, где вы или ИИ-агент объявляете страницы и эндпоинты для сборки, а затем одним кликом отправляете весь бэклог в один шаг разработки',
+        blocks: [
+          {
+            kind: 'p',
+            text: 'Fractera добавляет в каждое рабочее пространство ещё одну страницу — **Architecture**. Это живая карта вашего приложения: каждая страница и эндпоинт со своим типизированным описанием. Но между вами и реальными файлами стоит слой-черновик: вы — или ИИ-агент — **объявляете** будущую страницу и в свободной форме записываете замысел, не трогая боевой код. Это близнец страницы [AI Draft Settings](https://www.fractera.ai/ru/news/ai-draft-settings-evolutionary-pipeline): там эволюционируют навыки агента, здесь — строится обычный код. Оба цикла сходятся в одном месте — на странице Development Steps.',
+          },
+          {
+            kind: 'h2',
+            text: 'Карта приложения, на которой объявляют работу до того, как писать код',
+          },
+          {
+            kind: 'p',
+            text: 'Воспринимайте Architecture как карту реальной структуры проекта. На ней видно каждую живую страницу и эндпоинт. А ещё на ней можно оставить **запись о коде** — задание, которое позже превратится в сборку. Записи бывают трёх видов, и все они пишутся в обычный README на диске (никакой базы данных): объявленная страница или эндпоинт (README без файла), задача на живом маршруте и запрос на удаление/рефакторинг. Объявленный узел подсвечивается оранжевым с бейджем **req** — сразу видно, что что-то ждёт сборки.',
+          },
+          {
+            kind: 'h3',
+            text: 'Входит в каждый фреймворк на базе Next.js',
+          },
+          {
+            kind: 'p',
+            text: 'Страница Architecture входит в каждый стартер на базе Next.js, который разворачивает Fractera. Её не нужно устанавливать или подключать — как только рабочее пространство поднимается, карта уже на месте и связана со всеми шестью ИИ-агентами. (Поддержка других семейств фреймворков на подходе.)',
+          },
+          {
+            kind: 'list',
+            items: [
+              'Объявить страницу или эндпоинт в любой точке дерева — README с замыслом, без единой строки боевого кода',
+              'Оставить задачу на живом маршруте или запрос на его удаление — всё в README, источник истины на диске',
+              'Прежде чем объявить страницу, агент решает форму доступа (публичная / приватная / гостевая) — до кода, а не угадывая после',
+              'Живое дерево подсвечивает изменения в реальном времени — видно, что прямо сейчас делает фоновый агент',
+              'Тот же сценарий работает для шести агентов: Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code и Hermes',
+            ],
+          },
+          {
+            kind: 'h2',
+            text: 'Два способа объявить: вручную в интерфейсе или руками агента',
+          },
+          {
+            kind: 'h3',
+            text: 'Делаем сами, в интерфейсе',
+          },
+          {
+            kind: 'p',
+            text: 'Откройте страницу — слева дерево маршрутов, справа панель выбранного узла. Кнопки «Add page» и «Add endpoint» объявляют новый маршрут на любой глубине; у живого маршрута есть to-do и «зона риска» с запросом на удаление. Ничто из этого не пишет боевой код — это staging-слой намерений. Вы фиксируете, что нужно построить, и оно ждёт своей очереди.',
+          },
+          {
+            kind: 'h3',
+            text: 'Поручаем агенту',
+          },
+          {
+            kind: 'p',
+            text: 'Страница не только для людей. Любой из агентов посреди обычной рабочей сессии может вызвать встроенный навык — **`declare-architecture-page-or-task`** — описать страницу, эндпоинт или задачу, и запись сама появится на карте. Hermes делает то же через свой коннектор (**`owner_arch_create_record`** на сервере `arch-bridge`, порт 3222). Главное: у каждого агента есть собственная копия этой способности. Она работает, даже если в проекте всего один агент и больше ничего — не нужен общий «мозг», нет единой точки отказа.',
+          },
+          {
+            kind: 'h2',
+            text: 'Один клик — и весь бэклог становится шагом сборки',
+          },
+          {
+            kind: 'p',
+            text: 'Когда на карте накопились объявленные страницы и задачи, наведите курсор на ожидающий узел — появятся две кнопки. **Launch** собирает **все** ожидающие записи в **один** шаг разработки: подробный бриф с секцией на каждую запись (что построить, изменить, удалить), — и убирает исходные записи с карты. **Delete** убирает только эту запись, с подтверждением. Реальный файл маршрута при этом не трогается — снимается только staging-запись. Тот же сбор доступен агенту через коннектор **`owner_arch_send_to_steps`**.',
+          },
+          {
+            kind: 'p',
+            text: 'Обратите внимание, чего **не** происходит: объявление страницы никогда не превращается в код автоматически. Это сознательный выбор — тот же, что и у [конвейера черновиков навыков](https://www.fractera.ai/ru/news/ai-draft-settings-evolutionary-pipeline). Запуск сборки прямо в момент объявления мог бы переполнить активное контекстное окно агента, снизить качество кода в основном процессе или вовсе исчерпать бюджет токенов раньше времени. Поэтому передача в работу — всегда осознанный шаг.',
+          },
+          {
+            kind: 'p',
+            text: 'Если коротко, цикл — три простых движения:',
+          },
+          {
+            kind: 'olist',
+            items: [
+              '**Объявить** — записать на карте страницу, эндпоинт или задачу (с формой доступа).',
+              '**Собрать в шаг** — нажать Launch: все объявления складываются в одну запись Next Step на странице Development Steps, а карта очищается.',
+              '**Построить** — агент (или вы) собирает реальные страницы и эндпоинты, и они выходят в работу.',
+            ],
+          },
+          {
+            kind: 'quote',
+            text: 'Architecture — это карта намерения. Сначала вы рисуете, что должно появиться; потом одним движением превращаете рисунок в очередь сборки.',
+            cite: 'Продуктовая команда Fractera',
+          },
+          {
+            kind: 'h2',
+            text: 'Два цикла, одна дисциплина: навыки и код растут одинаково',
+          },
+          {
+            kind: 'p',
+            text: 'У Fractera два параллельных конвейера, и оба сходятся в Development Steps. [AI Draft Settings](https://www.fractera.ai/ru/news/ai-draft-settings-evolutionary-pipeline) растит **навыки и инструменты** агента; Architecture строит **обычный код** приложения. Это близнецы — одинаковая механика «объяви → собери в шаг → построй», но разные предметные области. Не два дубля, а две стороны одного подхода: видимый, аудируемый путь от намерения к работающей функции.',
+          },
+          {
+            kind: 'p',
+            text: 'И, как и у конвейера навыков, это часть большего замысла — цикла, который со временем выполняется всё более автономно, во многом как [автономный цикл разработки Fractera](https://www.fractera.ai/ai-development-loop): возникает потребность, агент её планирует, собирает, проверяет, выпускает и фиксирует результат.',
+          },
+          {
+            kind: 'h2',
+            text: 'Готовые транспортные слои под любой стек',
+          },
+          {
+            kind: 'p',
+            text: 'Fractera начиналась с Next.js, но идея никогда не должна была на нём останавливаться. Поэтому мы переносим ту же связку — ту же глубину, что [у разработчиков на Next.js уже есть сегодня](https://www.fractera.ai/next-aircraft-carrier), — на каждый популярный веб-фреймворк и прикладной стек. Раскройте список, чтобы увидеть все:',
+          },
+          {
+            kind: 'frameworks',
+          },
+          {
+            kind: 'p',
+            text: 'Мы выкатываем их по одному, и каждый новый стартер сначала анонсируется здесь, в Новостях.',
+          },
+          {
+            kind: 'cta',
+            text: 'Разверните своё первое AI-оптимизированное рабочее пространство уже сегодня — выберите фреймворк и начните.',
+            href: 'https://www.fractera.ai/',
+            label: 'Развернуть с ИИ',
+          },
+        ],
+        faq: [
+          {
+            q: 'Что такое страница Architecture и что она делает?',
+            a: 'Architecture — это страница рабочего пространства, входящая в каждый стартер Fractera на базе Next.js. Это живая карта реальной структуры приложения: каждая страница и эндпоинт со своим описанием. Поверх неё — staging-слой, где вы или ИИ-агент объявляете будущие страницы и эндпоинты, оставляете задачи на живых маршрутах и запросы на удаление — всё в обычных README на диске, без базы данных. Объявленные узлы помечаются оранжевым бейджем req.',
+          },
+          {
+            q: 'Как объявленная страница превращается в реальный код?',
+            a: 'Когда на карте накопились объявления и задачи, вы наводите курсор на ожидающий узел и нажимаете Launch — все ожидающие записи собираются в один шаг разработки на странице Development Steps, а исходные записи убираются с карты. Затем агент (или вы) строит реальные страницы и эндпоинты. Автозапуск сборки в момент объявления намеренно отключён, чтобы не переполнять контекстное окно агента и не жечь бюджет токенов — передача в работу всегда осознанный шаг.',
+          },
+          {
+            q: 'Как ИИ-агенты пользуются страницей Architecture автоматически?',
+            a: 'Любой из шести агентов может вызвать встроенный навык declare-architecture-page-or-task и объявить страницу, эндпоинт или задачу сам, без участия человека. Hermes делает то же через коннектор owner_arch_create_record (сервер arch-bridge, порт 3222), а собрать бэклог в шаг можно через owner_arch_send_to_steps. У каждого агента собственная копия навыка — он самодостаточен, без единой точки отказа.',
+          },
+          {
+            q: 'Чем Architecture отличается от AI Draft Settings?',
+            a: 'Это два параллельных конвейера-близнеца, оба сходятся в Development Steps. AI Draft Settings растит навыки и MCP-инструменты агента; Architecture строит обычный код приложения (страницы и эндпоинты). Механика одинаковая — объяви, собери в шаг, построй, — но предметные области разные. Это не дубли, а две стороны одного подхода к разработке.',
+          },
+        ],
+      },
+    },
+    blocks: [
+      {
+        kind: 'p',
+        text: 'Fractera adds one more page to every workspace: **Architecture**. It is a living map of your app — every page and endpoint with its own typed descriptor. But between you and those real files sits a draft layer: you — or an AI agent — **declare** a page-to-be and write the intent in free form, without touching live code. It is the twin of the [AI Draft Settings page](https://www.fractera.ai/news/ai-draft-settings-evolutionary-pipeline): that one evolves an agent\'s skills, this one builds ordinary code. Both cycles meet in the same place — the Development Steps page.',
+      },
+      {
+        kind: 'h2',
+        text: 'A Map of Your App Where Work Is Declared Before Code Is Written',
+      },
+      {
+        kind: 'p',
+        text: 'Think of Architecture as a map of your project\'s real structure. It shows every live page and endpoint. It also lets you leave a **record of code work** — a brief that later turns into a build. Records come in three kinds, all written to a plain README on disk (no database): a declared page or endpoint (a README with no file yet), a to-do on a live route, and a deletion/refactor request. A declared node glows amber with a **req** badge, so it is obvious something is waiting to be built.',
+      },
+      {
+        kind: 'h3',
+        text: 'It comes with every Next.js-based framework',
+      },
+      {
+        kind: 'p',
+        text: 'The Architecture page ships with every Next.js-based starter Fractera deploys. You do not install it or wire it up — the moment your workspace comes online, the map is already there and connected to all six AI agents. (Support for other framework families is on the way.)',
+      },
+      {
+        kind: 'list',
+        items: [
+          'Declare a page or endpoint at any depth in the tree — a README of intent, with no live code',
+          'Leave a to-do on a live route, or a deletion request — all in the README, the source of truth on disk',
+          'Before declaring a page, the agent decides the access shape (public / private / guest) — up front, not guessed afterward',
+          'A live tree highlights changes in real time — you can see what a background agent is doing right now',
+          'The same flow works for six agents: Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code, and Hermes',
+        ],
+      },
+      {
+        kind: 'h2',
+        text: 'Two Ways to Declare: By Hand in the UI, or by an Agent',
+      },
+      {
+        kind: 'h3',
+        text: 'Doing it yourself, in the interface',
+      },
+      {
+        kind: 'p',
+        text: 'Open the page and you see the route tree on the left and the selected node\'s panel on the right. "Add page" and "Add endpoint" declare a new route at any depth; a live route carries a to-do list and a "danger zone" with a deletion request. None of this writes live code — it is a staging layer of intent. You record what needs building, and it waits its turn.',
+      },
+      {
+        kind: 'h3',
+        text: 'Letting an agent do it',
+      },
+      {
+        kind: 'p',
+        text: 'The page is not just for people. Any of the agents can, in the middle of a normal session, call a built-in skill — **`declare-architecture-page-or-task`** — describe a page, endpoint, or task, and the record shows up on the map on its own. Hermes does the same through its connector (**`owner_arch_create_record`** on the `arch-bridge` server, port 3222). The part that matters most: every agent carries its own copy of this ability. It keeps working even if your project runs just one agent and nothing else — no shared brain required, no single point that can fail.',
+      },
+      {
+        kind: 'h2',
+        text: 'One Click Turns the Whole Backlog Into a Build Step',
+      },
+      {
+        kind: 'p',
+        text: 'Once the map holds declared pages and tasks, hover a pending node and two buttons appear. **Launch** bundles **every** pending record into **one** development step: a detailed brief with a section per record (what to build, change, remove) — and clears the source records off the map. **Delete** removes just that record, with a confirm. The real route file is never touched — only the staging record is cleared. The same bundle is available to an agent through the **`owner_arch_send_to_steps`** connector.',
+      },
+      {
+        kind: 'p',
+        text: 'Notice what does **not** happen: declaring a page is never turned into code automatically. That is a deliberate choice — the same one behind the [skill draft conveyor](https://www.fractera.ai/news/ai-draft-settings-evolutionary-pipeline). Kicking off a build the instant you declare could crowd the agent\'s context window, drag down the quality of code in the main process, or burn through your token budget early. So the hand-off is always a conscious step.',
+      },
+      {
+        kind: 'p',
+        text: 'In short, the cycle is three simple moves:',
+      },
+      {
+        kind: 'olist',
+        items: [
+          '**Declare** — record a page, endpoint, or task on the map (with its access shape).',
+          '**Bundle into a step** — press Launch: every declaration folds into one Next Step on the Development Steps page, and the map clears.',
+          '**Build** — an agent (or you) builds the real pages and endpoints, and they go live.',
+        ],
+      },
+      {
+        kind: 'quote',
+        text: 'Architecture is the map of intent. First you sketch what should exist; then, in one move, you turn the sketch into a build queue.',
+        cite: 'Fractera product team',
+      },
+      {
+        kind: 'h2',
+        text: 'Two Cycles, One Discipline: Skills and Code Grow the Same Way',
+      },
+      {
+        kind: 'p',
+        text: 'Fractera runs two parallel conveyors, and both meet at Development Steps. [AI Draft Settings](https://www.fractera.ai/news/ai-draft-settings-evolutionary-pipeline) grows an agent\'s **skills and tools**; Architecture builds the app\'s **ordinary code**. They are twins — the same "declare → bundle into a step → build" mechanic, but different domains. Not two duplicates, but two sides of one approach: a visible, auditable path from intent to a working feature.',
+      },
+      {
+        kind: 'p',
+        text: 'And like the skills conveyor, this is part of a larger plan — a loop that over time runs more and more on its own, much like [Fractera\'s autonomous development loop](https://www.fractera.ai/ai-development-loop): a need shows up, an agent plans it, builds it, checks it, ships it, and writes down what happened.',
+      },
+      {
+        kind: 'h2',
+        text: 'Pre-Configured Transports for Every Stack',
+      },
+      {
+        kind: 'p',
+        text: 'Fractera started on Next.js, but the idea was never meant to stop there. So we are bringing the same setup — the same depth that [Next.js developers have today](https://www.fractera.ai/next-aircraft-carrier) — to every popular web framework and application stack. Open the list to see them all:',
+      },
+      {
+        kind: 'frameworks',
+      },
+      {
+        kind: 'p',
+        text: 'We are rolling these out one at a time, and every new starter gets announced here in News first.',
+      },
+      {
+        kind: 'cta',
+        text: 'Deploy your first AI-optimized workspace today — choose your framework and get started.',
+        href: 'https://www.fractera.ai/',
+        label: 'Deploy with AI',
+      },
+    ],
+    faq: [
+      {
+        q: 'What is the Architecture page and what does it do?',
+        a: 'Architecture is a workspace page included with every Next.js-based Fractera starter. It is a living map of your app\'s real structure — every page and endpoint with its descriptor. On top sits a staging layer where you or an AI agent declare pages and endpoints to build, leave to-dos on live routes, and file deletion requests — all in plain READMEs on disk, no database. Declared nodes are marked with an amber req badge.',
+      },
+      {
+        q: 'How does a declared page become real code?',
+        a: 'Once the map holds declarations and tasks, you hover a pending node and press Launch — every pending record bundles into one development step on the Development Steps page, and the source records are cleared off the map. Then an agent (or you) builds the real pages and endpoints. Auto-launching a build the instant you declare is deliberately off, to avoid crowding the agent\'s context window or burning token budget — the hand-off is always a conscious step.',
+      },
+      {
+        q: 'How do AI agents use the Architecture page automatically?',
+        a: 'Any of the six agents can call a built-in skill, declare-architecture-page-or-task, to declare a page, endpoint, or task on its own, with no human in the loop. Hermes does the same through the owner_arch_create_record connector (the arch-bridge server, port 3222), and the backlog can be bundled into a step via owner_arch_send_to_steps. Each agent carries its own copy of the skill, so it is self-sufficient with no single point of failure.',
+      },
+      {
+        q: 'How is Architecture different from AI Draft Settings?',
+        a: 'They are two parallel twin conveyors, both meeting at Development Steps. AI Draft Settings grows an agent\'s skills and MCP tools; Architecture builds the app\'s ordinary code (pages and endpoints). The mechanic is the same — declare, bundle into a step, build — but the domains differ. They are not duplicates, but two sides of one development approach.',
+      },
+    ],
+  },
+  {
     slug: 'ai-draft-settings-evolutionary-pipeline',
     title: 'AI Draft Settings: The Instruction & Skill Staging Conveyor for AI Agents',
     seoTitle: 'AI Draft Settings: Staging Conveyor for Agent Prompts, Skills & MCP Tools',

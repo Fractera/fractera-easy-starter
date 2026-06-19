@@ -636,6 +636,15 @@ mcp_servers:
     url: http://localhost:3221
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Architecture: any of the 6 coding agents calls owner_arch_create_record to put a
+  # code item on the Shell /architecture page (declare page/endpoint · to-do · deletion)
+  # for a later step to build. Forwards to the app API (:3000) — same endpoints the
+  # self-sufficient skill declare-architecture-page-or-task uses. §8.2 dry_run flow.
+  # Served by bridges/platforms/server.js (ArchMcpServer, :3222). Step 126.
+  arch-bridge:
+    url: http://localhost:3222
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
