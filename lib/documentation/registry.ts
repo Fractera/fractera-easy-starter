@@ -9,7 +9,14 @@ import { en as consultantEn } from './entries/one-button-workspace-ai-consultant
 import { meta as authMeta } from './entries/authentication-roles-and-providers/meta'
 import { en as authEn } from './entries/authentication-roles-and-providers/en'
 
+import { meta as staticFirstMeta } from './entries/static-first-rendering-economics/meta'
+import { en as staticFirstEn } from './entries/static-first-rendering-economics/en'
+
 export const DOCS: DocEntry[] = [
+  {
+    ...staticFirstMeta,
+    ...staticFirstEn,
+  },
   {
     ...consultantMeta,
     ...consultantEn,

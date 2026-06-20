@@ -251,6 +251,51 @@ language-prefixed. Two self-sufficient agent skills ship with it — create-mult
 and install-language-switcher-dropdown (re-installs the language dropdown after you delete it) —
 and both are readable in the AI Core page of the deployed workspace.`
 
+const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
+Raw living standard (download): https://www.fractera.ai/docs/static-first-rendering.md
+
+Fractera enforces static-first rendering with unusual rigor because the cost it
+optimizes for is the business's monthly server bill — compute and database load — not
+the developer's token budget. Tokens are spent once, while building; compute is spent
+forever, on every visitor. A project that renders dynamically by default scales its
+server cost linearly with traffic, which is exactly where small businesses fail to close
+their unit economics.
+
+## The canon
+Creating a dynamic page is forbidden unless it is absolutely necessary, and only after the
+architect's double confirmation — better to build nothing than to make a page dynamic where
+it could have been static. The foundation is no-JavaScript: the App Router ships complete
+server HTML, so a static page works with JavaScript disabled. The real no-JS killer is
+client-side routing or a client component that owns a route, not server rendering itself.
+
+## Five ways content reaches a page (cheapest to most expensive per visitor)
+1. Static (SSG): data fixed at build; appears on redeploy; zero DB per visit; no JS; lowest cost.
+2. Time-based ISR (revalidate = N): regenerates on a timer even when nothing changed; wasteful; a backstop only.
+3. On-demand ISR (revalidate = false + revalidatePath/revalidateTag on save): regenerates only on an actual change; instant; lowest cost with freshness; the default for DB/config-backed public pages.
+4. Dynamic SSR (force-dynamic): rendered fresh every request, a DB hit every time; high cost; architect-only.
+5. Client fetch: a client island queries the API on every view; always live but needs JS and hits the DB per view; fine for private panels, poor for public lists.
+
+## Freshness without waste
+Public pages declare revalidate = false (generated once, no timer). When content changes, the
+write handler calls an architect-only revalidate hook (revalidatePath / revalidateTag), and the
+page is regenerated on the next request — instant, not after a fixed window. A naive revalidate = 300
+re-renders every page every five minutes whether or not anything changed and is still not truly
+instant; it is the worst of both worlds and is not used as a default.
+
+## Why the architect layer stays dynamic
+The service cockpit (Architecture, AI Core, Development Steps, …) runs dynamically on purpose. A
+single architect, on pages only they can open, cannot create harmful load; that compute is bounded
+and necessary. The rule protects the public surface, where many visitors — careless, curious or
+malicious — turn every dynamic render into multiplied cost. Dynamic rendering is allowed exactly
+where it cannot hurt the bill: behind architect-only access.
+
+## PPR is left to the developer
+Partial Prerendering (a static shell with a dynamic hole) is a precise tool for a developer who
+knows which fragment must be live and wants to balance freshness against server cost by hand.
+Fractera does not automate it — that judgment is the developer's.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -307,7 +352,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${STATIC_FIRST}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

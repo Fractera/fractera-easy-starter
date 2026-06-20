@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { getAllDocs, getDoc } from '@/lib/documentation'
+import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
 import { PostBody, headingId } from '../../blog/_components/post-body'
 
 export function generateStaticParams() {
@@ -72,7 +73,9 @@ export default async function DocumentationDocPage({
       datePublished: doc.date,
       dateModified: doc.date,
       inLanguage: 'en',
-      author: { '@type': 'Organization', name: 'Fractera, Inc.', url: 'https://www.fractera.ai' },
+      // Person author (not Organization): @id + sameAs consolidate the author's authority
+      // onto this page for SEO, the same Person used site-wide and by news articles.
+      author: { '@type': 'Person', '@id': AUTHOR.id, name: AUTHOR.name, url: AUTHOR.url, sameAs: AUTHOR_SAME_AS },
       publisher: { '@type': 'Organization', name: 'Fractera, Inc.', url: 'https://www.fractera.ai' },
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
       keywords: doc.tags.join(', '),
