@@ -24,11 +24,19 @@ function inline(text: string, kp: string): ReactNode[] {
     } else {
       const href = m[3]
       const external = /^https?:/.test(href)
+      // Outbound third-party links get rel="nofollow" (do not pass link weight);
+      // links to our own domain (fractera.ai) stay followed.
+      const ownDomain = /^https?:\/\/[^/]*fractera\.ai(\/|$)/i.test(href)
+      const rel = external
+        ? ownDomain
+          ? 'noopener noreferrer'
+          : 'noopener noreferrer nofollow'
+        : undefined
       nodes.push(
         <a
           key={`${kp}-a${i}`}
           href={href}
-          {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          {...(external ? { target: '_blank', rel } : {})}
           className="font-medium text-violet-400 underline decoration-violet-400/40 underline-offset-2 hover:text-violet-300"
         >
           {m[2]}

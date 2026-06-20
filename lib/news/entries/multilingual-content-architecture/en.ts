@@ -118,8 +118,26 @@ export const en: NewsArticleBase = {
       ],
     },
     {
+      kind: 'figure',
+      media: 'image',
+      src: '/news/fractera-multilanguage/fractera-multilanguage-app-screenshot.png',
+      alt: 'The starter home page with the language switcher button open in the top-right corner, showing a searchable dropdown of languages grouped by region',
+      caption: 'The shipped starter: the language button sits in the top-right of the start page; a click opens a searchable dropdown of the configured languages.',
+    },
+    {
+      kind: 'p',
+      text: 'Where the button lives is up to you — a **header** or a **footer** are the natural homes; mount it wherever fits your design. And if you want a single-language app, just leave **one** language in the environment variable — its standard ISO code, e.g. `en` — and set it as the default. The button hides itself and every page serves from the bare root, no prefix.',
+    },
+    {
       kind: 'founder',
-      text: 'A personal word. Back in 2016, building multilingual Web and PWA apps became a real business direction for me. I found a niche making menus for restaurants — and that grew into two businesses I brought here through COVID. My project then was maps.menu, and what opened that market for me was exactly the multilingual version: my edge became building multilingual menus for restaurants, barbershops and other tourist spots on the island of Tenerife. Ever since, I pay unusual attention to multilingualism, because I know how much it matters for small business. So it is a real pleasure to solve one of the hardest problems for you — internationalization and localization. Good luck building your apps.',
+      text: 'A personal word. Back in 2016, building multilingual Web and PWA apps became a real business direction for me. I found a niche making menus for restaurants — and that grew into two businesses I brought here through COVID. My project then was [maps.menu](https://maps.menu), and what opened that market for me was exactly the multilingual version: my edge became building multilingual menus for restaurants, barbershops and other tourist spots on the island of Tenerife. Ever since, I pay unusual attention to multilingualism, because I know how much it matters for small business. So it is a real pleasure to solve one of the hardest problems for you — internationalization and localization. Good luck building your apps.',
+    },
+    {
+      kind: 'figure',
+      media: 'image',
+      src: '/news/fractera-multilanguage/fractera-maps-menu.png',
+      alt: 'maps.menu — a multilingual restaurant menu on a phone over an event venue, the project that opened the Tenerife market',
+      caption: 'maps.menu — the multilingual restaurant menus that opened the Tenerife market.',
     },
     {
       kind: 'docref',
