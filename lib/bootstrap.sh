@@ -461,6 +461,14 @@ RAG_ENV_PATH=/opt/fractera/services/rag/.env
 # IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
 # or recovery sed command in /opt/fractera/services/auth/.env.local.
 FRACTERA_IP_NODOMAIN_MODE=true
+# Multilingual content routing (the app slot reads these). Two or more languages
+# → the /<lang> prefix is active and the language switcher button shows; a single
+# language → pages serve from the bare root and the button hides. These are
+# NEXT_PUBLIC_* (baked at build time), so the slot ships bilingual out of the box
+# (English + Spanish) and the switcher is visible by default. Harmless for slots
+# that do not use them.
+NEXT_PUBLIC_SUPPORTED_LANGUAGES=en,es
+NEXT_PUBLIC_DEFAULT_LOCALE=en
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
