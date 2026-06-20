@@ -7,7 +7,9 @@ export const meta: NewsArticleMeta = {
   readingMinutes: 6,
   tags: ['Agentic Engineering Platform', 'Multilingual', 'Content Architecture', 'AI SEO', 'Agent Skills'],
   author: { name: AUTHOR.name, role: AUTHOR.role },
-  // No bespoke asset yet — author will add screenshots later (NEWS-ARTICLE-STANDARD §3).
-  // ogImage temporarily points to an existing brand frame.
-  ogImage: 'https://www.fractera.ai/Fractera-Web-Architect.jpg',
+  // Diagram: per-language file-system fields (EN/ES/DE for title/description/
+  // paragraphs/FAQ) → AI generation → /en|/es|/de localized pages. Used as the
+  // hero and the OG/social image (relative path; the [slug] page absolutizes it).
+  heroImage: '/news/fractera-multilanguage/fractera-multilanguage.jpg',
+  ogImage: '/news/fractera-multilanguage/fractera-multilanguage.jpg',
 }
