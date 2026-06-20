@@ -207,21 +207,6 @@ const ARTICLES: NewsArticle[] = [
             text: 'И, как и у конвейера навыков, это часть большего замысла — цикла, который со временем выполняется всё более автономно, во многом как [автономный цикл разработки Fractera](https://www.fractera.ai/ai-development-loop): возникает потребность, агент её планирует, собирает, проверяет, выпускает и фиксирует результат.',
           },
           {
-            kind: 'h2',
-            text: 'Готовые транспортные слои под любой стек',
-          },
-          {
-            kind: 'p',
-            text: 'Fractera начиналась с Next.js, но идея никогда не должна была на нём останавливаться. Поэтому мы переносим ту же связку — ту же глубину, что [у разработчиков на Next.js уже есть сегодня](https://www.fractera.ai/next-aircraft-carrier), — на каждый популярный веб-фреймворк и прикладной стек. Раскройте список, чтобы увидеть все:',
-          },
-          {
-            kind: 'frameworks',
-          },
-          {
-            kind: 'p',
-            text: 'Мы выкатываем их по одному, и каждый новый стартер сначала анонсируется здесь, в Новостях.',
-          },
-          {
             kind: 'docref',
             title: 'architecture-dev-pipeline.md — живой стандарт конвейера',
             summary: 'Полный сырой документ, по которому ИИ-агент изучает этот цикл целиком: 7 звеньев, эталонный кейс, журнал роста и верификация. Растёт по мере эволюции платформы.',
@@ -361,21 +346,6 @@ const ARTICLES: NewsArticle[] = [
       {
         kind: 'p',
         text: 'And like the skills conveyor, this is part of a larger plan — a loop that over time runs more and more on its own, much like [Fractera\'s autonomous development loop](https://www.fractera.ai/ai-development-loop): a need shows up, an agent plans it, builds it, checks it, ships it, and writes down what happened.',
-      },
-      {
-        kind: 'h2',
-        text: 'Pre-Configured Transports for Every Stack',
-      },
-      {
-        kind: 'p',
-        text: 'Fractera started on Next.js, but the idea was never meant to stop there. So we are bringing the same setup — the same depth that [Next.js developers have today](https://www.fractera.ai/next-aircraft-carrier) — to every popular web framework and application stack. Open the list to see them all:',
-      },
-      {
-        kind: 'frameworks',
-      },
-      {
-        kind: 'p',
-        text: 'We are rolling these out one at a time, and every new starter gets announced here in News first.',
       },
       {
         kind: 'docref',

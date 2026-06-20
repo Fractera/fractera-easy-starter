@@ -1,252 +1,256 @@
-# Конвейер разработки кода через `/architecture` — живой стандарт
+# Code Development Pipeline via `/architecture` — living standard
 
-> **Это живой НАД-документ одного кейса.** Он описывает сквозной замысел — **обычный цикл разработки
-> кода**, который начинается записью на служебной странице `/architecture` и сходится в
-> `/development-steps`, — и держит цель в фокусе, пока мы режем его на под-шаги. Документ **растёт
-> вместе с разработкой**: каждый закрытый под-шаг переводит звено цикла из `todo` в `done` и дополняет
-> журнал роста (Приложение A). Написан на русском (язык авторитетного замысла); публичный англопорт —
-> отдельный шаг.
+> **This is a living META-document for one case.** It describes the end-to-end intent — the **ordinary
+> code development cycle** that starts with a record on the `/architecture` service page and converges on
+> `/development-steps` — and keeps the goal in focus while we slice it into sub-steps. The document **grows
+> with development**: every closed sub-step moves a link of the cycle from `todo` to `done` and appends to
+> the growth log (Appendix A). Authored in Russian (the language of the authoritative intent); this is the
+> English port.
 >
-> **Это ДРУГОЙ цикл, не эволюция навыков.** Документ-близнец
-> [`skill-evolution-pipeline.md`](./skill-evolution-pipeline.md) описывает цикл **эволюции навыка/MCP**
-> (`/ai-draft-settings → development-steps`). Здесь — цикл **разработки кода продукта**
-> (`/architecture → development-steps`). Оба сходятся в журнал шагов и делят одну дисциплину
-> декомпозиции, но это **разные** конвейеры: там доводят до ума навык, здесь — строят страницы и
-> эндпоинты проекта. Не путать и не сливать.
+> **This is a DIFFERENT cycle, not skill evolution.** The twin document
+> [`skill-evolution-pipeline.md`](./skill-evolution-pipeline.md) describes the **skill/MCP evolution**
+> cycle (`/ai-draft-settings → development-steps`). This one is the **product code development** cycle
+> (`/architecture → development-steps`). Both converge on the steps journal and share one decomposition
+> discipline, but they are **different** pipelines: there you perfect a skill, here you build the project's
+> pages and endpoints. Do not confuse or merge them.
 >
-> **Опирается на** (папка `CRUD-DOCS/workspace-standards/`):
-> [`development-methodology.md`](./development-methodology.md) — мастер-методология (§5 поток B — этот
-> док = его конкретное применение) · [`architecture.md`](./architecture.md) — служебная страница
-> `/architecture` (declared→built→live, README+`_meta.ts`) · [`development-steps.md`](./development-steps.md)
-> — журнал шагов · [`development-loop.md`](./development-loop.md).
-> Операционный пайплайн агента — `app/CLAUDE.md §6` (`flow-B`: триггер 3 = состояние архитектуры → шаг).
+> **Builds on** (folder `CRUD-DOCS/workspace-standards/`):
+> [`development-methodology.md`](./development-methodology.md) — the master methodology (§5 flow B — this
+> doc = its concrete application) · [`architecture.md`](./architecture.md) — the `/architecture` service
+> page (declared→built→live, README+`_meta.ts`) · [`development-steps.md`](./development-steps.md)
+> — the steps journal · [`development-loop.md`](./development-loop.md).
+> The agent's operational pipeline — `app/CLAUDE.md §6` (`flow-B`: trigger 3 = architecture state → step).
 
 ---
 
-## §0. Цель и видение
+## §0. Goal and vision
 
-**Цель.** Дать обычному циклу разработки кода ту же **материализованную сквозную поверхность**, что уже
-есть у цикла эволюции навыков: задание → **запись на `/architecture`** → **сбор записей в один шаг** →
-исполнение (построение маршрута) → тест → деплой → запись результата → следующий виток декомпозиции.
-До этого шага поток B был **описан** в методологии, но **не материализован**: у `/architecture` не было
-кнопок сбора в шаг, не было роута сбора, не было навыка и MCP — связь со `/development-steps`
-отсутствовала (0 ссылок). Этот конвейер замыкает разрыв.
+**Goal.** Give the ordinary code development cycle the same **materialized end-to-end surface** the skill
+evolution cycle already has: a task → **a record on `/architecture`** → **bundling records into one step** →
+execution (building the route) → test → deploy → recording the result → the next decomposition turn.
+Before this step, flow B was **described** in the methodology but **not materialized**: `/architecture` had
+no bundle-to-step buttons, no bundling route, no skill and no MCP — the link to `/development-steps` was
+absent (0 references). This pipeline closes the gap.
 
-**Что такое запись на `/architecture` (три типа, источник — ФС, без БД, шаг 108).** Агент или архитектор
-оставляет на служебной странице **задание на код**, которое позже превращается в шаг:
-- **declared-страница/эндпоинт** — `README.md` на диске без реального файла (`POST …/architecture/requested`);
-- **to-do** на живом маршруте — задача внутри `README.md` маршрута (`kind:'todo'`);
-- **danger / удаление** — запрос на удаление-рефактор маршрута (`kind:'delete'`).
+**What a record on `/architecture` is (three types, FS-sourced, no DB, step 108).** An agent or architect
+leaves a **code task** on the service page that later turns into a step:
+- **declared page/endpoint** — a `README.md` on disk with no real file (`POST …/architecture/requested`);
+- **to-do** on a live route — a task inside the route's `README.md` (`kind:'todo'`);
+- **danger / deletion** — a delete-and-refactor request for a route (`kind:'delete'`).
 
-**«Pending»-запись** = declared-маршрут **или** маршрут с открытыми задачами (`tasksByPath.count > 0`) —
-именно эти записи собирает Launch (звено 2).
+**A "pending" record** = a declared route **or** a route with open tasks (`tasksByPath.count > 0`) — exactly
+the records that Launch collects (link 2).
 
-**Ведущий процесса — любой агент (данность §0 самодостаточности).** Заранее **неизвестно**, кто ведёт
-цикл: Hermes, один Codex, любой из пяти кодеров — или единственный агент без Hermes и без памяти.
-Конвейер обязан работать при **любом** подмножестве сущностей. Поэтому навык записи (звено 1) и навык
-сбора (звено 2) самодостаточны (чистый HTTP, дублируются во все агенты), а MCP — лишь
-конвенциенс-путь Hermes, не единственный.
+**The process lead is any agent (a §0 self-sufficiency given).** It is **unknown in advance** who runs the
+cycle: Hermes, a single Codex, any of the five coders — or a single agent with no Hermes and no memory.
+The pipeline must work under **any** subset of entities. Therefore the record skill (link 1) and the bundle
+skill (link 2) are self-sufficient (pure HTTP, duplicated to every agent), and MCP is only a Hermes
+convenience path, not the only one.
 
-**Слой.** product / FNS (`CRUD-DOCS/…`) — едет к клиенту с клоном; описывает работу агента **внутри
-развёрнутого воркспейса**.
-
----
-
-## §1. Эталонный кейс — «клон Facebook»
-
-Сквозной пример, на котором обкатываем конвейер. Задание «сделай клон Facebook» нетривиально ровно тем,
-что его **нельзя построить одним шагом** — оно обязано пройти декомпозицию через `/architecture`, и на
-нём видны все звенья цикла:
-
-1. **Исследование.** Агент изучает задачу и решает, из каких поверхностей состоит продукт: лента,
-   профиль, друзья, сообщения, группы, уведомления, настройки — допустим, **10 страниц**.
-2. **Запись на `/architecture` (звено 1).** Агент **не строит код сразу** — он открывает `/architecture`
-   и **declared'ит по одной странице на каждую поверхность** (`requested`, `README.md` без файла), а для
-   уже живых маршрутов оставляет **to-do** на доработку секций. Для каждой страницы СНАЧАЛА определяет
-   форму доступа (`public`/`private`/`public+guest` по `HOW-USE-AUTH.md`) — она станет аргументом
-   `--access` при скаффолде.
-3. **Закрытие шага декомпозиции.** Цель этого шага — построить **полную цепочку**, а не сделать всё:
-   дерево `/architecture` теперь несёт 10 declared-страниц + to-do.
-4. **Сбор в шаг (звено 2).** Команда «запусти» / hover-кнопка **🚀 Launch** собирает все pending-записи в
-   **один** шаг `/development-steps` (бриф с секцией на запись: путь + что построить/изменить/удалить) и
-   **удаляет** исходные записи с вкладки.
-5. **Исполнение (звено 3+).** В следующих циклах агент извлекает запись, скаффолдит маршрут навыком
-   построения скелета, пишет доменный код, тестирует, деплоит, записывает результат — пока дерево
-   `/architecture` снова не **опустеет**.
-
-По мере роста документа сюда добавляем конкретику кейса (какие именно страницы, какие пересечения с
-параллельной маршрутизацией, какие паттерны переиспользованы).
+**Layer.** product / FNS (`CRUD-DOCS/…`) — ships to the customer with the clone; describes the agent's work
+**inside the deployed workspace**.
 
 ---
 
-## §2. Цикл из 7 звеньев (каноническая карта)
+## §1. Reference case — "a Facebook clone"
 
-Состояние обновляется по мере закрытия под-шагов. **Звенья 1–2** материализуем этим шагом (зеркало
-flow-A); **звенья 3–7** — это уже существующий операционный пайплайн разработки кода (`app/CLAUDE.md
-§6.4–6.11`), который мы лишь **подключаем** к собранному шагу, а не строим заново.
+The end-to-end example we run the pipeline on. The task "build a Facebook clone" is non-trivial precisely
+because it **cannot be built in one step** — it must go through decomposition via `/architecture`, and all
+the links of the cycle are visible on it:
 
-| # | Звено | Что происходит | Где живёт | Статус |
+1. **Research.** The agent studies the task and decides which surfaces the product consists of: feed,
+   profile, friends, messages, groups, notifications, settings — say, **10 pages**.
+2. **Record on `/architecture` (link 1).** The agent **does not build code right away** — it opens
+   `/architecture` and **declares one page per surface** (`requested`, a `README.md` with no file), and for
+   already-live routes it leaves **to-dos** to refine sections. For each page it FIRST decides the access
+   shape (`public`/`private`/`public+guest` per `HOW-USE-AUTH.md`) — which becomes the `--access` argument
+   at scaffold time.
+3. **Closing the decomposition step.** The goal of this step is to build the **full chain**, not to do
+   everything: the `/architecture` tree now carries 10 declared pages + to-dos.
+4. **Bundle into a step (link 2).** The "launch" command / the **🚀 Launch** hover button collects all
+   pending records into **one** `/development-steps` step (a brief with a section per record: path + what to
+   build/change/remove) and **removes** the source records from the tab.
+5. **Execution (link 3+).** In the following cycles the agent pulls a record, scaffolds the route with the
+   skeleton-building skill, writes domain code, tests, deploys, records the result — until the
+   `/architecture` tree is **empty** again.
+
+As the document grows, case specifics are added here (which exact pages, which intersections with parallel
+routing, which patterns were reused).
+
+---
+
+## §2. The 7-link cycle (canonical map)
+
+State is updated as sub-steps close. **Links 1–2** are materialized by this step (mirror of flow-A); **links
+3–7** are the already-existing operational code development pipeline (`app/CLAUDE.md §6.4–6.11`), which we
+merely **connect** to the bundled step rather than rebuild.
+
+| # | Link | What happens | Where it lives | Status |
 |---|---|---|---|---|
-| 1 | **Запись на `/architecture`** | declared-страница / эндпоинт · to-do на маршруте · danger-удаление; ведёт любой агент | `/architecture`, навык `declare-architecture-page-or-task`, MCP `owner_arch_create_record` | ✅ done (A1–A3) |
-| 2 | **Сбор в шаг** | hover **🚀 Launch** → собрать все pending-записи в один шаг + удалить их (**🗑 Delete** — точечно) | `/development-steps`, `bundleArchitecture`, MCP `owner_arch_send_to_steps`, `CLAUDE.md §6 flow-B` | ✅ done (Б1–Б3) |
-| 3 | **Исполнение шага** | агент берёт шаг, скаффолдит маршрут (`scaffold-declared-route-into-component-skeleton`), пишет доменный код | операционный пайплайн `CLAUDE.md §6.4` | ✅ существует |
-| 4 | **Тест (pre-deploy)** | воспроизвести новое поведение локально / на текущем сервере | `CLAUDE.md §6.5–6.6` (2 пруфа) | ✅ существует |
-| 5 | **Деплой** | build 2–4 мин (только `app/`) + reload + health; деплой — архитектор (правило 18) | deploy-loop `POST /api/deploy`, `CLAUDE.md §6.7–6.8` | ✅ существует |
-| 6 | **Запись результата** | строка Deployments + сохранение паттернов + отчёт; declared→built→live, README снят | `CLAUDE.md §6.8–6.11`, `/patterns` | ✅ существует |
-| 7 | **Итерация / декомпозиция** | новые записи обратно на `/architecture`; повтор, пока дерево не опустеет | `/architecture`, методология §5 | ✅ существует (рекурсия) |
+| 1 | **Record on `/architecture`** | declared page / endpoint · to-do on a route · danger-deletion; any agent leads | `/architecture`, skill `declare-architecture-page-or-task`, MCP `owner_arch_create_record` | ✅ done (A1–A3) |
+| 2 | **Bundle into a step** | hover **🚀 Launch** → collect all pending records into one step + remove them (**🗑 Delete** — single) | `/development-steps`, `bundleArchitecture`, MCP `owner_arch_send_to_steps`, `CLAUDE.md §6 flow-B` | ✅ done (B1–B3) |
+| 3 | **Execute the step** | the agent takes the step, scaffolds the route (`scaffold-declared-route-into-component-skeleton`), writes domain code | operational pipeline `CLAUDE.md §6.4` | ✅ exists |
+| 4 | **Test (pre-deploy)** | reproduce the new behavior locally / on the current server | `CLAUDE.md §6.5–6.6` (2 proofs) | ✅ exists |
+| 5 | **Deploy** | build 2–4 min (only `app/`) + reload + health; deploy — the architect (rule 18) | deploy-loop `POST /api/deploy`, `CLAUDE.md §6.7–6.8` | ✅ exists |
+| 6 | **Record the result** | a Deployments row + saved patterns + report; declared→built→live, README removed | `CLAUDE.md §6.8–6.11`, `/patterns` | ✅ exists |
+| 7 | **Iteration / decomposition** | new records back onto `/architecture`; repeat until the tree is empty | `/architecture`, methodology §5 | ✅ exists (recursion) |
 
-**Первое звено этого шага** = «инструменты `/architecture` ↔ development-steps» (звенья 1–2). В отличие
-от `skill-evolution-pipeline.md`, где звенья 3–7 ещё предстоит изобрести, здесь нижние звенья **уже
-есть** в операционном пайплайне — наша работа замыкает верх (запись → сбор) на этот существующий низ.
+**The first link of this step** = "the `/architecture` ↔ development-steps tools" (links 1–2). Unlike
+`skill-evolution-pipeline.md`, where links 3–7 are yet to be invented, here the lower links **already exist**
+in the operational pipeline — our work closes the top (record → bundle) onto that existing bottom.
 
 ---
 
-## §3. Текущая нарезка под-шагов (A1–Б3) — звенья 1–2
+## §3. Current sub-step slicing (A1–B3) — links 1–2
 
-Что реально строим/сверяем на этом шаге. Тип артефакта определяет, где он виден в `/ai-core`.
+What we actually build/verify in this step. The artifact type determines where it is visible in `/ai-core`.
 
-| Под-шаг | Артефакт | Тип | Где в `/ai-core` |
+| Sub-step | Artifact | Type | Where in `/ai-core` |
 |---|---|---|---|
-| **A1** | UI создания записи на `/architecture` (declare page/endpoint · to-do · order deletion) | UI | страница (не дерево) |
-| **A2** | навык `declare-architecture-page-or-task` (самодостаточный, HTTP API) | навык | под каждым агентом → Skills |
-| **A3** | MCP `owner_arch_create_record` | MCP | Hermes → arch-bridge :3222 (в описании) |
-| **Б1** | hover-кнопки 🚀 Launch / 🗑 Delete на pending-узлах дерева | UI | страница (дерево `/architecture`) |
-| **Б2** | `bundleArchitecture`: сбор всех pending → один шаг + удаление (роуты `development-steps`, `architecture/{requested/[id],tasks}`) | UI+API | страница |
-| **Б3** | MCP `owner_arch_send_to_steps` (автоматизация Б2) | MCP | Hermes → arch-bridge :3222 (в описании) |
+| **A1** | UI to create a record on `/architecture` (declare page/endpoint · to-do · order deletion) | UI | page (not the tree) |
+| **A2** | skill `declare-architecture-page-or-task` (self-sufficient, HTTP API) | skill | under each agent → Skills |
+| **A3** | MCP `owner_arch_create_record` | MCP | Hermes → arch-bridge :3222 (in the description) |
+| **B1** | hover buttons 🚀 Launch / 🗑 Delete on pending tree nodes | UI | page (the `/architecture` tree) |
+| **B2** | `bundleArchitecture`: collect all pending → one step + removal (routes `development-steps`, `architecture/{requested/[id],tasks}`) | UI+API | page |
+| **B3** | MCP `owner_arch_send_to_steps` (B2 automation) | MCP | Hermes → arch-bridge :3222 (in the description) |
 
-**Зеркало flow-A.** Карта 1:1 повторяет нарезку `skill-evolution-pipeline.md §3` (A1–Б3) — то же
-разделение «создание записи (A) / сбор в шаг (Б)», та же триада «UI · самодостаточный навык · MCP».
-Разница только в предметной области: там черновик навыка/MCP, здесь — запись кода на `/architecture`.
+**Mirror of flow-A.** The map repeats the slicing of `skill-evolution-pipeline.md §3` (A1–B3) 1:1 — the same
+split "create a record (A) / bundle into a step (B)", the same triad "UI · self-sufficient skill · MCP". The
+only difference is the domain: there it is a skill/MCP draft, here it is a code record on `/architecture`.
 
-**Семантика удаления при сборе.** Как и flow-A: после сбора в шаг исходные записи **удаляются**
-(declared README снят, задачи очищены) — спека построения живёт в собранном шаге, не дублируется на
-вкладке. Для declared-маршрута это согласовано как дефолт; иное поведение — по отдельному решению.
-
----
-
-## §4. Дальнейшая автоматизация — по ~50 слов на звено (3–7)
-
-Звенья 3–7 уже работают как ручной операционный пайплайн; ниже — куда их **доавтоматизировать**, чтобы
-весь цикл разработки кода управлялся из одной поверхности (зеркало будущей страницы из flow-A §5).
-
-**Звено 3 — исполнение шага из чата.** Сейчас агент берёт собранный шаг вручную. Цель — команда «выполни
-шаг N» в чате → процесс/MCP открывает шаг, делегирует подходящему кодеру (`choose-agent` +
-`delegate-task`), агент идёт по `CLAUDE.md §6.4`: скаффолд скелета → доменный код. Статусы шага
-(open→running→done) видимы в реальном времени на `/development-steps`.
-
-**Звено 4 — тест результата.** После построения маршрута — воспроизвести его поведение в управляемой
-среде: локально/на текущем сервере, до деплоя. Нужен лёгкий тест-харнесс для страниц (рендер + контракт
-API маршрута), результат структурирован (успех/провал/2 пруфа из разных плоскостей, §6.6), чтобы звено 6
-могло его записать, а будущая визуализация — показать.
-
-**Звено 5 — деплой.** build 2–4 мин (только `app/`) + reload + health через deploy-loop. **Реальный
-деплой — архитектор (правило 18).** Автоматизация: чат показывает live-прогресс джоба
-(`/api/deploy/status`), пятый пруф — живой URL `200` после COMPLETED.
-
-**Звено 6 — запись результата → паттерны.** Агент пишет строку Deployments
-(`owner_product_loop_record_deployment`), сохраняет извлечённые паттерны в `/patterns`, закрывает шаг в
-COMPLETED-STEPS/, ingest'ит в память. declared→built→live: README declared-узла снят, появился реальный
-файл. Каждый цикл оставляет аудируемый след.
-
-**Звено 7 — итерация / декомпозиция.** Если шаг не решил задачу целиком (норма) — агент возвращает новые
-записи на `/architecture` (новые declared-страницы / to-do) и повторяет цикл, пока дерево не опустеет
-(методология §5). Предохранители — лимит глубины (≤5/≤100 на усмотрение агента), бюджет токенов,
-сверка с архитектором на контрольных точках, <50% контекста.
+**Deletion semantics on bundling.** As in flow-A: after bundling into a step the source records are
+**removed** (declared README dropped, tasks cleared) — the build spec lives in the bundled step, not
+duplicated on the tab. For a declared route this is agreed as the default; other behavior is a separate
+decision.
 
 ---
 
-## §5. Поверхность управления (будущая) и связи
+## §4. Further automation — ~50 words per link (3–7)
 
-**Поверхность (будущая).** Та же модель «чат с ИИ слева, артефакт справа», что у страницы «Эволюция
-навыка»: слева задания и команды «запусти / выполни шаг», справа — live-состояние дерева `/architecture`
-и прогон деплоя (звенья 3–5). Проектируется, когда автоматизация звеньев 3–7 потребует оболочки, чтобы
-не строить пустой каркас раньше логики. Доступ — owner/architect.
+Links 3–7 already work as a manual operational pipeline; below is where to **further automate** them so the
+whole code development cycle is driven from a single surface (mirror of the future flow-A §5 page).
 
-**Связи.**
-- **`development-methodology.md §5` (поток B)** — общая дисциплина декомпозиции; этот документ = её живой
-  кейс (теперь у потока B есть UI+навык+MCP-паритет с потоком A).
-- **`architecture.md`** — служебная страница `/architecture`: declared→built→live, README+`_meta.ts`,
-  tasks API.
-- **`development-steps.md`** — журнал шагов (куда падает собранный шаг).
-- **`skill-evolution-pipeline.md`** — документ-близнец, **другой** цикл (эволюция навыка). Кросс-ссылка
-  — чтобы два конвейера читались как разные, а не как дубль.
-- **`/ai-core`** — дерево, где видны навык (под агентами → Skills) и MCP (под Hermes → arch-bridge :3222).
-- **MCP-REGISTRY** — `owner_arch_create_record`, `owner_arch_send_to_steps` (тир owner, §8.2 confirm-first).
+**Link 3 — execute the step from chat.** Today the agent takes the bundled step by hand. The goal — a "run
+step N" chat command → the process/MCP opens the step, delegates to a suitable coder (`choose-agent` +
+`delegate-task`), the agent follows `CLAUDE.md §6.4`: scaffold the skeleton → domain code. Step statuses
+(open→running→done) are visible in real time on `/development-steps`.
 
----
+**Link 4 — test the result.** After building the route — reproduce its behavior in a controlled environment:
+locally/on the current server, before deploy. A light test harness for pages is needed (render + route API
+contract), with a structured result (success/failure/2 proofs from different planes, §6.6) so link 6 can
+record it and a future visualization can show it.
 
-## §6. Стандарт именования навыков и MCP (НЕ забывать)
+**Link 5 — deploy.** build 2–4 min (only `app/`) + reload + health via the deploy-loop. **The real deploy —
+the architect (rule 18).** Automation: chat shows live job progress (`/api/deploy/status`), the fifth proof
+is the live URL `200` after COMPLETED.
 
-Имя навыка/MCP — **4–6 слов, цель ближе к 6**, и **человек должен сразу понять, что оно делает**
-(имя читают и люди, не только агенты). Не раздувать сверх шести, но и не занижать.
+**Link 6 — record the result → patterns.** The agent writes a Deployments row
+(`owner_product_loop_record_deployment`), saves extracted patterns into `/patterns`, closes the step in
+COMPLETED-STEPS/, ingests it into memory. declared→built→live: the declared node's README is removed, a real
+file appears. Every cycle leaves an auditable trail.
 
-- **MCP** — snake_case, `<tier>_<area>_<action>_<object>`; тир (public/user/owner) — первое слово; 6 — потолок.
-- **Навык** — kebab-case, без тир-префикса, тот же потолок 4–6 слов.
-- Полный стандарт — `ai-draft-settings.md §«Naming convention»` + `development-methodology.md`.
-
-**Применение в этом кейсе:**
-- Навык записи — **`declare-architecture-page-or-task`** (5 слов, читается с ходу).
-- MCP — **`owner_arch_create_record`** / **`owner_arch_send_to_steps`** (тир owner первым словом).
-- **`scaffold-route` → `scaffold-declared-route-into-component-skeleton`** — единственный grandfathered
-  навык приведён к стандарту в этом шаге (звено 3 ссылается на новое имя).
+**Link 7 — iteration / decomposition.** If the step did not solve the task fully (normal) — the agent
+returns new records onto `/architecture` (new declared pages / to-dos) and repeats the cycle until the tree
+is empty (methodology §5). Safeguards — a depth limit (≤5/≤100 at the agent's discretion), a token budget,
+checkpoints with the architect, <50% context.
 
 ---
 
-## Приложение A. Журнал роста
+## §5. Control surface (future) and relations
 
-Дописываем по мере прогресса (дата · что закрыто · какое звено переведено в done · перенарезка, если была).
+**Surface (future).** The same "AI chat on the left, artifact on the right" model as the "Skill Evolution"
+page: on the left, tasks and "run / execute step" commands; on the right, the live state of the
+`/architecture` tree and the deploy run (links 3–5). Designed when the automation of links 3–7 needs a
+shell, so as not to build an empty frame ahead of the logic. Access — owner/architect.
 
-- **2026-06-19** — создан документ (под-шаг S1). Звенья **1–2 = в работе** (под-шаги A1–Б3 этого шага);
-  звенья **3–7 = существуют** (операционный пайплайн `CLAUDE.md §6.4–6.11`), подключаются к собранному
-  шагу. Зафиксирован принцип: этот цикл (разработка кода) ≠ цикл эволюции навыка
+**Relations.**
+- **`development-methodology.md §5` (flow B)** — the general decomposition discipline; this document = its
+  living case (flow B now has UI+skill+MCP parity with flow A).
+- **`architecture.md`** — the `/architecture` service page: declared→built→live, README+`_meta.ts`, tasks
+  API.
+- **`development-steps.md`** — the steps journal (where the bundled step lands).
+- **`skill-evolution-pipeline.md`** — the twin document, a **different** cycle (skill evolution). The
+  cross-reference is so the two pipelines read as different, not as a duplicate.
+- **`/ai-core`** — the tree where the skill (under agents → Skills) and the MCP (under Hermes → arch-bridge
+  :3222) are visible.
+- **MCP-REGISTRY** — `owner_arch_create_record`, `owner_arch_send_to_steps` (owner tier, §8.2 confirm-first).
+
+---
+
+## §6. Skill and MCP naming standard (do NOT forget)
+
+A skill/MCP name is **4–6 words, aim closer to 6**, and **a human must immediately understand what it does**
+(names are read by people, not just agents). Do not bloat beyond six, but do not under-name either.
+
+- **MCP** — snake_case, `<tier>_<area>_<action>_<object>`; the tier (public/user/owner) is the first word;
+  6 is the ceiling.
+- **Skill** — kebab-case, no tier prefix, the same 4–6-word ceiling.
+- The full standard — `ai-draft-settings.md §"Naming convention"` + `development-methodology.md`.
+
+**Applied in this case:**
+- The record skill — **`declare-architecture-page-or-task`** (5 words, reads at a glance).
+- MCP — **`owner_arch_create_record`** / **`owner_arch_send_to_steps`** (owner tier first).
+- **`scaffold-route` → `scaffold-declared-route-into-component-skeleton`** — the only grandfathered skill,
+  brought into the standard in this step (link 3 references the new name).
+
+---
+
+## Appendix A. Growth log
+
+Appended as progress is made (date · what was closed · which link moved to done · re-slicing, if any).
+
+- **2026-06-19** — document created (sub-step S1). Links **1–2 = in progress** (sub-steps A1–B3 of this
+  step); links **3–7 = exist** (the operational pipeline `CLAUDE.md §6.4–6.11`), connected to the bundled
+  step. Principle fixed: this cycle (code development) ≠ the skill evolution cycle
   (`skill-evolution-pipeline.md`).
-- **2026-06-19** — звенья **1–2 построены** (шаг 126, S2b–S9): навык `declare-architecture-page-or-task`
-  (во все 5 кодеров + Hermes), MCP `owner_arch_create_record` / `owner_arch_send_to_steps`
-  (`arch-bridge :3222`), hover 🚀Launch/🗑Delete на дереве, роут `{bundleArchitecture}`, узел в `/ai-core`.
-  `scaffold-route` → `scaffold-declared-route-into-component-skeleton` (звено 3). Верификация — Прил. B
-  (средняя 89/100, локально; live-E2E — архитектор). Звенья 3–7 = существующий пайплайн, без изменений.
+- **2026-06-19** — links **1–2 built** (step 126, S2b–S9): skill `declare-architecture-page-or-task`
+  (in all 5 coders + Hermes), MCP `owner_arch_create_record` / `owner_arch_send_to_steps`
+  (`arch-bridge :3222`), hover 🚀Launch/🗑Delete on the tree, route `{bundleArchitecture}`, node in `/ai-core`.
+  `scaffold-route` → `scaffold-declared-route-into-component-skeleton` (link 3). Verification — Appendix B
+  (average 89/100, local; live E2E — the architect). Links 3–7 = the existing pipeline, unchanged.
 
 ---
 
-## Приложение B. Верификация готовности (S9, 2026-06-19)
+## Appendix B. Readiness verification (S9, 2026-06-19)
 
-**Граница (правило 18):** реальный прогон на сервере + деплой — архитектор. Этот клон FNS — плоский
-контракт-клон **без `node_modules`**, поэтому `tsc`/`next build` тут не запускаются; верификация —
-локальные синтакс/контракт-пруфы + ручная сверка типов; live-E2E на трёх плоскостях ниже заготовлен
-для архитектора.
+**Boundary (rule 18):** the real run on the server + deploy — the architect. This FNS clone is a flat
+contract clone **with no `node_modules`**, so `tsc`/`next build` do not run here; verification is local
+syntax/contract proofs + manual type checks; the live E2E across three planes below is prepared for the
+architect.
 
-**Локальные пруфы (зелёные):**
+**Local proofs (green):**
 - `node --check arch-mcp-server.js` + `server.js` → OK.
-- `mcp-access-manifest.json` валиден; `arch-bridge :3222` + оба инструмента (owner/mutating/server).
-- `bash -n bootstrap.sh` → OK; блок `arch-bridge:` присутствует в Hermes-config heredoc.
-- Навык `declare-architecture-page-or-task` — 5 копий байт-идентичны (4 кодера + Hermes); §0 покрыт.
-- Контракты сверены с реальными роутами: навык/MCP бьют `…/architecture/{requested,tasks}` и
-  `/api/development-steps {bundleArchitecture|path}` — те же сигнатуры, что в `requested/route.ts`,
+- `mcp-access-manifest.json` is valid; `arch-bridge :3222` + both tools (owner/mutating/server).
+- `bash -n bootstrap.sh` → OK; the `arch-bridge:` block is present in the Hermes-config heredoc.
+- The `declare-architecture-page-or-task` skill — 5 byte-identical copies (4 coders + Hermes); §0 covered.
+- Contracts verified against the real routes: the skill/MCP hit `…/architecture/{requested,tasks}` and
+  `/api/development-steps {bundleArchitecture|path}` — the same signatures as in `requested/route.ts`,
   `tasks/route.ts`, `development-steps/route.ts`.
-- Foreign-char скан (правило 4б) всех правок — чисто.
+- Foreign-character scan (rule 4b) of all edits — clean.
 
-**Заготовка live-E2E для архитектора (три плоскости, зеркало шага 125):**
-1. **HTTP API** (путь навыка A2, как вызывает агент-кодер):
-   `POST :3000/api/project/default/architecture/requested {title,kind,base,todo}` → `201`, README на диске;
+**Live E2E template for the architect (three planes, mirror of step 125):**
+1. **HTTP API** (the A2 skill path, as a coding agent calls it):
+   `POST :3000/api/project/default/architecture/requested {title,kind,base,todo}` → `201`, README on disk;
    `POST …/architecture/tasks {path,kind:"todo",body}` → `201`;
-   `POST :3000/api/development-steps {bundleArchitecture:true}` → `201 {architected:N}`, один шаг в `NEW-STEPS/`.
-2. **Файловая система**: declared README создан, после Launch — снят (`removeRouteReadme`); живой
-   маршрут — задачи очищены (`clearTasks`); `fractera:step`-блок шага содержит секцию на каждую запись.
+   `POST :3000/api/development-steps {bundleArchitecture:true}` → `201 {architected:N}`, one step in `NEW-STEPS/`.
+2. **File system**: the declared README is created, after Launch — removed (`removeRouteReadme`); a live
+   route — tasks cleared (`clearTasks`); the `fractera:step` block of the step contains a section per record.
 3. **MCP `:3222`** (`Authorization: Bearer $MCP_SECRET`): `tools/list` → `[owner_arch_create_record,
-   owner_arch_send_to_steps]`; `owner_arch_create_record` с `dry_run:true` → preview → real;
+   owner_arch_send_to_steps]`; `owner_arch_create_record` with `dry_run:true` → preview → real;
    `owner_arch_send_to_steps {bundle_all:true, dry_run:true}` → `{pendingRecords}` → real `{architected}`.
 
-**Оценка готовности 1–100** (код-комплит + локальные пруфы; «остаток» = что добирается только на живом сервере):
+**Readiness score 1–100** (code-complete + local proofs; "remainder" = what only the live server adds):
 
-| Под-шаг | Что | Оценка | Остаток до 100 |
+| Sub-step | What | Score | Remainder to 100 |
 |---|---|---:|---|
-| A1 | UI создания записи (declare/todo/danger) | 90 | существует (шаги 103/105/108); ручной клик в браузере |
-| A2 | навык `declare-architecture-page-or-task` (HTTP, самодостаточный) | 92 | реальный HTTP-вызов на сервере |
-| A3 | MCP `owner_arch_create_record` | 88 | прогон MCP-протокола (`tools/call`) на сервере |
-| Б1 | hover 🚀Launch / 🗑Delete + модалка | 85 | ручной hover/клик в браузере |
-| Б2 | `bundleArchitecture` (сбор → один шаг + удаление) | 90 | реальный ФС-прогон на сервере |
-| Б3 | MCP `owner_arch_send_to_steps` | 88 | прогон MCP-протокола на сервере |
+| A1 | UI to create a record (declare/todo/danger) | 90 | exists (steps 103/105/108); a manual click in the browser |
+| A2 | skill `declare-architecture-page-or-task` (HTTP, self-sufficient) | 92 | a real HTTP call on the server |
+| A3 | MCP `owner_arch_create_record` | 88 | running the MCP protocol (`tools/call`) on the server |
+| B1 | hover 🚀Launch / 🗑Delete + modal | 85 | a manual hover/click in the browser |
+| B2 | `bundleArchitecture` (collect → one step + removal) | 90 | a real FS run on the server |
+| B3 | MCP `owner_arch_send_to_steps` | 88 | running the MCP protocol on the server |
 
-**Средняя ≈ 89/100.** Ниже 95 шага 125 намеренно: там был живой сервер для E2E, здесь весь live-прогон
-вынесен архитектору (правило 18). **Вывод:** звенья 1–2 конвейера построены и согласованы во всех трёх
-плоскостях (UI · самодостаточный навык · MCP), локально доказаны; остаётся подтверждение на живом сервере.
+**Average ≈ 89/100.** Below step 125's 95 on purpose: there a live server was available for E2E, here the
+entire live run is delegated to the architect (rule 18). **Conclusion:** links 1–2 of the pipeline are built
+and agreed across all three planes (UI · self-sufficient skill · MCP), proven locally; live-server
+confirmation remains.

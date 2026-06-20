@@ -1,209 +1,215 @@
-# Конвейер эволюции навыка — живой стандарт
+# Skill Evolution Pipeline — living standard
 
-> **Это живой НАД-документ одного кейса.** Он описывает сквозной замысел — **конвейер непрерывного
-> эволюционирования навыка/MCP** — и держит цель в фокусе, пока мы режем его на под-шаги. Документ
-> **растёт вместе с разработкой**: каждый закрытый под-шаг переводит звено цикла из `todo` в `done`
-> и дополняет журнал роста (Приложение A). Написан на русском (язык авторитетного замысла);
-> публичный англопорт — отдельный шаг.
+> **This is a living META-document for one case.** It describes the end-to-end intent — a **continuous
+> skill/MCP evolution pipeline** — and keeps the goal in focus while we slice it into sub-steps. The
+> document **grows with development**: every closed sub-step moves a link of the cycle from `todo` to `done`
+> and appends to the growth log (Appendix A). Authored in Russian (the language of the authoritative
+> intent); this is the English port.
 >
-> **Документ-близнец — ДРУГОЙ цикл.** [`architecture-dev-pipeline.md`](./architecture-dev-pipeline.md)
-> описывает цикл **разработки кода** (`/architecture → development-steps`, flow-B). Этот документ — про
-> цикл **эволюции навыка/MCP** (`/ai-draft-settings → development-steps`, flow-A). Оба сходятся в журнал
-> шагов и делят дисциплину декомпозиции, но это **разные** конвейеры — не путать и не сливать.
+> **The twin document — a DIFFERENT cycle.** [`architecture-dev-pipeline.md`](./architecture-dev-pipeline.md)
+> describes the **code development** cycle (`/architecture → development-steps`, flow-B). This document is
+> about the **skill/MCP evolution** cycle (`/ai-draft-settings → development-steps`, flow-A). Both converge
+> on the steps journal and share the decomposition discipline, but they are **different** pipelines — do not
+> confuse or merge them.
 >
-> **Опирается на** (папка `CRUD-DOCS/workspace-standards/`):
-> [`development-methodology.md`](./development-methodology.md) — мастер-методология (этот док = её
-> конкретное применение) · [`ai-draft-settings.md`](./ai-draft-settings.md) — слой черновиков ·
-> [`development-steps.md`](./development-steps.md) — журнал шагов · [`development-loop.md`](./development-loop.md).
-> Операционный пайплайн агента — `app/CLAUDE.md §6` (`flow-A`: триггер 4 = черновики агента → шаг).
+> **Builds on** (folder `CRUD-DOCS/workspace-standards/`):
+> [`development-methodology.md`](./development-methodology.md) — the master methodology (this doc = its
+> concrete application) · [`ai-draft-settings.md`](./ai-draft-settings.md) — the draft layer ·
+> [`development-steps.md`](./development-steps.md) — the steps journal · [`development-loop.md`](./development-loop.md).
+> The agent's operational pipeline — `app/CLAUDE.md §6` (`flow-A`: trigger 4 = agent drafts → step).
 
 ---
 
-## §0. Цель и видение
+## §0. Goal and vision
 
-**Цель.** Построить **конвейер непрерывного эволюционирования агента**: механизм, который берёт один
-навык (и связанный MCP) и доводит его до полного решения задачи через повторяющиеся циклы
-«задание → исполнение → тест → анализ → переписывание инструкций», сколько бы циклов ни потребовалось.
+**Goal.** Build a **continuous agent evolution pipeline**: a mechanism that takes one skill (and its
+associated MCP) and drives it to fully solve its task through repeating cycles of
+"task → execution → test → analysis → instruction rewrite", however many cycles it takes.
 
-**Фокус — один навык за раз.** Эволюционируем не всё сразу, а **один-единственный** навык, пока он не
-начнёт решать свою задачу в полной мере. Эталонный сложный пример — навык **«общение с YouTube-
-блогерами»** (см. §1): нетривиальная цель, на которой видны все звенья цикла.
+**Focus — one skill at a time.** We evolve not everything at once, but a **single** skill until it starts
+solving its task fully. The reference complex example is the skill **"reaching out to YouTube bloggers"**
+(see §1): a non-trivial goal on which all links of the cycle are visible.
 
-**Ведущий процесса — любой агент (данность §0 самодостаточности).** Заранее **неизвестно**, кто будет
-вести цикл: Hermes, один Codex, любой из пяти кодеров — или единственный агент без Hermes и без памяти.
-Конвейер обязан работать при **любом** подмножестве сущностей. Поэтому каждое звено делается
-самодостаточно (навык + MCP дублируются во все агенты), а не привязывается к Hermes.
+**The process lead is any agent (a §0 self-sufficiency given).** It is **unknown in advance** who will run
+the cycle: Hermes, a single Codex, any of the five coders — or a single agent with no Hermes and no memory.
+The pipeline must work under **any** subset of entities. Therefore each link is made self-sufficient (skill +
+MCP duplicated to every agent), not tied to Hermes.
 
-**Поверхность — страница «Эволюция навыка» (будущая, §5):** чат с ИИ **слева**, артефакт отслеживания
-результата **справа**. В чате даю задания; иногда в UI добавляю задания в **черновик**. Говорю «запусти
-навык» — чат вызывает процесс/MCP, который собирает черновики в шаг, запускает исполнение, прогоняет
-тест, рисует результат в артефакте, анализирует и переписывает инструкции навыка/MCP. Повтор — 1 цикл
-или 500, до критерия полноты.
+**Surface — the "Skill Evolution" page (future, §5):** an AI chat on the **left**, a result-tracking
+artifact on the **right**. In the chat I give tasks; sometimes in the UI I add tasks to a **draft**. I say
+"run the skill" — the chat calls a process/MCP that bundles the drafts into a step, launches execution, runs
+the test, draws the result in the artifact, analyzes it and rewrites the skill/MCP instructions. Repeat — 1
+cycle or 500, until the completeness criterion.
 
-**Где мы сейчас.** На **первом, раннем этапе**: построен механизм работы с **черновиком** инструкций /
-навыков / MCP и сбор черновиков в шаг (звенья 1–2). Самого эволюционного цикла (исполнение → тест →
-визуализация → переписывание → повтор) ещё нет.
+**Where we are now.** At the **first, early stage**: the mechanism for working with a **draft** of
+instructions / skills / MCP and bundling drafts into a step is built (links 1–2). The evolution cycle itself
+(execution → test → visualization → rewrite → repeat) does not exist yet.
 
-**Слой.** product / FNS (`CRUD-DOCS/…`) — едет к клиенту с клоном; описывает работу агента **внутри
-развёрнутого воркспейса**.
-
----
-
-## §1. Эталонный кейс — навык «общение с YouTube-блогерами»
-
-Сквозной пример, на котором обкатываем конвейер. Навык достаточно сложен, чтобы потребовать многих
-циклов: найти релевантных блогеров, составить персональное обращение, выдержать тон, обработать ответ,
-довести до договорённости. У него есть и **навык** (как агент думает про аутрич), и **MCP** (как он
-реально шлёт/читает сообщения), и **измеримый результат** (ответы, согласия) — то есть все три оси,
-которые цикл должен эволюционировать. По мере роста документа сюда добавляем конкретику кейса.
+**Layer.** product / FNS (`CRUD-DOCS/…`) — ships to the customer with the clone; describes the agent's work
+**inside the deployed workspace**.
 
 ---
 
-## §2. Цикл из 7 звеньев (каноническая карта)
+## §1. Reference case — the "reaching out to YouTube bloggers" skill
 
-Состояние обновляется по мере закрытия под-шагов.
+The end-to-end example we run the pipeline on. The skill is complex enough to require many cycles: find
+relevant bloggers, compose a personal outreach, hold the tone, handle the reply, bring it to an agreement. It
+has both a **skill** (how the agent thinks about outreach), an **MCP** (how it actually sends/reads
+messages), and a **measurable result** (replies, agreements) — that is, all three axes the cycle must
+evolve. As the document grows, case specifics are added here.
 
-| # | Звено | Что происходит | Где живёт | Статус |
+---
+
+## §2. The 7-link cycle (canonical map)
+
+State is updated as sub-steps close.
+
+| # | Link | What happens | Where it lives | Status |
 |---|---|---|---|---|
-| 1 | **Черновик задания** | в чате/UI добавляю пожелания в черновик; ведёт любой агент | `/ai-draft-settings`, навык `propose-new-agent-skill-or-mcp`, MCP `owner_draft_create_record` | ✅ done (A1–A3) |
-| 2 | **Сбор в шаг** | «запусти навык» → собрать pending-черновики в один шаг + удалить их | `/development-steps`, кнопки 🚀/🗑, MCP `owner_draft_send_to_steps`, `CLAUDE.md §6.1 flow-A` | ✅ done (B1–B3) |
-| 3 | **Исполнение шага из чата** | чат запускает выполнение открытого шага (агент берёт в работу) | — | ⏳ todo |
-| 4 | **Тест результата** | фейк-данные ИЛИ реальные действия; прогон навыка/MCP | — | ⏳ todo |
-| 5 | **Визуализация** | live-артефакт справа показывает результат прогона | — | ⏳ todo |
-| 6 | **Анализ → переписывание** | агент анализирует результат, формирует обновлённые инструкции навыка/MCP | — | ⏳ todo |
-| 7 | **Итерация** | повтор 1–500 циклов до критерия «навык/MCP решает задачу полностью» | — | ⏳ todo |
+| 1 | **Task draft** | in chat/UI I add wishes to a draft; any agent leads | `/ai-draft-settings`, skill `propose-new-agent-skill-or-mcp`, MCP `owner_draft_create_record` | ✅ done (A1–A3) |
+| 2 | **Bundle into a step** | "run the skill" → bundle pending drafts into one step + remove them | `/development-steps`, 🚀/🗑 buttons, MCP `owner_draft_send_to_steps`, `CLAUDE.md §6.1 flow-A` | ✅ done (B1–B3) |
+| 3 | **Execute the step from chat** | the chat launches execution of the open step (the agent takes it on) | — | ⏳ todo |
+| 4 | **Test the result** | fake data OR real actions; running the skill/MCP | — | ⏳ todo |
+| 5 | **Visualization** | the live artifact on the right shows the run result | — | ⏳ todo |
+| 6 | **Analysis → rewrite** | the agent analyzes the result, forms updated skill/MCP instructions | — | ⏳ todo |
+| 7 | **Iteration** | repeat 1–500 cycles until the "skill/MCP solves the task fully" criterion | — | ⏳ todo |
 
 ---
 
-## §3. Текущая нарезка под-шагов (A1–B3) — звенья 1–2
+## §3. Current sub-step slicing (A1–B3) — links 1–2
 
-Что реально построено на раннем этапе (шаг 123). Тип артефакта определяет, где он виден в `/ai-core`.
+What is actually built at the early stage (step 123). The artifact type determines where it is visible in
+`/ai-core`.
 
-| Под-шаг | Артефакт | Тип | Где в `/ai-core` |
+| Sub-step | Artifact | Type | Where in `/ai-core` |
 |---|---|---|---|
-| **A1** | UI создания черновика на `/ai-draft-settings` | UI | страница (не дерево) |
-| **A2** | навык `propose-new-agent-skill-or-mcp` (самодостаточный, HTTP API) | навык | под каждым агентом → Skills |
-| **A3** | MCP `owner_draft_create_record` | MCP | Hermes → ai-draft-bridge :3221 (в описании) |
-| **B1** | hover-кнопки 🚀 Launch / 🗑 Delete на `req`-строке | UI | страница (не дерево) |
-| **B2** | сбор всех pending → один шаг + per-draft delete (роуты `development-steps`, `ai-draft-settings/[id]`) | UI+API | страница (не дерево) |
-| **B3** | MCP `owner_draft_send_to_steps` (автоматизация B2) | MCP | Hermes → ai-draft-bridge :3221 (в описании) |
+| **A1** | UI to create a draft on `/ai-draft-settings` | UI | page (not the tree) |
+| **A2** | skill `propose-new-agent-skill-or-mcp` (self-sufficient, HTTP API) | skill | under each agent → Skills |
+| **A3** | MCP `owner_draft_create_record` | MCP | Hermes → ai-draft-bridge :3221 (in the description) |
+| **B1** | hover buttons 🚀 Launch / 🗑 Delete on the `req` row | UI | page (not the tree) |
+| **B2** | bundle all pending → one step + per-draft delete (routes `development-steps`, `ai-draft-settings/[id]`) | UI+API | page (not the tree) |
+| **B3** | MCP `owner_draft_send_to_steps` (B2 automation) | MCP | Hermes → ai-draft-bridge :3221 (in the description) |
 
-**Урок нарезки (к будущему перенарезу):** A1–B3 закрыли **создание и сбор** черновиков, но звено 2
-сейчас «сбор», а не «**очередь исполнения**». При планировании звена 3 стоит дотянуть вкладку Шаги до
-очереди, из которой чат запускает исполнение — это снимет шов между звеньями 2 и 3.
-
----
-
-## §4. Дальнейшая автоматизация — по ~50 слов на звено (3–7)
-
-**Звено 3 — исполнение шага из чата.** Чат должен уметь не только переместить черновики в шаг, но и
-**запустить** его исполнение: команда «выполни шаг N» → процесс/MCP открывает шаг, делегирует
-подходящему агенту (`choose-agent` + `delegate-task`), агент идёт по `CLAUDE.md §6.4–6.8`. Связать
-вкладку Шаги с исполнителем; статусы шага (open→running→done) видимы в реальном времени.
-
-**Звено 4 — тест результата.** После исполнения — прогон навыка/MCP в управляемой среде: либо
-**фейк-данные** (сидинг входов без внешних эффектов), либо **реальные действия** по разрешению. Нужен
-тест-харнесс: фикстуры, дублёры внешних сервисов, изоляция от прод-эффектов. Результат прогона
-структурирован (успех/провал/метрики), чтобы звено 6 могло его анализировать, а звено 5 — показать.
-
-**Звено 5 — визуализация результата.** Артефакт справа на странице «Эволюция навыка» рисует **live**
-исход прогона: что навык сделал, что вернул MCP, где сбоил. Поток событий из звена 4 → панель
-(таблица/лог/диаграмма). Цель — за секунды и мало токенов увидеть, продвинулся ли навык, без чтения
-сырых логов. Обновляется по мере прогона, не по запросу.
-
-**Звено 6 — анализ → переписывание инструкций.** Агент сравнивает результат с целью, находит разрывы и
-**формирует обновлённые инструкции** для навыка (как думать) и MCP (что вызывать/какие параметры).
-Правки идут через слой черновиков (`ai-draft-settings`) → новый шаг, не правкой живых файлов вслепую.
-Так каждый цикл оставляет аудируемый след эволюции навыка.
-
-**Звено 7 — итерация.** Звенья 3–6 повторяются автоматически: 1 цикл или 500. Нужен **критерий
-остановки** (навык/MCP решает задачу в полной мере: порог метрик из звена 4) и предохранители —
-лимит циклов, бюджет токенов, обязательная сверка с архитектором на контрольных точках. Между циклами —
-не идлить: извлекать паттерны, держать <50% контекста (`CLAUDE.md §6.4`).
+**Slicing lesson (for a future re-slice):** A1–B3 closed the **creation and bundling** of drafts, but link 2
+is currently "bundling", not an "**execution queue**". When planning link 3, the Steps tab should be extended
+into a queue from which the chat launches execution — this removes the seam between links 2 and 3.
 
 ---
 
-## §5. Страница «Эволюция навыка» (будущая поверхность)
+## §4. Further automation — ~50 words per link (3–7)
 
-Спец-страница продукта: **чат с ИИ слева, артефакт результата справа** (паттерн ai-elements). Слева я
-даю задания и команды «запусти навык / выполни шаг»; справа — live-визуализация прогона (звено 5).
-Доступ — owner/architect (управление эволюцией). Это UI-оболочка над звеньями 3–7; проектируется, когда
-эти звенья появятся, чтобы не строить пустой каркас раньше логики.
+**Link 3 — execute the step from chat.** The chat should be able not only to move drafts into a step, but
+also to **launch** its execution: a "run step N" command → the process/MCP opens the step, delegates to a
+suitable agent (`choose-agent` + `delegate-task`), the agent follows `CLAUDE.md §6.4–6.8`. Connect the Steps
+tab to an executor; step statuses (open→running→done) visible in real time.
 
----
+**Link 4 — test the result.** After execution — run the skill/MCP in a controlled environment: either **fake
+data** (seeding inputs without external effects) or **real actions** with permission. A test harness is
+needed: fixtures, stand-ins for external services, isolation from prod effects. The run result is structured
+(success/failure/metrics) so link 6 can analyze it and link 5 can show it.
 
-## §6. Связи
+**Link 5 — visualize the result.** The artifact on the right of the "Skill Evolution" page draws the **live**
+outcome of the run: what the skill did, what the MCP returned, where it failed. An event stream from link 4 →
+a panel (table/log/diagram). The goal — to see in seconds and few tokens whether the skill advanced, without
+reading raw logs. Updates as the run proceeds, not on request.
 
-- **`development-methodology.md`** — общая дисциплина; этот документ = её живой кейс.
-- **`ai-draft-settings.md`** + **`CLAUDE.md §6.1 flow-A`** — слой черновиков и правило «черновик → шаг».
-- **`development-steps.md`** — журнал шагов (куда падает собранный шаг; будущая очередь исполнения).
-- **`/ai-core`** — дерево, где видны навык (под агентами) и MCP (под Hermes → ai-draft-bridge :3221).
-- **MCP-REGISTRY** — `owner_draft_create_record`, `owner_draft_send_to_steps` (тир owner, §8.2 confirm-first).
+**Link 6 — analysis → instruction rewrite.** The agent compares the result with the goal, finds gaps, and
+**forms updated instructions** for the skill (how to think) and the MCP (what to call / which parameters).
+The edits go through the draft layer (`ai-draft-settings`) → a new step, not by blindly editing live files.
+This way every cycle leaves an auditable trail of the skill's evolution.
 
----
-
-## §7. Стандарт именования навыков и MCP (НЕ забывать)
-
-Имя навыка/MCP — **4–6 слов, цель ближе к 6**, и **человек должен сразу понять, что оно делает**
-(имя читают и люди, не только агенты). Не раздувать сверх шести, но и не занижать: два кратких
-слова, которые человек не расшифрует, — плохое имя.
-
-- **MCP** — snake_case, `<tier>_<area>_<action>_<object>`; тир (public/user/owner) — первое слово; 6 — потолок.
-- **Навык** — kebab-case, без тир-префикса, тот же потолок 4–6 слов.
-- Полный стандарт — `ai-draft-settings.md §«Naming convention»` + `development-methodology.md`.
-
-**Применение в этом кейсе:** навык `create-draft` (2 слова, человеку неочевидно, что делает)
-**переименован в `propose-new-agent-skill-or-mcp`** (6 слов, читается с ходу). MCP-инструменты
-`owner_draft_create_record` / `owner_draft_send_to_steps` уже соответствуют. `scaffold-route`
-приведён к стандарту — переименован в `scaffold-declared-route-into-component-skeleton`.
-
-**На будущее (звено 6):** когда черновик превращается в реальный навык/MCP, генератор имени
-ОБЯЗАН выдавать 4–6-словное человекочитаемое имя — это войдёт в автоматизацию звена 6.
+**Link 7 — iteration.** Links 3–6 repeat automatically: 1 cycle or 500. A **stopping criterion** is needed
+(the skill/MCP solves the task fully: a metric threshold from link 4) plus safeguards — a cycle limit, a
+token budget, mandatory checkpoints with the architect. Between cycles — do not idle: extract patterns, keep
+<50% context (`CLAUDE.md §6.4`).
 
 ---
 
-## Приложение A. Журнал роста
+## §5. The "Skill Evolution" page (future surface)
 
-Дописываем по мере прогресса (дата · что закрыто · какое звено переведено в done · перенарезка, если была).
-
-- **2026-06-19** — создан документ. Звенья **1–2 = done** (под-шаги A1–B3, шаг 123). Звенья 3–7 = todo.
-  Зафиксирован урок нарезки: звено 2 = «сбор», нужно дотянуть до «очереди исполнения» при планировании звена 3.
-- **2026-06-19** — верификация готовности A1–B3 (Приложение B); навык `create-draft` переименован в
-  `propose-new-agent-skill-or-mcp` под §7; добавлен §7 (стандарт именования).
+A dedicated product page: **AI chat on the left, the result artifact on the right** (the ai-elements
+pattern). On the left I give tasks and "run the skill / execute the step" commands; on the right — a live
+visualization of the run (link 5). Access — owner/architect (managing the evolution). It is a UI shell over
+links 3–7; designed when those links appear, so as not to build an empty frame ahead of the logic.
 
 ---
 
-## Приложение B. Верификация готовности (E2E, 2026-06-19)
+## §6. Relations
 
-**Среда.** aifa.dev (secure), слот `/opt/fractera/app` = FNS main `6b4df60`, билд свежий
-(`fractera-app` рестарт 10:24 UTC), MCP `:3221` жив. **Метод:** (1) самодостаточный HTTP-путь
-`:3000/api/...` с `X-Agent-Identity` — как вызывает агент-кодер; (2) сам MCP `:3221` (JSON-RPC
-`tools/list` / `tools/call`, §8.2 `dry_run`). Все тестовые черновики и шаги удалены после теста.
+- **`development-methodology.md`** — the general discipline; this document = its living case.
+- **`ai-draft-settings.md`** + **`CLAUDE.md §6.1 flow-A`** — the draft layer and the "draft → step" rule.
+- **`development-steps.md`** — the steps journal (where the bundled step lands; the future execution queue).
+- **`/ai-core`** — the tree where the skill (under agents) and the MCP (under Hermes → ai-draft-bridge :3221)
+  are visible.
+- **MCP-REGISTRY** — `owner_draft_create_record`, `owner_draft_send_to_steps` (owner tier, §8.2
+  confirm-first).
 
-**Результаты (сырые):**
-- Дерево API (авторизованный GET) → `200`, 6 агентов (Hermes + 5 кодеров).
-- Создание `claude-code/skill` → `201`, файл `CLAUDE-CODE/SKILLS/01-…md` появился на диске.
+---
+
+## §7. Skill and MCP naming standard (do NOT forget)
+
+A skill/MCP name is **4–6 words, aim closer to 6**, and **a human must immediately understand what it does**
+(names are read by people, not just agents). Do not bloat beyond six, but do not under-name either: two terse
+words a human cannot decode is a bad name.
+
+- **MCP** — snake_case, `<tier>_<area>_<action>_<object>`; the tier (public/user/owner) is the first word;
+  6 is the ceiling.
+- **Skill** — kebab-case, no tier prefix, the same 4–6-word ceiling.
+- The full standard — `ai-draft-settings.md §"Naming convention"` + `development-methodology.md`.
+
+**Applied in this case:** the skill `create-draft` (2 words, unclear to a human what it does) was **renamed
+to `propose-new-agent-skill-or-mcp`** (6 words, reads at a glance). The MCP tools
+`owner_draft_create_record` / `owner_draft_send_to_steps` already conform. `scaffold-route` was brought into
+the standard — renamed to `scaffold-declared-route-into-component-skeleton`.
+
+**For the future (link 6):** when a draft turns into a real skill/MCP, the name generator MUST output a
+4–6-word human-readable name — this will become part of link 6's automation.
+
+---
+
+## Appendix A. Growth log
+
+Appended as progress is made (date · what was closed · which link moved to done · re-slicing, if any).
+
+- **2026-06-19** — document created. Links **1–2 = done** (sub-steps A1–B3, step 123). Links 3–7 = todo.
+  A slicing lesson fixed: link 2 = "bundling", needs to be extended to an "execution queue" when planning
+  link 3.
+- **2026-06-19** — readiness verification of A1–B3 (Appendix B); the skill `create-draft` renamed to
+  `propose-new-agent-skill-or-mcp` per §7; §7 added (naming standard).
+
+---
+
+## Appendix B. Readiness verification (E2E, 2026-06-19)
+
+**Environment.** aifa.dev (secure), slot `/opt/fractera/app` = FNS main `6b4df60`, a fresh build
+(`fractera-app` restarted 10:24 UTC), MCP `:3221` alive. **Method:** (1) the self-sufficient HTTP path
+`:3000/api/...` with `X-Agent-Identity` — as a coding agent calls it; (2) the MCP `:3221` itself (JSON-RPC
+`tools/list` / `tools/call`, §8.2 `dry_run`). All test drafts and steps were removed after the test.
+
+**Results (raw):**
+- The tree API (authorized GET) → `200`, 6 agents (Hermes + 5 coders).
+- Creating `claude-code/skill` → `201`, the file `CLAUDE-CODE/SKILLS/01-…md` appeared on disk.
 - PATCH (source + tasks) → `200`.
-- **Launch `bundleAll`** → `201`, `drafted=2`, создан шаг «Apply 2 AI-draft wishes» с обоими
-  пожеланиями в теле; черновики удалены (ФС + авторизованный GET = 0).
-- **Delete (per-draft)** → `{"ok":true}`, из дерева ушёл.
+- **Launch `bundleAll`** → `201`, `drafted=2`, the step "Apply 2 AI-draft wishes" created with both wishes in
+  the body; drafts removed (FS + authorized GET = 0).
+- **Delete (per-draft)** → `{"ok":true}`, gone from the tree.
 - **MCP `tools/list`** → `['owner_draft_create_record','owner_draft_send_to_steps']`.
-- **MCP `owner_draft_create_record`**: `dry_run` → превью (без записи) → real `{"created":true}`, файл на диске.
+- **MCP `owner_draft_create_record`**: `dry_run` → preview (no write) → real `{"created":true}`, file on disk.
 - **MCP `owner_draft_send_to_steps`**: `dry_run` → `{"pendingDrafts":1, confirm_prompt}` → real
-  `{"created":true,"step":"Apply 1 AI-draft wish","drafted":1}`, черновик удалён.
-- **§0 самодостаточность:** навык есть в `.claude`/`.gemini`/`.qwen` (свои папки) + `.agents`
-  (читают codex/kimi) + Hermes — все 6 агентов покрыты.
+  `{"created":true,"step":"Apply 1 AI-draft wish","drafted":1}`, the draft removed.
+- **§0 self-sufficiency:** the skill is in `.claude`/`.gemini`/`.qwen` (their own folders) + `.agents`
+  (read by codex/kimi) + Hermes — all 6 agents covered.
 
-**Оценка готовности 1–100:**
+**Readiness score 1–100:**
 
-| Под-шаг | Что | Оценка | Остаток до 100 |
+| Sub-step | What | Score | Remainder to 100 |
 |---|---|---:|---|
-| A1 | UI создания черновика | 90 | ручной клик в браузере |
-| A2 | навык (HTTP, самодостаточный) | 95 | — |
-| A3 | MCP `owner_draft_create_record` | **100** | доказан через MCP-протокол + §8.2 |
-| B1 | hover-кнопки 🚀/🗑 | 88 | ручной hover в браузере |
-| B2 | Launch (сбор) + Delete | 97 | — |
-| B3 | MCP `owner_draft_send_to_steps` | **100** | доказан через MCP-протокол + §8.2 |
+| A1 | UI to create a draft | 90 | a manual click in the browser |
+| A2 | skill (HTTP, self-sufficient) | 95 | — |
+| A3 | MCP `owner_draft_create_record` | **100** | proven via the MCP protocol + §8.2 |
+| B1 | hover buttons 🚀/🗑 | 88 | a manual hover in the browser |
+| B2 | Launch (bundle) + Delete | 97 | — |
+| B3 | MCP `owner_draft_send_to_steps` | **100** | proven via the MCP protocol + §8.2 |
 
-**Средняя ≈ 95/100. Вывод:** звенья 1–2 конвейера функционально завершены и развёрнуты; путь
-«черновик → сбор → шаг» доказан на трёх плоскостях (API · файловая система · MCP-протокол).
+**Average ≈ 95/100. Conclusion:** links 1–2 of the pipeline are functionally complete and deployed; the path
+"draft → bundle → step" is proven across three planes (API · file system · MCP protocol).
