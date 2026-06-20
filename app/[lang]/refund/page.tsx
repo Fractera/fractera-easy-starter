@@ -59,7 +59,7 @@ export default async function RefundPage({
           <section className="flex flex-col gap-3 border border-white/10 rounded-lg p-5">
             <h2 className="text-lg font-semibold text-white">{t.s4.title}</h2>
             <p>{t.s4.p1}</p>
-            <p><strong className="text-white">{lang === 'ru' ? 'Важно:' : 'Important:'}</strong> {t.s4.p2}</p>
+            <p><strong className="text-white">{t.s4.important}</strong> {t.s4.p2}</p>
             <p>
               {t.s4.p3}{' '}
               <a href={`mailto:${LEGAL.emails.support}`} className="text-white underline hover:no-underline">{LEGAL.emails.support}</a>.

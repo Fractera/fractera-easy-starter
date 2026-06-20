@@ -22,23 +22,10 @@ export function SiteHeader() {
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
   const isPartner = !!session?.user?.partnerSlug
   const lang = useLang()
-  const frameworks = getContent(lang).connectFramework.frameworks
-  const ru = lang === 'ru'
-  const partnerCabinetLabel = ru ? 'Партнёрский кабинет' : 'Partner cabinet'
+  const content = getContent(lang)
+  const frameworks = content.connectFramework.frameworks
   // Header nav labels follow the site language (RU site → RU header).
-  const t = {
-    deploy: ru ? 'Развернуть' : 'Deploy',
-    vpsDeploy: ru ? 'Развернуть на VPS' : 'VPS Deploy',
-    mcpDeploy: ru ? 'Развернуть через MCP' : 'MCP Deploy',
-    frameworks: ru ? 'Фреймворки' : 'Frameworks',
-    companyBrain: ru ? 'Мозг компании' : 'Company Brain',
-    docs: ru ? 'Документация' : 'Docs',
-    news: ru ? 'Новости' : 'News',
-    signIn: ru ? 'Войти' : 'Sign in',
-    servers: ru ? 'Серверы' : 'Servers',
-    purchases: ru ? 'Покупки' : 'Purchases',
-    signOut: ru ? 'Выйти' : 'Sign out',
-  }
+  const t = content.siteHeader
 
   if (pathname.includes('/embed')) return null
 
@@ -263,7 +250,7 @@ export function SiteHeader() {
                                 <circle cx="7" cy="4.5" r="2.2" stroke="currentColor" strokeWidth="1.3"/>
                                 <path d="M2.5 12c0-2.4 2-4 4.5-4s4.5 1.6 4.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                               </svg>
-                              {partnerCabinetLabel}
+                              {t.partnerCabinet}
                             </button>
                           )}
                           {/* Purchases — restored: White Label (Fractera-branding removal) is still sold */}

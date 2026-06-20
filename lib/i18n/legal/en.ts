@@ -191,7 +191,8 @@ export const en: LegalContent = {
     s4: {
       title: '4. EU / EEA Residents — Right of Withdrawal',
       p1: 'If you are located in the European Union or European Economic Area, you have the right to withdraw from your subscription within 14 days of purchase without giving any reason (cooling-off period under EU Directive 2011/83/EU).',
-      p2: 'Important: If you explicitly request that the service begins immediately upon purchase (e.g., your server is provisioned and you access the platform before the 14 days elapse), you acknowledge that you lose your right of withdrawal once the service has been fully performed, or you accept partial loss of this right proportional to services already delivered.',
+      important: 'Important:',
+      p2: 'If you explicitly request that the service begins immediately upon purchase (e.g., your server is provisioned and you access the platform before the 14 days elapse), you acknowledge that you lose your right of withdrawal once the service has been fully performed, or you accept partial loss of this right proportional to services already delivered.',
       p3: 'To exercise your right of withdrawal, contact us with the subject line "Right of Withdrawal" before the 14-day period expires. Refunds will be issued within 14 days of receiving your withdrawal notice.',
     },
     s5: {

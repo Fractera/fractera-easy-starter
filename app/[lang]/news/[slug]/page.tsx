@@ -1,16 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllArticles, getArticle, resolveArticle } from '@/lib/news/articles'
+import { getAllArticles, getArticle, resolveArticle } from '@/lib/news'
 import { getNewsUi } from '@/lib/news/ui'
 import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
 import { PostBody, headingId } from '../../blog/_components/post-body'
-
-// Language-specific suffix for the <title> tag (the rest of the title is the
-// per-language SEO title resolved from the article's i18n overrides).
-function titleSuffix(lang: string): string {
-  return lang === 'ru' ? 'Новости Fractera' : 'Fractera News'
-}
 
 export function generateStaticParams() {
   return getAllArticles().map(a => ({ slug: a.slug }))
@@ -25,11 +19,12 @@ export async function generateMetadata({
   const article = getArticle(slug)
   if (!article) return {}
   const { seoTitle, description, keywords } = resolveArticle(article, lang)
+  const ui = getNewsUi(lang)
   const ogImageUrl = article.ogImage.startsWith('/')
     ? `https://www.fractera.ai${article.ogImage}`
     : article.ogImage
   return {
-    title: `${seoTitle} | ${titleSuffix(lang)}`,
+    title: `${seoTitle} | ${ui.titleSuffix}`,
     description,
     keywords,
     alternates: buildAlternates(lang, `/news/${slug}`),
@@ -51,8 +46,8 @@ export async function generateMetadata({
   }
 }
 
-function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {
+function formatDate(iso: string, lang: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(lang, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -163,7 +158,7 @@ export default async function NewsArticlePage({
               <p className="text-lg leading-relaxed text-white/55 md:text-base">{subtitle}</p>
             )}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/40">
-              <time dateTime={article.date}>{formatDate(article.date)}</time>
+              <time dateTime={article.date}>{formatDate(article.date, lang)}</time>
               <span aria-hidden>·</span>
               <span>{article.readingMinutes} {ui.minRead}</span>
               <span aria-hidden>·</span>

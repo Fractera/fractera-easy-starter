@@ -1,20 +1,12 @@
+import { getEmbedCallback } from '@/lib/i18n/embed-callback'
+
 export default async function EmbedCallbackPage({
   params,
 }: {
   params: Promise<{ lang: string }>
 }) {
-  const { lang: langParam } = await params
-  const lang: 'en' | 'ru' = langParam === 'ru' ? 'ru' : 'en'
-
-  const t = lang === 'ru' ? {
-    title: 'Активация завершена',
-    body: 'Ваш Fractera-аккаунт активирован. Вернитесь во вкладку с виджетом — он обновится автоматически в течение нескольких секунд.',
-    hint: 'Это окно можно закрыть.',
-  } : {
-    title: 'Activation complete',
-    body: 'Your Fractera account is active. Go back to the tab where the widget is loaded — it will update automatically within a few seconds.',
-    hint: 'You can close this window.',
-  }
+  const { lang } = await params
+  const t = getEmbedCallback(lang)
 
   return (
     <main className="min-h-screen bg-black flex flex-col items-center justify-center px-6 py-10">

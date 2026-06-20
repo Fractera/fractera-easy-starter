@@ -1,9 +1,10 @@
 // Localized UI chrome for the News feature (index + article pages). Kept next to
-// the news content (lib/news/articles.ts is the EN-only content source); these are
-// the surrounding interface labels, localized per rule 4а — never hardcoded inline.
-// Minimum en + ru; add a language by adding an entry. Article title/H1/H2 and the
-// SEO metadata are localized separately via the article's own i18n overrides
-// (resolveArticle); this file is only the wrapper labels.
+// the news content (lib/news/ — one folder per article, see registry.ts); these
+// are the surrounding interface labels, localized per rule 4а — never hardcoded
+// inline. Minimum en + ru; add a language by adding an entry. Article
+// title/H1/H2 and the SEO metadata are localized separately via the article's
+// own per-language override file (resolveArticle); this file is only the
+// wrapper labels.
 
 export type NewsUi = {
   metaTitle: string
@@ -16,6 +17,8 @@ export type NewsUi = {
   tocHeading: string
   faqHeading: string
   backToNews: string
+  // <title> tag suffix on the article page — " | <titleSuffix>" after the SEO title.
+  titleSuffix: string
 }
 
 const UI: Record<string, NewsUi> = {
@@ -32,6 +35,7 @@ const UI: Record<string, NewsUi> = {
     tocHeading: 'In this article',
     faqHeading: 'Frequently asked questions',
     backToNews: 'Back to all news',
+    titleSuffix: 'Fractera News',
   },
   ru: {
     metaTitle: 'Новости | Fractera',
@@ -46,6 +50,7 @@ const UI: Record<string, NewsUi> = {
     tocHeading: 'Содержание',
     faqHeading: 'Частые вопросы',
     backToNews: 'Ко всем новостям',
+    titleSuffix: 'Новости Fractera',
   },
 }
 

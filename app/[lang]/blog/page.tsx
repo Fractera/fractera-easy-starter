@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllPosts } from '@/lib/blog/posts'
+import { getAllPosts } from '@/lib/blog'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
-import type { BlogBlock } from '@/lib/blog/posts'
+import type { BlogBlock } from '@/lib/blog/types'
 import { InlineFrameworkGrid } from '@/components/inline-framework-grid'
 import { AUTHOR, AUTHOR_SOCIAL_LINKS } from '@/lib/author'
+import { getPostBodyUi } from '@/lib/content/post-body-ui'
 
 // Stable anchor id for a heading, so a table of contents (used by the Documentation
 // pages) can link to it. Additive: blog headings simply gain an id, no visual change.
@@ -42,6 +43,7 @@ function inline(text: string, kp: string): ReactNode[] {
 }
 
 export function PostBody({ blocks, lang = 'en' }: { blocks: BlogBlock[]; lang?: string }) {
+  const ui = getPostBodyUi(lang)
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => {
@@ -189,7 +191,7 @@ export function PostBody({ blocks, lang = 'en' }: { blocks: BlogBlock[]; lang?: 
               <aside key={k} className="my-6 flex flex-col gap-4 rounded-2xl border border-violet-500/30 bg-violet-500/[0.05] p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col gap-1.5">
                   <p className="text-xs font-semibold uppercase tracking-widest text-violet-400/70">
-                    {lang === 'ru' ? 'Полная документация' : 'Full documentation'}
+                    {ui.fullDocumentation}
                   </p>
                   <p className="text-base font-semibold text-white">{b.title}</p>
                   <p className="text-sm leading-relaxed text-white/55">{inline(b.summary, k)}</p>
@@ -200,7 +202,7 @@ export function PostBody({ blocks, lang = 'en' }: { blocks: BlogBlock[]; lang?: 
                   className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /></svg>
-                  {lang === 'ru' ? 'Скачать .md' : 'Download .md'}
+                  {ui.downloadMd}
                 </a>
               </aside>
             )

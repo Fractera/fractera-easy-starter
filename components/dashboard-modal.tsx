@@ -594,6 +594,7 @@ interface Props {
 export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
   const { data: session } = useSession()
   const lang = useLang()
+  const dash = getDashboard(lang)
   const [activeView, setActiveView] = useState<'servers' | 'subscription' | 'purchases' | 'partner'>(view)
   const [servers, setServers] = useState<ServerRecord[]>([])
   const [purchases, setPurchases] = useState<PurchaseRecord[]>([])
@@ -688,7 +689,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-white">
-              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : activeView === 'partner' ? (lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet') : 'Purchases'}
+              {activeView === 'servers' ? 'Servers' : activeView === 'subscription' ? 'Subscription' : activeView === 'partner' ? dash.partnerCabinetTitle : 'Purchases'}
             </h2>
             {session?.user?.email && (
               <p className="text-sm text-white/60 font-medium">{session.user.email}</p>
@@ -709,11 +710,9 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
               <PartnerCabinetView partnerSlug={session.user.partnerSlug} lang={lang} />
             ) : (
               <p className="text-base text-white/60 py-4">
-                {lang === 'ru' ? (
-                  <>Партнёрская регистрация ещё не выполнена. Откройте страницу <a href="/ru/partners" className="text-violet-400 hover:text-violet-300">Партнёры</a> и нажмите «Зарегистрироваться».</>
-                ) : (
-                  <>You have not registered as a partner yet. Open the <a href="/en/partners" className="text-violet-400 hover:text-violet-300">Partners</a> page and click «Register as a partner».</>
-                )}
+                {dash.partnerNotRegisteredPre}
+                <a href={`/${lang}/partners`} className="text-violet-400 hover:text-violet-300">{dash.partnerNotRegisteredLink}</a>
+                {dash.partnerNotRegisteredPost}
               </p>
             )
           ) : loading ? (

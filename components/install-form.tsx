@@ -623,16 +623,16 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 {t.tryAgain}
               </button>
               <p className="text-xs text-white/40 leading-relaxed">
-                {lang === 'ru' ? 'или ' : 'or '}
+                {t.errorMcpPrefix}
                 <a
                   href={`/${lang}/partners`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-violet-400 hover:text-violet-300 transition-colors"
                 >
-                  {lang === 'ru' ? 'запустите развёртывание через AI-агента (MCP)' : 'launch deployment via an AI agent (MCP)'}
+                  {t.errorMcpLink}
                 </a>
-                {lang === 'ru' ? ' — он сможет сам устранить ошибку.' : ' — it can fix the error itself.'}
+                {t.errorMcpSuffix}
               </p>
             </div>
           )}

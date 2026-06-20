@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllArticles, resolveArticle } from '@/lib/news/articles'
+import { getAllArticles, resolveArticle } from '@/lib/news'
 import { getNewsUi } from '@/lib/news/ui'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 function formatDate(iso: string, lang: string): string {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(lang, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllPosts, getPost } from '@/lib/blog/posts'
+import { getAllPosts, getPost } from '@/lib/blog'
 import { PostBody } from '../_components/post-body'
 
 export function generateStaticParams() {

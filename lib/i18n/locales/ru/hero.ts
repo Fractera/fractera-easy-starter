@@ -2,12 +2,13 @@ import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
   | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
-  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'elonTrillion'
+  | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'heroNarrativeVariant' | 'elonTrillion'
   | 'deployCaptions' | 'importSubstitution'
 >
 
 export const hero: HeroPart = {
   heroBadge: 'Open Source — бесплатно навсегда',
+  heroNarrativeVariant: 'import-substitution',
   heroTitle: 'AI-инфраструктура разработки в 1 клик на вашем российском VPS — разверните стартер любого фреймворка или любого репозитория',
   lightPitch: {
     label: 'Альтернатива',

@@ -13,11 +13,13 @@ import { companyBrain } from './company-brain'
 import { marketplace } from './marketplace'
 import { ultimateScale } from './ultimate-scale'
 import { aircraftCarrier } from './aircraft-carrier'
+import { siteHeader } from './site-header'
 
 export const en: SiteContent = {
   ...hero,
   ultimateScale,
   aircraftCarrier,
+  siteHeader,
   ...loopShowcase,
   ...presentation,
   ...problem,

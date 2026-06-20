@@ -6,8 +6,7 @@ import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
 import { UltimateScale } from '@/components/sections/ultimate-scale'
 import { AircraftCarrier } from '@/components/sections/aircraft-carrier'
-import { ElonTrillion } from '@/components/sections/elon-trillion'
-import { ImportSubstitution } from '@/components/sections/import-substitution'
+import { HERO_NARRATIVE_REGISTRY } from '@/lib/content/hero-narrative-registry'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
@@ -60,6 +59,7 @@ export default async function HomePage({
   }
 
   const content = getContent(lang)
+  const HeroNarrative = HERO_NARRATIVE_REGISTRY[content.heroNarrativeVariant]
 
   return (
     <>
@@ -105,7 +105,7 @@ export default async function HomePage({
                   section (above the VPS/pricing block) per the concept reframe. */}
               <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
               <DeployButton caption={content.deployCaptions?.afterAircraftCarrier} />
-              {lang === 'ru' ? <ImportSubstitution /> : <ElonTrillion />}
+              <HeroNarrative />
               <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
               <DeployButton caption={content.deployCaptions?.afterLoop} />

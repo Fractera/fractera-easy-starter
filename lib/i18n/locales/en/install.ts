@@ -85,6 +85,9 @@ export const install: InstallPart = {
     tryAgain: 'Try again',
     silentWarning: 'Server has been silent for {secs}s. The installation may still be running, or the server may be unreachable.',
     errorDetails: 'Error details:',
+    errorMcpPrefix: 'or ',
+    errorMcpLink: 'launch deployment via an AI agent (MCP)',
+    errorMcpSuffix: ' — it can fix the error itself.',
     progressToast: {
       title: 'Deployment in progress…',
       dashboardNote: 'You can track the deployment progress at any time in your Dashboard — available in the top-right corner of the page after signing in.',

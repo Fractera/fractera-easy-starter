@@ -30,6 +30,13 @@ export type SiteContent = {
     body: string
     cta: string
   }
+  // Which narrative section renders in the hero slot (after the connect-framework
+  // block). A data-driven discriminator instead of a `lang === 'ru'` component
+  // swap in the page: each language picks its variant, and any new untranslated
+  // language inherits the EN default ('elon-trillion') through the i18n deep-merge
+  // fallback automatically. The variant → component map lives in
+  // lib/content/hero-narrative-registry.ts.
+  heroNarrativeVariant: 'elon-trillion' | 'import-substitution'
   elonTrillion: {
     label: string
     h2: string
@@ -186,6 +193,12 @@ export type SiteContent = {
     tryAgain: string
     silentWarning: string
     errorDetails: string
+    // Fallback line under a failed install: "<prefix><link> — <suffix>" where
+    // <link> points to the partner/MCP page. Split into three keys so word order
+    // stays translatable (the link sits mid-sentence).
+    errorMcpPrefix: string
+    errorMcpLink: string
+    errorMcpSuffix: string
     progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string; domainTipTitle: string; domainTipBody: string; domainButton: string; dnsButton: string; dnsIntro: string; dnsCovers: string }
     successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; checkboxLabel: string; closeButton: string }
   }
@@ -274,6 +287,22 @@ export type SiteContent = {
     description: string
     points: { title: string; text: string }[]
   }
+  // Global site-header nav labels (shown on every page). Kept in the i18n shell
+  // so the header follows the site language without a `lang === 'ru'` block.
+  siteHeader: {
+    deploy: string
+    vpsDeploy: string
+    mcpDeploy: string
+    frameworks: string
+    companyBrain: string
+    docs: string
+    news: string
+    signIn: string
+    servers: string
+    purchases: string
+    partnerCabinet: string
+    signOut: string
+  }
 }
 
 export type SiteMeta = {
@@ -301,4 +330,12 @@ export type CookieBannerContent = {
 // and a translation in every locales/<lang>/dashboard.ts as the dashboard grows.
 export type DashboardContent = {
   passwordNeverStored: string
+  // Header label for the partner-cabinet view of the dashboard modal.
+  partnerCabinetTitle: string
+  // "Not registered as a partner yet" notice: "<pre><link><post>" where <link>
+  // points to /<lang>/partners. Split into three keys so the link can sit
+  // mid-sentence in any language.
+  partnerNotRegisteredPre: string
+  partnerNotRegisteredLink: string
+  partnerNotRegisteredPost: string
 }
