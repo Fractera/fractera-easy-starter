@@ -6,6 +6,10 @@
 
 import type { NewsArticle } from './types'
 
+import { meta as multilingualMeta } from './entries/multilingual-content-architecture/meta'
+import { en as multilingualEn } from './entries/multilingual-content-architecture/en'
+import { ru as multilingualRu } from './entries/multilingual-content-architecture/ru'
+
 import { meta as architectureMeta } from './entries/architecture-to-development-steps-materializer/meta'
 import { en as architectureEn } from './entries/architecture-to-development-steps-materializer/en'
 import { ru as architectureRu } from './entries/architecture-to-development-steps-materializer/ru'
@@ -15,6 +19,11 @@ import { en as aiDraftSettingsEn } from './entries/ai-draft-settings-evolutionar
 import { ru as aiDraftSettingsRu } from './entries/ai-draft-settings-evolutionary-pipeline/ru'
 
 export const ARTICLES: NewsArticle[] = [
+  {
+    ...multilingualMeta,
+    base: multilingualEn,
+    overrides: { ru: multilingualRu },
+  },
   {
     ...architectureMeta,
     base: architectureEn,

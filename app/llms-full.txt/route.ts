@@ -193,6 +193,55 @@ authentication, file storage, the full five-agent stack and one MCP architecture
 other frameworks — React, Vue, Angular, SvelteKit, Nuxt, Astro, Remix, Django, Flask,
 FastAPI, Laravel, Rails, Phoenix, NestJS and more — announced in News as they go live.`
 
+const MULTILINGUAL = `# Multilingual content architecture — publish in many languages by construction
+
+Reference page (news): https://www.fractera.ai/en/news/multilingual-content-architecture
+Raw living standard (download): https://www.fractera.ai/docs/multilingual-content.md
+
+Fractera rebuilt how its own site — and every starter it ships — stores and translates
+content (news, blog, documentation, any page copy) so it scales to dozens of languages
+and thousands of pages without rewriting what exists and without hardcoded language
+branches in code.
+
+## Document = folder
+Each content item is its own folder: a non-translatable meta file (slug, date, tags,
+images), a FULL base-language file (en) that is required, and a PARTIAL override file per
+extra language carrying only what differs. A new language = a new file dropped into the
+folder; existing files are never touched. A new document = a new folder plus one line in
+an explicit static-import registry (the bundler needs resolvable paths, not an fs scan).
+
+## Translate per key, not all-or-nothing
+The resolver and the i18n shell return a language as a recursive deep-merge of the base
+with the override: a missing key falls back to English per key (not the whole object).
+Arrays are replaced wholesale, never merged element-wise. The result: the 81st language
+can ship with a single translated field and render correctly, English filling every gap.
+Priority languages get a full translation; the long tail lives in base-fallback mode.
+
+## No language branching in page code
+Forbidden: language === 'xx' ? A : B and isXx = lang === 'xx' in the page layer. Instead:
+a UI label is a key in the translation dictionary (a link-in-the-middle string is split
+into Pre/Link/Post); a different component per language is chosen by a discriminator field
+in the data plus a component registry; dates are passed straight to toLocaleDateString(lang)
+(a bare ISO-639-1 code is a valid BCP-47 tag) — which also fixed a real bug where a Russian
+page showed its date in English month names. A lint rule guards the line so the hack cannot
+creep back as the site and its contributors (AI agents included) grow.
+
+## SEO/GEO and static generation
+Each language gets its own URL with hreflang and its own SEO surface (title, description,
+keywords) written from its own angle, not a word-for-word copy, so engines see distinct
+pages. AI discovery is a first-class channel: every update is reflected in machine-readable
+indexes (llms.txt, llms-full.txt) and the sitemap. At small volume, full static generation
+across existing languages; when languages x documents inflate the build, ISR without losing
+static (dynamicParams = true for languages outside the list — the resolver already gives
+base-fallback — plus revalidate = N).
+
+## The create-multilingual-content-entry skill
+The pattern ships as part of the starter's standard architecture, carried by a self-
+sufficient agent skill, create-multilingual-content-entry: any agent (even a single one,
+with no Hermes and no memory) can create a multilingual document the right way — the folder,
+the full base, partial overrides, the registry line, and a check that no language hacks
+slipped in. Especially relevant in Europe, where a project is rarely born in one language.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -249,7 +298,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
