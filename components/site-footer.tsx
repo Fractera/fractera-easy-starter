@@ -158,7 +158,7 @@ export function SiteFooter() {
           <div className="flex items-center w-full justify-between sm:w-auto sm:justify-start gap-3">
             <div className="flex items-center gap-1">
               <a
-                href="https://github.com/Fractera/ai-workspace"
+                href="https://github.com/Fractera/Agent-Engineering-Infrastructure"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"

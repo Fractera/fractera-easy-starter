@@ -18,7 +18,7 @@ export const IMAGE_MOBILE = 'https://www.fractera.ai/Fractera-Mobail-Architect.j
 // Real screenshot of the workspace (admin panel) shown in the "How it looks" section.
 export const IMAGE_SCREENSHOT = 'https://www.fractera.ai/Fractera-ai-workspace-screenshot.png'
 
-export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
+export const GITHUB_REPO = 'https://github.com/Fractera/Agent-Engineering-Infrastructure'
 
 export const ARCHITECT_META = {
   title: 'Fractera AI Agent Platform Architecture | Multi-Agent System & RAG',

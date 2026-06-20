@@ -23,7 +23,7 @@ export function FractеraPromo() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             <a
-              href="https://github.com/Fractera/ai-workspace"
+              href="https://github.com/Fractera/Agent-Engineering-Infrastructure"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full inline-flex items-center gap-2 justify-center rounded-full border border-violet-500/50 bg-violet-500/[0.06] hover:bg-violet-500/20 text-white font-semibold px-6 py-3 transition-colors"

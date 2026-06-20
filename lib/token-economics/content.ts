@@ -14,7 +14,7 @@
 
 export const ECON_URL = 'https://www.fractera.ai/token-economics'
 
-export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
+export const GITHUB_REPO = 'https://github.com/Fractera/Agent-Engineering-Infrastructure'
 
 export const ECON_META = {
   title: 'AI Token Cost Optimization & Zero-Agent Next.js MCP Architecture | Fractera',

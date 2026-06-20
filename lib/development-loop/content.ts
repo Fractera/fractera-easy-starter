@@ -19,7 +19,7 @@ export const LOOP_URL = 'https://www.fractera.ai/ai-development-loop'
 // The diagram is the canonical / semantic image (og:image, shown to AI models).
 export const IMAGE = 'https://www.fractera.ai/Fractera-Development-Loop.jpg'
 
-export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
+export const GITHUB_REPO = 'https://github.com/Fractera/Agent-Engineering-Infrastructure'
 
 export const LOOP_META = {
   title: 'Fractera Autonomous AI Dev Loop | How AI Agents Build, Test & Ship Code',

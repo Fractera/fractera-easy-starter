@@ -20,7 +20,7 @@
 
 export const CARRIER_URL = 'https://www.fractera.ai/next-aircraft-carrier'
 
-export const GITHUB_REPO = 'https://github.com/Fractera/ai-workspace'
+export const GITHUB_REPO = 'https://github.com/Fractera/Agent-Engineering-Infrastructure'
 
 export const CARRIER_META = {
   title: 'Next.js Enterprise Boilerplate & Cost-Effective AI Development | Fractera',
