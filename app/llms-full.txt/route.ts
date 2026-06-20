@@ -240,7 +240,16 @@ The pattern ships as part of the starter's standard architecture, carried by a s
 sufficient agent skill, create-multilingual-content-entry: any agent (even a single one,
 with no Hermes and no memory) can create a multilingual document the right way — the folder,
 the full base, partial overrides, the registry line, and a check that no language hacks
-slipped in. Especially relevant in Europe, where a project is rarely born in one language.`
+slipped in. Especially relevant in Europe, where a project is rarely born in one language.
+
+## Shipped in the starter
+The starter ships this routing built in: it deploys bilingual by default (English + Spanish),
+so the language switcher button is visible out of the box; leave a single language in the
+NEXT_PUBLIC_SUPPORTED_LANGUAGES env and the button disappears and pages serve from the root
+with no prefix. Service pages (Architecture, AI Core, …) always stay at the root, never
+language-prefixed. Two self-sufficient agent skills ship with it — create-multilingual-content-entry
+and install-language-switcher-dropdown (re-installs the language dropdown after you delete it) —
+and both are readable in the AI Core page of the deployed workspace.`
 
 export function GET() {
   const lang = 'en' as const

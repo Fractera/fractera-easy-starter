@@ -96,6 +96,32 @@ export const en: NewsArticleBase = {
       ],
     },
     {
+      kind: 'h2',
+      text: 'And now it ships inside the starter itself',
+    },
+    {
+      kind: 'p',
+      text: 'There was a gap I owed you. We told you to "change a setting and go multilingual" — but the starter you deploy did not yet have the machinery to make that real. So we built it in. The same routing that powers this site now ships with the starter, and here is exactly how it behaves.',
+    },
+    {
+      kind: 'p',
+      text: 'By default your starter comes with **two languages — English and Spanish**. That is why you see a language button on the start page out of the box. The moment you leave a **single** language in the environment settings, that button disappears on its own and the whole site is served straight from the root with no language prefix. You list the languages you want in one environment variable and set the default — nothing else. (One honest note: those values are baked in at build time, so changing them takes a rebuild to apply.)',
+    },
+    {
+      kind: 'list',
+      items: [
+        '**Two or more languages** → the switcher button appears, and content lives under `/en/…`, `/es/…`, and so on.',
+        '**One language** → the button vanishes, pages serve from the bare root with no prefix.',
+        '**Service pages stay at the root, always** — your workspace pages (Architecture, AI Core, Development Steps, …) are never language-prefixed; only your user-facing content is.',
+        '**The skill is already in your project** — `create-multilingual-content-entry` (and `install-language-switcher-dropdown`) ship with the starter. You can read their docs right inside **AI Core**.',
+        '**Delete the button without fear** — once you start building your own multilingual UI, just ask an agent to put the language dropdown back. It already has the template saved, so it will understand you.',
+      ],
+    },
+    {
+      kind: 'founder',
+      text: 'A personal word. Back in 2016, building multilingual Web and PWA apps became a real business direction for me. I found a niche making menus for restaurants — and that grew into two businesses I brought here through COVID. My project then was maps.menu, and what opened that market for me was exactly the multilingual version: my edge became building multilingual menus for restaurants, barbershops and other tourist spots on the island of Tenerife. Ever since, I pay unusual attention to multilingualism, because I know how much it matters for small business. So it is a real pleasure to solve one of the hardest problems for you — internationalization and localization. Good luck building your apps.',
+    },
+    {
       kind: 'docref',
       title: 'multilingual-content.md — the living multilingual standard',
       summary: 'The full raw document an AI agent reads to apply this pattern end to end: the folder shape, per-key fallback, the no-language-hacks rule, the SEO/GEO and ISR recipe, and the create-multilingual-content-entry skill. It grows as the platform evolves.',
