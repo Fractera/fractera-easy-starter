@@ -4,6 +4,7 @@
 // for social snippets; `heroImage` is optional — omit until the asset is ready.
 
 import type { BlogBlock } from '@/lib/blog/posts'
+import { AUTHOR } from '@/lib/author'
 
 // Per-language overrides. A locale may override just the SEO surface, or supply a
 // fully translated page (subtitle + blocks + faq). `blocks`, when present, replaces
@@ -71,21 +72,21 @@ export function resolveArticle(article: NewsArticle, lang: string) {
 const ARTICLES: NewsArticle[] = [
   {
     slug: 'architecture-to-development-steps-materializer',
-    title: 'Architecture → Development Steps: Turning a Declared Page into a Real Build',
-    seoTitle: 'Architecture-Driven Development: Declare Pages, Bundle Them Into Build Steps',
+    title: 'Architecture → Development Steps: An Agentic Engineering Platform That Builds From the Project Tree',
+    seoTitle: 'Agentic Engineering Platform: Declare Pages in the Tree, Bundle Them Into Build Steps',
     subtitle: 'It ships with every Next.js-based starter — a visual map of your app where you, or an AI agent, declare the pages and endpoints to build, then send the whole backlog into one development step with a single click',
     description:
-      'Meet the Architecture page in Fractera: a living map of your app where developers and AI agents declare pages, endpoints, and to-dos, then bundle the pending work into a single development step. The code-development twin of AI Draft Settings.',
+      'Meet the Architecture page in Fractera, the agentic engineering platform: a living map of your app where developers and AI agents declare pages, endpoints, and to-dos, then bundle the pending work into a single development step. The code-development twin of AI Draft Settings.',
     summary:
       'A plain-language tour of the Architecture page — where you and your AI agents declare what to build, then turn the whole backlog into one development step, included as standard with every Next.js-based starter.',
     keywords:
-      'architecture-driven development, declare page before building, visual app backlog, build queue for AI agents, declared route readme, Claude Code page scaffolding, development steps materializer',
+      'agentic engineering platform, architecture-driven development, declare page before building, visual app backlog, build queue for AI agents, declared route readme, Claude Code page scaffolding, development steps materializer',
     date: '2026-06-19',
     readingMinutes: 6,
-    tags: ['Architecture', 'Development Steps', 'Agent Skills', 'MCP Tools'],
-    author: { name: 'Fractera Team', role: 'Product' },
-    // No image asset yet — text-only article. ogImage reuses the generic brand card.
-    ogImage: '/Fractera-start-image.jpg',
+    tags: ['Agentic Engineering Platform', 'Architecture', 'Development Steps', 'MCP Tools'],
+    author: { name: AUTHOR.name, role: AUTHOR.role },
+    heroImage: '/news/fractera-architecture/fractera-archtecture.jpg',
+    ogImage: '/news/fractera-architecture/fractera-architecture-screenshot.png',
     i18n: {
       ru: {
         seoTitle: 'Разработка от архитектуры: объявите страницы, соберите их в шаг сборки',
@@ -99,8 +100,24 @@ const ARTICLES: NewsArticle[] = [
         subtitle: 'Входит в каждый стартер на базе Next.js — визуальная карта приложения, где вы или ИИ-агент объявляете страницы и эндпоинты для сборки, а затем одним кликом отправляете весь бэклог в один шаг разработки',
         blocks: [
           {
+            kind: 'founder',
+            text: 'Вы привыкли строить vibe-coding проекты через чат — и кажется, что другого пути нет. А что если есть? Я придумал концепцию, где запрос на генерацию страницы вы отправляете не в чат, а прямо в дерево проекта: открываете нужный каталог, добавляете страницу, оставляете примеры кода — скажем, образец красивого элемента дизайна, — пошагово, как в Todolist, расписываете задачу и отправляете её в очередь разработки. Сегодня этот этап уже реальность. Но однажды он покажется вам лишь маленькой крошкой той большой идеи, которую я строю.',
+          },
+          {
             kind: 'p',
-            text: 'Fractera добавляет в каждое рабочее пространство ещё одну страницу — **Architecture**. Это живая карта вашего приложения: каждая страница и эндпоинт со своим типизированным описанием. Но между вами и реальными файлами стоит слой-черновик: вы — или ИИ-агент — **объявляете** будущую страницу и в свободной форме записываете замысел, не трогая боевой код. Это близнец страницы [AI Draft Settings](https://www.fractera.ai/ru/news/ai-draft-settings-evolutionary-pipeline): там эволюционируют навыки агента, здесь — строится обычный код. Оба цикла сходятся в одном месте — на странице Development Steps.',
+            text: 'Fractera добавляет в каждое рабочее пространство ещё одну страницу — **Architecture**. Это живая карта вашего приложения: каждая страница и эндпоинт со своим типизированным описанием. Но между вами и реальными файлами стоит слой-черновик: вы — или ИИ-агент — **объявляете** будущую страницу и в свободной форме записываете замысел, не трогая боевой код. Это сердце [платформы для агентной инженерии](https://www.fractera.ai/): близнец страницы [AI Draft Settings](https://www.fractera.ai/ru/news/ai-draft-settings-evolutionary-pipeline) — там эволюционируют навыки агента, здесь строится обычный код. Оба цикла сходятся в одном месте — на странице Development Steps.',
+          },
+          {
+            kind: 'callout',
+            title: 'А знаете ли вы?',
+            text: 'Эта страница обновляется автоматически в реальном времени. Когда её правит ИИ-агент или другой архитектор, прямо на глазах появляются новые папки, страницы и описания к ним — дерево подсвечивает то, что изменилось.',
+          },
+          {
+            kind: 'figure',
+            media: 'image',
+            src: '/news/fractera-architecture/fractera-architecture-screenshot.png',
+            alt: 'Страница Architecture во Fractera: слева живое дерево маршрутов с объявленными узлами, справа панель выбранного маршрута',
+            caption: 'Страница Architecture в живом рабочем пространстве — слева дерево маршрутов (объявленные узлы помечены оранжевым req), справа панель выбранного маршрута. Наведите на ожидающий узел — появятся кнопки Launch и Delete.',
           },
           {
             kind: 'h2',
@@ -205,6 +222,12 @@ const ARTICLES: NewsArticle[] = [
             text: 'Мы выкатываем их по одному, и каждый новый стартер сначала анонсируется здесь, в Новостях.',
           },
           {
+            kind: 'docref',
+            title: 'architecture-dev-pipeline.md — живой стандарт конвейера',
+            summary: 'Полный сырой документ, по которому ИИ-агент изучает этот цикл целиком: 7 звеньев, эталонный кейс, журнал роста и верификация. Растёт по мере эволюции платформы.',
+            href: '/docs/architecture-dev-pipeline.md',
+          },
+          {
             kind: 'cta',
             text: 'Разверните своё первое AI-оптимизированное рабочее пространство уже сегодня — выберите фреймворк и начните.',
             href: 'https://www.fractera.ai/',
@@ -233,8 +256,24 @@ const ARTICLES: NewsArticle[] = [
     },
     blocks: [
       {
+        kind: 'founder',
+        text: 'You are used to building vibe-coding projects through a chat — and it feels like the only way. But what if it is not? I designed a concept where you send a page-generation request not into a chat, but straight into the project tree: you open the right folder, add a page, drop in code examples — say, a sample of a beautiful design element — lay out the task step by step, like in Todolist, and send it into the build queue. Today this stage is already real. But one day it will look to you like a tiny crumb of the much bigger idea I am building.',
+      },
+      {
         kind: 'p',
-        text: 'Fractera adds one more page to every workspace: **Architecture**. It is a living map of your app — every page and endpoint with its own typed descriptor. But between you and those real files sits a draft layer: you — or an AI agent — **declare** a page-to-be and write the intent in free form, without touching live code. It is the twin of the [AI Draft Settings page](https://www.fractera.ai/news/ai-draft-settings-evolutionary-pipeline): that one evolves an agent\'s skills, this one builds ordinary code. Both cycles meet in the same place — the Development Steps page.',
+        text: 'Fractera adds one more page to every workspace: **Architecture**. It is a living map of your app — every page and endpoint with its own typed descriptor. But between you and those real files sits a draft layer: you — or an AI agent — **declare** a page-to-be and write the intent in free form, without touching live code. It is the heart of an [agentic engineering platform](https://www.fractera.ai/): the twin of the [AI Draft Settings page](https://www.fractera.ai/news/ai-draft-settings-evolutionary-pipeline) — that one evolves an agent\'s skills, this one builds ordinary code. Both cycles meet in the same place — the Development Steps page.',
+      },
+      {
+        kind: 'callout',
+        title: 'Did you know?',
+        text: 'This page updates automatically, in real time. When an AI agent or another architect edits it, new folders, pages, and their descriptions appear right before your eyes — the tree highlights exactly what changed.',
+      },
+      {
+        kind: 'figure',
+        media: 'image',
+        src: '/news/fractera-architecture/fractera-architecture-screenshot.png',
+        alt: 'The Architecture page in Fractera: the live route tree with declared nodes on the left, the selected route panel on the right',
+        caption: 'The Architecture page in a live workspace — the route tree on the left (declared nodes marked amber req), the selected route panel on the right. Hover a pending node and the Launch and Delete buttons appear.',
       },
       {
         kind: 'h2',
@@ -339,6 +378,12 @@ const ARTICLES: NewsArticle[] = [
         text: 'We are rolling these out one at a time, and every new starter gets announced here in News first.',
       },
       {
+        kind: 'docref',
+        title: 'architecture-dev-pipeline.md — the living pipeline standard',
+        summary: 'The full raw document an AI agent reads to study this cycle end to end: 7 links, the reference case, the growth log, and verification. It grows as the platform evolves.',
+        href: '/docs/architecture-dev-pipeline.md',
+      },
+      {
         kind: 'cta',
         text: 'Deploy your first AI-optimized workspace today — choose your framework and get started.',
         href: 'https://www.fractera.ai/',
@@ -378,7 +423,7 @@ const ARTICLES: NewsArticle[] = [
     date: '2026-06-19',
     readingMinutes: 6,
     tags: ['AI Draft Settings', 'Prompt Staging', 'Agent Skills', 'MCP Tools'],
-    author: { name: 'Fractera Team', role: 'Product' },
+    author: { name: AUTHOR.name, role: AUTHOR.role },
     // Per-language overrides. RU is a FULL localization (its own SEO surface +
     // subtitle + translated body blocks + FAQ), deliberately framed around the
     // "песочница / инкубатор" angle rather than the EN "staging conveyor" wording,
@@ -396,8 +441,17 @@ const ARTICLES: NewsArticle[] = [
         subtitle: 'Входит в каждый стартер на базе Next.js — безопасный слой-песочница, где люди и ИИ-агенты собирают, тестируют и хранят системные инструкции, навыки и MCP-инструменты до отправки в продакшен',
         blocks: [
           {
+            kind: 'founder',
+            text: 'Когда мне впервые пришла мысль, что создание инструкций, навыков и коннекторов нужно автоматизировать, я долго не мог представить, как это вообще сделать руками. И вот настал день, когда я сделал первый шаг к полностью автоматической системе [эволюционирующих и самореплицирующихся агентов искусственного интеллекта](https://www.fractera.ai/ru/news/architecture-to-development-steps-materializer) — в первую очередь для кода, но вовсе не только: для жизни, обучения, развлечения, для чего угодно. Эта полуавтоматическая линия уже сейчас — рабочий инструмент. Посмотрим, что будет через две недели. Я верю, что однажды Facebook можно будет собрать одним запросом.',
+          },
+          {
             kind: 'p',
-            text: 'Fractera добавляет новую страницу в каждое рабочее пространство — **AI Draft Settings**. Это место, где вы или один из ваших ИИ-агентов предлагаете новый навык, новую инструкцию или новый коннектор и держите его в виде безопасного черновика, прежде чем он коснётся боевой конфигурации. И это первый элемент чего-то большего: системы, которая со временем позволяет рабочему пространству наращивать собственный интеллект. Ниже — что делает страница, как ею пользуетесь вы и ваши агенты и куда всё это движется, простыми словами.',
+            text: 'Fractera добавляет новую страницу в каждое рабочее пространство — **AI Draft Settings**. Это место, где вы или один из ваших ИИ-агентов предлагаете новый навык, новую инструкцию или новый коннектор и держите его в виде безопасного черновика, прежде чем он коснётся боевой конфигурации. Это часть [платформы для агентной инженерии](https://www.fractera.ai/) — первый элемент чего-то большего: системы, которая со временем позволяет рабочему пространству наращивать собственный интеллект. Ниже — что делает страница, как ею пользуетесь вы и ваши агенты и куда всё это движется, простыми словами.',
+          },
+          {
+            kind: 'callout',
+            title: 'А знаете ли вы?',
+            text: 'Эта страница обновляется автоматически в реальном времени. Когда её правит ИИ-агент или другой архитектор, прямо на глазах появляются новые черновики, навыки и коннекторы — дерево подсвечивает то, что изменилось.',
           },
           {
             kind: 'h2',
@@ -539,6 +593,12 @@ const ARTICLES: NewsArticle[] = [
             text: 'Мы выкатываем их по одному, и каждый новый стартер сначала анонсируется здесь, в Новостях.',
           },
           {
+            kind: 'docref',
+            title: 'skill-evolution-pipeline.md — живой стандарт конвейера',
+            summary: 'Полный сырой документ, по которому ИИ-агент изучает этот цикл целиком: 7 звеньев, эталонный кейс, журнал роста и верификация. Растёт по мере эволюции платформы.',
+            href: '/docs/skill-evolution-pipeline.md',
+          },
+          {
             kind: 'cta',
             text: 'Разверните своё первое AI-оптимизированное рабочее пространство уже сегодня — выберите фреймворк и начните.',
             href: 'https://www.fractera.ai/',
@@ -568,10 +628,20 @@ const ARTICLES: NewsArticle[] = [
     heroImage: '/news/fractera-ai-draft-settings/fractera-ai-draft-settings.jpg',
     ogImage: '/news/fractera-ai-draft-settings/fractera-ai-draft-settings-screenshot.png',
     blocks: [
+      // ── Founder note ─────────────────────────────────────────────────────────
+      {
+        kind: 'founder',
+        text: 'When the thought first came to me that creating instructions, skills, and connectors should be automated, for a long time I could not picture how to do it by hand at all. And now the day has come when I took the first step toward a fully automatic system of [evolving, self-replicating artificial-intelligence agents](https://www.fractera.ai/news/architecture-to-development-steps-materializer) — for code first of all, but by no means only: for life, for learning, for entertainment, for anything. This semi-automatic line is already a working tool today. Let us see what happens in two weeks. I believe that one day Facebook will be buildable from a single request.',
+      },
       // ── Lead paragraph ───────────────────────────────────────────────────────
       {
         kind: 'p',
-        text: 'Fractera is adding a new page to every workspace: **AI Draft Settings**. It is the place where you — or one of your AI agents — propose a new skill, a new instruction, or a new connector, and hold it safely as a draft before it ever touches your live setup. It is also the first piece of something bigger we are building: a system that lets a workspace grow its own intelligence over time. Below is what the page does, how you and your agents use it, and where it is headed — in plain words.',
+        text: 'Fractera is adding a new page to every workspace: **AI Draft Settings**. It is the place where you — or one of your AI agents — propose a new skill, a new instruction, or a new connector, and hold it safely as a draft before it ever touches your live setup. It is part of an [agentic engineering platform](https://www.fractera.ai/) — the first piece of something bigger we are building: a system that lets a workspace grow its own intelligence over time. Below is what the page does, how you and your agents use it, and where it is headed — in plain words.',
+      },
+      {
+        kind: 'callout',
+        title: 'Did you know?',
+        text: 'This page updates automatically, in real time. When an AI agent or another architect edits it, new drafts, skills, and connectors appear right before your eyes — the tree highlights exactly what changed.',
       },
       // ── What is it ───────────────────────────────────────────────────────────
       {
@@ -716,6 +786,12 @@ const ARTICLES: NewsArticle[] = [
       {
         kind: 'p',
         text: 'We are rolling these out one at a time, and every new starter gets announced here in News first.',
+      },
+      {
+        kind: 'docref',
+        title: 'skill-evolution-pipeline.md — the living pipeline standard',
+        summary: 'The full raw document an AI agent reads to study this cycle end to end: 7 links, the reference case, the growth log, and verification. It grows as the platform evolves.',
+        href: '/docs/skill-evolution-pipeline.md',
       },
       {
         kind: 'cta',

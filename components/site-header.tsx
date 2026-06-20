@@ -23,7 +23,22 @@ export function SiteHeader() {
   const isPartner = !!session?.user?.partnerSlug
   const lang = useLang()
   const frameworks = getContent(lang).connectFramework.frameworks
-  const partnerCabinetLabel = lang === 'ru' ? 'Партнёрский кабинет' : 'Partner cabinet'
+  const ru = lang === 'ru'
+  const partnerCabinetLabel = ru ? 'Партнёрский кабинет' : 'Partner cabinet'
+  // Header nav labels follow the site language (RU site → RU header).
+  const t = {
+    deploy: ru ? 'Развернуть' : 'Deploy',
+    vpsDeploy: ru ? 'Развернуть на VPS' : 'VPS Deploy',
+    mcpDeploy: ru ? 'Развернуть через MCP' : 'MCP Deploy',
+    frameworks: ru ? 'Фреймворки' : 'Frameworks',
+    companyBrain: ru ? 'Мозг компании' : 'Company Brain',
+    docs: ru ? 'Документация' : 'Docs',
+    news: ru ? 'Новости' : 'News',
+    signIn: ru ? 'Войти' : 'Sign in',
+    servers: ru ? 'Серверы' : 'Servers',
+    purchases: ru ? 'Покупки' : 'Purchases',
+    signOut: ru ? 'Выйти' : 'Sign out',
+  }
 
   if (pathname.includes('/embed')) return null
 
@@ -53,7 +68,7 @@ export function SiteHeader() {
                 onClick={() => setDeployOpen(v => !v)}
                 className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
-                Deploy
+                {t.deploy}
                 <svg
                   width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -72,14 +87,14 @@ export function SiteHeader() {
                       onClick={() => setDeployOpen(false)}
                       className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
                     >
-                      VPS Deploy
+                      {t.vpsDeploy}
                     </Link>
                     <a
                       href="/#"
                       onClick={() => setDeployOpen(false)}
                       className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
                     >
-                      MCP Deploy
+                      {t.mcpDeploy}
                     </a>
                   </div>
                 </>
@@ -93,7 +108,7 @@ export function SiteHeader() {
                 onClick={() => setFwOpen(v => !v)}
                 className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
-                Frameworks
+                {t.frameworks}
                 <svg
                   width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -152,19 +167,19 @@ export function SiteHeader() {
               href={`/${lang}/company-brain`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
-              Company Brain
+              {t.companyBrain}
             </Link>
             <Link
               href={`/${lang}/documentation`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
-              Docs
+              {t.docs}
             </Link>
             <Link
               href={`/${lang}/news`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
-              News
+              {t.news}
             </Link>
           </div>
         </div>
@@ -180,7 +195,7 @@ export function SiteHeader() {
               onClick={() => openModal()}
               className="text-sm font-semibold text-white hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
             >
-              Sign in
+              {t.signIn}
             </button>
           )}
 
@@ -236,7 +251,7 @@ export function SiteHeader() {
                               <circle cx="11" cy="4" r="0.8" fill="currentColor"/>
                               <circle cx="11" cy="10" r="0.8" fill="currentColor"/>
                             </svg>
-                            Servers
+                            {t.servers}
                           </button>
                           {isPartner && (
                             <button
@@ -262,7 +277,7 @@ export function SiteHeader() {
                               <circle cx="7" cy="11.5" r="0.8" fill="currentColor"/>
                               <circle cx="10" cy="11.5" r="0.8" fill="currentColor"/>
                             </svg>
-                            Purchases
+                            {t.purchases}
                           </button>
                           <div className="h-px bg-white/20 my-1" />
                         </>
@@ -275,7 +290,7 @@ export function SiteHeader() {
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                           <path d="M5 2H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2M9 10l3-3-3-3M12 7H5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Sign out
+                        {t.signOut}
                       </button>
                     </div>
                   </>
@@ -317,22 +332,22 @@ export function SiteHeader() {
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
             <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              VPS Deploy
+              {t.vpsDeploy}
             </a>
             <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              MCP Deploy
+              {t.mcpDeploy}
             </a>
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Frameworks
+              {t.frameworks}
             </a>
             <Link href={`/${lang}/company-brain`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Company Brain
+              {t.companyBrain}
             </Link>
             <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              Docs
+              {t.docs}
             </Link>
             <Link href={`/${lang}/news`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              News
+              {t.news}
             </Link>
           </div>
         </nav>

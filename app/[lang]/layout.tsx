@@ -131,6 +131,7 @@ const personSchema = {
     'https://hackernoon.com/u/roma_armstrong',
     'https://vc.ru/id300490',
     'https://forum.sdelaimebel.ru/profile/175447-bolshiyanov_99718/',
+    'https://www.reddit.com/user/bolshiyanov/',
   ],
 }
 

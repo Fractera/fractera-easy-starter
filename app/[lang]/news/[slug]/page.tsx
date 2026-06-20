@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { getAllArticles, getArticle, resolveArticle } from '@/lib/news/articles'
 import { getNewsUi } from '@/lib/news/ui'
+import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
 import { PostBody, headingId } from '../../blog/_components/post-body'
 
 // Language-specific suffix for the <title> tag (the rest of the title is the
@@ -94,9 +95,11 @@ export default async function NewsArticlePage({
       dateModified: article.date,
       inLanguage: lang,
       author: {
-        '@type': 'Organization',
-        name: article.author?.name ?? 'Fractera, Inc.',
-        url: 'https://www.fractera.ai',
+        '@type': 'Person',
+        '@id': AUTHOR.id,
+        name: AUTHOR.name,
+        url: AUTHOR.url,
+        sameAs: AUTHOR_SAME_AS,
       },
       publisher: {
         '@type': 'Organization',
@@ -163,12 +166,10 @@ export default async function NewsArticlePage({
               <time dateTime={article.date}>{formatDate(article.date)}</time>
               <span aria-hidden>·</span>
               <span>{article.readingMinutes} {ui.minRead}</span>
-              {article.author && (
-                <>
-                  <span aria-hidden>·</span>
-                  <span>{article.author.name}</span>
-                </>
-              )}
+              <span aria-hidden>·</span>
+              <a href={AUTHOR.url} rel="author" className="hover:text-white">{AUTHOR.name}</a>
+              <span aria-hidden>·</span>
+              <span>{AUTHOR.role}</span>
             </div>
           </header>
 
