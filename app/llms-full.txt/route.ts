@@ -272,17 +272,19 @@ client-side routing or a client component that owns a route, not server renderin
 
 ## Five ways content reaches a page (cheapest to most expensive per visitor)
 1. Static (SSG): data fixed at build; appears on redeploy; zero DB per visit; no JS; lowest cost.
-2. Time-based ISR (revalidate = N): regenerates on a timer even when nothing changed; wasteful; a backstop only.
-3. On-demand ISR (revalidate = false + revalidatePath/revalidateTag on save): regenerates only on an actual change; instant; lowest cost with freshness; the default for DB/config-backed public pages.
+2. Time-based ISR (revalidate = N): the default. Lazy and traffic-bound — a page re-renders only when requested after its N-second window, and only that page; with no traffic the server sleeps. Self-correcting, needs no wiring.
+3. On-demand ISR (revalidate = false + revalidateTag on write): optional refinement for a page that needs instant, zero-delay freshness — purge it from the write handler. Requires discipline (call it on every write) or the page freezes.
 4. Dynamic SSR (force-dynamic): rendered fresh every request, a DB hit every time; high cost; architect-only.
 5. Client fetch: a client island queries the API on every view; always live but needs JS and hits the DB per view; fine for private panels, poor for public lists.
 
-## Freshness without waste
-Public pages declare revalidate = false (generated once, no timer). When content changes, the
-write handler calls an architect-only revalidate hook (revalidatePath / revalidateTag), and the
-page is regenerated on the next request — instant, not after a fixed window. A naive revalidate = 300
-re-renders every page every five minutes whether or not anything changed and is still not truly
-instant; it is the worst of both worlds and is not used as a default.
+## How time-based ISR behaves (the default)
+A page with revalidate = N is generated once and served from cache. While nobody visits, the server
+sleeps. When a visitor arrives after the window, they get the cached page instantly and that one page
+is regenerated in the background; the next visitor sees the fresh version. Only requested pages
+regenerate — there is no clock rebuilding the whole site, and unvisited pages cost nothing. The only
+redundant cost is a constantly-visited page that rarely changes: it rebuilds once per window even when
+unchanged, a small traffic-bounded price. For zero-delay freshness on a specific page, opt into
+on-demand revalidation (revalidate = false + revalidateTag on the write handler).
 
 ## Why the architect layer stays dynamic
 The service cockpit (Architecture, AI Core, Development Steps, …) runs dynamically on purpose. A
