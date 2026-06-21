@@ -61,15 +61,6 @@ export type ContentPageConfig<C extends ContentPageContent> = {
    * or none. The FAQ stays last by contract.
    */
   sections?: (lang: string) => ReactNode
-  /**
-   * Optional bottom slot, rendered AFTER the FAQ (the true page bottom) — for
-   * content that must close the page (e.g. the VPS deploy form + founder quote +
-   * back link). Pair with `hideBackLink` to move the back link into the footer
-   * instead of the default mid-page position.
-   */
-  footer?: (lang: string) => ReactNode
-  /** Suppress the default mid-page back link (the footer renders its own). */
-  hideBackLink?: boolean
 }
 
 function abs(path: string): string {
@@ -77,7 +68,7 @@ function abs(path: string): string {
 }
 
 export function createContentPage<C extends ContentPageContent>(config: ContentPageConfig<C>) {
-  const { resolve, chrome, meta, jsonLdType = 'Article', sections, footer, hideBackLink } = config
+  const { resolve, chrome, meta, jsonLdType = 'Article', sections } = config
 
   async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
     const { lang } = await params
@@ -178,8 +169,6 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
           backHref={backHref}
           backLabel={backLabel}
           sections={sections?.(lang)}
-          hideBackLink={hideBackLink}
-          footer={footer?.(lang)}
         />
       </>
     )

@@ -44,7 +44,7 @@ export default async function DocumentationIndex({ params }: { params: Promise<{
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       <main className="min-h-screen bg-black text-white">
-        <div className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-20 md:py-14">
+        <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-20 md:py-14">
           <header className="flex flex-col gap-3">
             <p className="text-xs uppercase tracking-widest text-violet-400/70">Fractera documentation</p>
             <h1 className="text-4xl font-bold tracking-tight md:text-3xl">Documentation</h1>

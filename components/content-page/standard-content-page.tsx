@@ -60,19 +60,6 @@ export type StandardContentPageProps = {
    * the last section regardless (only the global footer is below it).
    */
   sections?: ReactNode
-  /**
-   * Suppress the default mid-page back link. Used by pages that move the back
-   * link to the very bottom (below `footer`), e.g. the VPS deploy page where the
-   * deploy form + founder quote sit after the FAQ and the back link closes them.
-   */
-  hideBackLink?: boolean
-  /**
-   * Bottom slot rendered AFTER the FAQ — the true page bottom. Unlike `sections`
-   * (above the FAQ), this is for content that must close the page (e.g. the deploy
-   * form, the founder quote, and a back link). Use with `hideBackLink` to avoid a
-   * duplicate back link.
-   */
-  footer?: ReactNode
 }
 
 export function StandardContentPage({
@@ -91,8 +78,6 @@ export function StandardContentPage({
   backHref,
   backLabel,
   sections,
-  hideBackLink,
-  footer,
 }: StandardContentPageProps) {
   const ui = getPageUi(lang)
 
@@ -104,7 +89,7 @@ export function StandardContentPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <article className="mx-auto w-full max-w-3xl px-6 py-16 md:py-12">
+      <article className="mx-auto w-full max-w-5xl px-6 py-16 md:py-12">
 
         {/* 1. Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-sm text-white/40">
@@ -202,18 +187,15 @@ export function StandardContentPage({
         {/* 4–7, 9. Body blocks (callout, H2/H3, quote, CTA, docref download, …) */}
         <PostBody blocks={blocks} lang={lang} />
 
-        {/* 8. Back link — closes the article prose (one level up). Pages that move
-            the back link to the bottom (below `footer`) pass hideBackLink. */}
-        {!hideBackLink && (
-          <div className="mt-12 border-t border-white/10 pt-8">
-            <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              {backLabel}
-            </a>
-          </div>
-        )}
+        {/* 8. Back link — closes the article prose (one level up) */}
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            {backLabel}
+          </a>
+        </div>
 
         {/* 10. Open sections slot — architect-discretion sections (e.g. sponsors),
             injected by the route entry. Renders directly above the FAQ; the block
@@ -235,10 +217,6 @@ export function StandardContentPage({
             </dl>
           </section>
         )}
-
-        {/* Bottom slot — the true page bottom, after the FAQ (e.g. deploy form +
-            founder quote + back link on the VPS page). */}
-        {footer}
 
       </article>
     </main>
