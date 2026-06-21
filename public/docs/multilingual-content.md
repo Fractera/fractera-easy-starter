@@ -102,6 +102,12 @@ locale map. Instead — three moves:
 - **Machine-readable indexes for AI** (`llms.txt` / `llms-full.txt`, sitemap) are updated together with
   publication — otherwise AI crawlers and search agents will not find the document. At large volume these
   indexes are generated from `registry.ts` rather than maintained by hand.
+- **🔒 A page image ALWAYS goes to the snippet.** If a page/document (news / blog / content page) has its own
+  main image, that image MUST appear in the social snippet (`og:image` + Twitter `summary_large_image`): pass it
+  to `constructMetadata({ image })` rather than relying only on the global `cfg.images.ogImage`. Never leave the
+  snippet without the page's image when one exists. Absolute URLs are provided by `metadataBase`; social crawlers
+  (Telegram / Facebook / LinkedIn) ignore relative paths. To refresh the Telegram preview, send the URL to the
+  `@WebpageBot` bot. (Added 2026-06-21.)
 
 ---
 

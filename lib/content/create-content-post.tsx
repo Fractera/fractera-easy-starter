@@ -80,6 +80,16 @@ function abs(path: string): string {
   return /^https?:/.test(path) ? path : `${BRAND.siteUrl}${path}`
 }
 
+// Social snippet image (og:image / twitter / JSON-LD). RULE: a post that has ANY
+// image must expose it as the snippet — never ship an empty og:image when an image
+// exists. Explicit `ogImage` wins; otherwise fall back to the visible `heroImage`.
+// (A custom `hero` ReactNode has no string path, so it cannot be a snippet source —
+// such posts should set `ogImage` explicitly.)
+function snippetImage(post: ContentPost): string | undefined {
+  const path = post.ogImage ?? post.heroImage
+  return path ? abs(path) : undefined
+}
+
 function formatDate(iso: string, lang: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString(lang, {
     year: 'numeric',
@@ -97,7 +107,7 @@ export function createContentPost(config: ContentPostConfig) {
     const { lang } = await params
     const post = resolve(lang)
     const seoTitle = post.seoTitle ?? post.title
-    const ogImage = post.ogImage ? abs(post.ogImage) : undefined
+    const ogImage = snippetImage(post)
     return {
       title: `${seoTitle} | ${titleSuffix(lang)}`,
       description: post.description,
@@ -126,7 +136,7 @@ export function createContentPost(config: ContentPostConfig) {
     const post = resolve(lang)
     const { breadcrumbs, backHref, backLabel } = chrome(lang, post)
     const url = `${BRAND.siteUrl}/${lang}${subPath}`
-    const ogImage = post.ogImage ? abs(post.ogImage) : undefined
+    const ogImage = snippetImage(post)
 
     const authorNode =
       AUTHOR_KIND[format] === 'person'
