@@ -6,7 +6,7 @@ export const meta = {
   slug: 'deployments-local',
   subPath: '/deployments/local',
   tags: ['Local Agent Engineering', 'Edge Appliance', 'Apple Silicon', 'LightRAG', 'Private Data'],
-  author: { name: AUTHOR.name, role: AUTHOR.role },
+  author: { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
   heroImage: '/ai-company-brain.png',
   ogImage: '/ai-company-brain.png',
 } as const

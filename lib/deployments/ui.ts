@@ -20,6 +20,7 @@ export type DeploymentsUi = {
   indexTitle: string
   indexIntro: string
   breadcrumb: string
+  backToHub: string
   soon: string
   options: DeploymentOption[]
 }
@@ -34,6 +35,7 @@ const UI: Record<string, DeploymentsUi> = {
     indexIntro:
       'One agent engineering infrastructure, several places to run it. Pick the target that fits your data, your budget and your control needs — every option comes up the same way, fully owned by you.',
     breadcrumb: 'Deployments',
+    backToHub: 'Back to all deployment options',
     soon: 'Coming soon',
     options: [
       {
@@ -72,6 +74,7 @@ const UI: Record<string, DeploymentsUi> = {
     indexIntro:
       'Одна агентная инженерная инфраструктура — несколько мест для запуска. Выбирайте цель под ваши данные, бюджет и требования к контролю: каждый вариант поднимается одинаково и остаётся полностью в вашей собственности.',
     breadcrumb: 'Развёртывания',
+    backToHub: 'Ко всем вариантам развёртывания',
     soon: 'Скоро',
     options: [
       {

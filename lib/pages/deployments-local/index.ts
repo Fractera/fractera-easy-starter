@@ -1,18 +1,27 @@
 // Public API for the /deployments/local page content. Per-document, per-language
-// (en base + ru partial override), resolved with deepMerge so a missing field
-// falls back to English — the same architecture as lib/news.
+// (en base + ru partial override), resolved with resolveEntry — the same path
+// the News feature uses (lib/news/index.ts), so blocks/faq and the scalar SEO
+// fields fall back to English per key.
 
-import { deepMerge, type DeepPartial } from '@/lib/utils/deep-merge'
+import { resolveEntry } from '@/lib/content/resolve'
 import { meta } from './meta'
 import { en } from './en'
 import { ru } from './ru'
-import type { DeploymentsLocalContent } from './types'
+import type { DeploymentsLocalBase, DeploymentsLocalOverride } from './types'
 
-export type { DeploymentsLocalContent, Pillar } from './types'
+export type { DeploymentsLocalBase, DeploymentsLocalOverride } from './types'
 export { meta as deploymentsLocalMeta }
 
-const OVERRIDES: Record<string, DeepPartial<DeploymentsLocalContent>> = { ru }
+const FIELDS = ['title', 'seoTitle', 'subtitle', 'description', 'keywords'] as const
 
-export function getDeploymentsLocal(lang: string): DeploymentsLocalContent {
-  return deepMerge<DeploymentsLocalContent>(en, OVERRIDES[lang])
+const OVERRIDES: Record<string, DeploymentsLocalOverride> = { ru }
+
+export function getDeploymentsLocal(lang: string) {
+  const resolved = resolveEntry<DeploymentsLocalBase, DeploymentsLocalOverride, typeof FIELDS>(
+    en,
+    OVERRIDES,
+    lang,
+    FIELDS,
+  )
+  return { ...resolved, seoTitle: resolved.seoTitle ?? resolved.title }
 }
