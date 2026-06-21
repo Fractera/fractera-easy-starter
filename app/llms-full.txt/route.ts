@@ -188,7 +188,7 @@ ships it, often within the same session. As the remaining pipeline stages arrive
 (automatic testing, regression detection, visual diffs, usage data, a self-tuning
 feedback loop), each needs less human help, until the full loop runs end to end with
 nobody pressing a button. The page ships with every Next.js-based starter today;
-dedicated AI-workspace transports bring the same depth (a built-in database,
+dedicated Agentic Engineering Infrastructure transports bring the same depth (a built-in database,
 authentication, file storage, the full five-agent stack and one MCP architecture) to
 other frameworks — React, Vue, Angular, SvelteKit, Nuxt, Astro, Remix, Django, Flask,
 FastAPI, Laravel, Rails, Phoenix, NestJS and more — announced in News as they go live.`
@@ -319,10 +319,10 @@ export function GET() {
     .map((s) => `${'#'.repeat(s.level)} ${s.title}\n\n${s.body}`)
     .join('\n\n')
 
-  const architect = `# AI Workspace architecture
+  const architect = `# Agentic Engineering Infrastructure architecture
 
 Reference page: ${ARCHITECT_URL}
-Canonical diagram: ![Fractera AI Workspace architecture diagram — Hermes multi-agent orchestration, LightRAG memory and five coding agents](${IMAGE_WIDE})
+Canonical diagram: ![Fractera Agentic Engineering Infrastructure architecture diagram — Hermes multi-agent orchestration, LightRAG memory and five coding agents](${IMAGE_WIDE})
 
 ${architectBody}`
 

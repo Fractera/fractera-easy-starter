@@ -20,8 +20,8 @@
 // internally (no SSH, wipe, bootstrap script, reserve pool, provisioning API,
 // dashboard/email pipeline mechanics). Refer to it only in general, results-only
 // terms ("an external Fractera service provisions and configures everything for
-// you"). What IS fine to describe fully: the workspace that runs ON the user's
-// server (all ai-workspace layers) and the fact it is open-source on GitHub; and
+// you"). What IS fine to describe fully: the Agentic Engineering Infrastructure that
+// runs ON the user's server (all its layers) and the fact it is open-source on GitHub; and
 // the user-facing RESULTS/outcomes of the external service without internals.
 
 import type { SiteContent } from '@/lib/i18n/types'
@@ -700,10 +700,10 @@ One strong recommendation: **do this while in insecure (IP) mode.** Insecure mod
     titleRu: 'Добавление инструментов и изменение проекта — это поощряется',
     body: `You can add tools yourself through the system terminal — OpenClaw, OpenCode, or any other tool. The AI model has enough patterns in the codebase to copy how an existing platform works and add a new window plus a carousel button for it — just ask it directly to do this.
 
-More broadly, you may change the architecture, add skills, or optimize the project however you see fit. This is not only allowed — it is recommended. That is exactly why every part of the ai-workspace layer is fully open source.`,
+More broadly, you may change the architecture, add skills, or optimize the project however you see fit. This is not only allowed — it is recommended. That is exactly why every part of the Agentic Engineering Infrastructure is fully open source.`,
     bodyRu: `Вы можете добавлять инструменты самостоятельно через системный терминал — OpenClaw, OpenCode или любой другой. У ИИ-модели достаточно паттернов в кодовой базе, чтобы скопировать принцип работы существующей платформы и добавить новое окно плюс кнопку в карусель — просто попросите её сделать это прямо.
 
-Шире: вы можете менять архитектуру, добавлять навыки или оптимизировать проект по своему усмотрению. Это не только не запрещено — это рекомендуется. Именно поэтому каждый элемент слоя ai-workspace полностью открыт (open source).`,
+Шире: вы можете менять архитектуру, добавлять навыки или оптимизировать проект по своему усмотрению. Это не только не запрещено — это рекомендуется. Именно поэтому каждый элемент Agentic Engineering Infrastructure полностью открыт (open source).`,
   },
   {
     id: 'removing-the-footer',

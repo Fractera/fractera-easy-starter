@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 const FAQ_ITEMS = [
   {
     q: 'What is the Fractera MCP connector used for?',
-    a: 'The Fractera MCP connector lets Claude (and any MCP-compatible AI assistant) deploy a private Fractera AI workspace directly from the chat. It asks a few questions and calls a single tool that provisions a VPS, runs the install, and streams real-time progress — no manual setup required.',
+    a: 'The Fractera MCP connector lets Claude (and any MCP-compatible AI assistant) deploy a private Fractera Agentic Engineering Infrastructure directly from the chat. It asks a few questions and calls a single tool that provisions a VPS, runs the install, and streams real-time progress — no manual setup required.',
   },
   {
     q: 'Does Fractera work without a custom domain?',
@@ -38,7 +38,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is Fractera open-source and self-hosted?',
-    a: 'Yes. The AI workspace layer (ai-workspace) is open-source under MIT. It runs entirely on your own VPS — no data leaves your server. You own the code, the database, and the AI memory.',
+    a: 'Yes. The Agentic Engineering Infrastructure layer (the open-source L2 that runs on your VPS) is open-source under MIT. It runs entirely on your own VPS — no data leaves your server. You own the code, the database, and the AI memory.',
   },
 ]
 
@@ -198,7 +198,7 @@ export default function McpInfoPage() {
             intended for AI agents that scan the site to understand its purpose, answer questions during deployment,
             and act as a project help desk — and for anyone who wants to learn more while their server is being set up.
             For the visual architecture, see the{' '}
-            <a href="/ai-workspace-architect" className="font-medium text-violet-700 underline hover:text-violet-900">AI Workspace architecture</a>{' '}
+            <a href="/ai-workspace-architect" className="font-medium text-violet-700 underline hover:text-violet-900">Agentic Engineering Infrastructure architecture</a>{' '}
             page, or go back to{' '}
             <a href="/" className="font-medium text-violet-700 underline hover:text-violet-900">fractera.ai</a>.
           </p>
