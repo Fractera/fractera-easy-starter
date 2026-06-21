@@ -16,6 +16,8 @@ export const en: DeploymentBase = {
   listTitle: 'Production VPS',
   listDescription:
     'Deploy the full stack to an Ubuntu VPS in about ten minutes — production-grade agent environments on hardware you rent for a few dollars a month.',
+  founderQuote:
+    'Building something new and uncharted is very hard. Every obvious thing has already been tried by thousands of other founders. And here we come back again to the thought that it is better for an idea to be “idiotic” than obvious.',
   blocks: [
     {
       kind: 'callout',
@@ -67,7 +69,7 @@ export const en: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Ready to put it on a server? [Start a deploy now](/en#pricing) — paste your VPS details and watch the stack come up, or read how it is [orchestrated end to end](/ai-workspace-architect).',
+        'Ready to put it on a server? [Start a deploy now](#pricing) — the deploy form is right below; paste your VPS details and watch the stack come up, or read how it is [orchestrated end to end](/ai-workspace-architect).',
     },
   ],
   faq: [

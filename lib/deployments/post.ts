@@ -34,6 +34,7 @@ export type DeploymentBase = LocalizedBody & {
   keywords: string
   listTitle: string // hub row title (short)
   listDescription: string // hub row description (short)
+  founderQuote?: string // optional founder-quote block rendered in the page footer
 }
 
 /** Partial per-language override (all translatable fields optional). */
@@ -45,6 +46,7 @@ export type DeploymentOverride = LocalizedBodyOverride & {
   keywords?: string
   listTitle?: string
   listDescription?: string
+  founderQuote?: string
 }
 
 /** A page folder's _data, assembled in its _data/index.ts. */
@@ -92,6 +94,12 @@ export function deploymentListItem(data: DeploymentData, lang: string) {
     title: r.listTitle,
     description: r.listDescription,
   }
+}
+
+/** Localized founder-quote text for a page's footer (EN-fallback per key), or
+ *  undefined when the page has none. */
+export function deploymentFounderQuote(data: DeploymentData, lang: string): string | undefined {
+  return data.overrides?.[lang]?.founderQuote ?? data.en.founderQuote
 }
 
 /** Build the localized, order-sorted hub list from the auto-discovered POSTS array

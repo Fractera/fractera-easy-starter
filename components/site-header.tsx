@@ -70,19 +70,19 @@ export function SiteHeader() {
                   <div className="fixed inset-0 z-40" onClick={() => setDeployOpen(false)} />
                   <div className="absolute left-0 top-full mt-1 z-50 w-52 bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
                     <Link
-                      href={`/${lang}/deployments`}
+                      href={`/${lang}/deployments/vps`}
                       onClick={() => setDeployOpen(false)}
                       className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
                     >
                       {t.vpsDeploy}
                     </Link>
-                    <a
-                      href="/#"
+                    <Link
+                      href={`/${lang}/deployments/mcp`}
                       onClick={() => setDeployOpen(false)}
                       className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors text-sm font-medium text-white/85 hover:text-white"
                     >
                       {t.mcpDeploy}
-                    </a>
+                    </Link>
                   </div>
                 </>
               )}
@@ -318,12 +318,12 @@ export function SiteHeader() {
       {mobileOpen && (
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
-            <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            <Link href={`/${lang}/deployments/vps`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.vpsDeploy}
-            </a>
-            <a href="/#" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            </Link>
+            <Link href={`/${lang}/deployments/mcp`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.mcpDeploy}
-            </a>
+            </Link>
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.frameworks}
             </a>
