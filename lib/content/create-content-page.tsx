@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import type { Block, FaqPair } from '@/lib/content/blocks/types'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
@@ -53,6 +54,13 @@ export type ContentPageConfig<C extends ContentPageContent> = {
   }
   /** Structured-data type for the primary entity. Defaults to 'Article'. */
   jsonLdType?: 'Article' | 'NewsArticle'
+  /**
+   * Optional sections injected into the block, directly ABOVE the FAQ (architect
+   * discretion — e.g. the sponsorship section). The factory bakes in nothing
+   * here; the route entry decides what to pass. May render one section, several,
+   * or none. The FAQ stays last by contract.
+   */
+  sections?: (lang: string) => ReactNode
 }
 
 function abs(path: string): string {
@@ -60,7 +68,7 @@ function abs(path: string): string {
 }
 
 export function createContentPage<C extends ContentPageContent>(config: ContentPageConfig<C>) {
-  const { resolve, chrome, meta, jsonLdType = 'Article' } = config
+  const { resolve, chrome, meta, jsonLdType = 'Article', sections } = config
 
   async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
     const { lang } = await params
@@ -151,6 +159,7 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
           faq={c.faq}
           backHref={backHref}
           backLabel={backLabel}
+          sections={sections?.(lang)}
         />
       </>
     )

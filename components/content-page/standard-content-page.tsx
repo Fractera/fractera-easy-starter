@@ -1,10 +1,7 @@
-import { Suspense } from 'react'
+import type { ReactNode } from 'react'
 import type { BlogBlock, FaqPair } from '@/lib/blog/types'
 import { AUTHOR } from '@/lib/author'
 import { getPageUi } from '@/lib/content/page-ui'
-import { getContent } from '@/lib/i18n/content'
-import { ContentProvider } from '@/components/content-provider'
-import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -14,13 +11,17 @@ import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
 //
 //   1. Breadcrumbs (visible)            6. Quote container, left border (cite)
 //   2. Max-size H1 (homepage hero style) 7. Deploy CTA  (a `cta` block)
-//   3. Table of contents (from H2s)      8. FAQ section
+//   3. Table of contents (from H2s)      8. Back button (one level up)
 //   4. "Did you know?" callout           9. Document download (a `docref` block)
-//   5. 3× H2, each with 2× H3           10. Back button (one level up)
-//                                        11. Sponsors block (site standing rule)
+//   5. 3× H2, each with 2× H3           10. `sections` slot (injected by the route)
+//                                       11. FAQ — ALWAYS LAST (only footer below)
 //
-// Items 4–7, 9 are authored as `blocks` (rendered by the shared PostBody), so the
-// template stays generic; items 1–3, 8, 10–11 are chrome the template owns.
+// Items 4–7, 9 are authored as `blocks` (rendered by the shared PostBody); items
+// 1–3, 8, 11 are chrome the template owns. Item 10 is an OPEN SLOT: the block does
+// NOT bake in any section (e.g. sponsors). The route entry (_components/index.tsx)
+// injects whatever sections it wants via the `sections` prop — one, several, or
+// none — and they render directly above the FAQ. The FAQ is pinned last by
+// contract: nothing but the global footer sits below it.
 // Fully static / server-rendered — no JS needed to read the page.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,13 @@ export type StandardContentPageProps = {
   /** Back link target — one level up from the current page. */
   backHref: string
   backLabel: string
+  /**
+   * Open slot for architect-discretion sections (e.g. the sponsorship section),
+   * injected by the route entry and rendered directly ABOVE the FAQ. May be one
+   * section, several, or none — the block bakes in nothing here. The FAQ stays
+   * the last section regardless (only the global footer is below it).
+   */
+  sections?: ReactNode
 }
 
 export function StandardContentPage({
@@ -57,6 +65,7 @@ export function StandardContentPage({
   faq,
   backHref,
   backLabel,
+  sections,
 }: StandardContentPageProps) {
   const ui = getPageUi(lang)
 
@@ -162,7 +171,23 @@ export function StandardContentPage({
         {/* 4–7, 9. Body blocks (callout, H2/H3, quote, CTA, docref download, …) */}
         <PostBody blocks={blocks} lang={lang} />
 
-        {/* 8. FAQ */}
+        {/* 8. Back link — closes the article prose (one level up) */}
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            {backLabel}
+          </a>
+        </div>
+
+        {/* 10. Open sections slot — architect-discretion sections (e.g. sponsors),
+            injected by the route entry. Renders directly above the FAQ; the block
+            itself bakes in nothing here. May be one section, several, or none. */}
+        {sections}
+
+        {/* 11. FAQ — ALWAYS the last section by contract; only the global footer
+            sits below it. */}
         {faq && faq.length > 0 && (
           <section aria-labelledby="faq-heading" className="mt-12 border-t border-white/10 pt-10">
             <h2 id="faq-heading" className="text-2xl font-bold tracking-tight">{ui.faqHeading}</h2>
@@ -176,25 +201,6 @@ export function StandardContentPage({
             </dl>
           </section>
         )}
-
-        {/* 11. Sponsors — every page ends with the sponsorship block (site rule). */}
-        <section className="mt-12 border-t border-white/10 pt-10">
-          <ContentProvider value={getContent(lang)}>
-            <Suspense fallback={null}>
-              <SponsorshipSection />
-            </Suspense>
-          </ContentProvider>
-        </section>
-
-        {/* 10. Back link — one level up */}
-        <div className="mt-12 border-t border-white/10 pt-8">
-          <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            {backLabel}
-          </a>
-        </div>
 
       </article>
     </main>

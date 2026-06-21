@@ -1,5 +1,9 @@
+import { Suspense } from 'react'
 import { createContentPage } from '@/lib/content/create-content-page'
 import { BRAND } from '@/lib/brand'
+import { getContent } from '@/lib/i18n/content'
+import { ContentProvider } from '@/components/content-provider'
+import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { getDeploymentsLocal, deploymentsLocalMeta } from '../_data'
 import { getDeploymentsUi } from '@/lib/deployments/ui'
 
@@ -8,9 +12,11 @@ import { getDeploymentsUi } from '@/lib/deployments/ui'
 // _components; page content lives in ../_data). Authoring is data-only — H1/SEO/
 // blocks/faq are in ../_data/{en,ru}.ts via resolveEntry; this entry only wires
 // that descriptor + the localized breadcrumb/back chrome into createContentPage.
-// Adding another page = copy the whole route folder (page.tsx + _components/ +
-// _data/) and edit the data. Deleting a page = delete the folder; route, data
-// and components go together.
+//
+// Sections are injected HERE, not baked into the block: `sections` passes the
+// sponsorship section into the block's open slot, rendered directly above the FAQ
+// (the FAQ stays the last section by contract). Other pages can pass other
+// sections — or none.
 
 const page = createContentPage({
   resolve: getDeploymentsLocal,
@@ -32,6 +38,16 @@ const page = createContentPage({
       backLabel: ui.backToHub,
     }
   },
+  // Sponsorship section, injected into the block above the FAQ.
+  sections: (lang) => (
+    <section className="mt-12 border-t border-white/10 pt-10">
+      <ContentProvider value={getContent(lang)}>
+        <Suspense fallback={null}>
+          <SponsorshipSection />
+        </Suspense>
+      </ContentProvider>
+    </section>
+  ),
 })
 
 export const generateMetadata = page.generateMetadata
