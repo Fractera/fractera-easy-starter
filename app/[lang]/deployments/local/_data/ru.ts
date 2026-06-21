@@ -77,8 +77,8 @@ export const ru: DeploymentsLocalOverride = {
     {
       kind: 'cta',
       text: 'Выберите своё первое развёртывание и поднимите агентную инженерную инфраструктуру уже сегодня.',
-      href: 'https://www.fractera.ai/',
-      label: 'Развернуть с ИИ',
+      href: 'https://www.fractera.ai/ru/deployments/mcp',
+      label: 'Развернуть с агентной инженерной инфраструктурой',
     },
 
     {

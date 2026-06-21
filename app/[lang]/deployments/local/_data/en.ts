@@ -79,8 +79,8 @@ export const en: DeploymentsLocalBase = {
     {
       kind: 'cta',
       text: 'Choose your first deployment and bring your agent engineering infrastructure up today.',
-      href: 'https://www.fractera.ai/',
-      label: 'Deploy with AI',
+      href: 'https://www.fractera.ai/en/deployments/mcp',
+      label: 'Deploy with agent engineering infrastructure',
     },
 
     {
