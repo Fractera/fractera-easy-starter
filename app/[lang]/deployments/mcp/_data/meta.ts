@@ -8,6 +8,7 @@ export const meta: DeploymentMeta = {
   order: 2,
   tags: ['Claude Code MCP', 'Model Context Protocol', 'Deploy from Chat', 'Agentic Engineering', 'Zero Ops'],
   author: { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
-  heroImage: '/Does-Anthropic-only-wake-up-GOD-at-3-AM.jpg',
-  ogImage: '/Does-Anthropic-only-wake-up-GOD-at-3-AM.jpg',
+  // No static hero image — the page hero is the step-by-step carousel (rendered in
+  // _components). The social snippet uses the carousel's first frame.
+  ogImage: '/mcp-step-by-step/mcp-step1.png',
 }

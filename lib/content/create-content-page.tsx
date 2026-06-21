@@ -61,6 +61,12 @@ export type ContentPageConfig<C extends ContentPageContent> = {
    * or none. The FAQ stays last by contract.
    */
   sections?: (lang: string) => ReactNode
+  /**
+   * Optional hero override, rendered directly under the H1 in place of the default
+   * `meta.heroImage` figure (e.g. the MCP step-by-step carousel at the top of
+   * /deployments/mcp). When provided, `meta.heroImage` is ignored.
+   */
+  hero?: (lang: string) => ReactNode
 }
 
 function abs(path: string): string {
@@ -68,7 +74,7 @@ function abs(path: string): string {
 }
 
 export function createContentPage<C extends ContentPageContent>(config: ContentPageConfig<C>) {
-  const { resolve, chrome, meta, jsonLdType = 'Article', sections } = config
+  const { resolve, chrome, meta, jsonLdType = 'Article', sections, hero } = config
 
   async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
     const { lang } = await params
@@ -164,6 +170,7 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
           subtitle={c.subtitle}
           heroImage={meta.heroImage}
           heroAlt={c.title}
+          hero={hero?.(lang)}
           blocks={c.blocks}
           faq={c.faq}
           backHref={backHref}
