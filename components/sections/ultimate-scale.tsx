@@ -6,8 +6,8 @@ import { useHeroContent } from '@/lib/i18n/context'
 // header (badge + serif H2 + description, same as ElonTrillion). The three teasers
 // are bordered rounded cards (same style as the bottom note card) with a hover glow
 // reused verbatim from the carousel (shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]).
-// The pricing CTA itself is the standard DeployButton, rendered by page.tsx right
-// after this section. Order: badge → H2 → description → 3 H3 teaser cards → note card.
+// Order: badge → H2 → description → 3 H3 teaser cards → note card. (Deploy CTAs and
+// the install form no longer live on the homepage — they moved to /deployments/*.)
 
 export function UltimateScale() {
   const t = useHeroContent().ultimateScale

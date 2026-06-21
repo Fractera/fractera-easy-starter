@@ -197,7 +197,7 @@ export default function NextAircraftCarrierPage() {
                   </p>
                   <div className="mt-3 flex flex-wrap gap-3">
                     <a
-                      href="/en#pricing"
+                      href="/en/deployments/vps#pricing"
                       className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white hover:bg-violet-500"
                     >
                       Deploy your instance

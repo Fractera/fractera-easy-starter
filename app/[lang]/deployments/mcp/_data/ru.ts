@@ -68,7 +68,7 @@ export const ru: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Хотите развернуть из чата? Подключите MCP-коннектор Fractera и попросите вашего агента — Claude Code, Codex, Gemini CLI, Qwen Code или Kimi Code — развернуть. Предпочитаете форму? [Воспользуйтесь формой установки](/ru#pricing) — оба пути ведут в одно и то же место.',
+        'Хотите развернуть из чата? Подключите MCP-коннектор Fractera и попросите вашего агента — Claude Code, Codex, Gemini CLI, Qwen Code или Kimi Code — развернуть. Предпочитаете форму? [Воспользуйтесь формой установки](/ru/deployments/vps#pricing) — оба пути ведут в одно и то же место.',
     },
   ],
   faq: [

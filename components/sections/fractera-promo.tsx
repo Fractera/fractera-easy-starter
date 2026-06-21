@@ -16,13 +16,6 @@ export function FractеraPromo() {
           </p>
           <div className="flex flex-col w-full gap-4 mt-8">
             <a
-              href="#pricing"
-              className="w-full inline-flex items-center gap-2 justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-3 transition-colors shadow-lg shadow-violet-500/30"
-            >
-              {content.deployButton}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-            <a
               href="https://github.com/Fractera/Agent-Engineering-Infrastructure"
               target="_blank"
               rel="noopener noreferrer"

@@ -68,7 +68,7 @@ export const en: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Prefer to deploy from the chat? Add the Fractera MCP connector and ask your agent — Claude Code, Codex, Gemini CLI, Qwen Code or Kimi Code — to deploy. Prefer a form? [Use the install form](/en#pricing) instead — both reach the same place.',
+        'Prefer to deploy from the chat? Add the Fractera MCP connector and ask your agent — Claude Code, Codex, Gemini CLI, Qwen Code or Kimi Code — to deploy. Prefer a form? [Use the install form](/en/deployments/vps#pricing) instead — both reach the same place.',
     },
   ],
   faq: [

@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { getContent } from '@/lib/i18n/content'
@@ -11,10 +10,7 @@ import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
 import { ProblemSection } from '@/components/sections/problem-section'
-import { PricingFlow } from '@/components/sections/pricing-flow'
 import { ConnectFramework } from '@/components/sections/connect-framework'
-import { PlatformSelector } from '@/components/platform-selector'
-import { DeployButton } from '@/components/deploy-button'
 import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
@@ -98,41 +94,24 @@ export default async function HomePage({
                 </div>
               )}
               <UltimateScale />
-              <DeployButton caption={content.deployCaptions?.afterUltimateScale} />
               <div id="aircraft-carrier-wrap" className="w-full scroll-mt-16"><AircraftCarrier /></div>
               {/* "Connect your framework" — placed directly under the aircraft-carrier
-                  section (above the VPS/pricing block) per the concept reframe. */}
+                  section per the concept reframe. */}
               <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
-              <DeployButton caption={content.deployCaptions?.afterAircraftCarrier} />
               <HeroNarrative />
-              <DeployButton caption={content.deployCaptions?.afterHero} />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
-              <DeployButton caption={content.deployCaptions?.afterLoop} />
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
-              <DeployButton caption={content.deployCaptions?.afterPresentation} />
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>
-              <DeployButton caption={content.deployCaptions?.afterPlatforms} />
               <div id="problem" className="w-full scroll-mt-16"><ProblemSection /></div>
-              <DeployButton caption={content.deployCaptions?.afterProblem} />
 
-              <div id="pricing" className="w-full scroll-mt-16">
-                <Suspense fallback={null}>
-                  <PricingFlow />
-                </Suspense>
-              </div>
-
-              <div className="w-full max-w-4xl">
-                <PlatformSelector />
-              </div>
+              {/* Deploy form + MCP connector moved off the homepage to their own
+                  pages (/deployments/vps and /deployments/mcp). The homepage no
+                  longer carries the install form or any deploy CTA buttons. */}
 
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
-              <DeployButton caption={content.deployCaptions?.afterFeatures} />
               <FractеraPromo />
-              <DeployButton caption={content.deployCaptions?.afterBrain} />
               <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
-              <DeployButton caption={content.deployCaptions?.afterSponsors} />
               <div id="faq" className="w-full scroll-mt-16"><FaqSection /></div>
-              <DeployButton caption={content.deployCaptions?.afterFaq} />
 
               <div id="cases" className="mb-32 w-full flex justify-center scroll-mt-16">
                 <FractеraTestimonial />
