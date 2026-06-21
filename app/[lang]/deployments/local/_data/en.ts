@@ -1,108 +1,112 @@
 import type { DeploymentsLocalBase } from './types'
 
-// Base (required) English document, authored as blocks rendered by PostBody.
-// Content is intentionally lean (this sub-step builds the reusable template, not
-// final copy); the structure demonstrates every standard entity: callout, three
-// H2 sections with two H3s each, a left-border quote, a deploy CTA, a document
-// download (docref) and an FAQ.
+// Base English document for Page №4 (/[lang]/deployments/local).
+// Fully migrated to the Agent Engineering paradigm and optimized for 2026 industrial standards.
 export const en: DeploymentsLocalBase = {
-  title: 'Local Agent Engineering: Edge Appliances for Private Data',
-  seoTitle: 'Local Agent Engineering — The AI Company Brain on an Apple Silicon Appliance',
-  subtitle:
-    'One Apple Silicon appliance on your desk: a private LightRAG knowledge graph and a Hermes-orchestrated model team, running on premises with nothing leaving the building.',
+ title: 'Private AI Infrastructure: Self-Hosted Agent Stack',
+seoTitle: 'Self-Hosted AI: Private AI Infrastructure & Local RAG',
+subtitle:
+    'One hardware appliance on your desk. A secure LightRAG knowledge graph and a Hermes-orchestrated engineering team running strictly on-premises with zero cloud leaks.',
   description:
-    'Local agent engineering on a single Apple Silicon appliance — a Mac mini or Mac Studio that runs a private LightRAG knowledge graph and a Hermes-orchestrated team of subscription AI platforms, fully on premises.',
+    'Stop outsourcing your intellectual property. Deploy dedicated agent engineering infrastructure on local Apple Silicon hardware. Eliminate context inflation and cloud tracking through a self-hosted corporate brain.',
   keywords:
-    'local agent engineering, apple silicon agent appliance, mac mini corporate brain private lightrag, knowledge graph, lightrag agent memory, lightrag persistent vector store, eliminate session amnesia tokens, edge ai appliance, on-prem ai server, hermes orchestration agent, nothing leaves the building',
+    'local agent engineering, apple silicon agent appliance, mac mini corporate brain, private lightrag knowledge graph, agent engineering infrastructure, prevent context window inflation, token efficiency, zero cloud api fees, self hosted vercel alternative',
   blocks: [
     {
       kind: 'callout',
-      title: 'Did you know?',
+      title: 'Infrastructure Sovereignty & Flat Efficiency Costs',
       text:
-        'The appliance runs around the clock on roughly the power of a household light bulb — about 30W — and never sends your knowledge graph or recordings to anyone else\'s cloud.',
+        'The local appliance operates around the clock on your own premises. It permanently bypasses metered SaaS API meters and never routes your operational knowledge or recordings to an external cloud environment.',
     },
     {
       kind: 'p',
       text:
-        'Local agent engineering means the compute, the data and the agents all sit in the same room as the people who use them. The same [Fractera](https://www.fractera.ai/) agent engineering infrastructure that deploys to a VPS comes up on a single Apple Silicon device, so you get a complete on-premises workspace rather than a bare workstation.',
-    },
-
-    { kind: 'h2', text: 'A private appliance on your own hardware' },
-    { kind: 'h3', text: 'Apple Silicon, always on' },
-    {
-      kind: 'p',
-      text:
-        'The device is a Mac mini or Mac Studio that lives in your office and stays awake 24/7. No rack, no data center, no cloud account to renew — just a quiet box on a desk that hosts the whole stack.',
-    },
-    { kind: 'h3', text: 'Nothing leaves the building' },
-    {
-      kind: 'p',
-      text:
-        'Your documents, meetings and voice memos are ingested locally. Because the graph and every recording stay on the device, your institutional knowledge never leaves the premises and there are no Clerk, Supabase or Vercel dependencies in the loop.',
+        'True agent engineering requires immediate, unhindered proximity between your compute substrate, your source code, and your corporate memory assets. Fractera translates the identical industrial [platform for agentic engineering](/en) deployed on remote virtual hosting directly onto standalone Apple Silicon hardware. You secure a hardened, autonomous local development workspace rather than an isolated, ungrounded workstation.',
     },
 
-    { kind: 'h2', text: 'Memory that keeps the thread' },
-    { kind: 'h3', text: 'LightRAG as a shared knowledge graph' },
+    { kind: 'h2', text: 'Sovereign Edge Appliances on Your Own Hardware' },
+    { kind: 'h3', text: 'Apple Silicon Core: Local Computing Always On' },
     {
       kind: 'p',
       text:
-        'At the center is LightRAG — a Knowledge Graph RAG that is the shared long-term memory of the whole appliance. Every agent reads from and writes back to the same graph, so context compounds instead of resetting each session.',
+        'The physical nexus of the system is an off-the-shelf Mac mini or Mac Studio operating on your local network 24/7. There are no corporate server racks to mount, no remote data centers to audit, and no recurring cloud hosting subscriptions to renew. A silent hardware enclosure on your desk securely hosts your entire execution stack and deployment environment.',
     },
-    { kind: 'h3', text: 'Lower token spend, no amnesia' },
+    { kind: 'h3', text: 'Eradicating DevOps Barriers and SaaS Vendor Lock-In' },
     {
       kind: 'p',
       text:
-        'Because the graph keeps the thread, an agent recalls exactly the right context instead of re-reading the whole project. That removes session amnesia and keeps token spend down even when you switch models mid-task.',
+        'Your internal documentation, system logs, audio meeting captures, and strategic briefs are parsed and indexed locally. Because the codebase, user database, and operational logs reside exclusively on your dedicated machine disk, you fully eliminate costly dependencies on external platforms like Clerk, Supabase, and Vercel. Your business data remains under your absolute physical custody.',
     },
 
-    { kind: 'h2', text: 'A model team you orchestrate' },
-    { kind: 'h3', text: 'Five subscription platforms' },
+    { kind: 'h2', text: 'Graph-Based Memory: Eradicating Context Inflation' },
+    { kind: 'h3', text: 'LightRAG as a Shared Corporate Knowledge Graph' },
     {
       kind: 'p',
       text:
-        'Claude Code, Codex, Gemini, Qwen and Kimi run on the appliance through your existing subscriptions — no per-token API bills for the heavy lifting. Hermes routes work between them and uses LightRAG as long-term memory.',
+        'At the architectural center of the environment sits LightRAG—a highly optimized Knowledge Graph Retrieval-Augmented Generation subsystem that functions as the shared long-term memory of the local appliance. Every active execution CLI writes back metadata schemas and reads layout rules from the same integrated graph node, causing your systemic context to compound over time instead of evaporating.',
     },
-    { kind: 'h3', text: 'Brief by voice, get results as links' },
+    { kind: 'h3', text: 'Crushing Token Cost Multiplication via Pre-Engineered Boilerplates' },
     {
       kind: 'p',
       text:
-        'You brief the appliance the way you would brief a colleague — by voice from Telegram — and results come back as a clean link you can open on a phone or put on the boardroom screen.',
+        'Standard unconstrained models consume tokens exponentially because they must constantly re-read entire repository structures to execute basic changes. Fractera completely mitigates this context window inflation. Because our massive 50,000-line immutable framework is already pre-compiled on your hardware substrate, agents never write infrastructure layout or auth configurations from scratch. They follow pre-engineered architectural patterns, executing hyper-targeted, cheap changes that slash API spend on a massive scale.',
+    },
+
+    { kind: 'h2', text: 'A Coordinated Multi-Model Engineering Team' },
+    { kind: 'h3', text: 'The Execution Triad: Concurrent CLI Platforms' },
+    {
+      kind: 'p',
+      text:
+        'Claude Code, OpenAI Codex, Gemini CLI, Qwen Code, and Kimi Code initialize instantly inside browser-native PTY terminals directly on the hardware appliance. They run on your existing developer accounts and subscriptions, eliminating third-party API middleman markups. The Hermes orchestrator functions as the localized task manager, parsing intents into exact MCP tool commands while using LightRAG to verify code compilation rules.',
+    },
+    { kind: 'h3', text: 'Bypassing the Black Box: Visual Testing and Gateway links' },
+    {
+      kind: 'p',
+      text:
+        'Complex agentic loops shouldn’t operate as unmonitored text scrollbacks. Fractera implements dedicated service pages directly into your local cockpit, visualizing how your agents execute logic, handle errors, and call tools. Brief your corporate brain through secure voice commands from Telegram; Hermes converts your feedback into a deterministic system mutation, instantly returning a fast production link deployable across your local network.',
     },
 
     {
       kind: 'quote',
       text:
-        'One appliance, owned outright, doing the standing work of a small team — without forgetting and without leaking anything to someone else\'s cloud.',
-      cite: 'Fractera product team',
+        'A single hardware appliance, owned outright, executing the sustained production output of a full DevOps and software engineering team—without conversational amnesia, without API metered price spikes, and without leaking a single byte of metadata to a public cloud vendor.',
+      cite: 'Fractera Engineering Core · June 2026',
     },
 
     {
-      kind: 'cta',
-      text: 'Choose your first deployment and bring your agent engineering infrastructure up today.',
-      href: 'https://www.fractera.ai/en/deployments/mcp',
-      label: 'Deploy with agent engineering infrastructure',
+      kind: 'founder',
+      text: 'Professionalism does not scale. Only business processes can be scaled.',
+    },
+
+    {
+      kind: 'inquiry',
+      title: 'Apply for a founder consultation',
+      text: 'Tell us about your business, the knowledge your team keeps losing, and the work you would hand to the Brain first. A short working session with the Fractera founder is the first step — no commitment, no pitch deck.',
+      label: 'Request a consultation',
     },
 
     {
       kind: 'docref',
-      title: 'Static-first rendering — the living standard',
+      title: 'AI Company Brain — commercial proposal',
       summary:
-        'The full raw document on how Fractera pages are rendered statically and stay fast and AI-discoverable. Reference material while final copy for this page is written.',
-      href: '/docs/static-first-rendering.md',
+        'The full document from Roma Armstrong, co-founder of Fractera: what the corporate brain on an Apple Silicon appliance is, how it closes real business losses (e.g. missed appointments), and why we sell consulting first and the hardware with Fractera second.',
+      href: '/docs/ai-company-brain-en.pdf',
+      label: 'Download PDF',
+      kicker: 'Commercial proposal',
     },
   ],
   faq: [
     {
-      q: 'What is local agent engineering on the AI Company Brain?',
-      a: 'It is running a complete Fractera agent engineering infrastructure on a single Apple Silicon appliance (a Mac mini or Mac Studio) in your own office instead of on a remote VPS — a private LightRAG knowledge graph and a Hermes-orchestrated model team, all on premises.',
+      q: 'What constitutes local agent engineering on the Fractera Company Brain appliance?',
+      a: 'It represents the total migration of your software engineering workflows from third-party metered clouds to an on-premises, isolated multi-agent environment. By deploying Fractera onto local Apple Silicon hardware (Mac mini or Mac Studio), you run five concurrent development CLIs, the Hermes orchestration engine, and a private LightRAG knowledge graph server locally, with zero data tracking.',
     },
     {
-      q: 'Where is my company data stored, and does anything leave the building?',
-      a: 'Everything stays on the device. Your documents, meetings and recordings are ingested into a private LightRAG knowledge graph that lives on the appliance and is never sent to anyone else\'s cloud.',
+      q: 'How does the pre-built framework prevent context inflation and reduce token costs?',
+      a: 'Unconstrained agents burn token budgets by repeatedly scanning file hierarchies. Fractera provides a pre-configured 50,000-line immutable Next.js blueprint containing enterprise routing slots, auth, and database models. Because the foundational infrastructure is already written and cached on disk, the local AI agents do not invent system architecture; they execute minimal, atomic MCP layout mutations that drive token spend toward zero.',
     },
     {
-      q: 'How does the appliance reduce token cost and avoid session amnesia?',
-      a: 'LightRAG is a shared Knowledge Graph RAG that every agent reads from and writes back to. Recalling exactly the right context instead of re-sending the whole project cuts token spend, and the graph keeps the thread when you switch models mid-task.',
+      q: 'Can the local edge appliance be safely integrated with traditional local IDE coding?',
+      a: 'Absolutely. The local appliance functions as a private Git-Ops deployment target. You write software locally in your personal IDE (VS Code, Cursor, Zed) with native hot-reloading and push changes to a secure GitHub repository. The appliance pulls the branch updates automatically, instantly compiling the mutations against your local SQLite WAL database and media storage clusters without requiring cloud platform fees.',
     },
   ],
 }

@@ -3,6 +3,7 @@ import type { Block } from './types'
 import type { PostBodyUi } from '@/lib/content/post-body-ui'
 import { inline, headingId } from './inline'
 import { InlineFrameworkGrid } from '@/components/inline-framework-grid'
+import { CompanyBrainInquiryCta } from '@/components/company-brain-inquiry-cta'
 import { AUTHOR, AUTHOR_SOCIAL_LINKS } from '@/lib/author'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -111,6 +112,9 @@ export const BLOCK_RENDERERS: BlockRenderers = {
     </p>
   ),
   frameworks: (_b, { key: k, lang }) => <InlineFrameworkGrid key={k} lang={lang} />,
+  inquiry: (b, { key: k, lang }) => (
+    <CompanyBrainInquiryCta key={k} lang={lang} title={b.title} text={b.text} label={b.label} />
+  ),
   founder: (b, { key: k }) => (
     <figure key={k} className="my-6 flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-10">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -162,7 +166,7 @@ export const BLOCK_RENDERERS: BlockRenderers = {
     <aside key={k} className="my-6 flex flex-col gap-4 rounded-2xl border border-violet-500/30 bg-violet-500/[0.05] p-6 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-violet-400/70">
-          {ui.fullDocumentation}
+          {b.kicker ?? ui.fullDocumentation}
         </p>
         <p className="text-base font-semibold text-white">{b.title}</p>
         <p className="text-sm leading-relaxed text-white/55">{inline(b.summary, k)}</p>

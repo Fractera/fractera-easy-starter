@@ -28,11 +28,17 @@ export type LeafBlock =
   // Reference card to a full raw document with a download button (e.g. a living
   // pipeline standard shipped under /public/docs). title + one-line summary + file.
   // Optional `label` overrides the default download-button text (e.g. "Download PDF"
-  // for a .pdf instead of the default "Download .md").
-  | { kind: 'docref'; title: string; summary: string; href: string; label?: string }
+  // for a .pdf instead of the default "Download .md"); optional `kicker` overrides
+  // the eyebrow above the title (default "Full documentation").
+  | { kind: 'docref'; title: string; summary: string; href: string; label?: string; kicker?: string }
   // "Did you know" callout — icon + tinted panel for an aside fact (e.g. the page
   // auto-updates in real time as an AI agent edits it). title is the lead-in.
   | { kind: 'callout'; title: string; text: string }
+  // Interactive consultation-inquiry CTA (AI Company Brain). Unlike `cta` (a plain
+  // link) this renders a client button that gates on auth and opens the inquiry
+  // drawer → POST /api/company-brain/inquiry. Used as the primary CTA of a page
+  // whose goal is to capture a consultation request.
+  | { kind: 'inquiry'; title?: string; text: string; label: string }
 
 // ── Container blocks (composite layouts) ─────────────────────────────────────
 // Containers hold `children: Block[]` and are rendered recursively through the
