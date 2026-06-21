@@ -51,3 +51,9 @@ export function docListItem(doc: DocData) {
     summary: doc.summary,
   }
 }
+
+/** Build the date-sorted index list from the auto-discovered POSTS array
+ *  (lib/parser-fs generates the array; this aggregates + sorts it). */
+export function docList(posts: DocData[]) {
+  return posts.map(docListItem).sort((x, y) => (x.date < y.date ? 1 : -1))
+}

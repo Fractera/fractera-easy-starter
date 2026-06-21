@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "gen:lists": "node lib/parser-fs.mjs",
+    "predev": "node lib/parser-fs.mjs",
     "dev": "next dev",
+    "prebuild": "node lib/parser-fs.mjs",
     "build": "prisma generate && prisma db push --skip-generate && next build",
     "start": "next start",
     "lint": "eslint",

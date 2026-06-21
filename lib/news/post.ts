@@ -55,3 +55,9 @@ export function newsListItem(data: NewsData, lang: string) {
     summary: r.summary,
   }
 }
+
+/** Build the localized, date-sorted index list from the auto-discovered POSTS
+ *  array (lib/parser-fs generates the array; this aggregates + sorts it). */
+export function newsList(posts: NewsData[], lang: string) {
+  return posts.map(d => newsListItem(d, lang)).sort((x, y) => (x.date < y.date ? 1 : -1))
+}

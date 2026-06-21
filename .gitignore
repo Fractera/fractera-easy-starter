@@ -41,3 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+
+# generated post lists (build-time codegen by lib/parser-fs.mjs)
+**/_list.generated.ts
