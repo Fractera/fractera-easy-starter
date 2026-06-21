@@ -1,6 +1,16 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
+import { BRAND } from '@/lib/brand'
 import { getDeploymentsUi } from '@/lib/deployments/ui'
+import { deploymentList } from '@/lib/deployments/post'
+import { POSTS } from './_list.generated'
+
+// Deployments hub — the index where a visitor picks a deployment target. The list
+// is auto-discovered: POSTS comes from _list.generated.ts (built by lib/parser-fs
+// from the co-located target folders under this directory); deploymentList
+// localizes + orders it. Adding a target folder adds a row here automatically;
+// there is no hand-maintained list (which is what dropped the dead Fractera Pro
+// row — there is no folder for it).
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
@@ -19,13 +29,14 @@ export default async function DeploymentsHubPage({
 }) {
   const { lang } = await params
   const ui = getDeploymentsUi(lang)
+  const targets = deploymentList(POSTS, lang)
 
   const breadcrumb = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Fractera', item: 'https://www.fractera.ai/' },
-      { '@type': 'ListItem', position: 2, name: ui.breadcrumb, item: `https://www.fractera.ai/${lang}/deployments` },
+      { '@type': 'ListItem', position: 1, name: BRAND.name, item: `${BRAND.siteUrl}/` },
+      { '@type': 'ListItem', position: 2, name: ui.breadcrumb, item: `${BRAND.siteUrl}/${lang}/deployments` },
     ],
   }
 
@@ -41,34 +52,21 @@ export default async function DeploymentsHubPage({
           </header>
 
           {/* Flat vertical list of deployment targets — same architecture as the
-              news index. Only /deployments/local is live today; the others render
-              as non-link "soon" rows until their pages ship in later sub-steps. */}
+              news index. Every listed target is a live, co-located page. */}
           <ul className="flex flex-col divide-y divide-white/10 border-y border-white/10">
-            {ui.options.map(opt =>
-              opt.ready ? (
-                <li key={opt.href}>
-                  <a
-                    href={`/${lang}${opt.href}`}
-                    className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-white/[0.02]"
-                  >
-                    <h2 className="text-lg font-semibold leading-snug text-white group-hover:text-violet-300">
-                      {opt.title}
-                    </h2>
-                    <p className="text-sm leading-relaxed text-white/50">{opt.description}</p>
-                  </a>
-                </li>
-              ) : (
-                <li key={opt.href} className="flex flex-col gap-1.5 py-5 opacity-60">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold leading-snug text-white/70">{opt.title}</h2>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-violet-300/70 border border-violet-500/30 rounded-full px-2 py-0.5">
-                      {ui.soon}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-white/40">{opt.description}</p>
-                </li>
-              ),
-            )}
+            {targets.map(t => (
+              <li key={t.slug}>
+                <a
+                  href={`/${lang}${t.href}`}
+                  className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-white/[0.02]"
+                >
+                  <h2 className="text-lg font-semibold leading-snug text-white group-hover:text-violet-300">
+                    {t.title}
+                  </h2>
+                  <p className="text-sm leading-relaxed text-white/50">{t.description}</p>
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </main>

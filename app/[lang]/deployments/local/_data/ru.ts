@@ -1,8 +1,8 @@
-import type { DeploymentsLocalBase } from './types'
+import type { DeploymentBase } from '@/lib/deployments/post'
 
 // Russian document for Page №4 (/[lang]/deployments/local).
 // Fully migrated to the Agent Engineering paradigm and optimized for Russian sovereign data standards (152-ФЗ).
-export const ru: DeploymentsLocalBase = {
+export const ru: DeploymentBase = {
  title: 'Локальный искусственный интеллект: приватная инфраструктура агентов',
 seoTitle: 'Локальный искусственный интеллект — Сервер ИИ и приватный RAG для компании',
 subtitle:
@@ -11,6 +11,9 @@ subtitle:
     'Хватит отдавать свою интеллектуальную собственность в чужие облака. Разверните выделенную инфраструктуру инженерии агентов на локальном оборудовании Apple Silicon. Полное соответствие 152-ФЗ и независимость от санкций.',
   keywords:
     'локальная инженерия агентов, apple silicon инфраструктура, корпоративный мозг мак мини, приватный граф знаний lightrag, инфраструктура ии агентов, защита от инфляции контекста, экономия токенов, импортозамещение ии, соответствие 152 фз персональные данные',
+  listTitle: 'Локальное устройство Apple Silicon',
+  listDescription:
+    'Запустите приватное edge-устройство на Mac mini или Mac Studio в своём офисе — память LightRAG и команда моделей на месте, ничего не покидает офис.',
   blocks: [
     {
       kind: 'callout',

@@ -4,14 +4,16 @@ import { BRAND } from '@/lib/brand'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
-import { getDeploymentsLocal, deploymentsLocalMeta } from '../_data'
+import { deploymentContent } from '@/lib/deployments/post'
 import { getDeploymentsUi } from '@/lib/deployments/ui'
+import { data } from '../_data'
 
 // Entry component for /deployments/local (the standard route shape: page.tsx is
 // thin and re-exports this; presentation/composition + data wiring live here in
 // _components; page content lives in ../_data). Authoring is data-only — H1/SEO/
-// blocks/faq are in ../_data/{en,ru}.ts via resolveEntry; this entry only wires
-// that descriptor + the localized breadcrumb/back chrome into createContentPage.
+// blocks/faq are in ../_data/{en,ru}.ts, resolved via deploymentContent (the
+// shared per-document resolver, lib/deployments/post). This entry only wires that
+// descriptor + the localized breadcrumb/back chrome into createContentPage.
 //
 // Sections are injected HERE, not baked into the block: `sections` passes the
 // sponsorship section into the block's open slot, rendered directly above the FAQ
@@ -19,12 +21,12 @@ import { getDeploymentsUi } from '@/lib/deployments/ui'
 // sections — or none.
 
 const page = createContentPage({
-  resolve: getDeploymentsLocal,
+  resolve: lang => deploymentContent(data, lang),
   meta: {
-    subPath: deploymentsLocalMeta.subPath,
-    ogImage: deploymentsLocalMeta.ogImage,
-    heroImage: deploymentsLocalMeta.heroImage,
-    tags: deploymentsLocalMeta.tags,
+    subPath: data.meta.subPath,
+    ogImage: data.meta.ogImage,
+    heroImage: data.meta.heroImage,
+    tags: data.meta.tags,
   },
   chrome: (lang, c) => {
     const ui = getDeploymentsUi(lang)
@@ -39,7 +41,7 @@ const page = createContentPage({
     }
   },
   // Sponsorship section, injected into the block above the FAQ.
-  sections: (lang) => (
+  sections: lang => (
     <section className="mt-12 border-t border-white/10 pt-10">
       <ContentProvider value={getContent(lang)}>
         <Suspense fallback={null}>

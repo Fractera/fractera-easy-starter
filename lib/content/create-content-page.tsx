@@ -14,7 +14,7 @@ import { StandardContentPage, type Breadcrumb } from '@/components/content-page/
 // supplies data only; all the boilerplate lives here.
 //
 // The i18n layer is untouched: `resolve(lang)` is the existing per-document
-// resolver (e.g. getDeploymentsLocal, co-located in the route's ./_data folder)
+// resolver (e.g. deploymentContent over a route's co-located ./_data folder)
 // built on resolveEntry with EN-fallback. The factory never reads or changes any
 // localized content file.
 // ─────────────────────────────────────────────────────────────────────────────

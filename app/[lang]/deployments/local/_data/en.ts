@@ -1,8 +1,8 @@
-import type { DeploymentsLocalBase } from './types'
+import type { DeploymentBase } from '@/lib/deployments/post'
 
 // Base English document for Page №4 (/[lang]/deployments/local).
 // Fully migrated to the Agent Engineering paradigm and optimized for 2026 industrial standards.
-export const en: DeploymentsLocalBase = {
+export const en: DeploymentBase = {
  title: 'Private AI Infrastructure: Self-Hosted Agent Stack',
 seoTitle: 'Self-Hosted AI: Private AI Infrastructure & Local RAG',
 subtitle:
@@ -11,6 +11,9 @@ subtitle:
     'Stop outsourcing your intellectual property. Deploy dedicated agent engineering infrastructure on local Apple Silicon hardware. Eliminate context inflation and cloud tracking through a self-hosted corporate brain.',
   keywords:
     'local agent engineering, apple silicon agent appliance, mac mini corporate brain, private lightrag knowledge graph, agent engineering infrastructure, prevent context window inflation, token efficiency, zero cloud api fees, self hosted vercel alternative',
+  listTitle: 'Local Apple Silicon appliance',
+  listDescription:
+    'Run a private edge appliance on a Mac mini or Mac Studio in your own office — LightRAG memory and a model team on premises, nothing leaving the building.',
   blocks: [
     {
       kind: 'callout',
