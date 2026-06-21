@@ -74,6 +74,9 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
     const { lang } = await params
     const c = resolve(lang)
     const seoTitle = c.seoTitle ?? c.title
+    // Social snippet image MUST be an absolute URL — Telegram/Facebook/LinkedIn
+    // scrapers ignore relative og:image paths. (JSON-LD below already uses abs().)
+    const ogImageUrl = abs(meta.ogImage)
     return {
       title: `${seoTitle} | ${BRAND.name}`,
       description: c.description,
@@ -85,7 +88,13 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
         siteName: BRAND.name,
         title: seoTitle,
         description: c.description,
-        images: [{ url: meta.ogImage, width: 1200, height: 630, alt: c.title }],
+        images: [{ url: ogImageUrl, width: 1200, height: 630, alt: c.title }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: seoTitle,
+        description: c.description,
+        images: [ogImageUrl],
       },
     }
   }
