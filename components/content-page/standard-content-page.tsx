@@ -6,8 +6,8 @@ import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // StandardContentPage — the ONE reusable template for every Block 3 content page.
-// It renders the full Fractera page standard, mirroring the News article layout
-// (lib/news/[slug]), so future pages only supply data and reuse this chrome:
+// It renders the full Fractera page standard, mirroring the News article layout,
+// so future pages only supply data and reuse this chrome:
 //
 //   1. Breadcrumbs (visible)            6. Quote container, left border (cite)
 //   2. Max-size H1 (homepage hero style) 7. Deploy CTA  (a `cta` block)

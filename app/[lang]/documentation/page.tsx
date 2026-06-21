@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllDocs } from '@/lib/documentation'
+import { getDocList } from './_list'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
@@ -27,7 +27,7 @@ export default async function DocumentationPage({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const docs = getAllDocs()
+  const docs = getDocList()
 
   const breadcrumb = {
     '@context': 'https://schema.org',

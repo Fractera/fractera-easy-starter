@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
-import { getAllArticles, resolveArticle } from '@/lib/news'
+import { getNewsList } from './_list'
 import { getNewsUi } from '@/lib/news/ui'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -29,12 +29,7 @@ export default async function NewsPage({
 }) {
   const { lang } = await params
   const ui = getNewsUi(lang)
-  const news = getAllArticles().map(a => ({
-    slug: a.slug,
-    date: a.date,
-    readingMinutes: a.readingMinutes,
-    ...resolveArticle(a, lang), // localized title + summary
-  }))
+  const news = getNewsList(lang) // localized title + summary, from each post's _data
 
   const breadcrumb = {
     '@context': 'https://schema.org',

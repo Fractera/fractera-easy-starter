@@ -1,6 +1,6 @@
 // Public API for the /deployments/local page content. Per-document, per-language
 // (en base + ru partial override), resolved with resolveEntry — the same path
-// the News feature uses (lib/news/index.ts), so blocks/faq and the scalar SEO
+// the News feature uses (lib/news/post.ts), so blocks/faq and the scalar SEO
 // fields fall back to English per key.
 
 import { resolveEntry } from '@/lib/content/resolve'

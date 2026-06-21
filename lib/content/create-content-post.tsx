@@ -1,29 +1,28 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { notFound } from 'next/navigation'
 import type { Block, FaqPair } from '@/lib/content/blocks/types'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
 import { BRAND, brandLogoUrl } from '@/lib/brand'
-import { StandardContentPage } from '@/components/content-page/standard-content-page'
+import { StandardContentPage, type Breadcrumb } from '@/components/content-page/standard-content-page'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // createContentPost — the POST factory (sibling of createContentPage). One
 // universal technology for publishing posts of every format: news, blog and
-// documentation. The `format` parameter selects a preset that carries the
-// type-specific differences (structured-data type + author kind); everything
-// else (breadcrumbs, byline, hero, TOC, FAQ, back link) is shared and rendered
-// through the SAME block, StandardContentPage. A post route becomes a thin file
-// that maps its content module to this factory.
+// documentation. Like createContentPage, it renders ONE post from a CO-LOCATED
+// route folder (page.tsx + _components/index.tsx + _data/) — NO dynamic [slug]
+// route, no central registry. A post folder is an exact copy of the page folder
+// standard; deleting the folder removes the route, its components and its data.
 //
-// i18n is orthogonal: `resolve(lang, slug)` is the per-format resolver — news
-// returns a per-language article (resolveArticle), EN-only formats ignore `lang`.
-// The factory never reads or changes a content file.
+// The `format` parameter selects a preset that carries the only real per-type
+// differences (structured-data type + author kind); everything else renders
+// through the SAME block, StandardContentPage. i18n is orthogonal: `resolve(lang)`
+// is the co-located resolver — news is localized (resolveEntry, en + <lang>),
+// EN-only formats ignore `lang`. The factory never reads or changes a data file.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type PostFormat = 'news' | 'blog' | 'document'
 
-// Format presets: the only things that genuinely differ between post types.
 const JSONLD_TYPE: Record<PostFormat, 'NewsArticle' | 'BlogPosting' | 'TechArticle'> = {
   news: 'NewsArticle',
   blog: 'BlogPosting',
@@ -35,7 +34,7 @@ const AUTHOR_KIND: Record<PostFormat, 'person' | 'organization'> = {
   document: 'person',
 }
 
-/** Normalized post descriptor a route adapts its content module into. */
+/** Normalized post descriptor the route's resolver returns. */
 export type ContentPost = {
   title: string // H1 + JSON-LD headline
   seoTitle?: string // <title> / og:title (falls back to title)
@@ -51,7 +50,9 @@ export type ContentPost = {
   faq?: FaqPair[]
   /** og:image / structured-data image — absolute or site-root-relative. */
   ogImage?: string
-  /** Pre-rendered hero (image / video / responsive picture) built by the route. */
+  /** Default image hero (string path). */
+  heroImage?: string
+  /** Custom hero node (video / responsive picture) — overrides heroImage. */
   hero?: ReactNode
   /** Content language for inLanguage; defaults to 'en'. */
   inLanguage?: string
@@ -59,14 +60,18 @@ export type ContentPost = {
 
 export type ContentPostConfig = {
   format: PostFormat
-  /** Route base, e.g. '/news'. The slug is appended. */
-  basePath: string
-  getAllSlugs: () => string[]
-  resolve: (lang: string, slug: string) => ContentPost | undefined
-  /** Localized chrome. */
+  /** This post's URL path, e.g. '/news/<slug>'. */
+  subPath: string
+  /** Co-located resolver: returns this post's localized content. */
+  resolve: (lang: string) => ContentPost
+  /** Localized breadcrumb trail + back link for this post. */
+  chrome: (lang: string, post: ContentPost) => {
+    breadcrumbs: Breadcrumb[]
+    backHref: string
+    backLabel: string
+  }
+  /** <title> suffix, e.g. (lang) => 'Fractera News'. */
   titleSuffix: (lang: string) => string
-  breadcrumbLabel: (lang: string) => string
-  backLabel: (lang: string) => string
   /** "min read" label; defaults to 'min read'. */
   minLabel?: (lang: string) => string
 }
@@ -85,33 +90,24 @@ function formatDate(iso: string, lang: string): string {
 }
 
 export function createContentPost(config: ContentPostConfig) {
-  const { format, basePath, getAllSlugs, resolve, titleSuffix, breadcrumbLabel, backLabel } = config
+  const { format, subPath, resolve, chrome, titleSuffix } = config
   const minLabel = config.minLabel ?? (() => 'min read')
 
-  function generateStaticParams() {
-    return getAllSlugs().map(slug => ({ slug }))
-  }
-
-  async function generateMetadata({
-    params,
-  }: {
-    params: Promise<{ lang: string; slug: string }>
-  }): Promise<Metadata> {
-    const { lang, slug } = await params
-    const post = resolve(lang, slug)
-    if (!post) return {}
+  async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+    const { lang } = await params
+    const post = resolve(lang)
     const seoTitle = post.seoTitle ?? post.title
     const ogImage = post.ogImage ? abs(post.ogImage) : undefined
     return {
       title: `${seoTitle} | ${titleSuffix(lang)}`,
       description: post.description,
       ...(post.keywords ? { keywords: post.keywords } : {}),
-      alternates: buildAlternates(lang, `${basePath}/${slug}`),
+      alternates: buildAlternates(lang, subPath),
       robots: { index: true, follow: true },
       openGraph: {
         title: seoTitle,
         description: post.description,
-        url: `${BRAND.siteUrl}/${lang}${basePath}/${slug}`,
+        url: `${BRAND.siteUrl}/${lang}${subPath}`,
         type: 'article',
         publishedTime: post.date,
         ...(ogImage ? { images: [{ url: ogImage, alt: post.title }] } : {}),
@@ -125,14 +121,12 @@ export function createContentPost(config: ContentPostConfig) {
     }
   }
 
-  async function Page({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-    const { lang, slug } = await params
-    const post = resolve(lang, slug)
-    if (!post) notFound()
-
-    const url = `${BRAND.siteUrl}/${lang}${basePath}/${slug}`
+  async function Page({ params }: { params: Promise<{ lang: string }> }) {
+    const { lang } = await params
+    const post = resolve(lang)
+    const { breadcrumbs, backHref, backLabel } = chrome(lang, post)
+    const url = `${BRAND.siteUrl}/${lang}${subPath}`
     const ogImage = post.ogImage ? abs(post.ogImage) : undefined
-    const crumbLabel = breadcrumbLabel(lang)
 
     const authorNode =
       AUTHOR_KIND[format] === 'person'
@@ -162,11 +156,12 @@ export function createContentPost(config: ContentPostConfig) {
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: BRAND.name, item: `${BRAND.siteUrl}/` },
-          { '@type': 'ListItem', position: 2, name: crumbLabel, item: `${BRAND.siteUrl}/${lang}${basePath}` },
-          { '@type': 'ListItem', position: 3, name: post.title, item: url },
-        ],
+        itemListElement: breadcrumbs.map((b, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: b.label,
+          item: i === breadcrumbs.length - 1 ? url : abs(b.href ?? subPath),
+        })),
       },
       ...(post.faq && post.faq.length > 0
         ? [{
@@ -200,24 +195,21 @@ export function createContentPost(config: ContentPostConfig) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <StandardContentPage
           lang={lang}
-          breadcrumbs={[
-            { label: BRAND.name, href: `/${lang}` },
-            { label: crumbLabel, href: `/${lang}${basePath}` },
-            { label: post.title },
-          ]}
+          breadcrumbs={breadcrumbs}
           tags={post.tags}
           title={post.title}
           subtitle={post.subtitle}
           metaLine={metaLine}
+          heroImage={post.heroImage}
           hero={post.hero}
           blocks={post.blocks}
           faq={post.faq}
-          backHref={`/${lang}${basePath}`}
-          backLabel={backLabel(lang)}
+          backHref={backHref}
+          backLabel={backLabel}
         />
       </>
     )
   }
 
-  return { generateStaticParams, generateMetadata, Page }
+  return { generateMetadata, Page }
 }
