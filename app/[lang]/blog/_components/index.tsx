@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { BRAND } from '@/lib/brand'
-import { getAllPosts } from '@/lib/blog'
+import { blogList } from '@/lib/blog/post'
+import { POSTS } from '../_list.generated'
 
 // Entry for the /blog router page. Standard router shape: page.tsx is thin and
-// re-exports this. NOTE: blog posts are not co-located yet (still on the legacy
-// lib/blog registry + [slug] route), so this index reads getAllPosts for now.
-// When blog posts move to co-located folders, add 'blog' to lib/parser-fs's
-// COLLECTIONS and switch this to POSTS from _list.generated.ts like news/docs.
+// re-exports this. The post list is auto-discovered: POSTS comes from
+// _list.generated.ts (built by lib/parser-fs from the co-located blog folders).
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
@@ -30,7 +29,7 @@ function formatDate(iso: string): string {
 
 export default async function BlogIndex({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const posts = getAllPosts()
+  const posts = blogList(POSTS)
   const [featured, ...rest] = posts
 
   const breadcrumb = {

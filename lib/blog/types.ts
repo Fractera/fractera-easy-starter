@@ -24,6 +24,8 @@ export type BlogPost = {
   heroVideo: string
   heroPoster?: string
   heroAspect?: string
+  /** Optional caption rendered under the video hero. */
+  heroCaption?: string
   ogImage: string
   blocks: BlogBlock[]
   faq?: FaqPair[]
