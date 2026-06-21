@@ -1,4 +1,5 @@
 import { createContentPage } from '@/lib/content/create-content-page'
+import { BRAND } from '@/lib/brand'
 import { getDeploymentsLocal, deploymentsLocalMeta } from './_data'
 import { getDeploymentsUi } from '@/lib/deployments/ui'
 
@@ -22,7 +23,7 @@ const page = createContentPage({
     const ui = getDeploymentsUi(lang)
     return {
       breadcrumbs: [
-        { label: 'Fractera', href: `/${lang}` },
+        { label: BRAND.name, href: `/${lang}` },
         { label: ui.breadcrumb, href: `/${lang}/deployments` },
         { label: c.title },
       ],

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { Block, FaqPair } from '@/lib/content/blocks/types'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { AUTHOR, AUTHOR_SAME_AS } from '@/lib/author'
+import { BRAND, brandLogoUrl } from '@/lib/brand'
 import { StandardContentPage, type Breadcrumb } from '@/components/content-page/standard-content-page'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -17,7 +18,8 @@ import { StandardContentPage, type Breadcrumb } from '@/components/content-page/
 // localized content file.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const SITE = 'https://www.fractera.ai'
+// Brand-derived origin — sourced from env via lib/brand (white-label/portable).
+const SITE = BRAND.siteUrl
 
 /** Shape returned by a per-document resolver — the localized page descriptor. */
 export type ContentPageContent = {
@@ -65,14 +67,14 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
     const c = resolve(lang)
     const seoTitle = c.seoTitle ?? c.title
     return {
-      title: `${seoTitle} | Fractera`,
+      title: `${seoTitle} | ${BRAND.name}`,
       description: c.description,
       keywords: c.keywords,
       alternates: buildAlternates(lang, meta.subPath),
       openGraph: {
         type: 'article',
         url: `${SITE}/${lang}${meta.subPath}`,
-        siteName: 'Fractera',
+        siteName: BRAND.name,
         title: seoTitle,
         description: c.description,
         images: [{ url: meta.ogImage, width: 1200, height: 630, alt: c.title }],
@@ -103,9 +105,9 @@ export function createContentPage<C extends ContentPageContent>(config: ContentP
         },
         publisher: {
           '@type': 'Organization',
-          name: 'Fractera, Inc.',
+          name: BRAND.legalName,
           url: SITE,
-          logo: { '@type': 'ImageObject', url: `${SITE}/fractera-logo.jpg` },
+          logo: { '@type': 'ImageObject', url: brandLogoUrl },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': url },
         keywords: c.keywords,
