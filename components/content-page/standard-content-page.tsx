@@ -36,8 +36,18 @@ export type StandardContentPageProps = {
   title: string
   subtitle?: string
   author?: { name: string; role: string; url?: string }
+  /**
+   * Byline override. When provided, replaces the default author line (used by
+   * createContentPost to render a post byline: author · date · reading time).
+   */
+  metaLine?: ReactNode
   heroImage?: string
   heroAlt?: string
+  /**
+   * Hero override. When provided, replaces the default `heroImage` figure (used by
+   * createContentPost for a post's video / responsive-picture hero).
+   */
+  hero?: ReactNode
   blocks: BlogBlock[]
   faq?: FaqPair[]
   /** Back link target — one level up from the current page. */
@@ -59,8 +69,10 @@ export function StandardContentPage({
   title,
   subtitle,
   author = { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
+  metaLine,
   heroImage,
   heroAlt,
+  hero,
   blocks,
   faq,
   backHref,
@@ -123,19 +135,23 @@ export function StandardContentPage({
           {subtitle && (
             <p className="text-lg leading-relaxed text-white/55 md:text-base">{subtitle}</p>
           )}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/40">
-            {author.url ? (
-              <a href={author.url} rel="author" className="hover:text-white">{author.name}</a>
-            ) : (
-              <span>{author.name}</span>
-            )}
-            <span aria-hidden>·</span>
-            <span>{author.role}</span>
-          </div>
+          {/* Byline — post byline (metaLine) overrides the default author line. */}
+          {metaLine ?? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/40">
+              {author.url ? (
+                <a href={author.url} rel="author" className="hover:text-white">{author.name}</a>
+              ) : (
+                <span>{author.name}</span>
+              )}
+              <span aria-hidden>·</span>
+              <span>{author.role}</span>
+            </div>
+          )}
         </header>
 
-        {/* Hero image */}
-        {heroImage && (
+        {/* Hero — custom node (post video / responsive picture) overrides the
+            default image hero. */}
+        {hero ?? (heroImage && (
           <figure className="my-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -145,7 +161,7 @@ export function StandardContentPage({
               className="w-full rounded-2xl border border-white/10"
             />
           </figure>
-        )}
+        ))}
 
         {/* 3. Table of contents */}
         {toc.length > 0 && (
