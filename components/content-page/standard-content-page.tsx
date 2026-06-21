@@ -1,7 +1,10 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import type { BlogBlock, FaqPair } from '@/lib/blog/types'
 import { AUTHOR } from '@/lib/author'
 import { getPageUi } from '@/lib/content/page-ui'
+import { getContent } from '@/lib/i18n/content'
+import { ContentProvider } from '@/components/content-provider'
+import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -197,10 +200,22 @@ export function StandardContentPage({
           </a>
         </div>
 
-        {/* 10. Open sections slot — architect-discretion sections (e.g. sponsors),
-            injected by the route entry. Renders directly above the FAQ; the block
-            itself bakes in nothing here. May be one section, several, or none. */}
+        {/* 10. Open sections slot — page-specific sections injected by the route
+            entry (e.g. the VPS deploy form + founder quote). Renders above the baked
+            sponsorship + FAQ. Sponsorship is NO LONGER injected here — it is baked in
+            below so every page has it. May be one section, several, or none. */}
         {sections}
+
+        {/* Sponsorship — on EVERY content page, the second-to-last section (the FAQ
+            stays last by contract). Baked into the template so no page can forget it;
+            wrapped in ContentProvider (hero content) + Suspense (useSearchParams). */}
+        <section className="mt-12 border-t border-white/10 pt-10">
+          <ContentProvider value={getContent(lang)}>
+            <Suspense fallback={null}>
+              <SponsorshipSection />
+            </Suspense>
+          </ContentProvider>
+        </section>
 
         {/* 11. FAQ — ALWAYS the last section by contract; only the global footer
             sits below it. */}

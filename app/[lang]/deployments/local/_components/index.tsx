@@ -1,9 +1,5 @@
-import { Suspense } from 'react'
 import { createContentPage } from '@/lib/content/create-content-page'
 import { BRAND } from '@/lib/brand'
-import { getContent } from '@/lib/i18n/content'
-import { ContentProvider } from '@/components/content-provider'
-import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { deploymentContent } from '@/lib/deployments/post'
 import { getDeploymentsUi } from '@/lib/deployments/ui'
 import { data } from '../_data'
@@ -15,10 +11,8 @@ import { data } from '../_data'
 // shared per-document resolver, lib/deployments/post). This entry only wires that
 // descriptor + the localized breadcrumb/back chrome into createContentPage.
 //
-// Sections are injected HERE, not baked into the block: `sections` passes the
-// sponsorship section into the block's open slot, rendered directly above the FAQ
-// (the FAQ stays the last section by contract). Other pages can pass other
-// sections — or none.
+// The sponsorship section is no longer injected here — it is baked into
+// StandardContentPage (second-to-last on every content page, above the FAQ).
 
 const page = createContentPage({
   resolve: lang => deploymentContent(data, lang),
@@ -40,16 +34,6 @@ const page = createContentPage({
       backLabel: ui.backToHub,
     }
   },
-  // Sponsorship section, injected into the block above the FAQ.
-  sections: lang => (
-    <section className="mt-12 border-t border-white/10 pt-10">
-      <ContentProvider value={getContent(lang)}>
-        <Suspense fallback={null}>
-          <SponsorshipSection />
-        </Suspense>
-      </ContentProvider>
-    </section>
-  ),
 })
 
 export const generateMetadata = page.generateMetadata
