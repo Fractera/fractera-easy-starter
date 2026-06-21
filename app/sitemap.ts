@@ -18,6 +18,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
+    { path: '/deployments',       changeFrequency: 'weekly'  as const, priority: 0.7 },
+    { path: '/deployments/local', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/skills',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/product-loop', changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/sponsors',     changeFrequency: 'monthly' as const, priority: 0.5 },

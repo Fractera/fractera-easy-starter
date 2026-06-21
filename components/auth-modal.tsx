@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { signIn } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 
 interface AuthModalProps {
   open: boolean
@@ -14,6 +15,7 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
   const [emailSent, setEmailSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!open) return
@@ -34,13 +36,15 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
   // them on pricing-flow.tsx which opens a Stripe Checkout Drawer with a bogus
   // planId. Instead, route back to /partners; the second click of the same
   // button now finds session.user and opens the partner registration drawer.
-  // 'company_brain' is the Fractera AI Company Brain B2B inquiry CTA — after
-  // auth we return to the landing with a marker the CompanyBrainSection reads
-  // to auto-open its inquiry drawer.
+  // 'company_brain' is the Fractera AI Company Brain B2B inquiry CTA — after auth
+  // we return to the Local Agent Engineering page (/[lang]/deployments/local)
+  // with a marker the section reads to auto-open its inquiry drawer. The lang is
+  // taken from the current path so the user returns in the same language.
+  const cbLang = pathname?.split('/')[1] || 'en'
   const callbackUrl = pendingPlan === 'partner'
     ? '/partners'
     : pendingPlan === 'company_brain'
-      ? '/?company_brain=1#company-brain'
+      ? `/${cbLang}/deployments/local?company_brain=1`
       : pendingPlan
         ? `/?pending_plan=${pendingPlan}`
         : '/'

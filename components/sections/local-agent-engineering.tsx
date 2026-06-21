@@ -1,24 +1,32 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams, usePathname } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { useHeroContent } from '@/lib/i18n/context'
 import { AuthModal } from '@/components/auth-modal'
 import { CompanyBrainInquiryDrawer } from '@/components/company-brain-inquiry-drawer'
+import type { DeploymentsLocalContent } from '@/lib/pages/deployments-local'
 
-export function CompanyBrainSection() {
-  const content = useHeroContent()
-  const cb = content.companyBrain
+// Presentational section for /deployments/local. Ported from the former homepage
+// Company Brain section, but content comes in as props (resolved per-document /
+// per-language) instead of from the i18n context — so the page owns the source of
+// truth. Only the CTA (auth + inquiry drawer) needs interactivity; the rest is
+// plain markup and renders fully without JS.
+export function LocalAgentEngineeringSection({
+  content,
+  lang,
+}: {
+  content: DeploymentsLocalContent
+  lang: 'en' | 'ru'
+}) {
+  const cb = content
   const { data: session, status: sessionStatus } = useSession()
   const params = useSearchParams()
-  const pathname = usePathname()
-  const lang = (pathname?.split('/')[1] || 'en') as 'en' | 'ru'
 
   const [authOpen, setAuthOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  // Auto-open drawer when user returns from magic-link sign-in with the
+  // Auto-open the drawer when the user returns from magic-link sign-in with the
   // company_brain=1 marker AND has a live session. Clears the URL param.
   useEffect(() => {
     if (params?.get('company_brain') !== '1') return
@@ -38,9 +46,9 @@ export function CompanyBrainSection() {
   }
 
   return (
-    <div id="company-brain" className="w-full max-w-4xl flex flex-col gap-10 scroll-mt-24">
+    <div id="local-agent-engineering" className="w-full max-w-4xl flex flex-col gap-10 scroll-mt-24">
 
-      {/* Top — badge, h2, subhead */}
+      {/* Top — badge, value headline (h2), subhead */}
       <div className="flex flex-col gap-4 items-start text-left md:items-center md:text-center">
         <span className="text-xs font-mono font-bold text-violet-300 uppercase tracking-widest border border-violet-500/40 bg-violet-500/[0.06] px-3 py-1 rounded-full">
           {cb.label}
@@ -98,6 +106,16 @@ export function CompanyBrainSection() {
       <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/[0.02] p-6 md:p-8">
         <h3 className="text-xl md:text-2xl font-bold font-serif text-white">{cb.assuranceTitle}</h3>
         <p className="text-sm md:text-base text-white/75 leading-relaxed">{cb.assuranceBody}</p>
+      </div>
+
+      {/* Details — three strengthening paragraphs (device / private LightRAG / who-and-how) */}
+      <div className="flex flex-col gap-4">
+        <h3 className="text-xl md:text-2xl font-bold font-serif text-white">{cb.detailsTitle}</h3>
+        <div className="flex flex-col gap-4">
+          {cb.details.map((para, i) => (
+            <p key={i} className="text-sm md:text-base text-white/75 leading-relaxed">{para}</p>
+          ))}
+        </div>
       </div>
 
       {/* CTA */}

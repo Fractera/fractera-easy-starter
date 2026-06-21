@@ -151,7 +151,7 @@ export function SiteHeader() {
             </div>
 
             <Link
-              href={`/${lang}/company-brain`}
+              href={`/${lang}/deployments/local`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
               {t.companyBrain}
@@ -327,7 +327,7 @@ export function SiteHeader() {
             <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.frameworks}
             </a>
-            <Link href={`/${lang}/company-brain`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            <Link href={`/${lang}/deployments/local`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.companyBrain}
             </Link>
             <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">

@@ -19,7 +19,6 @@ import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
-import { CompanyBrainSection } from '@/components/sections/company-brain'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 
 /* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
@@ -129,7 +128,6 @@ export default async function HomePage({
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
               <DeployButton caption={content.deployCaptions?.afterFeatures} />
               <FractеraPromo />
-              <CompanyBrainSection />
               <DeployButton caption={content.deployCaptions?.afterBrain} />
               <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
               <DeployButton caption={content.deployCaptions?.afterSponsors} />
