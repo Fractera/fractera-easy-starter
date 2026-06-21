@@ -2,7 +2,7 @@
 // breadcrumb label reused by its child pages). Per rule 4а these wrapper labels
 // are localized here, never hardcoded inline. Minimum en + ru; add a language by
 // adding an entry. The child pages' own H1/SEO copy is localized separately in
-// their per-document content modules (e.g. lib/pages/deployments-local).
+// their co-located per-document content modules (e.g. the route's ./_data folder).
 
 export type DeploymentOption = {
   href: string
