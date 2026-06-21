@@ -12,20 +12,19 @@ import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
 // It renders the full Fractera page standard, mirroring the News article layout,
 // so future pages only supply data and reuse this chrome:
 //
-//   1. Breadcrumbs (visible)            6. Quote container, left border (cite)
-//   2. Max-size H1 (homepage hero style) 7. Deploy CTA  (a `cta` block)
-//   3. Table of contents (from H2s)      8. Back button (one level up)
-//   4. "Did you know?" callout           9. Document download (a `docref` block)
-//   5. 3× H2, each with 2× H3           10. `sections` slot (injected by the route)
-//                                       11. FAQ — ALWAYS LAST (only footer below)
+//   1. Breadcrumbs (visible)            5. 3× H2, each with 2× H3
+//   2. Max-size H1 (homepage hero style) 6. Quote / CTA / docref blocks
+//   3. Table of contents (from H2s)      7. `sections` slot (injected by the route)
+//   4. "Did you know?" callout           8. Sponsorship (baked, every page)
+//                                        9. FAQ (last content section)
+//                                       10. Back link (ABSOLUTE LAST, below FAQ)
 //
-// Items 4–7, 9 are authored as `blocks` (rendered by the shared PostBody); items
-// 1–3, 8, 11 are chrome the template owns. Item 10 is an OPEN SLOT: the block does
-// NOT bake in any section (e.g. sponsors). The route entry (_components/index.tsx)
-// injects whatever sections it wants via the `sections` prop — one, several, or
-// none — and they render directly above the FAQ. The FAQ is pinned last by
-// contract: nothing but the global footer sits below it.
-// Fully static / server-rendered — no JS needed to read the page.
+// CANONICAL BOTTOM ORDER (every content page): … page sections → founder quote
+// ("Roma Armstrong content", placed last inside the `sections` slot) → Sponsors →
+// FAQ → Back link. The back link "to all deployment options" is ALWAYS the very
+// last item; Sponsorship + FAQ are baked in here so no page can forget them; the
+// `sections` slot carries page-specific content (deploy form / MCP connector) plus
+// the founder quote. Fully static / server-rendered — no JS needed to read it.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Breadcrumb = { label: string; href?: string }
@@ -190,25 +189,15 @@ export function StandardContentPage({
         {/* 4–7, 9. Body blocks (callout, H2/H3, quote, CTA, docref download, …) */}
         <PostBody blocks={blocks} lang={lang} />
 
-        {/* 8. Back link — closes the article prose (one level up) */}
-        <div className="mt-12 border-t border-white/10 pt-8">
-          <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            {backLabel}
-          </a>
-        </div>
-
-        {/* 10. Open sections slot — page-specific sections injected by the route
-            entry (e.g. the VPS deploy form + founder quote). Renders above the baked
-            sponsorship + FAQ. Sponsorship is NO LONGER injected here — it is baked in
-            below so every page has it. May be one section, several, or none. */}
+        {/* Open sections slot — page-specific sections injected by the route entry
+            (e.g. the VPS deploy form / the MCP connector + the founder quote). The
+            founder ("Roma Armstrong content") goes LAST in this slot so the bottom of
+            every deployment page reads: founder → sponsors → FAQ → back link.
+            Sponsorship is NOT injected here — it is baked in below. */}
         {sections}
 
-        {/* Sponsorship — on EVERY content page, the second-to-last section (the FAQ
-            stays last by contract). Baked into the template so no page can forget it;
-            wrapped in ContentProvider (hero content) + Suspense (useSearchParams). */}
+        {/* Sponsorship — baked into EVERY content page, directly above the FAQ.
+            Wrapped in ContentProvider (hero content) + Suspense (useSearchParams). */}
         <section className="mt-12 border-t border-white/10 pt-10">
           <ContentProvider value={getContent(lang)}>
             <Suspense fallback={null}>
@@ -217,8 +206,8 @@ export function StandardContentPage({
           </ContentProvider>
         </section>
 
-        {/* 11. FAQ — ALWAYS the last section by contract; only the global footer
-            sits below it. */}
+        {/* FAQ — the last CONTENT section by contract; only the back link (and the
+            global footer) sit below it. */}
         {faq && faq.length > 0 && (
           <section aria-labelledby="faq-heading" className="mt-12 border-t border-white/10 pt-10">
             <h2 id="faq-heading" className="text-2xl font-bold tracking-tight">{ui.faqHeading}</h2>
@@ -232,6 +221,17 @@ export function StandardContentPage({
             </dl>
           </section>
         )}
+
+        {/* Back link — the ABSOLUTE LAST item on every content page (below the FAQ).
+            One level up from the current page. */}
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <a href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            {backLabel}
+          </a>
+        </div>
 
       </article>
     </main>

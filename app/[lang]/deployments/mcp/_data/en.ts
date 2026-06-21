@@ -15,17 +15,19 @@ export const en: DeploymentBase = {
   listTitle: 'Claude Code MCP',
   listDescription:
     'Stand up and orchestrate the whole infrastructure straight from Claude Code over the Model Context Protocol — zero server management.',
+  founderQuote:
+    'Experience is what you are left with when you do not get what you wanted… I am a very experienced man.',
   blocks: [
     {
       kind: 'callout',
       title: 'Zero server management — deploy from the conversation',
       text:
-        'Connect the Fractera MCP connector to Claude, answer a few short questions, and a single tool call wipes the target, runs the install and streams real-time progress. When it finishes, your workspace is live on plain HTTP at http://<your-ip>:3002.',
+        'Connect the Fractera MCP connector to your code agent, answer a few short questions, and a single tool call wipes the target, runs the install and streams real-time progress. When it finishes, your workspace is live on plain HTTP at http://<your-ip>:3002.',
     },
     {
       kind: 'p',
       text:
-        'The Model Context Protocol lets an AI assistant call real tools. Fractera ships an MCP connector that turns Claude into a deployment operator for a private [platform for agentic engineering](/en): you describe what you want in plain language, and Claude provisions the same production stack you would get from the install form — without you touching a server console.',
+        'The Model Context Protocol lets an AI assistant call real tools, and the Fractera connector is not tied to one vendor: it works with any MCP-capable code generator — Claude Code, OpenAI Codex, Gemini CLI, Qwen Code and Kimi Code, each on your own subscription. Point any of them at a private [platform for agentic engineering](/en): you describe what you want in plain language, and the agent provisions the same production stack you would get from the install form — without you touching a server console.',
     },
 
     { kind: 'h2', text: 'Deploy without leaving the chat' },
@@ -33,7 +35,7 @@ export const en: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Add the connector and Claude asks for the essentials — your email, the VPS address and its password — then calls one tool that registers you, wipes the target machine and launches the IP-first install. You watch the steps stream back into the conversation in real time; there is no terminal, no manual setup, and nothing to copy and paste.',
+        'Add the connector and the agent asks for the essentials — your email, the VPS address and its password — then calls one tool that registers you, wipes the target machine and launches the IP-first install. You watch the steps stream back into the conversation in real time; there is no terminal, no manual setup, and nothing to copy and paste.',
     },
     { kind: 'h3', text: 'IP-first result: http://<your-ip>:3002' },
     {
@@ -66,7 +68,7 @@ export const en: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Prefer to deploy from the chat? Add the Fractera MCP connector and ask Claude to deploy. Prefer a form? [Use the install form](/en#pricing) instead — both reach the same place.',
+        'Prefer to deploy from the chat? Add the Fractera MCP connector and ask your agent — Claude Code, Codex, Gemini CLI, Qwen Code or Kimi Code — to deploy. Prefer a form? [Use the install form](/en#pricing) instead — both reach the same place.',
     },
   ],
   faq: [

@@ -8,6 +8,6 @@ export const meta: DeploymentMeta = {
   order: 2,
   tags: ['Claude Code MCP', 'Model Context Protocol', 'Deploy from Chat', 'Agentic Engineering', 'Zero Ops'],
   author: { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
-  heroImage: '/Admin-Fractera.png',
-  ogImage: '/Admin-Fractera.png',
+  heroImage: '/Does-Anthropic-only-wake-up-GOD-at-3-AM.jpg',
+  ogImage: '/Does-Anthropic-only-wake-up-GOD-at-3-AM.jpg',
 }
