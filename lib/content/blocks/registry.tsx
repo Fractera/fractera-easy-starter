@@ -173,7 +173,7 @@ export const BLOCK_RENDERERS: BlockRenderers = {
         className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /></svg>
-        {ui.downloadMd}
+        {b.label ?? ui.downloadMd}
       </a>
     </aside>
   ),

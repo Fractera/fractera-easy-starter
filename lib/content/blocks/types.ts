@@ -27,7 +27,9 @@ export type LeafBlock =
   | { kind: 'founder'; text: string }
   // Reference card to a full raw document with a download button (e.g. a living
   // pipeline standard shipped under /public/docs). title + one-line summary + file.
-  | { kind: 'docref'; title: string; summary: string; href: string }
+  // Optional `label` overrides the default download-button text (e.g. "Download PDF"
+  // for a .pdf instead of the default "Download .md").
+  | { kind: 'docref'; title: string; summary: string; href: string; label?: string }
   // "Did you know" callout — icon + tinted panel for an aside fact (e.g. the page
   // auto-updates in real time as an AI agent edits it). title is the lead-in.
   | { kind: 'callout'; title: string; text: string }
