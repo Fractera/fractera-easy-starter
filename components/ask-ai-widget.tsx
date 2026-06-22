@@ -23,8 +23,10 @@ export function AskAiWidget({ lang }: { lang: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={t.bubble}
-      className="cta-shimmer group fixed bottom-5 right-5 z-50 inline-flex items-center overflow-hidden rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg transition-colors"
-      style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 }}
+      className="cta-shimmer group fixed right-5 z-50 inline-flex items-center overflow-hidden rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg transition-colors"
+      // bottom = 20px (was bottom-5) + 64px = 84px — lifted up 64px per request.
+      // Inline (not an arbitrary `bottom-[84px]` class) to dodge the JIT arbitrary-value drop.
+      style={{ bottom: 84, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 }}
     >
       <span aria-hidden className="cta-shimmer-sweep pointer-events-none absolute inset-0 z-0 rounded-full" />
       {/* label expands to the left on hover */}
