@@ -1,89 +1,88 @@
-import type { DeploymentBase } from '@/lib/deployments/post'
+import type { DeploymentBase } from '../../_lib/post'
 
 // Base English document for /[lang]/deployments/vps (Production VPS target).
 // IP-first reality: the deploy comes up on plain HTTP at http://<ip>:3002 — never
-// promise HTTPS/a domain as the result of the deploy (that is an optional later
-// step done inside the workspace).
+// promise HTTPS/a domain as the result of the deploy (that is an optional later step).
 export const en: DeploymentBase = {
-  title: 'Production VPS: Your Own Agentic Engineering Server',
-  seoTitle: 'Deploy AI Agents to a VPS — Self-Hosted Agentic Engineering Infrastructure',
+  title: 'Production VPS: Automated Agent Engineering Infrastructure',
+  seoTitle: 'Agent Engineering VPS: Production-Ready Agent Stack on Ubuntu',
   subtitle:
-    'Deploy the full stack to an Ubuntu VPS in about ten minutes. A coding-agent team, Hermes orchestration and LightRAG memory come up on hardware you rent for a few dollars a month — fully owned by you.',
+    'Deploy a complete multi-agent production environment onto an Ubuntu VPS in ten minutes. Spin up a Hermes-orchestrated team and private LightRAG memory on your own cloud hardware for a flat monthly server bill.',
   description:
-    'Stand up a production Agentic Engineering Infrastructure on your own Ubuntu VPS. IP-first deploy: your workspace is live on plain HTTP in about ten minutes, with no DNS or certificate wait. Self-hosted, open-source, your data on your disk.',
+    'Stop paying inflated SaaS subscriptions. Initialize a production-grade agent engineering infrastructure on an isolated Ubuntu VPS. IP-first orchestration: live on plain HTTP at http://<ip>:3002 in 10 minutes flat.',
   keywords:
-    'self-hosted ai vps, deploy ai agents to vps, ubuntu ai coding server, agentic engineering infrastructure, self hosted vercel alternative, claude code on a vps, hermes orchestration server, lightrag memory server, own your ai stack, ip-first deploy',
-  listTitle: 'Production VPS',
+    'agent engineering vps, production ready agent stack ubuntu, agent server setup contabo, agent hosting, self-hosted ai vps, deploy ai agents to vps, ubuntu ai coding server, agentic engineering infrastructure, self hosted vercel alternative, ip-first deploy',
+  listTitle: 'Production VPS Substrate',
   listDescription:
-    'Deploy the full stack to an Ubuntu VPS in about ten minutes — production-grade agent environments on hardware you rent for a few dollars a month.',
+    'Deploy the full framework to an Ubuntu VPS in ten minutes — industrial agent hosting environments running on isolated cloud hardware for a flat fee.',
   founderQuote:
     'Building something new and uncharted is very hard. Every obvious thing has already been tried by thousands of other founders. And here we come back again to the thought that it is better for an idea to be “idiotic” than obvious.',
   blocks: [
     {
       kind: 'callout',
-      title: 'Production-grade, IP-first, in about ten minutes',
+      title: 'Industrial Performance, IP-First Real-Time Setup',
       text:
-        'The full stack installs onto an Ubuntu VPS you rent and comes up live on plain HTTP at http://<your-ip>:3002 — the Admin workspace where you start coding. No DNS, no certificate, no wait. Attaching your own domain with HTTPS is an optional later step.',
+        'The underlying multi-agent stack installs directly onto your raw Ubuntu VPS and initializes immediately on plain HTTP at http://<your-ip>:3002. This is your master workspace cockpit. No DNS propagation delays, no SSL certificate issuance queues, and no DevOps friction. Binding a custom domain with Nginx automated HTTPS is an optional administrative step handled inside the panel later.',
     },
     {
       kind: 'p',
       text:
-        'A production server is the default home for a Fractera [platform for agentic engineering](/en). The same stack runs end to end on a box you control: five coding CLIs, the Hermes orchestrator, a LightRAG memory graph, your application, its database and its media — all as long-running processes on your own machine, not someone else’s cloud.',
-    },
-
-    { kind: 'h2', text: 'One install, a full stack on hardware you own' },
-    { kind: 'h3', text: 'IP-first: live on plain HTTP, no DNS wait' },
-    {
-      kind: 'p',
-      text:
-        'The deploy is IP-first by design. When it finishes — typically in about ten minutes — your workspace is reachable on plain HTTP at http://<your-ip>:3002. There is no domain and no HTTPS yet, and that is deliberate: it gets you into a working environment in minutes instead of waiting on DNS propagation and certificate issuance. When you are ready, you attach your own domain with HTTPS from inside the workspace (Admin → Personal Domain) — a separate, optional step you do yourself, later.',
-    },
-    { kind: 'h3', text: 'Rent the box, own the stack' },
-    {
-      kind: 'p',
-      text:
-        'Any Ubuntu 24.04 VPS with root access works — Contabo, Hetzner and similar providers rent suitable machines for a few dollars a month. The install runs the whole stack as PM2 processes on that machine. The open-source layer that runs on your VPS is yours: the code, the database and the AI memory all live on your disk, and nothing is routed to an external service to keep the lights on.',
+        'A dedicated virtual host is the default environment for the Fractera [platform for agentic engineering](/en). The system coordinates long-running infrastructure processes entirely on a machine you own outright: five concurrent development CLIs, the Hermes context orchestrator, a LightRAG knowledge graph, your live application layer, its SQLite WAL database, and isolated media storage. Your data remains anchored to your private disk, far away from third-party telemetry aggregators.',
     },
 
-    { kind: 'h2', text: 'What comes up on the server' },
-    { kind: 'h3', text: 'A coding-agent team plus Hermes orchestration' },
+    { kind: 'h2', text: 'Sovereign Agent Hosting on Isolated Cloud Hardware' },
+    { kind: 'h3', text: 'IP-First Orchestration: Active on Plain HTTP with Zero Wait Time' },
     {
       kind: 'p',
       text:
-        'Claude Code, OpenAI Codex, Gemini CLI, Qwen Code and Kimi Code initialize inside browser-native terminals on the server and run on your own developer subscriptions. The Hermes orchestrator coordinates them, turning a request into precise tool calls and checking the result against the project’s own memory rather than guessing.',
+        'The provisioning sequence is strictly IP-first by design. Upon completion—typically taking less than ten minutes—your administrative cockpit is fully reachable at http://<your-ip>:3002 over a plain HTTP transport layer. Skipping immediate domain binding and SSL checks is a deliberate engineering choice to get your multi-agent team running instantly. When your production features are verified, you can attach a personalized domain and auto-generate Let’s Encrypt SSL chains directly from the UI (Admin → Personal Domain) as a separate, subsequent step.',
     },
-    { kind: 'h3', text: 'LightRAG memory and your data on your disk' },
+    { kind: 'h3', text: 'Rent the Raw Hardware, Own Your Multi-Agent Stack' },
     {
       kind: 'p',
       text:
-        'A LightRAG knowledge graph acts as the shared long-term memory of the server, so context compounds across sessions instead of evaporating when a chat closes. Your application database and media storage sit on the same disk. Because everything is local to the server, your operational knowledge never leaves the machine you control.',
+        'Any standard Ubuntu 24.04 VPS with root SSH privileges is fully compatible. Cost-effective infrastructure hosts like Contabo or Hetzner rent high-core environments for a few dollars a month. The automated installer configures the entire workspace as resilient, background-monitored PM2 processes on that hardware. The open-source layer belongs strictly to your business entity: the source code, user data, and vector structures stay on your local storage blocks.',
+    },
+
+    { kind: 'h2', text: 'Anatomy of the Production Server Workspace' },
+    { kind: 'h3', text: 'The Multi-Agent Execution Matrix + Hermes Orchestration' },
+    {
+      kind: 'p',
+      text:
+        'Claude Code, OpenAI Codex, Gemini CLI, Qwen Code, and Kimi Code boot concurrently within browser-isolated terminal wrappers on your host. They tap straight into your personal developer accounts, removing middleman API markups. Rather than letting agents run ungrounded file modifications, the Hermes task manager forces a deterministic loop—converting requests into strict, atomic MCP actions and verifying code syntax changes against your local compiler before deployment.',
+    },
+    { kind: 'h3', text: 'Private LightRAG Memory: Defeating Context Window Inflation' },
+    {
+      kind: 'p',
+      text:
+        'A persistent LightRAG vector graph server runs locally as the shared memory node of the VPS host. This architecture ensures that project constraints, code historical changes, and developer rules compound across sessions instead of wiping clean when a chat closes. Because the vector lookup engine resides alongside your local database, your system completely bypasses the token cost multiplication traps that destroy standard generative development workflows.',
     },
 
     {
       kind: 'quote',
       text:
-        'A server you rent for the price of a few coffees, running the sustained output of a full engineering team — owned outright, with the code, the database and the memory all on your own disk.',
-      cite: 'Fractera Engineering Core · June 2026',
+        'A cloud machine rented for the cost of a few premium coffees, generating the sustained code output of a fully staffed DevOps and engineering squad—completely owned, isolated, and running entirely from your private disk storage.',
+      cite: 'Fractera Core Infrastructure Team · June 2026',
     },
 
     {
       kind: 'p',
       text:
-        'Ready to put it on a server? [Start a deploy now](#pricing) — the deploy form is right below; paste your VPS details and watch the stack come up, or read how it is [orchestrated end to end](/ai-workspace-architect).',
+        'Ready to provision your private agent hosting substrate? Move to the deployment form below, paste your Ubuntu access parameters, and watch the multi-agent engine come up in real time, or inspect our deep [system architecture blueprints](/ai-workspace-architect) to audit the platform layout.',
     },
   ],
   faq: [
     {
-      q: 'How long does a VPS deploy take, and what URL do I get?',
-      a: 'About ten minutes on a typical Ubuntu VPS. When it finishes, your workspace is live on plain HTTP at http://<your-ip>:3002 — that is the Admin workspace where you start coding. The deploy is IP-first, so there is no DNS or certificate wait.',
+      q: 'How long does the automated VPS setup take, and what is the access URL?',
+      a: 'The full installation loop finishes in roughly ten minutes on a vanilla Ubuntu 24.04 host. Once complete, your master cockpit is live on plain HTTP at http://<your-ip>:3002. The initialization is IP-first by design, enabling instant workspace entry without waiting for DNS records or certificate handshakes.',
     },
     {
-      q: 'Do I need a domain or HTTPS to deploy?',
-      a: 'No. The default deploy is IP-first and comes up on plain HTTP at your server’s IP address. Attaching your own custom domain with HTTPS is an optional later step you do yourself from inside the workspace (Admin → Personal Domain). It is not part of the deploy.',
+      q: 'Is a domain name or a pre-configured SSL certificate required to deploy?',
+      a: 'No. The default deployment targeted by the installer operates purely over an IP address on standard HTTP port 3002. Binding custom subdomains, setting up Nginx reverse proxy routes, and activating HTTPS are optional administrative tasks handled by the developer from inside the live workspace (Admin → Personal Domain) whenever needed.',
     },
     {
-      q: 'Which VPS providers and operating systems are supported?',
-      a: 'Any VPS running Ubuntu 24.04 with root access. Providers such as Contabo and Hetzner rent suitable machines for a few dollars a month. You bring the server; the install puts the entire Agentic Engineering Infrastructure on it and runs it as managed processes.',
+      q: 'Which cloud VPS providers and operating system builds are officially supported?',
+      a: 'Any virtual private host running a clean image of Ubuntu 24.04 LTS with root access is fully supported. Providers like Contabo, Hetzner, and similar unmanaged infrastructure services supply excellent high-spec machines for flat monthly fees. You supply the raw server access; Fractera automated scripts configure the entire agent engineering infrastructure.',
     },
   ],
 }

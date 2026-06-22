@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { BRAND } from '@/lib/brand'
-import { getNewsUi } from '@/lib/news/ui'
-import { newsList } from '@/lib/news/post'
+import { getNewsUi } from '../_data'
+import { newsList } from '../_lib/post'
 import { POSTS } from '../_list.generated'
 
 // Entry for the /news router page (the index where a visitor picks an article).

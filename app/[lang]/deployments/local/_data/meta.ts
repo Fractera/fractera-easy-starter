@@ -1,8 +1,8 @@
 import { AUTHOR } from '@/lib/author'
-import type { DeploymentMeta } from '@/lib/deployments/post'
+import type { DeploymentMeta } from '../../_lib/post'
 
 // Non-translatable fields shared by every language of the /deployments/local
-// page. Mirrors lib/news/entries/<slug>/meta.ts.
+// page (co-located with the page, same shape as every other <slug>/_data/meta.ts).
 export const meta: DeploymentMeta = {
   slug: 'local',
   subPath: '/deployments/local',

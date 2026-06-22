@@ -1,4 +1,4 @@
-import type { BlogBlock } from '@/lib/blog/types'
+import type { DocBlock } from '../../_lib/types'
 
 export const en = {
   title: 'The One-Button Workspace: Turn Any Site Into a Conversation',
@@ -278,7 +278,7 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
       kind: 'note',
       text: 'For a detailed technical investigation, query the project’s **LightRAG vector store** — the workspace’s global memory. The most natural way to do that is through the **Hermes agent in the administrator flow**, which can retrieve and explain any part of the architecture on demand. This page only opens the door; the vector store holds the whole house.',
     },
-  ] satisfies BlogBlock[],
+  ] satisfies DocBlock[],
   faq: [
     {
       q: 'What can a guest visitor ask the AI consultant without signing in?',

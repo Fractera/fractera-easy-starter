@@ -1,4 +1,4 @@
-import type { BlogBlock } from '@/lib/blog/types'
+import type { DocBlock } from '../../_lib/types'
 
 export const en = {
   title: 'Authentication, Roles & Providers: One Account, Many Doors',
@@ -168,5 +168,5 @@ export const en = {
       kind: 'note',
       text: 'This page paints the scheme in broad strokes. For a complete, detailed investigation of how authentication is wired in your own project, ask your **Hermes agent connected to the LightRAG vector store** — or any AI agent you use in your project — to study it. The architecture is documented in depth for exactly that purpose; an agent can retrieve and explain every part on demand.',
     },
-  ] satisfies BlogBlock[],
+  ] satisfies DocBlock[],
 }

@@ -1,4 +1,4 @@
-import type { NewsArticleBase } from '@/lib/news/types'
+import type { NewsArticleBase } from '../../_lib/types'
 
 export const en: NewsArticleBase = {
   title: 'We Rebuilt How an Agentic Engineering Platform Publishes Multilingual Content',

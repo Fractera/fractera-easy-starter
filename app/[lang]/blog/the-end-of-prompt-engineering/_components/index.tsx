@@ -1,26 +1,31 @@
 import { createContentPost } from '@/lib/content/create-content-post'
-import { blogPost } from '@/lib/blog/post'
+import { blogPost } from '../../_lib/post'
+import { getBlogUi } from '../../_data'
 import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 
-// Entry for this blog post (format: 'blog'). Blog is EN-only, so resolve ignores
-// lang; the URL still carries the lang segment for routing. Renders the co-located
-// _data through the universal post factory + the shared StandardContentPage block.
+// Entry for this blog post (format: 'blog'). Blog content is EN-only, so resolve
+// ignores lang; the URL still carries the lang segment for routing and the chrome
+// (breadcrumb/back/title/min-read) is localized via getBlogUi — no hardcoded text.
 
 const post = createContentPost({
   format: 'blog',
   subPath: `/blog/${data.slug}`,
   resolve: () => blogPost(data),
-  chrome: (lang, p) => ({
-    breadcrumbs: [
-      { label: BRAND.name, href: `/${lang}` },
-      { label: 'Blog', href: `/${lang}/blog` },
-      { label: p.title },
-    ],
-    backHref: `/${lang}/blog`,
-    backLabel: 'Back to all articles',
-  }),
-  titleSuffix: () => 'Fractera Blog',
+  chrome: (lang, p) => {
+    const ui = getBlogUi(lang)
+    return {
+      breadcrumbs: [
+        { label: BRAND.name, href: `/${lang}` },
+        { label: ui.breadcrumbBlog, href: `/${lang}/blog` },
+        { label: p.title },
+      ],
+      backHref: `/${lang}/blog`,
+      backLabel: ui.backToBlog,
+    }
+  },
+  titleSuffix: lang => getBlogUi(lang).titleSuffix,
+  minLabel: lang => getBlogUi(lang).minRead,
 })
 
 export const generateMetadata = post.generateMetadata

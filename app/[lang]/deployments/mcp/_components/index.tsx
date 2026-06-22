@@ -4,9 +4,9 @@ import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { PlatformSelector } from '@/components/platform-selector'
 import { McpStepSlider } from '@/components/mcp-step-slider'
-import { PostBody } from '@/app/[lang]/blog/_components/post-body'
-import { deploymentContent, deploymentFounderQuote } from '@/lib/deployments/post'
-import { getDeploymentsUi } from '@/lib/deployments/ui'
+import { PostBody } from '@/components/content-page/post-body'
+import { deploymentContent, deploymentFounderQuote } from '../../_lib/post'
+import { getDeploymentsUi } from '../../_data'
 import { data } from '../_data'
 
 // Entry component for /deployments/mcp (standard route shape: page.tsx is thin and

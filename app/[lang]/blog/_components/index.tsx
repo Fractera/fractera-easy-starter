@@ -1,25 +1,27 @@
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
 import { BRAND } from '@/lib/brand'
-import { blogList } from '@/lib/blog/post'
+import { blogList } from '../_lib/post'
+import { getBlogUi } from '../_data'
 import { POSTS } from '../_list.generated'
 
 // Entry for the /blog router page. Standard router shape: page.tsx is thin and
 // re-exports this. The post list is auto-discovered: POSTS comes from
 // _list.generated.ts (built by lib/parser-fs from the co-located blog folders).
+// All visible strings are DATA — they live in ../_data (getBlogUi), never inline.
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
+  const ui = getBlogUi(lang)
   return {
-    title: 'Blog | Fractera',
-    description:
-      'Field notes on agentic AI development, loop engineering and autonomous coding agents — from the team building an open-source, self-hosted AI workspace.',
+    title: ui.metaTitle,
+    description: ui.metaDescription,
     alternates: buildAlternates(lang, '/blog'),
   }
 }
 
-function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {
+function formatDate(iso: string, lang: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(lang, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -29,6 +31,7 @@ function formatDate(iso: string): string {
 
 export default async function BlogIndex({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
+  const ui = getBlogUi(lang)
   const posts = blogList(POSTS)
   const [featured, ...rest] = posts
 
@@ -37,7 +40,7 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: BRAND.name, item: `${BRAND.siteUrl}/` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${BRAND.siteUrl}/${lang}/blog` },
+      { '@type': 'ListItem', position: 2, name: ui.breadcrumbBlog, item: `${BRAND.siteUrl}/${lang}/blog` },
     ],
   }
 
@@ -47,12 +50,9 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
       <main className="min-h-screen bg-black text-white">
         <div className="mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 md:py-14">
           <header className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-widest text-violet-400/70">Fractera blog</p>
-            <h1 className="text-4xl font-bold tracking-tight md:text-3xl">Building in loops</h1>
-            <p className="max-w-2xl text-base text-white/50">
-              Field notes on agentic AI development, loop engineering and autonomous coding agents — from the team
-              building an open-source, self-hosted AI workspace.
-            </p>
+            <p className="text-xs uppercase tracking-widest text-violet-400/70">{ui.eyebrow}</p>
+            <h1 className="text-4xl font-bold tracking-tight md:text-3xl">{ui.indexTitle}</h1>
+            <p className="max-w-2xl text-base text-white/50">{ui.indexIntro}</p>
           </header>
 
           {featured && (
@@ -68,7 +68,7 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
                   className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
                 />
                 <span className="absolute left-4 top-4 rounded-full bg-violet-600 px-3 py-1 text-xs font-bold text-white">
-                  Featured
+                  {ui.featured}
                 </span>
               </div>
               <div className="flex flex-col gap-4 p-8 md:p-10">
@@ -84,11 +84,11 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
                 </h2>
                 <p className="text-base leading-relaxed text-white/55">{featured.excerpt}</p>
                 <div className="mt-auto flex items-center gap-3 pt-2 text-sm text-white/40">
-                  <time dateTime={featured.date}>{formatDate(featured.date)}</time>
+                  <time dateTime={featured.date}>{formatDate(featured.date, lang)}</time>
                   <span aria-hidden>·</span>
-                  <span>{featured.readingMinutes} min read</span>
+                  <span>{featured.readingMinutes} {ui.minRead}</span>
                   <span className="ml-auto inline-flex items-center gap-1.5 font-medium text-violet-400 group-hover:text-violet-300">
-                    Read
+                    {ui.read}
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                   </span>
                 </div>
@@ -107,9 +107,9 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
                   <h3 className="text-lg font-semibold leading-snug text-white">{post.title}</h3>
                   <p className="text-sm leading-relaxed text-white/50">{post.excerpt}</p>
                   <div className="mt-auto flex items-center gap-2 pt-2 text-xs text-white/40">
-                    <time dateTime={post.date}>{formatDate(post.date)}</time>
+                    <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
                     <span aria-hidden>·</span>
-                    <span>{post.readingMinutes} min read</span>
+                    <span>{post.readingMinutes} {ui.minRead}</span>
                   </div>
                 </a>
               ))}

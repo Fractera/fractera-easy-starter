@@ -2,8 +2,10 @@
 // (app/[lang]/documentation/<slug>/ with page.tsx + _components + _data). Docs are
 // EN-only: _data is meta.ts + en.ts, combined into a DocEntry. These helpers map a
 // doc to the normalized ContentPost the factory renders (TechArticle preset) and
-// to the /documentation index list item. No central registry; the index _list.ts
-// imports each doc's _data.
+// to the /documentation index list item. No central registry; the index reads the
+// auto-generated _list.generated.ts (parser-fs scans the co-located doc folders).
+// These helpers are co-located in the documentation route's own _lib — delete the
+// documentation folder and nothing is left behind.
 
 import type { DocEntry } from './types'
 import type { ContentPost } from '@/lib/content/create-content-post'

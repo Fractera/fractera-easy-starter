@@ -1,5 +1,11 @@
 # Multilingual Content — living standard
 
+> 📐 **Part of the broader [Content Engine standard](./content-engine.md)** — the full
+> co-location architecture (thin `page.tsx` + `_components`/`_lib`/`_data`, the neutral
+> block catalog, auto-discovery, deletable-without-orphans, and scaling to any new
+> surface like a shop). This file stays the focused **i18n recipe**; read the Content
+> Engine doc for how the whole machine fits together.
+
 > **This is a living standard for one job:** how a project stores and translates content (news, blog,
 > documentation, any pages) so it **scales by construction** — to dozens of languages and thousands of
 > pages, without rewriting what already exists and without hardcoded branches in the code. The document

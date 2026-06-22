@@ -2,9 +2,11 @@
 // (app/[lang]/news/<slug>/ with page.tsx + _components + _data) — the post IS the
 // single source of truth. These helpers turn a post's _data (meta + en + <lang>
 // overrides) into the normalized ContentPost the factory renders, and into the
-// compact list item the /news index imports. No central registry; the index
-// _list.ts imports each post's _data and calls newsListItem — so a deleted post
-// folder drops out everywhere by removing one import line.
+// compact list item the /news index lists. No central registry; the index reads
+// the auto-generated _list.generated.ts (parser-fs scans the co-located post
+// folders), so a deleted post folder drops out everywhere on its own. These
+// helpers are co-located in the news route's own _lib — delete the news folder
+// and nothing is left behind.
 
 import { resolveEntry } from '@/lib/content/resolve'
 import type { NewsArticleBase, NewsArticleMeta, NewsArticleOverride } from './types'

@@ -1,4 +1,4 @@
-import type { NewsArticleBase } from '@/lib/news/types'
+import type { NewsArticleBase } from '../../_lib/types'
 
 export const en: NewsArticleBase = {
   title: 'AI Draft Settings: The Instruction & Skill Staging Conveyor for AI Agents',

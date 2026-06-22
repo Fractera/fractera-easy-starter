@@ -1,5 +1,5 @@
 import { AUTHOR } from '@/lib/author'
-import type { NewsArticleMeta } from '@/lib/news/types'
+import type { NewsArticleMeta } from '../../_lib/types'
 
 export const meta: NewsArticleMeta = {
   slug: 'multilingual-content-architecture',
@@ -9,7 +9,7 @@ export const meta: NewsArticleMeta = {
   author: { name: AUTHOR.name, role: AUTHOR.role },
   // Diagram: per-language file-system fields (EN/ES/DE for title/description/
   // paragraphs/FAQ) → AI generation → /en|/es|/de localized pages. Used as the
-  // hero and the OG/social image (relative path; the [slug] page absolutizes it).
+  // hero and the OG/social image (relative path; the page absolutizes it).
   heroImage: '/news/fractera-multilanguage/fractera-multilanguage.jpg',
   ogImage: '/news/fractera-multilanguage/fractera-multilanguage.jpg',
 }

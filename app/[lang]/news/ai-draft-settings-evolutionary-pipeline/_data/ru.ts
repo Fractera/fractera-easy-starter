@@ -1,4 +1,4 @@
-import type { NewsArticleOverride } from '@/lib/news/types'
+import type { NewsArticleOverride } from '../../_lib/types'
 
 export const ru: NewsArticleOverride = {
   seoTitle: 'AI Draft Settings: Песочница системных промптов, инструкций и навыков ИИ',

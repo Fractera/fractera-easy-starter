@@ -1,4 +1,4 @@
-import type { DeploymentBase } from '@/lib/deployments/post'
+import type { DeploymentBase } from '../../_lib/post'
 
 // Russian document for Page №4 (/[lang]/deployments/local).
 // Fully migrated to the Agent Engineering paradigm and optimized for Russian sovereign data standards (152-ФЗ).

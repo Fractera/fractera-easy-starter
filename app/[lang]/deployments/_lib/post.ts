@@ -3,12 +3,12 @@
 // page.tsx + _components + _data) — the page IS the single source of truth. These
 // helpers turn a page's _data (meta + en + <lang> overrides) into the resolved
 // descriptor the createContentPage factory renders, AND into the compact, localized
-// row the /deployments hub lists. No central registry: lib/parser-fs generates the
-// hub's _list.generated.ts by scanning these folders, so adding/removing a folder
-// adds/removes the hub row automatically (this is what dropped the dead Fractera Pro
-// row — there is no folder for it).
-//
-// Mirrors lib/news/post.ts (same resolveEntry path, same EN-fallback per key).
+// row the /deployments hub lists. No central registry: the shared parser-fs
+// generator scans these folders into _list.generated.ts, so adding/removing a
+// folder adds/removes the hub row automatically (this is what dropped the dead
+// Fractera Pro row — there is no folder for it). These helpers are co-located in
+// the deployments route's own _lib — delete the deployments folder and nothing is
+// left behind. Same resolveEntry path + EN-fallback-per-key as the other tabs.
 
 import { resolveEntry } from '@/lib/content/resolve'
 import type { LocalizedBody, LocalizedBodyOverride } from '@/lib/content/types'

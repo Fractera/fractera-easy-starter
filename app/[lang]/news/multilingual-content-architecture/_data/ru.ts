@@ -1,4 +1,4 @@
-import type { NewsArticleOverride } from '@/lib/news/types'
+import type { NewsArticleOverride } from '../../_lib/types'
 
 export const ru: NewsArticleOverride = {
   title: 'Мы перестроили то, как платформа для агентной инженерии публикует мультиязычный контент',

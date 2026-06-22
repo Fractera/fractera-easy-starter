@@ -1,5 +1,5 @@
 import { AUTHOR } from '@/lib/author'
-import type { DeploymentMeta } from '@/lib/deployments/post'
+import type { DeploymentMeta } from '../../_lib/post'
 
 // Non-translatable fields shared by every language of the /deployments/vps page.
 export const meta: DeploymentMeta = {

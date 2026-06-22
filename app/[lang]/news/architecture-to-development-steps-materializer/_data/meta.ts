@@ -1,5 +1,5 @@
 import { AUTHOR } from '@/lib/author'
-import type { NewsArticleMeta } from '@/lib/news/types'
+import type { NewsArticleMeta } from '../../_lib/types'
 
 export const meta: NewsArticleMeta = {
   slug: 'architecture-to-development-steps-materializer',

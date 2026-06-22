@@ -5,15 +5,15 @@
 // plus an optional `headings` map for swapping individual h2 text without
 // replacing the whole `blocks` array.
 
-import type { BlogBlock, FaqPair } from '@/lib/blog/types'
+import type { Block, FaqPair } from './blocks/types'
 
 export type LocalizedBody = {
-  blocks: BlogBlock[]
+  blocks: Block[]
   faq?: FaqPair[]
 }
 
 export type LocalizedBodyOverride = {
   headings?: Record<string, string>
-  blocks?: BlogBlock[]
+  blocks?: Block[]
   faq?: FaqPair[]
 }

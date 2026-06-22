@@ -1,4 +1,4 @@
-import type { DeploymentBase } from '@/lib/deployments/post'
+import type { DeploymentBase } from '../../_lib/post'
 
 // Base English document for Page №4 (/[lang]/deployments/local).
 // Fully migrated to the Agent Engineering paradigm and optimized for 2026 industrial standards.

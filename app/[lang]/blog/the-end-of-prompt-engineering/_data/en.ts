@@ -1,4 +1,4 @@
-import type { BlogBlock, FaqPair } from '@/lib/blog/types'
+import type { BlogBlock, FaqPair } from '../../_lib/types'
 
 const POST_1_LINEAR = `you prompt  ─▶  AI writes code  ─▶  you find the bug  ─▶  you fix the prompt  ─┐
      ▲                                                                          │

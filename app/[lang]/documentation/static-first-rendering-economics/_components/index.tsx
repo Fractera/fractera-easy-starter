@@ -1,24 +1,30 @@
 import { createContentPost } from '@/lib/content/create-content-post'
-import { docPost } from '@/lib/documentation/post'
+import { docPost } from '../../_lib/post'
+import { getDocUi } from '../../_data'
 import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 
-// Entry for this documentation page (format: 'document'). Docs are EN-only, so
-// resolve ignores lang; the URL still carries the lang segment for routing.
+// Entry for this documentation page (format: 'document'). Doc content is EN-only,
+// so resolve ignores lang; the URL still carries the lang segment for routing and
+// the chrome (breadcrumb/back/title/min-read) is localized via getDocUi.
 const post = createContentPost({
   format: 'document',
   subPath: `/documentation/${data.slug}`,
   resolve: () => docPost(data),
-  chrome: (lang, p) => ({
-    breadcrumbs: [
-      { label: BRAND.name, href: `/${lang}` },
-      { label: 'Documentation', href: `/${lang}/documentation` },
-      { label: p.title },
-    ],
-    backHref: `/${lang}/documentation`,
-    backLabel: 'Back to all documentation',
-  }),
-  titleSuffix: () => 'Fractera Documentation',
+  chrome: (lang, p) => {
+    const ui = getDocUi(lang)
+    return {
+      breadcrumbs: [
+        { label: BRAND.name, href: `/${lang}` },
+        { label: ui.breadcrumbDoc, href: `/${lang}/documentation` },
+        { label: p.title },
+      ],
+      backHref: `/${lang}/documentation`,
+      backLabel: ui.backToDoc,
+    }
+  },
+  titleSuffix: lang => getDocUi(lang).titleSuffix,
+  minLabel: lang => getDocUi(lang).minRead,
 })
 
 export const generateMetadata = post.generateMetadata

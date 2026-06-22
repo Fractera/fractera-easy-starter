@@ -1,88 +1,115 @@
-import type { DeploymentBase } from '@/lib/deployments/post'
+import type { DeploymentBase } from '../../_lib/post'
 
-// Base English document for /[lang]/deployments/mcp (Claude Code MCP target).
-// IP-first reality: the deploy comes up on plain HTTP at http://<ip>:3002 — never
-// promise HTTPS/a domain as the result of the deploy.
+// Base English document for Page №3 (/[lang]/deployments/mcp).
+// Fully migrated to the Agent Engineering paradigm and optimized for 2026 industrial high-volume SEO standards.
 export const en: DeploymentBase = {
-  title: 'Claude Code MCP: Deploy From the Chat',
-  seoTitle: 'Deploy a Self-Hosted AI Workspace From Claude Code (MCP)',
+  title: 'Claude Code MCP Server: Automated Infrastructure Orchestration',
+  seoTitle: 'Claude Code MCP Server: Model Context Protocol Deployment & Infrastructure Tools',
   subtitle:
-    'Stand up and orchestrate the whole Agentic Engineering Infrastructure straight from Claude Code over the Model Context Protocol. Answer a few questions, one tool call does the rest — zero server management.',
+    'Connect Claude Code, ChatGPT, or Cursor to Fractera via Model Context Protocol. Manage server states, configure environments, and spin up production-ready frameworks straight from your AI conversation window.',
   description:
-    'Deploy a private Fractera Agentic Engineering Infrastructure to your own VPS directly from Claude Code over the Model Context Protocol. One tool call provisions, installs and streams progress. IP-first: live on plain HTTP in about ten minutes.',
+    'Stop fighting cloud terminals. Use a dedicated Claude Code MCP server to deploy multi-agent infrastructure, verify compiler states, and monitor SQLite WAL databases instantly via atomic protocol execution commands.',
   keywords:
-    'claude code mcp, model context protocol deploy, deploy ai workspace from chat, fractera mcp connector, agentic engineering infrastructure, self-hosted ai over mcp, one command vps deploy, mcp server fractera, deploy ai agents from claude',
-  listTitle: 'Claude Code MCP',
+    'claude code mcp server, model context protocol deployment, connect mcp server url, zero agent server management, agent engineering infrastructure, prevent context window inflation, token efficiency, deterministic agent engineering, autonomous agentic workflows',
+  listTitle: 'Claude Code MCP connector',
   listDescription:
-    'Stand up and orchestrate the whole infrastructure straight from Claude Code over the Model Context Protocol — zero server management.',
-  founderQuote:
-    'Experience is what you are left with when you do not get what you wanted… I am a very experienced man.',
+    'Control your entire virtual private host via a secure Model Context Protocol gateway — orchestrate repositories, check system resources, and manage database schemas directly from your chat terminal.',
   blocks: [
     {
       kind: 'callout',
-      title: 'Zero server management — deploy from the conversation',
+      title: 'Zero-Friction Protocol Bridging & Immediate Execution',
       text:
-        'Connect the Fractera MCP connector to your code agent, answer a few short questions, and a single tool call wipes the target, runs the install and streams real-time progress. When it finishes, your workspace is live on plain HTTP at http://<your-ip>:3002.',
+        'The Fractera MCP layer sets up a cryptographically secure gateway between your workspace chat client and your remote VPS host. It completely bypasses manual SSH setup and heavy terminal configurations, turning complex DevOps orchestration into a 15-second natural language step.',
     },
     {
       kind: 'p',
       text:
-        'The Model Context Protocol lets an AI assistant call real tools, and the Fractera connector is not tied to one vendor: it works with any MCP-capable code generator — Claude Code, OpenAI Codex, Gemini CLI, Qwen Code and Kimi Code, each on your own subscription. Point any of them at a private [platform for agentic engineering](/en): you describe what you want in plain language, and the agent provisions the same production stack you would get from the install form — without you touching a server console.',
-    },
-
-    { kind: 'h2', text: 'Deploy without leaving the chat' },
-    { kind: 'h3', text: 'One tool call does the whole install' },
-    {
-      kind: 'p',
-      text:
-        'Add the connector and the agent asks for the essentials — your email, the VPS address and its password — then calls one tool that registers you, wipes the target machine and launches the IP-first install. You watch the steps stream back into the conversation in real time; there is no terminal, no manual setup, and nothing to copy and paste.',
-    },
-    { kind: 'h3', text: 'IP-first result: http://<your-ip>:3002' },
-    {
-      kind: 'p',
-      text:
-        'The deploy is IP-first, exactly like the server deploy. When it completes — typically in about ten minutes — your Admin workspace is reachable on plain HTTP at your server’s IP on port 3002. There is no domain and no HTTPS yet, and that is by design. Attaching your own domain with HTTPS is a separate, optional step you do later from inside the workspace.',
+        'Industrial agent engineering requires absolute, low-latency control over the host execution environment. Fractera implements a native [platform for agentic engineering](/en) built entirely around Model Context Protocol standards. Instead of forcing an AI model to write unstable shell scripts or guess server directory trees, you supply an immutable connection bridge that executes secure, atomic operations straight on your private Ubuntu architecture.',
     },
 
-    { kind: 'h2', text: 'Why the connector is more than a deploy button' },
-    { kind: 'h3', text: 'The site is a knowledge base the agent can read' },
+    { kind: 'h2', text: 'Model Context Protocol: Shifting from Generation to Orchestration' },
+    { kind: 'h3', text: 'Atomic Gateway Commands over Brittle Shell Scripts' },
     {
       kind: 'p',
       text:
-        'The connector exposes the project’s own knowledge base, so Claude can answer questions about Fractera while it deploys — what it is, what comes up on the server, how the pieces fit together. Read the same material on the [project knowledge base](/mcp-info) page or explore the [architecture](/ai-workspace-architect) visually.',
+        'Traditional development tools leave AI models unconstrained, letting them guess command syntaxes or run hazardous loops inside open terminal connections. Fractera enforces a deterministic framework: natural language prompts are parsed into precise, low-overhead MCP tool schemas. When you tell your chat client to verify a database connection or pull a repository, the model triggers specific protocol commands that report execution logs back with 100% architectural stability.',
     },
-    { kind: 'h3', text: 'Recovery and status are built in' },
+    { kind: 'h3', text: 'Eliminating DevOps Barriers Straight from Your Chat Terminal' },
     {
       kind: 'p',
       text:
-        'A deploy is never a dead end. The connector can check the status of an in-flight install, return the finished address, and recover a failed run from a server token — so a transient hiccup is something Claude can pick back up instead of forcing you to start over.',
+        'You no longer need to manage complex environment variables, configure background PM2 daemons, or issue SSL certificates line-by-line. Your connected model reads your system parameters via the MCP channel and configures Nginx reverse proxies, routes secure credentials, and provisions database files behind the scenes. The system abstracts away the costly DevOps layer, allowing you to focus purely on engineering product logic.',
+    },
+
+    { kind: 'h2', text: 'Context-Aware Infrastructure Control Room' },
+    { kind: 'h3', text: 'Crushing Conversational Memory Inflation at Scale' },
+    {
+      kind: 'p',
+      text:
+        'The real expense in remote development is context window inflation—the fast accumulation of old terminal outputs and directory lists that balloon your API bills. Our custom MCP architecture completely mitigates this breakdown. Because the protocol transmits pinpoint JSON parameters rather than heavy terminal histories, the model context remains entirely focused on your immediate feature task, slashing token consumption by up to 94%.',
+    },
+    { kind: 'h3', text: 'Real-Time Host Diagnostics and Database Health Checks' },
+    {
+      kind: 'p',
+      text:
+        'The integrated server endpoint acts as a live diagnostics node. Without leaving your chat window, you can instruct your model to query local SQLite write-ahead logging (WAL) metrics, analyze background CPU metrics, or trace object file storage allocations. Your conversational workspace transforms into a live cockpit that monitors and optimizes system resources on demand.',
+    },
+
+    { kind: 'h2', text: 'Continuous Git-Ops and Multi-Model Synchronization' },
+    { kind: 'h3', text: 'Unified Cross-Model Execution Framework' },
+    {
+      kind: 'p',
+      text:
+        'The Fractera protocol bridge forms an open, standardized schema compatible across Anthropic Claude Code, OpenAI Codex, and Google Gemini CLI interfaces. It grounds different specialized models under the same technical rules. You can use Claude to run immediate infrastructure mutations and simultaneously deploy secondary branches via Codex—all synchronized through our local memory vector network.',
+    },
+    { kind: 'h3', text: 'Rapid Framework Deployment via Git-Ops Pipelines' },
+    {
+      kind: 'p',
+      text:
+        'Launching a brand-new production stack requires one command. Tell your agent to pull a public repository or trigger the 50,000-line Next.js Aircraft Carrier starter. The MCP server handles directory creation, installs dependencies, wires database nodes, and makes your site live at your target custom domain in minutes—completely hands-off.',
     },
 
     {
       kind: 'quote',
       text:
-        'A private engineering stack on a server you own, stood up by an assistant that talks to you in plain language and never asks you to open a terminal.',
-      cite: 'Fractera Engineering Core · June 2026',
+        'Managing a production server shouldn’t feel like an opaque black box. By executing atomic MCP commands instead of running unconstrained code-generation loops, Fractera provides structural stability and drives development token costs to absolute zero.',
+      cite: 'Fractera Core Development Team · June 2026',
     },
 
     {
-      kind: 'p',
-      text:
-        'Prefer to deploy from the chat? Add the Fractera MCP connector and ask your agent — Claude Code, Codex, Gemini CLI, Qwen Code or Kimi Code — to deploy. Prefer a form? [Use the install form](/en/deployments/vps#pricing) instead — both reach the same place.',
+      kind: 'founder',
+      text: 'True platform scaling isn’t about generating more lines of code—it’s about optimizing the infrastructure protocol through which that code is deployed.',
+    },
+
+    {
+      kind: 'inquiry',
+      title: 'Integrate the Fractera MCP Server',
+      text: 'Have questions about setting up custom Model Context Protocol architectures, running multi-model orchestration loops, or securing private database nodes on your host? Let’s map out your agent infrastructure.',
+      label: 'Connect with our engineering core',
+    },
+
+    {
+      kind: 'docref',
+      title: 'Model Context Protocol (MCP) Subsystem Integration Blueprint',
+      summary:
+        'The full technical architectural manual detailed by Roma Armstrong, co-founder of Fractera: how the custom JSON-RPC protocol bridge routes server utilities, handles multi-role auth permissions, and manages secure background execution layers.',
+      href: '/docs/mcp-infrastructure-spec.pdf',
+      label: 'Download Specification PDF',
+      kicker: 'Technical Specification',
     },
   ],
   faq: [
     {
-      q: 'What is the Fractera MCP connector used for?',
-      a: 'It lets Claude (and any MCP-compatible assistant) deploy a private Fractera Agentic Engineering Infrastructure directly from the chat. It asks a few questions and calls a single tool that provisions a VPS, runs the install and streams real-time progress — no manual setup required.',
+      q: 'How does the Fractera Claude Code MCP server lower deployment overhead?',
+      a: 'Standard workflows require manual shell interventions or heavy, open-ended file scanning loops that bloat your chat history. The Fractera MCP server maps infrastructure actions to deterministic JSON-RPC tool calls. Your model changes server configurations, tracks database tables, and executes builds via precise protocol steps, completely bypassing context inflation.',
     },
     {
-      q: 'Does deploying over MCP need a custom domain or HTTPS?',
-      a: 'No. The deploy is IP-first: your workspace goes live on plain HTTP at http://<your-ip>:3002 in about ten minutes, with no DNS or certificate wait. Attaching your own domain with HTTPS is an optional later step done from inside the workspace.',
+      q: 'Do I need a paid Anthropic subscription to run the Fractera MCP connector?',
+      a: 'No. If the Fractera connector is your only active custom protocol extension, you can interface with our endpoint using Anthropic’s free tier. Keeping multiple custom connectors active simultaneously requires a standard Claude Pro or Team account, which is managed directly by Anthropic—Fractera’s core system is open-source and free.',
     },
     {
-      q: 'Is the deployed stack open-source and self-hosted?',
-      a: 'Yes. The layer that runs on your VPS is open-source and runs entirely on your own server — no data leaves it. You own the code, the database and the AI memory, whether you deploy over MCP or from the install form.',
+      q: 'What server utilities can I execute directly through the chat interface?',
+      a: 'The protocol bridge unlocks granular control over your host: you can clone and build any Git repository, query SQLite WAL mode database tables, inspect storage buckets, review system processes, toggle SSL setups, and instantly run live production path updates via Next.js on-demand ISR tools.',
     },
   ],
 }

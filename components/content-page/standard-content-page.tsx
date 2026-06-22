@@ -1,11 +1,11 @@
 import { Suspense, type ReactNode } from 'react'
-import type { BlogBlock, FaqPair } from '@/lib/blog/types'
+import type { Block, FaqPair } from '@/lib/content/blocks/types'
 import { AUTHOR } from '@/lib/author'
 import { getPageUi } from '@/lib/content/page-ui'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
-import { PostBody, headingId } from '@/app/[lang]/blog/_components/post-body'
+import { PostBody, headingId } from './post-body'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // StandardContentPage — the ONE reusable template for every Block 3 content page.
@@ -50,7 +50,7 @@ export type StandardContentPageProps = {
    * createContentPost for a post's video / responsive-picture hero).
    */
   hero?: ReactNode
-  blocks: BlogBlock[]
+  blocks: Block[]
   faq?: FaqPair[]
   /** Back link target — one level up from the current page. */
   backHref: string

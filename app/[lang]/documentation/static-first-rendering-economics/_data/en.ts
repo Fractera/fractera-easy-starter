@@ -1,4 +1,4 @@
-import type { BlogBlock } from '@/lib/blog/types'
+import type { DocBlock } from '../../_lib/types'
 
 export const en = {
   title: 'Static-First, on Purpose: The Server-Bill Economics of an Agentic Engineering Infrastructure',
@@ -155,5 +155,5 @@ export const en = {
       href: 'https://www.fractera.ai/',
       label: 'Deploy with AI',
     },
-  ] satisfies BlogBlock[],
+  ] satisfies DocBlock[],
 }

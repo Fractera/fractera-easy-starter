@@ -1,6 +1,6 @@
 import { createContentPost } from '@/lib/content/create-content-post'
-import { newsPost } from '@/lib/news/post'
-import { getNewsUi } from '@/lib/news/ui'
+import { newsPost } from '../../_lib/post'
+import { getNewsUi } from '../../_data'
 import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 

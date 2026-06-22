@@ -1,7 +1,7 @@
 import { meta } from './meta'
 import { en } from './en'
 import { ru } from './ru'
-import type { DeploymentData } from '@/lib/deployments/post'
+import type { DeploymentData } from '../../_lib/post'
 
 // This page's _data — meta (non-translatable) + en base + ru override. The page
 // is the single source of truth; _components and the /deployments hub _list both
