@@ -24,6 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/deployments/vps',   changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/deployments/mcp',   changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/deployments/local', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/framework',         changeFrequency: 'weekly'  as const, priority: 0.7 },
+    { path: '/framework/next-js', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/skills',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/product-loop', changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/sponsors',     changeFrequency: 'monthly' as const, priority: 0.5 },
