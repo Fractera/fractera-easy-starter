@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useHeroContent } from '@/lib/i18n/context'
+import { useLang } from '@/lib/i18n/use-lang'
 
 // Framework display-name → logo file in /public/framework-icons.
 // Dark-optimized brand marks (designed for a dark background — no white chip
@@ -20,6 +22,59 @@ export const ICON: Record<string, string> = {
   'Phoenix': 'phoenix', 'Spring': 'spring', '.NET': 'dotnet',
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Framework display-name → page slug. SINGLE SOURCE OF TRUTH for the framework
+// catalog routes (/[lang]/framework/<slug>), shared by the site header dropdown and
+// the homepage "Connect your framework" grid. Slugs follow the Block-3 page map
+// (next-js, sveltekit) and are otherwise kebab-case of the name. Only some of these
+// pages exist as real routes today (next-js is the first); the rest are wired ahead
+// so navigation is in place — their pages land in later sub-steps. Keep every name
+// in connectFramework.frameworks (i18n) present here. frameworkPath() builds the
+// localized href.
+export const FRAMEWORK_SLUG: Record<string, string> = {
+  'Fractera Pro': 'fractera-pro',
+  'Next.js': 'next-js',
+  'React': 'react',
+  'Vue': 'vue',
+  'Angular': 'angular',
+  'SvelteKit': 'sveltekit',
+  'Nuxt': 'nuxt',
+  'Astro': 'astro',
+  'Remix': 'remix',
+  'Gatsby': 'gatsby',
+  'SolidStart': 'solidstart',
+  'Qwik': 'qwik',
+  'React Router': 'react-router',
+  'TanStack Start': 'tanstack-start',
+  'Hugo': 'hugo',
+  'Jekyll': 'jekyll',
+  'Eleventy': 'eleventy',
+  'Vite': 'vite',
+  'Ember': 'ember',
+  'Redwood': 'redwood',
+  'Express': 'express',
+  'NestJS': 'nestjs',
+  'Fastify': 'fastify',
+  'Hono': 'hono',
+  'Django': 'django',
+  'Flask': 'flask',
+  'FastAPI': 'fastapi',
+  'Reflex': 'reflex',
+  'Laravel': 'laravel',
+  'Symfony': 'symfony',
+  'Rails': 'rails',
+  'Phoenix': 'phoenix',
+  'Spring': 'spring',
+  '.NET': 'dotnet',
+}
+
+/** Localized href for a framework's catalog page. Falls back to the catalog index
+ *  if the name is unknown (defensive — every header/grid name should be in the map). */
+export function frameworkPath(name: string, lang: string): string {
+  const slug = FRAMEWORK_SLUG[name]
+  return slug ? `/${lang}/framework/${slug}` : `/${lang}/framework`
+}
+
 // "Connect your framework" — sits directly under the pricing/deploy block.
 // Vision-toned reframe: "deploy a starter of ANY framework (or any public repo)
 // onto your VPS". Honesty constraint: only the Next.js starter actually deploys
@@ -28,6 +83,7 @@ export const ICON: Record<string, string> = {
 // Strings come from i18n (rule 4а) via content.connectFramework.
 export function ConnectFramework() {
   const content = useHeroContent()
+  const lang = useLang()
   const cf = content.connectFramework
   const [expanded, setExpanded] = useState(false)
 
@@ -47,14 +103,17 @@ export function ConnectFramework() {
         <p className="max-w-2xl text-base text-white/60 leading-relaxed">{cf.description}</p>
       </div>
 
-      {/* Card grid: bordered, hover glow (matches hero benefit cards). Each card is
-          a placeholder link to "/#" — guides are upcoming, no per-framework deploy
-          is promised. Responsive: 2 cols → 3 md → 4 lg. */}
+      {/* Card grid: bordered, hover glow (matches hero benefit cards). Each card
+          links to that framework's catalog page (/[lang]/framework/<slug>) via the
+          shared frameworkPath() map. Only some pages exist as real routes today
+          (next-js first); the rest are wired ahead so navigation is in place, with
+          pages landing in later sub-steps. No per-framework deploy is promised — the
+          pages are informational. Responsive: 2 cols → 3 md → 4 lg. */}
       <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 list-none">
         {visible.map((name) => (
           <li key={name}>
-            <a
-              href="/#"
+            <Link
+              href={frameworkPath(name, lang)}
               className="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 transition-all duration-300 hover:border-violet-500/40 hover:bg-violet-500/[0.06] hover:shadow-[0_0_30px_2px_rgba(139,92,246,0.3)]"
             >
               {ICON[name] ? (
@@ -79,7 +138,7 @@ export function ConnectFramework() {
               <span className="text-sm font-semibold text-white/85 group-hover:text-white transition-colors truncate">
                 {name}
               </span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

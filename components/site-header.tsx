@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { useLang } from '@/lib/i18n/use-lang'
 import { getContent } from '@/lib/i18n/locales'
-import { ICON } from '@/components/sections/connect-framework'
+import { ICON, frameworkPath } from '@/components/sections/connect-framework'
 
 export function SiteHeader() {
   const pathname = usePathname() ?? ''
@@ -112,7 +112,7 @@ export function SiteHeader() {
                     {frameworks.map((name) => (
                       <a
                         key={name}
-                        href="/#"
+                        href={frameworkPath(name, lang)}
                         onClick={() => setFwOpen(false)}
                         className="group flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
                       >
@@ -324,9 +324,9 @@ export function SiteHeader() {
             <Link href={`/${lang}/deployments/mcp`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.mcpDeploy}
             </Link>
-            <a href={`/${lang}#connect-framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            <Link href={`/${lang}/framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.frameworks}
-            </a>
+            </Link>
             <Link href={`/${lang}/deployments/local`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.companyBrain}
             </Link>
