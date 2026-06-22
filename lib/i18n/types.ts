@@ -325,6 +325,7 @@ export type SiteContent = {
     frameworks: string
     companyBrain: string
     docs: string
+    blog: string
     news: string
     signIn: string
     servers: string

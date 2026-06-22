@@ -163,6 +163,12 @@ export function SiteHeader() {
               {t.docs}
             </Link>
             <Link
+              href={`/${lang}/blog`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              {t.blog}
+            </Link>
+            <Link
               href={`/${lang}/news`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
@@ -332,6 +338,9 @@ export function SiteHeader() {
             </Link>
             <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.docs}
+            </Link>
+            <Link href={`/${lang}/blog`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              {t.blog}
             </Link>
             <Link href={`/${lang}/news`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.news}

@@ -7,6 +7,7 @@ export const siteHeader: SiteContent['siteHeader'] = {
   frameworks: 'Frameworks',
   companyBrain: 'Company Brain',
   docs: 'Docs',
+  blog: 'Blog',
   news: 'News',
   signIn: 'Sign in',
   servers: 'Servers',
