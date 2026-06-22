@@ -298,6 +298,47 @@ Partial Prerendering (a static shell with a dynamic hole) is a precise tool for 
 knows which fragment must be live and wants to balance freshness against server cost by hand.
 Fractera does not automate it — that judgment is the developer's.`
 
+const CONTENT_ENGINE = `# The content engine — self-contained pages, auto-discovery, token economy
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/content-engine-architecture
+Raw engineering standard (download): https://www.fractera.ai/docs/content-engine-en.md
+
+Every content surface on the site — news, blog, documentation, the deployment pages — is built
+from one shape. A content surface always does three jobs: hold data, render itself as a page, and
+appear in a list. The naive way couples those to a central spine — one global registry, one dynamic
+[slug] route, one shared "god" types file — and the spine becomes the bottleneck every new item
+touches and every agent must load. The engine removes the spine. The rule is one sentence:
+everything a page needs lives inside its own folder; everything shared lives once in the engine;
+nothing in between.
+
+## Every page is a folder (co-location)
+A tab (a collection like the blog) is a folder with a thin router on top and post folders below.
+Three service folders carry a strict split — _components is the view, _lib is the functions and
+type contracts, _data is the data (including the localized UI strings) — and one generated file is
+the auto-built list. Each post repeats the same shape: a thin page.tsx, a _components composition,
+and a _data folder (meta.ts + en.ts + an optional <lang>.ts override + index.ts). Add a page by
+adding a folder; delete it by deleting the folder, with zero orphans left behind. The shared engine
+— the typed-block catalog, the per-key language resolver, the page factories and the one page
+template — lives once, outside the tabs, reused by every one of them, never copied in.
+
+## Why it saves tokens (the point)
+The cost of an AI coding agent is dominated by how much it must read into context to act safely.
+Co-location bounds that: editing one page loads one folder; there is no registry to read or
+maintain (discovery happens at build time from the filesystem); the neutral block catalog removes
+duplicate per-tab type definitions; the strict _lib/_data/_components split makes the right file
+findable without exploration; and deleting is one folder with no orphan hunt. A registry design
+pulls 3–5 files into context per edit plus greps to find them; here a page edit touches 1–2 files
+in a known folder and a new page touches zero existing files. The savings compound with every page
+and every agent.
+
+## A design system you steer by structure
+Content is authored as typed blocks (paragraph, heading, quote, list, figure, callout, founder
+note, download card, container layouts). Each block kind has exactly one renderer, living once in
+the shared catalog — so changing how a block looks in that one place restyles every page that uses
+it at once, even across hundreds of pages. Presentation is managed by structure, in one place, and
+propagates everywhere. That dynamically-managed design system is the second payoff of the same
+architecture that saves the tokens. The document is bilingual (EN/RU).`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -354,7 +395,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${STATIC_FIRST}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

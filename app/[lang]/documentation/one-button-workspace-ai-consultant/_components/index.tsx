@@ -4,13 +4,14 @@ import { getDocUi } from '../../_data'
 import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 
-// Entry for this documentation page (format: 'document'). Doc content is EN-only,
-// so resolve ignores lang; the URL still carries the lang segment for routing and
-// the chrome (breadcrumb/back/title/min-read) is localized via getDocUi.
+// Entry for this documentation page (format: 'document'). Bilingual by construction:
+// resolve(lang) merges en + optional <lang> override (EN fallback per key); chrome
+// (breadcrumb/back/title/min-read) is localized via getDocUi. This doc ships only en,
+// so it renders EN everywhere via fallback.
 const post = createContentPost({
   format: 'document',
-  subPath: `/documentation/${data.slug}`,
-  resolve: () => docPost(data),
+  subPath: `/documentation/${data.meta.slug}`,
+  resolve: lang => docPost(data, lang),
   chrome: (lang, p) => {
     const ui = getDocUi(lang)
     return {

@@ -5,9 +5,8 @@ import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 
 // Entry for this documentation page (format: 'document'). Bilingual by construction:
-// resolve(lang) merges en + optional <lang> override (EN fallback per key); chrome
-// (breadcrumb/back/title/min-read) is localized via getDocUi. This doc ships only en,
-// so it renders EN everywhere via fallback.
+// resolve(lang) merges en + the ru override (EN fallback per key); chrome
+// (breadcrumb/back/title/min-read) is localized via getDocUi.
 const post = createContentPost({
   format: 'document',
   subPath: `/documentation/${data.meta.slug}`,

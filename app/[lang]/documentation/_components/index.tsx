@@ -32,7 +32,7 @@ function formatDate(iso: string, lang: string): string {
 export default async function DocumentationIndex({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const ui = getDocUi(lang)
-  const docs = docList(POSTS)
+  const docs = docList(POSTS, lang)
 
   const breadcrumb = {
     '@context': 'https://schema.org',

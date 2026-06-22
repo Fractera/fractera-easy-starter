@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },
+    { path: '/documentation/static-first-rendering-economics', changeFrequency: 'monthly' as const, priority: 0.6 },
+    { path: '/documentation/content-engine-architecture', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
     { path: '/deployments',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/deployments/vps',   changeFrequency: 'monthly' as const, priority: 0.7 },
