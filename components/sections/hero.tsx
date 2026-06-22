@@ -22,66 +22,85 @@ export function Hero() {
   // centered. html{overflow-x:clip} (globals) absorbs the scrollbar overshoot.
   return (
     <div
-      className="relative min-h-screen overflow-hidden flex flex-col"
+      className="relative overflow-hidden flex flex-col"
       style={{ width: 'min(100vw, 1920px)', marginInline: 'calc(50% - min(50vw, 960px))' }}
     >
-      <video
-        className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
-        src="/video/ai-loop.mp4"
-        autoPlay loop muted playsInline
-      />
-      <div className="relative z-10 flex flex-col flex-1 min-h-screen">
-        <div className="flex flex-col items-center text-center gap-6 pt-16 px-4 flex-1 justify-center max-w-[1250px] mx-auto">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-            <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
-          </div>
-          <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
-          <h1
-            className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl"
-            style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
-          >
-            {content.heroTitle}
-          </h1>
-          <p className="text-lg text-white/80 leading-relaxed max-w-xl">{content.description}</p>
+      {/* ── Section 1 — hero intro. NO background video now: the agentic-engineering
+          video sits inline, full-width, between the H1 and the description, and plays
+          on its own (autoplay, muted, looped — no play button). ── */}
+      <div className="flex flex-col items-center text-center gap-6 pt-16 px-4">
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+          <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
         </div>
+        <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
+        <h1
+          className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl max-w-[1250px]"
+          style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
+        >
+          {content.heroTitle}
+        </h1>
 
-        <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
-          {content.heroBenefitsHeader.h2}
-        </h2>
-        {/* Six benefit cards reuse the UltimateScale design verbatim: bordered rounded
-            card, violet glow on hover, and a link pinned to the BOTTOM via flex
-            justify-between. The Auth card links to the new documentation guide; the
-            rest carry placeholder links for now. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
-          {content.heroBenefits.map(({ title, text }, i) => {
-            const Icon = HERO_BENEFIT_ICONS[i]
-            const href = i === AUTH_BENEFIT_INDEX
-              ? `/${lang}/documentation/authentication-roles-and-providers`
-              : '#'
-            return (
-              <div
-                key={i}
-                className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-5 h-5 shrink-0 text-violet-400" />
-                    <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
-                  </div>
-                  <div className="my-3 h-px w-12 bg-violet-500" />
-                  <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
-                </div>
-                <a
-                  href={href}
-                  className="mt-4 self-start inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
+        {/* Full-width agentic-engineering video — background-style playback (autoplay,
+            muted, looped, inline; no controls / no play button). */}
+        <video
+          className="w-full h-auto pointer-events-none my-2"
+          src="/fractera-agentic-engineering.mp4"
+          autoPlay loop muted playsInline
+        />
+
+        {/* Description — widened to match the following section containers (was the
+            narrow max-w-xl that wrapped into a thin column). */}
+        <p className="text-lg text-white/80 leading-relaxed max-w-4xl">{content.description}</p>
+      </div>
+
+      {/* ── Section 2 — "Self-Hosting Platform". The ai-loop video moved here from the
+          hero intro and now runs as this section's background (autoplay, looped,
+          muted). ── */}
+      <div className="relative overflow-hidden mt-8">
+        <video
+          className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
+          src="/video/ai-loop.mp4"
+          autoPlay loop muted playsInline
+        />
+        <div className="relative z-10">
+          <h2 className="text-center font-serif font-bold text-white text-2xl md:text-3xl lg:text-4xl pt-8 px-4 max-w-4xl mx-auto leading-tight">
+            {content.heroBenefitsHeader.h2}
+          </h2>
+          {/* Six benefit cards reuse the UltimateScale design verbatim: bordered rounded
+              card, violet glow on hover, and a link pinned to the BOTTOM via flex
+              justify-between. The Auth card links to the new documentation guide; the
+              rest carry placeholder links for now. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-12 pt-6 md:px-8 lg:px-12 max-w-6xl mx-auto w-full">
+            {content.heroBenefits.map(({ title, text }, i) => {
+              const Icon = HERO_BENEFIT_ICONS[i]
+              const href = i === AUTH_BENEFIT_INDEX
+                ? `/${lang}/documentation/authentication-roles-and-providers`
+                : '#'
+              return (
+                <div
+                  key={i}
+                  className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
                 >
-                  {content.heroBenefitsHeader.cardLink}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
-              </div>
-            )
-          })}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-5 h-5 shrink-0 text-violet-400" />
+                      <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
+                    </div>
+                    <div className="my-3 h-px w-12 bg-violet-500" />
+                    <p className="text-[14px] text-white/70 leading-relaxed">{text}</p>
+                  </div>
+                  <a
+                    href={href}
+                    className="mt-4 self-start inline-flex items-center gap-1 text-sm font-medium text-violet-300 hover:text-violet-200 transition-colors"
+                  >
+                    {content.heroBenefitsHeader.cardLink}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>
