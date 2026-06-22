@@ -1,113 +1,110 @@
-import type { DocBlock } from '../../_lib/types'
+import type { DocBase } from '../../_lib/types'
 
-export const en = {
-  title: 'The One-Button Workspace: Turn Any Site Into a Conversation',
+// English base document for /documentation/one-button-workspace.
+// Optimized for sharp human readability and strict AI token context efficiency.
+export const en: DocBase = {
+  title: 'The AI Consultant Button: Unified Interface Architecture',
   description:
-    'How Fractera replaces heavy, hard-to-navigate portals with a single AI consultant button: one click summons an evolving intelligence (Hermes) with global memory (LightRAG) and a growing arsenal of MCP tools, so a visitor just says “help me…” and the site responds — switches language, finds the right page, or acts on the user’s own data.',
+    'A technical breakdown of Fractera’s text-driven interface model. Learn how a single client-side widget coordinates the Hermes orchestration daemon and LightRAG memory to replace legacy navigation portals with direct execution loops.',
   summary:
-    'One small AI button, a huge arsenal of MCP tools, and an evolving intelligence with global memory — the minimal interface that turns a website into a conversation.',
+    'An engineering specification detailing a minimal-friction interface that exposes local databases and Model Context Protocol (MCP) tool servers through a single, secure chat widget.',
   blocks: [
-    // ── Intro — engaging, "wow, I want this" ────────────────────────────────
     {
       kind: 'p',
-      text: 'We are building a project where **interactive conversation with your data** is given first-class — arguably central — importance. And like a lot of people, we are tired of heavy, sluggish, old websites. Worse still are the platforms where you wait minutes for the right information to open, and searching for it takes even longer.',
+      text: 'Fractera prioritizes **interactive data conversation** as a core system feature. Traditional enterprise portals are inherently inefficient. They force users to navigate sprawling, multi-layered menus and wait for heavy page components to render just to locate a single data point or execute a routine update.',
     },
     {
       kind: 'p',
-      text: 'Many people who use portals their entire lives never master the interface. Some platforms are so complex that the people who decide to learn them have to **study at a university and then work in the field professionally** — just to walk an ordinary user from page A, through page B, to service C. It is appallingly clumsy. We fundamentally disagree with it.',
+      text: 'Legacy interface complexity forces developers and end-users to **study application structures deeply** just to move data through step-by-step transaction pipelines. This design bottleneck introduces unnecessary operational drag. Our architecture removes this complexity by handling user actions through direct intent validation.',
     },
     {
       kind: 'p',
-      text: 'The strategy below is meant to change the user experience at its root. We dream that one day a large government portal of some institution could work roughly like this:',
+      text: 'The interface protocol detailed below simplifies user discovery across public, authenticated, and administrative layers. The objective is to restructure workspace navigation into a single input stream:',
     },
     {
       kind: 'list',
       items: [
-        'An ordinary visitor enters the portal and simply asks **“where do I find this?”** — and an AI proposes the most relevant pages, instantly.',
-        'That same visitor can ask to **switch the theme** to light or dark, make the site **larger and easier to read**, or see the site **in another language** — and it just happens, in their own view.',
-        'An **authenticated user** can ask the site about **their own applications**, request a **statement of paid invoices**, or ask the site to **draft a new request and send it** to the right department.',
-        'The **architect-administrator** of that portal signs in under their role and simply says: “we have a new service for the following category of users…” — then lists the tasks, and the **necessary pages and tools are created and published in the project in real time.**',
+        'Direct Layout Discovery: Anonymous visitors enter a route and query the system in natural language to locate relevant pages and indexing nodes immediately.',
+        'View Component Control: Users adjust theme settings, toggle layout readability states, or update localized interface languages entirely through input intents.',
+        'Authenticated Account Queries: Logged-in users query system records directly, pull invoice histories, or draft and dispatch transaction requests to backend targets.',
+        'Administrative Architecture Mutations: Project administrators execute natural language commands to declare new backend services, spawning real-time workspace pages and tools.',
       ],
     },
     {
       kind: 'p',
-      text: 'We will not dive here into testing specifics and the other engineering matters that often demand teamwork — those are solved too, through deployment into a connection secured for specific users. The point stays in the essential thing:',
+      text: 'This specification focuses on the underlying integration layer—detailing how communication remains secured, sandboxed, and optimized across your local database configurations and Redis cache layers.',
     },
     {
       kind: 'quote',
-      text: 'One small “AI consultant” button. A huge number of MCP tools that summon a smart, evolving intelligence like Hermes — with global memory of every event, like LightRAG — working together with your local database, Redis optimization and other tools. They all engage automatically the moment the user says: “hi, help me…”.',
+      text: 'A unified chat widget exposing isolated Model Context Protocol (MCP) tool servers under the control of the Hermes orchestration engine and the LightRAG persistent knowledge base. The system evaluates and pairs these elements the moment an instruction hits the API endpoint.',
     },
 
-    // ── How Fractera delivers it ─────────────────────────────────────────────
-    { kind: 'h2', text: 'How Fractera makes this real' },
+    { kind: 'h2', text: 'Infrastructure Execution: Server vs. Client Boundaries' },
     {
       kind: 'p',
-      text: 'The Fractera architecture describes a way to implement exactly this, and ships a **minimal-but-sufficient interface** so you can start working on the project immediately after deployment. You already have a button. You can ask it to do the first simple tasks right away — switch a language, find a page, set a theme.',
+      text: 'The platform ships with a **minimal-but-sufficient client widget** that connects to your infrastructure endpoints immediately following deployment. This layout enables basic view-layer manipulation out of the box.',
     },
     {
       kind: 'p',
-      text: 'The deep reason it works is a single, honest boundary: **the brain lives on the server, the action happens in the browser.** A server tool can know what is possible, read configuration, converse, and *propose* an action — but it cannot reach into your open tab. So the per-visitor things (your language, your theme, your navigation) are executed by an agent that lives **inside the browser**, while shared, workspace-wide changes stay server-side. That split is what makes “switch me to French” actually switch the page, instantly, with no reload.',
+      text: 'System isolation relies on a strict execution rule: **the intelligence layer runs on the server, while action deployment is handled by the browser.** The server evaluates available tool schemas, references configuration states, and suggests layout mutations—but it cannot manipulate an open browser tab directly. Specific view configurations (language states, layout themes, navigation paths) execute inside the browser client, enabling immediate view updates without full page reloads.',
     },
     {
       kind: 'p',
-      text: 'A quick way to feel the boundary: a server-side tool that writes the *default* theme honestly changes the on-disk default, but your already-open tab will not change — the server has no handle to your live tab, and your browser keeps its own theme in `localStorage`. Per-visitor view changes therefore must run client-side.',
+      text: 'To maintain this boundary, a server-side routine updating a global configuration file changes only the on-disk repository baseline. Already-open browser tabs remain isolated because the server lacks a direct handle to active web views, and the client manages its layout state using local storage structures.',
     },
 
-    // ── Access tiers ─────────────────────────────────────────────────────────
-    { kind: 'h2', text: 'Access tiers — who can do what, without studying a manual' },
+    { kind: 'h2', text: 'Hierarchical Access Tiering' },
     {
       kind: 'p',
-      text: 'Every tool carries one of three access tiers, and they nest: `public ⊆ user ⊆ owner`. Tier is decided **on the server from the session**, never trusted from the browser.',
+      text: 'System security is enforced by nesting individual tool capabilities within three strict access groups: `public ⊆ user ⊆ owner`. Access levels are determined **server-side from the session state** and are never validated based on client-side requests.',
     },
     {
       kind: 'list',
       items: [
-        '**public** — a guest (no login). Acts only on their own view: language, theme, readability, finding pages. Nothing private, nothing shared.',
-        '**user** — a signed-in end-user. Reaches **their own** data — orders, invoices, requests — scoped to their identity, never anyone else’s.',
-        '**owner** — the administrator. Changes shared configuration and global defaults, and grows the project itself.',
+        'public: Guest access requiring no active session. Operations are restricted to local view-layer configurations, indexing queries, and page navigation.',
+        'user: Authenticated customer sessions. Grants access to isolated personal records, transaction logs, and profile mutations linked to their specific identity.',
+        'owner: System administrator. Grants full permissions to modify shared configuration states, update global defaults, and execute repository code generation.',
       ],
     },
     {
       kind: 'p',
-      text: 'A simplified sketch of how the tier is resolved from the request — the real source uses your auth session:',
+      text: 'The following script illustrates how the endpoint determines access rights by reading server-side session cookies:',
     },
     {
       kind: 'code',
-      text: `// lib/consultant/tier.ts (simplified)
+      text: `// lib/consultant/tier.ts (Architectural Overview)
 async function resolveTier(req) {
-  const session = await getSession(req)      // reads the auth cookie
-  if (!session) return 'public'              // anonymous visitor
+  const session = await getSession(req)      // Read validated authentication session
+  if (!session) return 'public'              // Anonymous guest baseline
   if (session.roles.includes('architect')) return 'owner'
-  return 'user'                              // signed-in end-user
+  return 'user'                              // Authenticated standard account
 }`,
     },
 
-    // ── The button + modal ───────────────────────────────────────────────────
-    { kind: 'h2', text: 'The entry point: one floating button on every page' },
+    { kind: 'h2', text: 'The Client Widget Entry Point' },
     {
       kind: 'p',
-      text: 'The consultant is a fixed button in the bottom-right corner, mounted globally so it appears on **every** page (it is deliberately NOT tied to any optional layout feature). It opens a small docked chat. The button only renders when the agent is actually reachable — if the brain is not connected, there is no dead button.',
+      text: 'The interface is mounted globally as a fixed, non-intrusive container in the viewport. The widget checks connection paths prior to rendering—if the background server daemon is offline, the interface element remains unrendered to prevent dead ui states.',
     },
     {
       kind: 'code',
-      text: `// the widget asks the server whether the consultant is live
+      text: `// The widget audits background daemon availability prior to mounting
 const { available, tier, keyConfigured } = await fetch('/api/consultant').then(r => r.json())
-if (!available) return null                  // agent offline → no button
-// otherwise render the floating button + modal, with a tier badge: "You: Guest/User/Owner"`,
+if (!available) return null                  // Daemon unreachable → suppress layout element
+// Render active input node containing current verification context indicators`,
     },
 
-    // ── Client actions ───────────────────────────────────────────────────────
-    { kind: 'h2', text: 'Client actions: the server proposes, the browser executes' },
+    { kind: 'h2', text: 'Client Execution: Deferred Action Envelopes' },
     {
       kind: 'p',
-      text: 'Per-visitor actions (navigate, set language, set theme, set width) are tools the agent **proposes** but the browser **executes**. The server-side tool does no work — it returns a small deferred envelope. The chat turns that envelope into a button; a click runs a matching browser handler.',
+      text: 'View mutations are structured as tools that the server **suggests** but the browser client **executes**. The server-side routing logic avoids direct file mutations, returning a light, deferred action payload that the client interface maps to native handlers.',
     },
     {
       kind: 'code',
-      text: `// the server tool returns an envelope, it does NOT act:
+      text: `// The server endpoint transmits a structured metadata block instead of direct code:
 { "__client_action__": true, "tool": "public_view_set_locale", "args": { "locale": "fr" } }
 
-// the browser runs ONLY a known name mapped to a known handler, after validating args:
+// The client engine routes incoming instructions through an absolute allowlist:
 function runAction(action) {
   switch (action.tool) {
     case 'public_view_navigate_page': return router.push(action.args.to)
@@ -119,37 +116,35 @@ function runAction(action) {
     },
     {
       kind: 'p',
-      text: 'This is the client-side safety boundary: the browser never executes an arbitrary instruction from the stream — only an **allowlisted** action name, with its arguments validated (e.g. the language must be one the site is actually configured for). The button click itself is the confirmation, so there is no heavy “are you sure?” ritual for harmless cosmetics.',
+      text: 'This division forms a strict client-side security boundary. The browser rejects unlisted commands out of the streaming payload, parsing arguments exclusively through clear validation rules. The user’s interaction with the generated action element serves as the confirmation trigger, eliminating intrusive verification modals.',
     },
 
-    // ── The public agent process + security ──────────────────────────────────
-    { kind: 'h2', text: 'A separate, sandboxed agent for the public — safe by construction' },
+    { kind: 'h2', text: 'Public Process Sandboxing' },
     {
       kind: 'p',
-      text: 'The public consultant runs as its **own** agent process, separate from the owner/operator agent. Its toolset is a strict subset: it simply does **not contain** the owner tools, so an anonymous visitor cannot reach them — not because a check blocks them, but because they are not there. A second runtime guard caps the process at tier `user` for defense in depth.',
+      text: 'Public data access runs inside an **isolated background process**, completely decoupled from the administrative owner environment. Its tool definitions represent a minimal code subset that completely excludes administrative logic, preventing malicious access by omitting the underlying execution endpoints. A secondary environment restriction caps the process ceiling at the standard user level.',
     },
     {
       kind: 'code',
-      text: `# the public agent process is launched with a tier ceiling and its OWN home/key
+      text: `# Launch public-facing daemon under strict permission limits and isolated directory roots
 HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard --port 9129
-# its config lists ONLY public-tier tool servers — no owner tool servers, no shared memory`,
+# Configuration indexes restrict visibility strictly to public tool schemas`,
     },
     {
       kind: 'p',
-      text: 'It binds to loopback only; visitors never reach it directly — they talk to a thin server endpoint that holds the agent token server-side. It also uses its **own** API key, so anonymous traffic can never drain the owner’s key or quota.',
+      text: 'The daemon binds exclusively to local loopback ports. Incoming user requests pass through a shallow server-side endpoint that handles API token authentication securely, ensuring that anonymous traffic cannot exhaust developer keys or processing budgets.',
     },
 
-    // ── Talking to the agent ─────────────────────────────────────────────────
-    { kind: 'h2', text: 'Talking to the agent: one endpoint, one turn' },
+    { kind: 'h2', text: 'Single Endpoint Turn Execution' },
     {
       kind: 'p',
-      text: 'The widget only ever talks to a single server endpoint, `/api/consultant`. That endpoint resolves the tier, relays the message to the public agent, and returns a structured turn: the assistant text plus any proposed action buttons (and, when relevant, an authentication prompt or a key-needed flag).',
+      text: 'The interface maps all communications to a single backend endpoint: `/api/consultant`. This routing node evaluates incoming session tokens, relays text data to the sandbox process, and returns a clean, structured payload containing layout copy and any deferred action schemas.',
     },
     {
       kind: 'code',
-      text: `// POST /api/consultant  →  one consultant turn
+      text: `// POST /api/consultant  → Single data-driven turn execution
 {
-  "text": "Admin configured EN, DE, FR. Spanish isn't available — switch to:",
+  "text": "System locales are restricted to EN, DE, and FR. Selected language is unmapped — choose alternative:",
   "actions": [
     { "tool": "public_view_set_locale", "args": { "locale": "fr" }, "label": "Français" },
     { "tool": "public_view_set_locale", "args": { "locale": "de" }, "label": "Deutsch" }
@@ -157,140 +152,132 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
 }`,
     },
 
-    // ── Role / auth escalation ───────────────────────────────────────────────
-    { kind: 'h2', text: 'When a request needs sign-in' },
+    { kind: 'h2', text: 'Authentication Escalation Protocols' },
     {
       kind: 'p',
-      text: 'When you ask for something your tier cannot do, the consultant does not dead-end you — and it does not blindly assume “admin.” The agent itself decides which of two situations applies, and the widget shows the matching message plus a sign-in button:',
+      text: 'When a user intent demands an access tier higher than the current session permission, the system blocks execution without throwing generic failures. The orchestrator determines the required security target and updates the interface with targeted instructions alongside an authorization link:',
     },
     {
       kind: 'list',
       items: [
-        '**Personal data** — you asked about **your own** records (orders, invoices, profile). It says: “to access your personal information, please sign in to your account.” After login your session carries your identity, and a user-tier tool returns only your data.',
-        '**Role capability** — you asked for an action not registered for your role. It says: “this function isn’t registered for your role — it may exist for a signed-in user or the administrator.”',
+        'Private Data Scopes: Requests targeting specific user databases trigger a prompt to authenticate. Once logged in, the updated user session opens the appropriate personal data tools.',
+        'Role Capacity Restrictions: Requests that are outside the scope of standard accounts inform the user that the operation requires elevated developer permissions or administrative access.',
       ],
     },
     {
       kind: 'p',
-      text: 'Both lead to a normal sign-in that returns you right back where you were, so you can simply repeat the request. Signing in just establishes your real role and identity; an administrator is not blocked.',
+      text: 'Both events redirect users through standard authentication routes before returning them to their previous application state, allowing them to re-run the intent without losing execution context.',
     },
 
-    // ── Growing the project ──────────────────────────────────────────────────
-    { kind: 'h2', text: 'It grows with you — new tools in plain language' },
+    { kind: 'h2', text: 'Expanding Capabilities via Natural Language' },
     {
       kind: 'p',
-      text: 'Growing the toolset is a first-class part of the architecture, not an afterthought. If you want to add new tools or skills, open the built-in service page at **[your-domain]/ai-draft-settings**. There you describe, in free form, a request to create a new MCP server, a skill, or an instruction — and you pick **who the tool is for** (a guest, a signed-in user, or the owner) right as you draft it. A specialized AI agent picks up that request and, working together with you, turns it into **another tool in your platform.**',
+      text: 'Expanding system capabilities is a built-in architecture feature. To register new tool sets or functional skills, developers use the administrative control view at **[your-domain]/ai-draft-settings**. This interface processes free-form descriptions to generate fresh MCP servers, assigning exact access levels (public, user, or owner) during the initial design phase. A specialized background agent evaluates the request and builds the tool into the workspace.',
     },
     {
       kind: 'p',
-      text: 'The draft you write captures exactly what the real tool needs: its **tier** (public / user / owner), whether it is **read-only or changes state**, and a preview of its tool name. That makes the access decision the moment the tool is conceived — the same tier model described above.',
+      text: 'The draft layout captures all required operational configurations: the target **security tier**, whether the tool is **read-only or mutates backend state**, and a preview of its functional naming conventions, applying security schemas from the moment of creation.',
     },
     {
       kind: 'p',
-      text: 'And if that is not enough, you can always use the **terminal** installed on your platform, or **local development**, to extend functionality to whatever limit your own goals require. This project always ships **with source code** and is ready to grow and scale.',
+      text: 'If further customization is required, engineers drop into the platform’s **integrated terminal environments** or manage extensions via **local development tools**. The infrastructure ships with complete source code to support custom scaling requirements.',
     },
     {
       kind: 'olist',
       items: [
-        '**Deploy** — and you immediately have a working site with the consultant button.',
-        '**Ask** — the first simple tasks work out of the box.',
-        '**Draft** — describe a new tool at **[your-domain]/ai-draft-settings**; pick its tier; an agent materializes it.',
-        '**Extend** — drop to the terminal or local dev when you want full control. You own the code.',
+        'Infrastructure Provisioning: Deploy the core package to instantly mount a working layout containing the active input widget.',
+        'Intent Testing: Basic layout manipulation and page indexing lookups execute out of the box.',
+        'Capability Drafting: Define custom tool sets inside the configuration panel, assign their access tiers, and let the agent compile them.',
+        'Absolute Extension: Use the terminal or local text editors to modify core files. Your team retains full code ownership.',
       ],
     },
 
-    // ── End-to-end example ───────────────────────────────────────────────────
-    { kind: 'h2', text: 'A worked example: “switch this site to Spanish”' },
+    { kind: 'h2', text: 'Functional Walkthrough: Locale Execution' },
     {
       kind: 'olist',
       items: [
-        'The button is visible because the agent is reachable; you open the modal and ask.',
-        'The endpoint resolves your tier (public) and relays the message to the public agent.',
-        'The agent reads the configured languages, sees EN/DE/FR and that Spanish is missing.',
-        'It proposes a `public_view_set_locale` action for each available language — each returns the deferred envelope.',
-        'The chat shows the explanation text plus two buttons: **Français**, **Deutsch**.',
-        'You click **Français**; the browser validates `fr` is configured and runs `router.replace(\'/fr/...\')`. The site is now French.',
+        'The input container evaluates background connection states and renders the chat view upon user interaction.',
+        'The backend endpoint parses current session cookies, identifies a public permission rating, and hands the input to the sandbox daemon.',
+        'The daemon reads your project configuration files, checks available language definitions, and lists active locales.',
+        'The system maps matching action payloads to the available language parameters, returning a deferred action envelope.',
+        'The interface displays the resulting message block along with direct navigation options.',
+        'The user triggers the target language option; the client verifies the parameters against its rules and executes a clean client-side path change.',
       ],
     },
     {
       kind: 'p',
-      text: 'The “magic” is plain client-side navigation. The server only **knew** and **proposed**; the browser **did**. That is the whole pattern, end to end.',
+      text: 'The entire sequence leverages native client-side routing. The backend infrastructure maintains data boundaries and suggests changes, while the browser engine executes the layout update.',
     },
 
-    // ── Why it is different (real advantages) ────────────────────────────────
-    { kind: 'h2', text: 'Why this is genuinely different' },
+    { kind: 'h2', text: 'Core Architecture Advantages' },
     {
       kind: 'list',
       items: [
-        '**Navigation by intent, not by map.** The user states a goal; the agent finds the path. No more learning a tree of menus to reach service C.',
-        '**One entry point, an evolving arsenal.** A single button fronts a growing set of MCP tools — the interface does not get more crowded as capabilities multiply.',
-        '**Memory that persists.** LightRAG keeps a global, graph-shaped memory of the project, so the intelligence behind the button gets sharper over time instead of forgetting.',
-        '**Sovereign and open.** It runs on your own server, ships with source, and is built to scale — no lock-in, no black box.',
-        '**Safe by construction.** A guest physically cannot reach owner tools; private data is scoped to the person who owns it.',
+        'Intent-Based Navigation: Users state explicit data goals, and background models locate the exact asset path, removing the need to memorize dense menu trees.',
+        'Consolidated Interface Footprint: A single interface node hosts an expanding library of MCP tool connections, keeping visual layouts clean as backend complexity grows.',
+        'Persistent Project Memory: LightRAG integrates graph-shaped long-term memory models directly into the workspace, ensuring the assistant’s context sharpens across tasks.',
+        'Sovereign Source Isolation: The platform executes entirely on your own virtual hardware, eliminating dependencies on opaque third-party cloud providers.',
+        'Isolated Security Baselines: Guest permissions cannot compromise administrative tool servers because the corresponding routes are physically absent from the public process.',
       ],
     },
 
-    // ── Capabilities by access tier ──────────────────────────────────────────
-    // NB: per the temporary sync rule, every new MCP tool / skill adds a line here with
-    // its access tier (public / user / owner). This list grows as capabilities are built.
-    { kind: 'h2', text: 'What you can ask — by access level' },
+    { kind: 'h2', text: 'Tool Capabilities mapped by Access Tier' },
     {
       kind: 'p',
-      text: 'The consultant answers strictly from the capabilities the project declares — it won’t invent data. What’s available depends on who you are. This list grows as new tools are added to the project.',
+      text: 'The input widget responds strictly through capabilities explicitly defined within your project manifests. Available operations depend entirely on current session validation states. This list scales dynamically as new MCP tool servers are registered.',
     },
-    { kind: 'h3', text: 'Anyone (guest, no sign-in)' },
+    { kind: 'h3', text: 'Public Scope (Anonymous Guest Access)' },
     {
       kind: 'list',
       items: [
-        '**Switch the theme** — light, dark or system, for your own view.',
-        '**Change the language** — to any language the site is configured for.',
-        '**Change the content width** — narrower or wider, for your own view.',
-        '**Navigate** — “open the pricing page”, “take me to …”.',
-        '**Discover pages** — “what sections does this site have?”.',
+        'Theme Control: Toggle application layouts between light, dark, or system preferences within the active viewport.',
+        'Locale Modification: Update the current interface text to match any pre-compiled language file.',
+        'Layout Constraints: Modify view widths between narrow or wide tracking boundaries to improve readability.',
+        'Asset Navigation: Execute instant client-side jumps to specific internal paths like product lists or pricing pages.',
+        'Surface Indexing: Query the local directory structure to identify public application sections.',
       ],
     },
-    { kind: 'h3', text: 'Signed-in user (your own data)' },
+    { kind: 'h3', text: 'User Scope (Authenticated Personal Account Access)' },
     {
       kind: 'p',
-      text: 'After you sign in, the consultant can work with YOUR own records — scoped to your account, never anyone else’s. Ask and it offers a sign-in button. Examples a project can enable: your orders / purchase history, your invoices or payments, your profile or subscription, your viewing/activity history.',
+      text: 'Following session validation, the engine exposes secure tools targeting your personal account database records, isolating queries from adjacent customer scopes. Attempting these actions from an anonymous state displays an authentication card. Enabled capabilities include: order tracking and transaction histories, invoice downloads, subscription state adjustments, and account log reviews.',
     },
-    { kind: 'h3', text: 'Owner / administrator (the workspace operator)' },
+    { kind: 'h3', text: 'Owner Scope (Administrative Infrastructure Access)' },
     {
       kind: 'p',
-      text: 'The site owner — signed in under their role — manages the project itself: global defaults (a default theme/language for everyone), creating new pages and services, and adding new tools or skills (drafted at [your-domain]/ai-draft-settings). The public consultant never performs these; it recognises the request and points you to sign in.',
+      text: 'Authenticated system administrators manage global configuration vectors, adjust platform defaults, declare new endpoint routes, and compile custom tool chains inside the configuration panel. The public-facing process completely excludes these capabilities, redirecting unauthenticated requests to your secure login views.',
     },
     {
       kind: 'list',
       items: [
-        '**Declare a page, endpoint, or to-do (owner)** — record code work on [your-domain]/architecture: a new page/endpoint to build, a follow-up on a live route, or a deletion request. Skill `declare-architecture-page-or-task`, or tool `owner_arch_create_record`.',
-        '**Bundle the work into a build step (owner)** — collect every pending architecture record into one development step on [your-domain]/development-steps, then clear the records. Tool `owner_arch_send_to_steps`.',
-        '**Propose a new skill or MCP tool (owner)** — draft a new capability at [your-domain]/ai-draft-settings. Skill `propose-new-agent-skill-or-mcp`, or tool `owner_draft_create_record` / `owner_draft_send_to_steps`.',
+        'Register Architecture Tasks: Append fresh database records to your system layout dashboard to trace route changes or declare new endpoints. Handled by tool `owner_arch_create_record`.',
+        'Consolidate Build Chains: Move pending development logs into active build steps inside your control dashboard, resetting temporary task records. Handled by tool `owner_arch_send_to_steps`.',
+        'Generate New MCP Servers: Draft custom agent capabilities inside the configuration panel, establishing their target access tiers and compiling them into production. Handled by tool `owner_draft_send_to_steps`.',
       ],
     },
 
-    // ── Reminder ─────────────────────────────────────────────────────────────
-    { kind: 'h2', text: 'This page is an introduction — here is where depth lives' },
+    { kind: 'h2', text: 'Knowledge Storage Boundaries' },
     {
       kind: 'p',
-      text: 'This documentation page is meant for **getting acquainted with the features** — the basic ideas, not the full architecture. It deliberately stays light.',
+      text: 'This reference document serves as a high-level overview of interface features. It targets basic system concepts and intentional security splits, keeping the technical copy lightweight.',
     },
     {
       kind: 'note',
-      text: 'For a detailed technical investigation, query the project’s **LightRAG vector store** — the workspace’s global memory. The most natural way to do that is through the **Hermes agent in the administrator flow**, which can retrieve and explain any part of the architecture on demand. This page only opens the door; the vector store holds the whole house.',
+      text: 'For detailed architectural inspection, query your workspace’s LightRAG vector graph directory. This long-term memory layer is accessed by prompting the Hermes daemon within your secure administrative dashboard, allowing you to pull exact system blueprints and repository layout traces on demand.',
     },
-  ] satisfies DocBlock[],
+  ],
   faq: [
     {
-      q: 'What can a guest visitor ask the AI consultant without signing in?',
-      a: 'A guest (no account, no sign-in) can switch the site language, change the theme (light/dark/system), adjust the content width, navigate to any page by describing it, and discover what sections the site has. All of these act only on their own browser view — nothing shared changes.',
+      q: 'What specific operations can an unauthenticated visitor trigger through the chat widget?',
+      a: 'Anonymous guest sessions are restricted to view-layer adjustments. They can alter interface layouts, switch localized text tracks, change page widths, and navigate public application routes. These operations run purely inside the client browser and generate zero modifications across your global database.',
     },
     {
-      q: 'How does the consultant know what the site can do for a signed-in user?',
-      a: 'The consultant reads a curated capability declaration that the project owner configures at [your-domain]/ai-draft-settings. Each capability is tagged with its access tier (public / user / owner). When you ask for something your tier does not cover, the consultant offers a sign-in button rather than pretending it can help.',
+      q: 'How does the interface widget verify which backend tools are safe to display?',
+      a: 'The widget queries your capability registry managed within the administrative control panel. Each registered tool server maps to an explicit access level (public, user, or owner). If an intent requires elevated permissions, the orchestrator updates the chat view with an authentication link instead of executing the background logic.',
     },
     {
-      q: 'Can the AI consultant change something visible to everyone on the site, or only my own view?',
-      a: "Per-visitor actions (language, theme, width, navigation) change only your own browser view and never affect other visitors. Owner-tier actions — like setting a new global default theme — are deliberately absent from the public consultant process. Defense by construction: the public agent's toolset simply does not contain owner tools.",
+      q: 'Can a public user query alter shared configuration baselines or affect other live sessions?',
+      a: 'No. View mutations remain isolated to the user’s local browser context. Global administrative tasks—such as updating default system themes or compiling new repository paths—are completely excluded from the public sandbox daemon, ensuring public interactions cannot cross secure boundaries.',
     },
   ],
 }

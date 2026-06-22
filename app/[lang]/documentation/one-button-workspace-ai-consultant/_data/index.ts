@@ -1,7 +1,8 @@
 import { meta } from './meta'
 import { en } from './en'
+import { ru } from './ru'
 import type { DocData } from '../../_lib/post'
 
-// This doc's _data — meta (non-translatable) + en (EN-only). Combined into a
-// DocEntry; the post is the single source of truth for the page and the index.
-export const data: DocData = { meta, en }
+// This doc's _data — meta (non-translatable) + en base + ru override. The post is
+// the single source of truth; _components and the /documentation _list both read it.
+export const data: DocData = { meta, en, overrides: { ru } }
