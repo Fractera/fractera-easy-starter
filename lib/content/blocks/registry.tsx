@@ -162,6 +162,53 @@ export const BLOCK_RENDERERS: BlockRenderers = {
       </p>
     </aside>
   ),
+  table: (b, { key: k }) => {
+    const lastCol = b.headers.length - 1
+    return (
+      <figure key={k} className="my-6 overflow-x-auto rounded-2xl border border-white/10">
+        {b.caption && (
+          <figcaption className="border-b border-white/10 bg-white/[0.02] px-5 py-3 text-sm font-semibold text-white/70">
+            {inline(b.caption, `${k}-cap`)}
+          </figcaption>
+        )}
+        <table className="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr className="border-b border-white/15">
+              {b.headers.map((h, ci) => (
+                <th
+                  key={ci}
+                  scope="col"
+                  className={`px-4 py-3 align-bottom font-semibold ${ci === lastCol ? 'bg-violet-500/[0.08] text-violet-200' : 'text-white/80'}`}
+                >
+                  {inline(h, `${k}-h${ci}`)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {b.rows.map((row, ri) => (
+              <tr key={ri} className="border-b border-white/[0.06] last:border-0">
+                {row.map((cell, ci) => (
+                  <td
+                    key={ci}
+                    className={`px-4 py-3 align-top leading-relaxed ${
+                      ci === 0
+                        ? 'font-medium text-white/80'
+                        : ci === lastCol
+                          ? 'bg-violet-500/[0.05] text-violet-100'
+                          : 'text-white/55'
+                    }`}
+                  >
+                    {inline(cell, `${k}-r${ri}c${ci}`)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </figure>
+    )
+  },
   docref: (b, { key: k, ui }) => (
     <aside key={k} className="my-6 flex flex-col gap-4 rounded-2xl border border-violet-500/30 bg-violet-500/[0.05] p-6 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1.5">

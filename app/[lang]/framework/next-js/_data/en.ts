@@ -43,6 +43,34 @@ export const en: FrameworkBase = {
       text:
         'Hermes orchestrates five subscription coding agents (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) over the Model Context Protocol, while LightRAG keeps the project context in a shared graph memory. The agents recall exactly what they need instead of re-reading the whole codebase — read the [system architecture](/en/documentation/multi-agent-workspace-architecture) for the full picture.',
     },
+
+    { kind: 'h2', text: 'Fractera Pro vs Ordinary Next.js' },
+    {
+      kind: 'table',
+      caption: 'The Fractera Pro Next.js starter vs an ordinary Next.js project',
+      headers: ['Capability', 'Ordinary Next.js', 'Fractera Pro'],
+      rows: [
+        ['Token savings — huge projects', '75%', '90%'],
+        ['Token savings — small projects', '75%', '30%'],
+        ['Content updates', 'Rare redeploy', 'On the fly'],
+        ['New pages', 'Deploy', 'No deploy'],
+        ['Simple components', 'Deploy', 'On the fly'],
+        ['Complex components', 'Deploy', 'Rare deploy'],
+        ['Parallel routing', 'Not recommended', 'Native'],
+        ['Design system', 'Partial', 'Full'],
+        ['Ready-made business solutions', 'None', 'Landing, page, store, cart, forms, bookings, blog, news, chat'],
+        ['Design complexity', 'Simple', 'Requires advanced architecture understanding'],
+        ['Highlight — find in codebase', 'No', 'Yes'],
+        ['Highlight — show on page', 'No', 'Yes'],
+        ['Service pages', 'No', 'Yes'],
+        ['Local database', 'Yes', 'Yes'],
+        ['Local object storage', 'Yes', 'Yes'],
+        ['Multilingual', '82 languages', '82 languages'],
+        ['Localization', 'Yes', 'Yes'],
+        ['Recursive 3-level agent evolution', '—', 'Planned — needs the most powerful models (perhaps +2 model generations out)'],
+        ['Agent self-replication', '—', 'On the roadmap (long-term)'],
+      ],
+    },
   ],
   faq: [
     {

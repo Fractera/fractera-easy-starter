@@ -34,6 +34,11 @@ export type LeafBlock =
   // "Did you know" callout — icon + tinted panel for an aside fact (e.g. the page
   // auto-updates in real time as an AI agent edits it). title is the lead-in.
   | { kind: 'callout'; title: string; text: string }
+  // Comparison table — static, no-JS. `headers` is the column row (first column is
+  // the row label); `rows` are the body rows (each a cell array matching headers).
+  // The LAST column is visually emphasized as the "ours/highlight" column. Cells
+  // support inline markup (**bold** + links). Optional `caption` above the table.
+  | { kind: 'table'; headers: string[]; rows: string[][]; caption?: string }
   // Interactive consultation-inquiry CTA (AI Company Brain). Unlike `cta` (a plain
   // link) this renders a client button that gates on auth and opens the inquiry
   // drawer → POST /api/company-brain/inquiry. Used as the primary CTA of a page
