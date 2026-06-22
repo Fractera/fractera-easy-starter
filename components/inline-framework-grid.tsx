@@ -1,8 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { getContent } from '@/lib/i18n/locales'
-import { ICON } from '@/components/sections/connect-framework'
+import { ICON, frameworkPath } from '@/components/sections/connect-framework'
 
 // Inline framework grid for prose bodies (News / blog), dropped in through the
 // shared PostBody renderer via the `{ kind: 'frameworks' }` block. It mirrors the
@@ -22,7 +23,10 @@ export function InlineFrameworkGrid({ lang = 'en' }: { lang?: string }) {
       <ul className="grid list-none grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3">
         {visible.map((name) => (
           <li key={name}>
-            <div className="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 transition-colors hover:border-violet-500/40 hover:bg-violet-500/[0.06]">
+            <Link
+              href={frameworkPath(name, lang)}
+              className="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 transition-colors hover:border-violet-500/40 hover:bg-violet-500/[0.06]"
+            >
               {ICON[name] ? (
                 <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -43,7 +47,7 @@ export function InlineFrameworkGrid({ lang = 'en' }: { lang?: string }) {
               <span className="truncate text-sm font-semibold text-white/85 group-hover:text-white transition-colors">
                 {name}
               </span>
-            </div>
+            </Link>
           </li>
         ))}
       </ul>

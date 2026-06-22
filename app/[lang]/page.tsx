@@ -4,7 +4,6 @@ import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
 import { UltimateScale } from '@/components/sections/ultimate-scale'
-import { AircraftCarrier } from '@/components/sections/aircraft-carrier'
 import { HERO_NARRATIVE_REGISTRY } from '@/lib/content/hero-narrative-registry'
 import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { DoublePresentation } from '@/components/sections/double-presentation'
@@ -94,9 +93,9 @@ export default async function HomePage({
                 </div>
               )}
               <UltimateScale />
-              <div id="aircraft-carrier-wrap" className="w-full scroll-mt-16"><AircraftCarrier /></div>
-              {/* "Connect your framework" — placed directly under the aircraft-carrier
-                  section per the concept reframe. */}
+              {/* The "Next.js Aircraft Carrier" deep-dive block moved off the homepage
+                  to its own framework page (/framework/fractera-pro). */}
+              {/* "Connect your framework" — the framework catalog grid. */}
               <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
               <HeroNarrative />
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>

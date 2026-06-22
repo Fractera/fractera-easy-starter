@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { createContentPage } from '@/lib/content/create-content-page'
 import { BRAND } from '@/lib/brand'
 import { getContent } from '@/lib/i18n/content'
@@ -21,8 +21,14 @@ import { getFrameworkUi } from '../_data'
 //   - the framework-feedback callback card (ask an expert for a wish → Resend, tagged
 //     with the framework name);
 //   - the founder quote (last in the slot).
-// Canonical bottom order: form → feedback card → founder → sponsors → FAQ → back link.
-export function createFrameworkPage(slug: string) {
+// Canonical bottom order: [topSection] → form → feedback card → founder → sponsors →
+// FAQ → back link. `opts.topSection` is an optional rich block rendered at the top of
+// the sections slot (used by Fractera Pro to carry the moved "aircraft carrier"
+// deep-dive); it is wrapped in ContentProvider so hero-content client sections work.
+export function createFrameworkPage(
+  slug: string,
+  opts?: { topSection?: (lang: string) => ReactNode },
+) {
   const fw = frameworkPageBySlug(slug)
   if (!fw) throw new Error(`createFrameworkPage: unknown framework slug "${slug}"`)
   const data = buildFrameworkData(slug)
@@ -51,6 +57,13 @@ export function createFrameworkPage(slug: string) {
       const founderQuote = frameworkFounderQuote(data, lang)
       return (
         <>
+          {opts?.topSection && (
+            <section className="mt-12 border-t border-white/10 pt-10">
+              <ContentProvider value={getContent(lang)}>
+                {opts.topSection(lang)}
+              </ContentProvider>
+            </section>
+          )}
           <section className="mt-12 flex flex-col items-center border-t border-white/10 pt-10">
             <ContentProvider value={getContent(lang)}>
               <Suspense fallback={null}>

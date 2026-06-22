@@ -16,7 +16,7 @@ export const ultimateScale: SiteContent['ultimateScale'] = {
       title: 'Генерация через Hermes, а не написание кода',
       text: 'Вместо вызова агента кодирования (Claude Code, Codex) для каждой функции платформа генерирует через Hermes — он не создаёт код, а выбирает подходящую комбинацию. Как жёсткие стандарты, что комбинируют все варианты кубика Рубика простым механическим ходом из А в Б.',
       linkLabel: 'Параллельная маршрутизация →',
-      href: '#aircraft-carrier',
+      href: '/ru/framework/fractera-pro#aircraft-carrier',
     },
     {
       title: 'Дизайн-система Fractera',

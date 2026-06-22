@@ -16,7 +16,7 @@ export const ultimateScale: SiteContent['ultimateScale'] = {
       title: 'Generation by Hermes, Not Code Writing',
       text: "Instead of calling a coding agent like Claude Code or Codex for every feature, the platform generates through Hermes — which doesn't really write code, it picks the right combination. Like strict standards that combine every possible Rubik's Cube state with one mechanical move from A to B.",
       linkLabel: 'See parallel routing →',
-      href: '#aircraft-carrier',
+      href: '/en/framework/fractera-pro#aircraft-carrier',
     },
     {
       title: 'The Fractera Design System',
