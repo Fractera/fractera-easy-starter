@@ -100,6 +100,12 @@ export function proxy(request: NextRequest): NextResponse {
   if (pathname === '/mcp-info' || pathname.startsWith('/mcp-info/')) {
     return NextResponse.next()
   }
+  if (pathname === '/llms' || pathname.startsWith('/llms/')) {
+    return NextResponse.next()
+  }
+  if (pathname === '/llms-full' || pathname.startsWith('/llms-full/')) {
+    return NextResponse.next()
+  }
 
   // Same deal: the AI Workspace architecture reference is a single English root
   // URL (no lang prefix). Pass through so it is NOT redirected to /<lang>/… .
