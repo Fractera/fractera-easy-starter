@@ -57,18 +57,37 @@ export default async function FrameworkCatalogIndex({
           </header>
 
           {/* Flat vertical list of frameworks — same architecture as the deployments
-              hub / news index. Every listed framework is a live, co-located page. */}
+              hub / news index. Every listed framework is a live, co-located page. Each
+              row carries the framework's brand icon on the left, rendered large (~2×
+              the header/grid mark) to suit the big catalog card. Icon resolution
+              mirrors the header: Fractera Pro → favicon, a known mark → its svg,
+              otherwise a letter chip (Hono, Reflex). */}
           <ul className="flex flex-col divide-y divide-white/10 border-y border-white/10">
             {frameworks.map(f => (
               <li key={f.slug}>
                 <a
                   href={`/${lang}${f.href}`}
-                  className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-white/[0.02]"
+                  className="group flex items-center gap-5 py-5 transition-colors hover:bg-white/[0.02]"
                 >
-                  <h2 className="text-lg font-semibold leading-snug text-white group-hover:text-violet-300">
-                    {f.title}
-                  </h2>
-                  <p className="text-sm leading-relaxed text-white/50">{f.description}</p>
+                  <span aria-hidden className="flex h-14 w-14 shrink-0 items-center justify-center">
+                    {f.name === 'Fractera Pro' ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src="/favicon-32x32.png" alt="" width={56} height={56} loading="lazy" className="h-full w-full rounded-md object-contain" />
+                    ) : f.icon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={`/framework-icons/${f.icon}.svg`} alt="" width={56} height={56} loading="lazy" className="h-full w-full object-contain" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] text-2xl font-bold text-violet-300">
+                        {f.name.charAt(0)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="flex flex-col gap-1.5">
+                    <h2 className="text-lg font-semibold leading-snug text-white group-hover:text-violet-300">
+                      {f.title}
+                    </h2>
+                    <p className="text-sm leading-relaxed text-white/50">{f.description}</p>
+                  </span>
                 </a>
               </li>
             ))}

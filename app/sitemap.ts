@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
+import { FRAMEWORK_PAGES } from '@/lib/frameworks-pages'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://www.fractera.ai'
@@ -25,7 +26,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/deployments/mcp',   changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/deployments/local', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/framework',         changeFrequency: 'weekly'  as const, priority: 0.7 },
-    { path: '/framework/next-js', changeFrequency: 'monthly' as const, priority: 0.7 },
+    // Every framework catalog page (derived from the page registry — one source).
+    ...FRAMEWORK_PAGES.map(f => ({
+      path: `/framework/${f.slug}`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
     { path: '/skills',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/product-loop', changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/sponsors',     changeFrequency: 'monthly' as const, priority: 0.5 },

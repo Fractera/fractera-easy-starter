@@ -4,76 +4,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useHeroContent } from '@/lib/i18n/context'
 import { useLang } from '@/lib/i18n/use-lang'
+import { ICON, FRAMEWORK_SLUG, frameworkPath } from '@/lib/frameworks-pages'
 
-// Framework display-name → logo file in /public/framework-icons.
-// Dark-optimized brand marks (designed for a dark background — no white chip
-// needed). Names not present fall back to a letter chip (Hono, Reflex have no
-// official logo). vue/react-router/solidstart/remix are colored brand marks,
-// also visible on the dark card.
-export const ICON: Record<string, string> = {
-  'Next.js': 'next-js-dark', 'React': 'react', 'Vue': 'vue', 'Angular': 'angular',
-  'SvelteKit': 'svelte', 'Nuxt': 'nuxt', 'Astro': 'astro-dark', 'Remix': 'remix',
-  'Gatsby': 'gatsby', 'SolidStart': 'solidstart', 'Qwik': 'qwik',
-  'React Router': 'react-router', 'TanStack Start': 'tanstack-dark', 'Hugo': 'hugo',
-  'Jekyll': 'jekyll', 'Eleventy': 'eleventy', 'Vite': 'vite', 'Ember': 'ember',
-  'Redwood': 'redwoodsdk', 'Express': 'express-dark', 'NestJS': 'nest-js',
-  'Fastify': 'fastify', 'Django': 'django-dark', 'Flask': 'flask', 'FastAPI': 'fastapi',
-  'Laravel': 'laravel-dark', 'Symfony': 'symfony-dark', 'Rails': 'rails-dark',
-  'Phoenix': 'phoenix', 'Spring': 'spring', '.NET': 'dotnet',
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Framework display-name → page slug. SINGLE SOURCE OF TRUTH for the framework
-// catalog routes (/[lang]/framework/<slug>), shared by the site header dropdown and
-// the homepage "Connect your framework" grid. Slugs follow the Block-3 page map
-// (next-js, sveltekit) and are otherwise kebab-case of the name. Only some of these
-// pages exist as real routes today (next-js is the first); the rest are wired ahead
-// so navigation is in place — their pages land in later sub-steps. Keep every name
-// in connectFramework.frameworks (i18n) present here. frameworkPath() builds the
-// localized href.
-export const FRAMEWORK_SLUG: Record<string, string> = {
-  'Fractera Pro': 'fractera-pro',
-  'Next.js': 'next-js',
-  'React': 'react',
-  'Vue': 'vue',
-  'Angular': 'angular',
-  'SvelteKit': 'sveltekit',
-  'Nuxt': 'nuxt',
-  'Astro': 'astro',
-  'Remix': 'remix',
-  'Gatsby': 'gatsby',
-  'SolidStart': 'solidstart',
-  'Qwik': 'qwik',
-  'React Router': 'react-router',
-  'TanStack Start': 'tanstack-start',
-  'Hugo': 'hugo',
-  'Jekyll': 'jekyll',
-  'Eleventy': 'eleventy',
-  'Vite': 'vite',
-  'Ember': 'ember',
-  'Redwood': 'redwood',
-  'Express': 'express',
-  'NestJS': 'nestjs',
-  'Fastify': 'fastify',
-  'Hono': 'hono',
-  'Django': 'django',
-  'Flask': 'flask',
-  'FastAPI': 'fastapi',
-  'Reflex': 'reflex',
-  'Laravel': 'laravel',
-  'Symfony': 'symfony',
-  'Rails': 'rails',
-  'Phoenix': 'phoenix',
-  'Spring': 'spring',
-  '.NET': 'dotnet',
-}
-
-/** Localized href for a framework's catalog page. Falls back to the catalog index
- *  if the name is unknown (defensive — every header/grid name should be in the map). */
-export function frameworkPath(name: string, lang: string): string {
-  const slug = FRAMEWORK_SLUG[name]
-  return slug ? `/${lang}/framework/${slug}` : `/${lang}/framework`
-}
+// ICON / FRAMEWORK_SLUG / frameworkPath now live in the server-safe single source of
+// truth lib/frameworks-pages.ts (so the /framework router — a server component — can
+// read the same icons). Re-exported here for the existing importers (site-header).
+export { ICON, FRAMEWORK_SLUG, frameworkPath }
 
 // "Connect your framework" — sits directly under the pricing/deploy block.
 // Vision-toned reframe: "deploy a starter of ANY framework (or any public repo)
