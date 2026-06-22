@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
@@ -12,18 +13,22 @@ import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ChevronDown } from 'lucide-react'
 import { SELECTABLE_COMPONENTS, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
-import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, isFrameworkReady, type FrameworkId } from '@/lib/frameworks-catalog'
+import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, type FrameworkId } from '@/lib/frameworks-catalog'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
 
-export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel, domainUrl }: {
+export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel, domainUrl, defaultFramework }: {
   onSubdomainReady?: (subdomain: string) => void
   onInstallingChange?: (installing: boolean) => void
   onWhiteLabel?: (serverTokenId: string) => void
   // Referral domain link surfaced in the progress toast (from pricing-flow's
   // domainProviderSection — the same link as the left deploy-options container).
   domainUrl?: string
+  // Pre-selected framework for the dropdown — passed by a framework catalog page
+  // (e.g. /framework/next-js → 'next') so the form opens on that framework. Falls
+  // back to DEFAULT_FRAMEWORK (Fractera-Pro) on the homepage / VPS page.
+  defaultFramework?: FrameworkId
 } = {}) {
   const lang = useLang()
   const [ip, setIp] = useState('')
@@ -61,9 +66,10 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   // `components`); custom mode sends the checked subset (may be empty = no AI).
   const [customMode, setCustomMode] = useState(false)
   const [selected, setSelected] = useState<ComponentId[]>(ALL_COMPONENT_IDS)
-  // Which project lands in the app slot (:3000). Default = Fractera-Pro (our
-  // reference project). 'own-repo' reveals the repo-URL field. → frameworks-catalog.
-  const [framework, setFramework] = useState<FrameworkId>(DEFAULT_FRAMEWORK)
+  // Which project lands in the app slot (:3000). Default = the page-provided
+  // framework (framework catalog page) or Fractera-Pro otherwise. 'own-repo' reveals
+  // the repo-URL field. → frameworks-catalog.
+  const [framework, setFramework] = useState<FrameworkId>(defaultFramework ?? DEFAULT_FRAMEWORK)
   const [repoUrl, setRepoUrl] = useState('')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: session, status: sessionStatus } = useSession()
@@ -74,12 +80,14 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   }, [serverStatus])
 
   // Pre-select the framework from `?framework=` so a partner/marketing link can
-  // land the user straight on a given starter (default = Fractera-Pro otherwise).
+  // override the page default. When absent, the page-provided default (or
+  // Fractera-Pro) stays. Every framework is selectable now (no "coming soon"
+  // gating) — temporarily all of them deploy the Next.js starter.
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get('framework')
     if (raw) {
       const fw = resolveFrameworkParam(raw)
-      setFramework(isFrameworkReady(fw) ? fw : DEFAULT_FRAMEWORK)
+      setFramework(fw)
     }
   }, [])
 
@@ -293,9 +301,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 onChange={(e) => setFramework(e.target.value as FrameworkId)}
                 className="w-full appearance-none bg-white/5 border border-white/40 rounded-xl pl-5 pr-12 py-3 text-sm text-white outline-none focus:border-white/70 transition-colors"
               >
+                {/* Every framework is selectable — no "coming soon" gating. They all
+                    temporarily deploy the Next.js starter (resolveSlotRepoUrl → FNS). */}
                 {FRAMEWORKS.map((f) => (
-                  <option key={f.id} value={f.id} disabled={!f.ready} className="bg-black">
-                    {f.label}{f.ready ? '' : ` — ${t.frameworkSelect.soon}`}
+                  <option key={f.id} value={f.id} className="bg-black">
+                    {f.label}
                   </option>
                 ))}
               </select>

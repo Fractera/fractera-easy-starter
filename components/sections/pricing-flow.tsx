@@ -10,6 +10,7 @@ import { InstallForm } from '@/components/install-form'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
 import { useHeroContent } from '@/lib/i18n/context'
+import type { FrameworkId } from '@/lib/frameworks-catalog'
 
 type MyServer = {
   id: string
@@ -29,7 +30,12 @@ type Plan = {
   comingSoon?: boolean
 }
 
-export function PricingFlow() {
+// `framework` makes the form page-aware: on a framework catalog page (e.g.
+// /framework/next-js) the page passes its framework so the form (a) weaves the
+// framework name into the H2, (b) lists the framework name as the first feature
+// item, and (c) pre-selects that framework in the install dropdown. When omitted
+// (homepage / VPS page) the form renders exactly as before — the base is unchanged.
+export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name: string } } = {}) {
   const content = useHeroContent()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
@@ -44,6 +50,15 @@ export function PricingFlow() {
     { id: 'monthly', name: 'Fractera Pro + Server', sublabel: content.planLabels.monthlySubLabel, price: '$25',  period: '/mo', badge: content.planLabels.popularBadge },
     { id: 'annual',  name: 'Fractera Pro + Server', sublabel: content.planLabels.annualSubLabel,  price: '$190', period: '/yr', badge: content.planLabels.bestValueBadge },
   ]
+
+  // Free-card feature list. On a framework page the framework name is the first
+  // item (bold); otherwise the base list is rendered unchanged. The last item
+  // ("Open source — self-hosted forever") keeps its ◈ marker regardless.
+  const freeFeatures = framework
+    ? [framework.name, ...content.planLabels.freeFeatures]
+    : content.planLabels.freeFeatures
+  const freeChecks = freeFeatures.slice(0, -1)
+  const freeLast = freeFeatures[freeFeatures.length - 1]
 
   const [, setDomainReady] = useState(false)
   const [liveSubdomain, setLiveSubdomain] = useState('')
@@ -184,7 +199,7 @@ export function PricingFlow() {
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
                 <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-                  {content.pricingHeader.h2}
+                  {framework ? `${framework.name} — ${content.pricingHeader.h2}` : content.pricingHeader.h2}
                 </h2>
                 <p className="text-base text-white/60">{content.pricingHeader.description}</p>
               </div>
@@ -309,12 +324,15 @@ export function PricingFlow() {
                 <p className="text-sm text-emerald-300/70 font-medium">{content.planLabels.freeInstall}</p>
               </div>
               <ul className="flex flex-col gap-1.5 text-sm text-white font-medium flex-1">
-                {content.planLabels.freeFeatures.slice(0, 4).map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-emerald-400">✓</span><span>{f}</span></li>
+                {freeChecks.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span className="text-emerald-400">✓</span>
+                    <span className={framework && i === 0 ? 'font-bold' : ''}>{f}</span>
+                  </li>
                 ))}
                 <li className="flex items-start gap-2">
                   <span className="text-emerald-400 shrink-0 mt-0.5">◈</span>
-                  <span className="text-white">{content.planLabels.freeFeatures[4]}</span>
+                  <span className="text-white">{freeLast}</span>
                 </li>
               </ul>
               {session ? (
@@ -323,6 +341,7 @@ export function PricingFlow() {
                   onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
                   onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
                   domainUrl={content.domainProviderSection.providers[0]?.url}
+                  defaultFramework={framework?.id}
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}

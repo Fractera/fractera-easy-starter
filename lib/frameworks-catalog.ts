@@ -161,7 +161,11 @@ export function isFrameworkReady(id: FrameworkId): boolean {
 //   Every READY framework now resolves to a real external repo — no bundled-app fallback.
 export function resolveSlotRepoUrl(id: FrameworkId, ownRepoUrl?: string): string {
   if (id === 'own-repo') return FNS_REPO // TEMPORARY: ignore user URL, deploy FNS
-  return getFramework(id).repo ?? ''
+  // TEMPORARY: every framework deploys the Next.js starter (FNS) for now. The
+  // dropdown lets the user pick any framework (no "coming soon" gating), but until
+  // each preset's real starter repo lands the slot always clones FNS. Restore the
+  // per-preset repo + '' fallback (no clone for contract-A presets) once they exist.
+  return getFramework(id).repo ?? FNS_REPO
 }
 
 export const DEFAULT_FRAMEWORK: FrameworkId = 'fractera-pro'
