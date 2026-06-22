@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Bot, Brain, Code2, Globe, Database, ShoppingBag } from 'lucide-react'
 import { useHeroContent } from '@/lib/i18n/context'
 import { useLang } from '@/lib/i18n/use-lang'
@@ -52,6 +53,18 @@ export function Hero() {
         {/* Description — widened to match the following section containers (was the
             narrow max-w-xl that wrapped into a thin column). */}
         <p className="text-lg text-white/80 leading-relaxed max-w-4xl">{content.description}</p>
+
+        {/* Single button under the description → the architecture documentation page
+            (the bilingual doc that replaced the homepage architecture/reference block). */}
+        {content.architectureCta && (
+          <Link
+            href={`/${lang}/documentation/multi-agent-workspace-architecture`}
+            className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
+          >
+            {content.architectureCta}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </Link>
+        )}
       </div>
 
       {/* ── Section 2 — "Self-Hosting Platform". The ai-loop video moved here from the

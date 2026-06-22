@@ -20,10 +20,14 @@ import { ZoomImage } from './_components/zoom-image.client'
 
 export const dynamic = 'force-static'
 
+// Canonical now points to the bilingual documentation replica (dark standard
+// template, RU+EN). This scanner page stays live but defers ranking to the doc.
+const CANONICAL_DOC_URL = 'https://www.fractera.ai/en/documentation/multi-agent-workspace-architecture'
+
 export const metadata: Metadata = {
   title: ARCHITECT_META.title,
   description: ARCHITECT_META.description,
-  alternates: { canonical: ARCHITECT_URL },
+  alternates: { canonical: CANONICAL_DOC_URL },
   robots: { index: true, follow: true },
   openGraph: {
     title: ARCHITECT_META.title,

@@ -17,7 +17,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'p',
-      text: 'This is a slightly unusual update, because it is about us. Fractera is an [agentic engineering platform](https://www.fractera.ai/) — we help you deploy a workspace where AI agents build your software. But the platform also has a public face: this very site, its news, its docs. And the part of the machine that **publishes and updates that content** had quietly become the thing that would not scale. So we rebuilt it. Traditionally a write-up like this would live in an engineering blog or a dry changelog — an internal note for other developers. We are publishing it as **News** on purpose, because on Fractera the news feed is the project\'s living, AI-searchable memory: every update here is embedded into the workspace\'s [LightRAG graph memory](https://www.fractera.ai/ai-development-loop) the moment it ships.',
+      text: 'This is a slightly unusual update, because it is about us. Fractera is an [Agentic Engineering Infrastructure](/en) — an agentic engineering platform where AI agents build your software. But the platform also has a public face: this very site, its news, its docs. And the part of the machine that **publishes and updates that content** had quietly become the thing that would not scale. So we rebuilt it. Traditionally a write-up like this would live in an engineering blog or a dry changelog — an internal note for other developers. We are publishing it as **News** on purpose, because on Fractera the news feed is the project\'s living, AI-searchable memory: every update here is embedded into the workspace\'s [LightRAG graph memory](https://www.fractera.ai/ai-development-loop) the moment it ships.',
     },
     {
       kind: 'callout',
