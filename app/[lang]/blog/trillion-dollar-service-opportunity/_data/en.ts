@@ -17,6 +17,17 @@ export const en: BlogBase = {
       text:
         'This is a slightly unusual post, because it starts with someone else. The Elon Musk interview above caught my attention — he talked about space, about artificial intelligence, about cars. But the moment that inspired me most was a quiet one. He said that despite how the modern world feels — as if everything has already been invented, every site built, every app shipped, every business process automated — the overwhelming majority of businesses on earth do not even have an API. They run on a phone. Some of them run without even that.',
     },
+    {
+      kind: 'quote',
+      text:
+        'If AI can simply take whatever is given to the outsourced customer service company that they already use and do customer service using the apps that they already use, then you can make tremendous headway in customer service, which is, I think, 1% of the world economy or something like that. It’s close to a trillion dollars all in, for customer service.',
+      cite: 'Elon Musk · Dwarkesh Patel interview, February 2026',
+    },
+    {
+      kind: 'p',
+      text:
+        'Read that again with a builder’s eye. That trillion does not live in another social network or another AI wrapper — it lives inside ordinary businesses that never went digital. And the barrier was never the idea; it was the build. Hiring a team, wiring up infrastructure, paying for a stack of cloud services month after month. That barrier is exactly what Fractera removes — which is why this quiet line, not the rockets, is the one I kept.',
+    },
 
     { kind: 'h2', text: 'Everyone learned to code. The street looks the same.' },
     {
@@ -29,12 +40,17 @@ export const en: BlogBase = {
       text:
         'So it turns out that some of us found a wonderful way to please ourselves — the dopamine hit of new knowledge. But it is also time to earn money from this. So where do you shift your focus?',
     },
+    {
+      kind: 'founder',
+      text:
+        'The problem: we cannot predict the future. Especially now, when the market and technology have started changing at an extraordinary speed. Adapting to change is an agonizing process of shifting strategy.',
+    },
 
     { kind: 'h2', text: 'I went looking for the answer. I found a hair salon.' },
     {
       kind: 'p',
       text:
-        'After studying this video in detail and running several dozen meetings to confirm the answer to that question, I found a very interesting business niche: beauty salons and non-surgical cosmetology, medical centers, dentistry. Despite an abundance of automation and gray systems, they run into a problem surprisingly often: a client leaves a request, books a visit — and then does not come. When the manager calls them — usually right at the hour the appointment was supposed to start — clients often answer: "oh, we forgot. Why didn’t you remind us?"',
+        'After studying this video in detail and running several dozen meetings to confirm the answer to that question, I found a very interesting business niche: beauty salons and non-surgical cosmetology, medical centers, dentistry. Despite an abundance of automation and CRM systems, they run into a problem surprisingly often: a client leaves a request, books a visit — and then does not come. When the manager calls them — usually right at the hour the appointment was supposed to start — clients often answer: "oh, we forgot. Why didn’t you remind us?"',
     },
     {
       kind: 'p',

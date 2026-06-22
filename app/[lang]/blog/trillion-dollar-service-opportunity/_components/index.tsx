@@ -5,18 +5,11 @@ import { BRAND } from '@/lib/brand'
 import { data } from '../_data'
 
 // Entry for this blog post. Bilingual (en + ru override). The hero is overridden
-// with a YouTube embed that STARTS at the exact second referenced on the homepage
-// link (t=4119s → ?start=4119), so the moment plays from the same point. The figure
-// caption is a data-driven lang lookup (no hardcoded lang comparison).
+// with the SAME 16:9 YouTube embed styling the homepage Elon section used — a clean
+// rounded-2xl bordered black frame, no caption — and it STARTS at the exact second
+// referenced on the homepage link (t=4119s → ?start=4119), so the moment plays from
+// the same point.
 const VIDEO_EMBED = 'https://www.youtube.com/embed/BYXbuik3dgA?start=4119'
-
-function heroCaption(lang: string): string {
-  const map: Record<string, string> = {
-    en: 'The moment from Elon Musk’s Dwarkesh Patel interview — where the real money still is.',
-    ru: 'Тот самый момент из интервью Илона Маска у Dwarkesh Patel — где до сих пор лежат настоящие деньги.',
-  }
-  return map[lang] ?? map.en
-}
 
 const post = createContentPost({
   format: 'blog',
@@ -24,21 +17,16 @@ const post = createContentPost({
   resolve: lang => ({
     ...blogPost(data, lang),
     hero: (
-      <figure className="my-8 flex flex-col gap-3">
-        <div
-          className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_0_60px_-15px_rgba(167,139,250,0.35)]"
-          style={{ aspectRatio: '16 / 9' }}
-        >
-          <iframe
-            src={VIDEO_EMBED}
-            title="Elon Musk — Dwarkesh Patel interview (the moment)"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="h-full w-full"
-          />
-        </div>
-        <figcaption className="text-center text-sm text-white/40">{heroCaption(lang)}</figcaption>
-      </figure>
+      <div className="my-8 w-full aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black">
+        <iframe
+          src={VIDEO_EMBED}
+          title="Elon Musk — Dwarkesh Patel interview (the moment)"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          className="h-full w-full"
+        />
+      </div>
     ),
   }),
   chrome: (lang, p) => {
