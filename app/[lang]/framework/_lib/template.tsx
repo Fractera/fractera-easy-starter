@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from 'react'
 import { createContentPage } from '@/lib/content/create-content-page'
+import type { Block } from '@/lib/content/blocks/types'
 import { BRAND } from '@/lib/brand'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
@@ -21,20 +22,36 @@ import { getFrameworkUi } from '../_data'
 //   - the framework-feedback callback card (ask an expert for a wish → Resend, tagged
 //     with the framework name);
 //   - the founder quote (last in the slot).
-// Canonical bottom order: [topSection] → form → feedback card → founder → sponsors →
-// FAQ → back link. `opts.topSection` is an optional rich block rendered at the top of
-// the sections slot (used by Fractera Pro to carry the moved "aircraft carrier"
-// deep-dive); it is wrapped in ContentProvider so hero-content client sections work.
+// Canonical bottom order: [page blocks] → [topSection] → form → feedback card →
+// founder → [belowFounderSection] → sponsors → FAQ → back link. Optional per-page
+// knobs (Fractera Pro uses all three to host the disassembled "aircraft carrier"
+// deep-dive):
+//   - opts.blocks(lang)       — extra standard content blocks appended to the page
+//                               body feed (the carrier text: callout/h2/p);
+//   - opts.topSection(lang)   — rich section at the top of the sections slot, above
+//                               the form (the animated parallel-routing demo);
+//   - opts.belowFounderSection(lang) — section rendered directly below the founder
+//                               quote (the manifesto card).
+// topSection / belowFounderSection are wrapped in ContentProvider so hero-content
+// client sections work.
 export function createFrameworkPage(
   slug: string,
-  opts?: { topSection?: (lang: string) => ReactNode },
+  opts?: {
+    blocks?: (lang: string) => Block[]
+    topSection?: (lang: string) => ReactNode
+    belowFounderSection?: (lang: string) => ReactNode
+  },
 ) {
   const fw = frameworkPageBySlug(slug)
   if (!fw) throw new Error(`createFrameworkPage: unknown framework slug "${slug}"`)
   const data = buildFrameworkData(slug)
 
   return createContentPage({
-    resolve: lang => frameworkContent(data, lang),
+    resolve: lang => {
+      const c = frameworkContent(data, lang)
+      const extra = opts?.blocks?.(lang) ?? []
+      return extra.length ? { ...c, blocks: [...c.blocks, ...extra] } : c
+    },
     meta: {
       subPath: data.meta.subPath,
       ogImage: data.meta.ogImage,
@@ -78,6 +95,13 @@ export function createFrameworkPage(
             <div className="mt-10">
               <PostBody blocks={[{ kind: 'founder', text: founderQuote }]} lang={lang} />
             </div>
+          )}
+          {opts?.belowFounderSection && (
+            <section className="mt-10">
+              <ContentProvider value={getContent(lang)}>
+                {opts.belowFounderSection(lang)}
+              </ContentProvider>
+            </section>
           )}
         </>
       )
