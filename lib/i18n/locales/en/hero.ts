@@ -8,7 +8,9 @@ type HeroPart = Pick<SiteContent,
 
 export const hero: HeroPart = {
   heroBadge: 'Open Source — Free Forever',
-  heroNarrativeVariant: 'elon-trillion',
+  // 'none' — the Elon-Trillion narrative moved off the homepage into the blog post
+  // /blog/trillion-dollar-service-opportunity. No narrative section renders here.
+  heroNarrativeVariant: 'none',
   heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS — Deploy a Starter of Any Framework or Any Repository',
   lightPitch: {
     label: 'Alternative',

@@ -5,30 +5,48 @@
 // name. The blog-only shapes (`BlogAuthor`, `BlogPost`) live here.
 
 import type { Block, FaqPair } from '@/lib/content/blocks/types'
+import type { LocalizedBody, LocalizedBodyOverride } from '@/lib/content/types'
 
 export type { FaqPair }
 export type BlogBlock = Block
 
 export type BlogAuthor = { name: string; role: string; avatar?: string }
 
-export type BlogPost = {
+// Blog is now bilingual by construction (news/doc pattern): non-translatable meta +
+// a full `en` base + optional per-language overrides, resolved per key with EN
+// fallback. A post that ships only `en` falls back to EN everywhere.
+
+// Non-translatable fields, shared by every language of a post.
+export type BlogMeta = {
   slug: string
-  title: string
-  subtitle: string
-  description: string
-  excerpt: string
   date: string
   readingMinutes: number
   tags: string[]
   author: BlogAuthor
-  heroVideo: string
+  /** Self-hosted video hero (optional — a post may override the hero with an embed). */
+  heroVideo?: string
   heroPoster?: string
   heroAspect?: string
-  /** Optional caption rendered under the video hero. */
-  heroCaption?: string
   ogImage: string
-  blocks: BlogBlock[]
-  faq?: FaqPair[]
+}
+
+// The required base-language document (all translatable fields + body + FAQ).
+export type BlogBase = LocalizedBody & {
+  title: string
+  subtitle: string
+  description: string
+  excerpt: string
+  /** Optional caption rendered under the video hero (translatable). */
+  heroCaption?: string
+}
+
+// A partial per-language override: only the keys that differ from the base.
+export type BlogOverride = LocalizedBodyOverride & {
+  title?: string
+  subtitle?: string
+  description?: string
+  excerpt?: string
+  heroCaption?: string
 }
 
 // Shape of the Blog tab's UI chrome (index labels). The strings themselves are

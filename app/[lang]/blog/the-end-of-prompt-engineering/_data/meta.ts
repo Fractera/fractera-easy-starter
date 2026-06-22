@@ -1,4 +1,7 @@
-export const meta = {
+import type { BlogMeta } from '../../_lib/types'
+
+// Non-translatable fields. heroCaption moved to en.ts (it is translatable copy).
+export const meta: BlogMeta = {
   slug: 'the-end-of-prompt-engineering',
   date: '2026-06-14',
   readingMinutes: 9,
@@ -7,6 +10,5 @@ export const meta = {
   heroVideo: '/blog-media/boris-chernoy-post-1.mp4',
   heroPoster: '/blog-media/boris-chernoy-post-1.jpg',
   heroAspect: '714 / 466',
-  heroCaption: 'The LinkedIn post that set this off — Boris Cherny on writing loops, not prompts.',
   ogImage: 'https://www.fractera.ai/blog-media/boris-chernoy-post-1.jpg',
 }

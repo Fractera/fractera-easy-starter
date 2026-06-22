@@ -10,7 +10,9 @@ import { ImportSubstitution } from '@/components/sections/import-substitution'
 // up here, so adding a new narrative variant for a new market is a data + registry
 // change, never a per-language branch in JSX. Each section pulls its own copy from
 // the i18n context, so no props flow through here.
-export const HERO_NARRATIVE_REGISTRY: Record<SiteContent['heroNarrativeVariant'], ComponentType> = {
+// Partial: a variant may map to no component ('none' → nothing renders). The page
+// guards with `{HeroNarrative && <HeroNarrative />}`.
+export const HERO_NARRATIVE_REGISTRY: Partial<Record<SiteContent['heroNarrativeVariant'], ComponentType>> = {
   'elon-trillion': ElonTrillion,
   'import-substitution': ImportSubstitution,
 }

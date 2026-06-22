@@ -32,11 +32,11 @@ export type SiteContent = {
   }
   // Which narrative section renders in the hero slot (after the connect-framework
   // block). A data-driven discriminator instead of a `lang === 'ru'` component
-  // swap in the page: each language picks its variant, and any new untranslated
-  // language inherits the EN default ('elon-trillion') through the i18n deep-merge
-  // fallback automatically. The variant → component map lives in
-  // lib/content/hero-narrative-registry.ts.
-  heroNarrativeVariant: 'elon-trillion' | 'import-substitution'
+  // swap in the page: each language picks its variant. 'none' renders no narrative
+  // section (EN now uses 'none' — the Elon-Trillion block moved to the blog). The
+  // variant → component map lives in lib/content/hero-narrative-registry.ts (a
+  // Partial map: 'none' has no entry, so the page simply renders nothing).
+  heroNarrativeVariant: 'elon-trillion' | 'import-substitution' | 'none'
   elonTrillion: {
     label: string
     h2: string

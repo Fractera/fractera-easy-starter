@@ -32,7 +32,7 @@ function formatDate(iso: string, lang: string): string {
 export default async function BlogIndex({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const ui = getBlogUi(lang)
-  const posts = blogList(POSTS)
+  const posts = blogList(POSTS, lang)
   const [featured, ...rest] = posts
 
   const breadcrumb = {

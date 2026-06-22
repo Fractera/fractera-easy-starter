@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/cookies', changeFrequency: 'yearly'  as const, priority: 0.2 },
     { path: '/blog',    changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/blog/the-end-of-prompt-engineering', changeFrequency: 'monthly' as const, priority: 0.6 },
+    { path: '/blog/trillion-dollar-service-opportunity', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news',    changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/news/ai-draft-settings-evolutionary-pipeline', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },

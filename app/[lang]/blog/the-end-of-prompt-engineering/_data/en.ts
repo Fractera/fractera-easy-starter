@@ -1,4 +1,4 @@
-import type { BlogBlock, FaqPair } from '../../_lib/types'
+import type { BlogBlock, FaqPair, BlogBase } from '../../_lib/types'
 
 const POST_1_LINEAR = `you prompt  ─▶  AI writes code  ─▶  you find the bug  ─▶  you fix the prompt  ─┐
      ▲                                                                          │
@@ -12,7 +12,7 @@ AI writes code  ─▶  CI runs every check  ─▶  green?  ─▶  ✦ shipped
      │                      ▼  (red)
      └──  AI reads the logs and re-prompts itself`
 
-export const en = {
+export const en: BlogBase = {
   title: 'Prompt Engineering Is Dead. Long Live Loop Engineering.',
   subtitle:
     'Why the head of Claude Code at Anthropic just signaled the end of the “AI whisperer” era — and what comes next.',
@@ -20,6 +20,7 @@ export const en = {
     'Boris Cherny, who leads Claude Code at Anthropic, says he no longer prompts Claude — he writes loops. Inside the death of prompt engineering and the rise of loop engineering: agentic AI workflows, autonomous self-correcting agents, why verification beats prompt-craft, and how Fractera runs the same loop in production with multi-agent orchestration (Hermes) and LightRAG graph memory.',
   excerpt:
     'The engineer leading Claude Code at Anthropic just admitted he doesn’t prompt the model anymore — he writes loops that prompt it for him. Here’s why that ends the “AI whisperer” era, and how we turned it into production architecture.',
+  heroCaption: 'The LinkedIn post that set this off — Boris Cherny on writing loops, not prompts.',
   blocks: [
     { kind: 'h2', text: 'The quote that shattered the illusion' },
     {

@@ -77,7 +77,9 @@ export default async function HomePage({
                   to its own framework page (/framework/fractera-pro). */}
               {/* "Connect your framework" — the framework catalog grid. */}
               <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
-              <HeroNarrative />
+              {/* Narrative slot — 'none' (EN, after the Elon block moved to the blog)
+                  has no component, so nothing renders. */}
+              {HeroNarrative && <HeroNarrative />}
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>

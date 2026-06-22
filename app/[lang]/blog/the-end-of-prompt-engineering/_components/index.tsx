@@ -10,8 +10,8 @@ import { data } from '../_data'
 
 const post = createContentPost({
   format: 'blog',
-  subPath: `/blog/${data.slug}`,
-  resolve: () => blogPost(data),
+  subPath: `/blog/${data.meta.slug}`,
+  resolve: lang => blogPost(data, lang),
   chrome: (lang, p) => {
     const ui = getBlogUi(lang)
     return {
