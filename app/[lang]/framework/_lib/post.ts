@@ -14,6 +14,7 @@ import type { LocalizedBody, LocalizedBodyOverride } from '@/lib/content/types'
 import type { ContentPageContent } from '@/lib/content/create-content-page'
 import { AUTHOR } from '@/lib/author'
 import { FRAMEWORK_PAGES, frameworkPageBySlug } from '@/lib/frameworks-pages'
+import { FRAMEWORK_FOUNDER_QUOTES } from '../_data/founder-quotes'
 
 /** Non-translatable per-page fields (mirrors a deployment target's meta.ts). */
 export type FrameworkMeta = {
@@ -121,14 +122,12 @@ export function frameworkList(posts: FrameworkData[], lang: string) {
 // is intentionally empty (blocks: []); the per-framework content + SEO pass is a
 // separate sub-step. Each framework folder's _data/index.ts is just
 // `export const data = buildFrameworkData('<slug>')`, and the page registry
-// (lib/frameworks-pages) is the single source of the name/order. The placeholder
-// founder quote is shared across all frameworks for now.
+// (lib/frameworks-pages) is the single source of the name/order. The founder quote
+// is DISTINCT per framework: picked from FRAMEWORK_FOUNDER_QUOTES by the framework's
+// registry order (so each page shows a different Roma Armstrong aphorism), bilingual.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FOUNDER_QUOTE_EN = 'Be so passionate that no one can tell whether you are a madman or a genius.'
-const FOUNDER_QUOTE_RU = 'Быть увлечённым настолько, чтобы никто не мог догадаться — сумасшедший ты или гений.'
-
-function enBase(name: string): FrameworkBase {
+function enBase(name: string, founderQuote: string): FrameworkBase {
   return {
     title: `${name} on Agent Engineering Infrastructure`,
     subtitle: `Deploy an agent-optimized ${name} starter on your own server. Content and optimization land in a later step.`,
@@ -136,12 +135,12 @@ function enBase(name: string): FrameworkBase {
     keywords: `${name} agent engineering, self hosted ${name} starter, ${name} private database, ${name} mcp agent integration`,
     listTitle: name,
     listDescription: `The agent-optimized ${name} starter on the Fractera infrastructure.`,
-    founderQuote: FOUNDER_QUOTE_EN,
+    founderQuote,
     blocks: [],
   }
 }
 
-function ruOverride(name: string): DeploymentOverrideShape {
+function ruOverride(name: string, founderQuote: string): DeploymentOverrideShape {
   return {
     title: `${name} на инфраструктуре инженерии агентов`,
     subtitle: `Разверните оптимизированный под агентов стартер ${name} на своём сервере. Контент и оптимизация — в отдельном шаге.`,
@@ -149,17 +148,19 @@ function ruOverride(name: string): DeploymentOverrideShape {
     keywords: `${name} инженерия агентов, self hosted ${name} starter, приватная база данных ${name}, ${name} mcp агент`,
     listTitle: name,
     listDescription: `Оптимизированный под агентов стартер ${name} на инфраструктуре Fractera.`,
-    founderQuote: FOUNDER_QUOTE_RU,
+    founderQuote,
   }
 }
 
 type DeploymentOverrideShape = FrameworkOverride
 
-/** Build a framework page's _data from the registry — name substituted everywhere. */
+/** Build a framework page's _data from the registry — name substituted everywhere,
+ *  plus a distinct founder quote chosen by the framework's registry order. */
 export function buildFrameworkData(slug: string): FrameworkData {
   const fw = frameworkPageBySlug(slug)
   if (!fw) throw new Error(`buildFrameworkData: unknown framework slug "${slug}"`)
   const order = FRAMEWORK_PAGES.findIndex(f => f.slug === slug)
+  const quote = FRAMEWORK_FOUNDER_QUOTES[order % FRAMEWORK_FOUNDER_QUOTES.length]
   const meta: FrameworkMeta = {
     slug: fw.slug,
     subPath: `/framework/${fw.slug}`,
@@ -168,5 +169,9 @@ export function buildFrameworkData(slug: string): FrameworkData {
     author: { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
     ogImage: '/Fractera-ai-workspace-screenshot.png',
   }
-  return { meta, en: enBase(fw.name), overrides: { ru: ruOverride(fw.name) } }
+  return {
+    meta,
+    en: enBase(fw.name, quote.en),
+    overrides: { ru: ruOverride(fw.name, quote.ru) },
+  }
 }
