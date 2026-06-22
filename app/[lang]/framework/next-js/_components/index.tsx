@@ -4,6 +4,7 @@ import { BRAND } from '@/lib/brand'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { PricingFlow } from '@/components/sections/pricing-flow'
+import { FrameworkFeedbackCta } from '@/components/framework-feedback-cta'
 import { PostBody } from '@/components/content-page/post-body'
 import { frameworkContent, frameworkFounderQuote } from '../../_lib/post'
 import { getFrameworkUi } from '../../_data'
@@ -19,8 +20,10 @@ import { data } from '../_data'
 // The universal deploy form (PricingFlow) is injected via the `sections` slot, made
 // page-aware with `framework={{ id, name }}`: it weaves "Next.js" into the form H2,
 // lists Next.js as the first feature, and pre-selects Next.js in the install
-// dropdown. The founder quote renders below the form, last in the slot, so the
-// canonical bottom order stays: form → founder → sponsors → FAQ → back link.
+// dropdown. Below it sits the framework-feedback callback card (ask a Next.js expert
+// to share a wish → Resend email tagged with the framework). The founder quote
+// renders last in the slot, so the canonical bottom order stays:
+// form → feedback card → founder → sponsors → FAQ → back link.
 
 const page = createContentPage({
   resolve: lang => frameworkContent(data, lang),
@@ -55,6 +58,9 @@ const page = createContentPage({
             </Suspense>
           </ContentProvider>
         </section>
+        <div className="mt-10">
+          <FrameworkFeedbackCta lang={lang} framework="Next.js" strings={getContent(lang).frameworkFeedback} />
+        </div>
         {founderQuote && (
           <div className="mt-10">
             <PostBody blocks={[{ kind: 'founder', text: founderQuote }]} lang={lang} />

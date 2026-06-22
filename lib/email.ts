@@ -834,6 +834,61 @@ type CompanyBrainInquiry = {
   lang?: string
 }
 
+type FrameworkFeedback = {
+  email: string
+  framework: string // which framework the feedback concerns (e.g. "Next.js")
+  name?: string
+  github?: string
+  about?: string
+  wish?: string
+  lang?: string
+}
+
+// Framework-expert feedback (callback card + drawer on /framework/<slug>). The
+// subject and a prominent banner make the form's identity unmistakable and call out
+// WHICH framework the feedback is about — distinct from the Company-Brain B2B inquiry.
+export async function sendFrameworkFeedbackEmail(feedback: FrameworkFeedback) {
+  const fw = feedback.framework.trim() || 'Unknown framework'
+  const rows: [string, string | undefined][] = [
+    ['Framework', fw],
+    ['Email', feedback.email],
+    ['Name', feedback.name],
+    ['GitHub', feedback.github],
+    ['About them', feedback.about],
+    ['Wish for the project', feedback.wish],
+    ['UI language at submission', feedback.lang],
+  ]
+  const rowsHtml = rows
+    .filter(([, v]) => v && v.trim())
+    .map(([label, v]) => `
+      <tr>
+        <td style="padding:8px 12px;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #eee;vertical-align:top;white-space:nowrap">${escapeHtml(label)}</td>
+        <td style="padding:8px 12px;font-size:14px;color:#111;border-bottom:1px solid #eee;white-space:pre-wrap;line-height:1.5">${escapeHtml((v ?? '').trim())}</td>
+      </tr>
+    `).join('\n')
+
+  await sendEmail({
+    from: FROM,
+    to: 'admin@fractera.ai',
+    replyTo: feedback.email,
+    // Distinctive subject: form identity + the framework in question.
+    subject: `Framework feedback (${fw}) — ${feedback.email}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#111">
+        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px 16px;margin:0 0 16px">
+          <p style="margin:0;font-size:12px;color:#6d28d9;text-transform:uppercase;letter-spacing:1px;font-weight:700">Framework feedback form</p>
+          <p style="margin:4px 0 0;font-size:14px;color:#111">A framework expert shared an idea to improve the Fractera + <strong>${escapeHtml(fw)}</strong> deployment experience.</p>
+        </div>
+        <h2 style="margin:0 0 6px">Framework feedback — ${escapeHtml(fw)}</h2>
+        <p style="margin:0 0 16px;color:#666;font-size:13px">Reply directly to this email — it goes to the submitter (${escapeHtml(feedback.email)}).</p>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee">
+          ${rowsHtml}
+        </table>
+      </div>
+    `,
+  })
+}
+
 export async function sendCompanyBrainInquiryEmail(inquiry: CompanyBrainInquiry) {
   const rows: [string, string | undefined][] = [
     ['Email', inquiry.email],

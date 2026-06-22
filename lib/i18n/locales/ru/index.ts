@@ -11,6 +11,7 @@ import { faqItems } from './faq'
 import { sponsorship } from './sponsorship'
 import { companyBrain } from './company-brain'
 import { marketplace } from './marketplace'
+import { frameworkFeedback } from './framework-feedback'
 import { ultimateScale } from './ultimate-scale'
 import { aircraftCarrier } from './aircraft-carrier'
 import { siteHeader } from './site-header'
@@ -30,5 +31,6 @@ export const ru: SiteContent = {
   ...sponsorship,
   ...companyBrain,
   ...marketplace,
+  ...frameworkFeedback,
   faqItems,
 }

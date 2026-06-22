@@ -263,6 +263,35 @@ export type SiteContent = {
     skills: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
     productLoop: { h1: string; intro: string; comingSoon: string; comingSoonNote: string }
   }
+  // Framework-expert feedback (callback card + slide-over drawer on every
+  // /framework/<slug> page). Universal copy: `{framework}` is replaced at render
+  // with the page's framework name (e.g. "Next.js"), so one string set serves all
+  // framework pages. Lives in the i18n shell (no hardcoded lang ternary in the
+  // components — they consume this resolved object).
+  frameworkFeedback: {
+    card: { eyebrow: string; title: string; text: string; label: string }
+    drawer: {
+      eyebrow: string
+      title: string
+      subtitle: string
+      nameLabel: string
+      githubLabel: string
+      githubPlaceholder: string
+      aboutLabel: string
+      aboutPlaceholder: string
+      wishLabel: string
+      wishPlaceholder: string
+      emailLabel: string
+      emailHint: string
+      spamLabel: string
+      submit: string
+      submitting: string
+      sendFailed: string
+      successTitle: string
+      successBody: string
+      successClose: string
+    }
+  }
   // Подпись под каждой из 9 кнопок «Запустить в 1 клик». Своя на секцию, но все
   // несут идею «волшебно легко и супер эффективно». Опционально: языки, где не
   // задано, рендерят кнопку без подписи. EN+RU заданы.

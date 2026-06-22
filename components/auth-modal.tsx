@@ -40,14 +40,20 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
   // we return to the Local Agent Engineering page (/[lang]/deployments/local)
   // with a marker the section reads to auto-open its inquiry drawer. The lang is
   // taken from the current path so the user returns in the same language.
+  // 'framework_feedback' is the callback card on a /framework/<slug> page. Unlike
+  // company_brain (one fixed page), the framework form lives on many pages, so we
+  // return to the SAME path the user was on, with a marker the card reads to
+  // auto-open its feedback drawer (the framework is known from the page itself).
   const cbLang = pathname?.split('/')[1] || 'en'
   const callbackUrl = pendingPlan === 'partner'
     ? '/partners'
     : pendingPlan === 'company_brain'
       ? `/${cbLang}/deployments/local?company_brain=1`
-      : pendingPlan
-        ? `/?pending_plan=${pendingPlan}`
-        : '/'
+      : pendingPlan === 'framework_feedback'
+        ? `${pathname || '/'}?framework_feedback=1`
+        : pendingPlan
+          ? `/?pending_plan=${pendingPlan}`
+          : '/'
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()

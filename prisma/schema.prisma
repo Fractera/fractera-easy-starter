@@ -213,6 +213,27 @@ model BlackBoxHistoryEntry {
   @@index([inquiryId])
 }
 
+// Framework-expert feedback (the callback card + drawer on every /framework/<slug>
+// page). DISTINCT from BlackBoxInquiry (B2B Company-Brain consultation): this is a
+// product-improvement wish from someone with framework expertise, captured per
+// framework. `framework` records which framework page the feedback came from.
+model FrameworkFeedback {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  email     String
+  framework String   // which framework the feedback concerns (e.g. "Next.js")
+  name      String?
+  github    String?  // link to the submitter's GitHub profile
+  about     String?  // a few words about themselves / their expertise
+  wish      String?  // what they'd like to see in the project (the core field)
+  lang      String?
+  status    String   @default("new") // new | reviewed | shipped | archived
+
+  @@index([framework])
+  @@index([createdAt])
+}
+
 // Whitelist of hosting providers shown on partner-page (`forPage` PartnerLinks
 // require their domain to match an entry here). Mutable via the admin UI.
 // Seeded on first request from config/trusted-providers.json so the existing
