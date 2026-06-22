@@ -70,6 +70,23 @@ export function createFrameworkPage(
         backLabel: ui.backToHub,
       }
     },
+    // Top-of-page CTA rendered in the hero slot — directly under the H1/description
+    // separator, centered, in an elegant thin border. Scrolls to the deploy form
+    // (#pricing lives inside PricingFlow in the sections slot below).
+    hero: lang => {
+      const label = getFrameworkUi(lang).deployCta.replaceAll('{framework}', fw.name)
+      return (
+        <div className="mt-8 flex justify-center">
+          <a
+            href="#pricing"
+            className="inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-500/[0.04] px-6 py-3 text-sm font-semibold text-violet-200 transition-colors hover:border-violet-400/70 hover:bg-violet-500/[0.10]"
+          >
+            {label}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+          </a>
+        </div>
+      )
+    },
     sections: lang => {
       const founderQuote = frameworkFounderQuote(data, lang)
       return (
