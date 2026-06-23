@@ -1,26 +1,22 @@
 import type { SiteMeta } from '../../types'
 
 export const meta: SiteMeta = {
-  title: 'Fractera — One-Click Private AI Stack: Deploy Any Framework or Repository to Your VPS',
+  title: 'Fractera | Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
   description:
-    "Deploy a complete self-hosted AI stack to your own VPS in one click — a starter of any framework or any public repository (the 50k-line Next.js reference app included). Zero-Agent MCP-First architecture eliminates context inflation: rotate pre-built components like a Rubik's Cube via short execution commands with near-zero token spend.",
+    'The Fractera robot installs agentic engineering infrastructure on your VPS in 10 minutes. Token spend drops 70–90% versus classic vibe coding.',
   keywords: [
-    'mcp first ai development',
-    'zero agent web infrastructure',
-    'deploy any framework vps',
-    'self-hosted starter deploy',
-    'nextjs mcp server deploy',
-    'rubiks cube code architecture',
-    'prevent context window inflation ai',
-    'self-hosted AI infrastructure',
+    'agentic engineering infrastructure',
+    'agentic engineering',
+    'deploy agentic engineering infrastructure vps',
+    'self-hosted agentic engineering',
+    'agentic engineering platform',
+    'token savings vibe coding',
     'Hermes orchestrator',
     'LightRAG persistent memory',
-    'Claude Code MCP server',
-    'one-click AI deploy VPS',
   ],
-  ogTitle: 'Fractera — One-Click Private AI Stack: Deploy Any Framework or Repository to Your VPS',
+  ogTitle: 'Fractera | Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
   ogDescription:
-    "Deploy a complete self-hosted AI stack to your own VPS in one click — a starter of any framework or any public repository (the 50k-line Next.js reference app included). Zero-Agent MCP-First architecture cuts token spend to near zero.",
+    'The Fractera robot installs agentic engineering infrastructure on your VPS in 10 minutes. Token spend drops 70–90% versus classic vibe coding.',
   organizationDescription:
-    'Fractera — AI-native self-hosting platform built on a Zero-Agent MCP-First architecture. Deploy a starter of any framework or any public repository to your own VPS in one click (the 50k-line Next.js reference app included), with a curated AI stack: Hermes orchestrator, LightRAG memory, five AI coding platforms.',
+    'Fractera deploys agentic engineering infrastructure to your own VPS in 10 minutes — a curated stack (Hermes orchestrator, LightRAG memory, five AI coding platforms) that cuts token spend 70–90% versus classic vibe coding.',
 }

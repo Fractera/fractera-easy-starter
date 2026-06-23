@@ -97,19 +97,36 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
           )}
 
           {rest.length > 0 && (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-5">
               {rest.map(post => (
                 <a
                   key={post.slug}
                   href={`/${lang}/blog/${post.slug}`}
-                  className="group flex flex-col gap-4 rounded-2xl border border-white/10 p-6 transition-colors hover:border-violet-500/40"
+                  className="group grid grid-cols-[8rem_1fr] items-stretch gap-4 overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-violet-500/40 sm:grid-cols-[12rem_1fr] sm:gap-6"
                 >
-                  <h3 className="text-lg font-semibold leading-snug text-white">{post.title}</h3>
-                  <p className="text-sm leading-relaxed text-white/50">{post.excerpt}</p>
-                  <div className="mt-auto flex items-center gap-2 pt-2 text-xs text-white/40">
-                    <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
-                    <span aria-hidden>·</span>
-                    <span>{post.readingMinutes} {ui.minRead}</span>
+                  {/* Fixed 4:3 illustration container on the left. Its fixed width
+                      makes the 4:3 height — and thus the whole card's height —
+                      constant at any screen width (8rem→6rem tall, sm 12rem→9rem). */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={post.ogImage}
+                      alt={post.title}
+                      className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+                    />
+                  </div>
+                  {/* Content clamped so it always fits the fixed card height: title
+                      max 1 line, excerpt max 2 lines, meta pinned to the bottom. */}
+                  <div className="flex min-w-0 flex-col gap-1.5 py-3 pr-5 sm:gap-2 sm:py-4 sm:pr-6">
+                    <h3 className="line-clamp-1 text-base font-semibold leading-snug text-white sm:text-lg">
+                      {post.title}
+                    </h3>
+                    <p className="line-clamp-2 text-sm leading-relaxed text-white/50">{post.excerpt}</p>
+                    <div className="mt-auto flex items-center gap-2 pt-1 text-xs text-white/40">
+                      <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
+                      <span aria-hidden>·</span>
+                      <span>{post.readingMinutes} {ui.minRead}</span>
+                    </div>
                   </div>
                 </a>
               ))}

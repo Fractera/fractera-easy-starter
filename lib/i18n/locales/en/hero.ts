@@ -11,7 +11,7 @@ export const hero: HeroPart = {
   // 'none' — the Elon-Trillion narrative moved off the homepage into the blog post
   // /blog/trillion-dollar-service-opportunity. No narrative section renders here.
   heroNarrativeVariant: 'none',
-  heroTitle: 'One-Click Open-Source AI Coding Infrastructure on Your VPS — Deploy a Starter of Any Framework or Any Repository',
+  heroTitle: 'Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",
@@ -42,10 +42,10 @@ export const hero: HeroPart = {
   },
 
   description:
-    'Deploy a complete, self-hosted AI-native ecosystem on your server in 10 minutes. Fractera lands a production-grade starter on your VPS — Next.js (our 50,000-line reference app) or any other framework, including any public repository — all controlled through one architectural shift: MCP-First Engineering. By moving the workload from heavy code-generation loops to atomic MCP execution commands, the system frees your AI from constantly reading and parsing the file system. Build, scale, and design with token consumption driven toward zero. Your server, your immutable patterns, your zero-waste execution.',
+    'The Fractera robot installs agentic engineering infrastructure on your VPS in 10 minutes.',
 
   heroBenefitsHeader: {
-    h2: 'The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits',
+    h2: 'The Self-Hosted AI Agent Infrastructure: Zero Token Metering',
     cardLink: 'Learn more',
   },
 

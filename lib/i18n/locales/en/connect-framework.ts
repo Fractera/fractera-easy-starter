@@ -5,7 +5,7 @@ type ConnectFrameworkPart = Pick<SiteContent, 'connectFramework'>
 export const connectFramework: ConnectFrameworkPart = {
   connectFramework: {
     badge: 'Any framework · Any repository',
-    h2: 'Connect your framework — deploy an AI-workspace starter on your VPS',
+    h2: 'Deploy Open-Source Agent Frameworks on Your VPS',
     description:
       'Any framework you bring is automatically optimized for the built-in local database and local file storage, ships with authentication out of the box, and integrates with the on-server AI agents — all in one click on your own server.',
     // Curated, ordered list — WEBSITE-BUILDING tools only (web frameworks, meta-

@@ -34,7 +34,7 @@ export const faqItems: FaqItem[] = [
       "Cross-platform orchestration — LightRAG coordinates all five coding platforms so they share context. Switching from Claude Code to Gemini CLI doesn't mean losing the thread.",
     ],
     trail: [
-      'The result: tasks that take 10–20 back-and-forth messages in a vanilla AI chat typically resolve in 2–3 focused exchanges inside Fractera.',
+      'The result: tasks that take 10–20 back-and-forth messages in a vanilla AI chat typically resolve in 2–3 focused exchanges inside Fractera — token spend drops 70–90% compared to classic vibe coding.',
       "This is Fractera Pro. And once you've tried it, there's no going back to plain vibe coding.",
     ],
   },

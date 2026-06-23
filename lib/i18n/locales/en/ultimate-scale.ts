@@ -1,10 +1,10 @@
 import type { SiteContent } from '../../types'
 
 export const ultimateScale: SiteContent['ultimateScale'] = {
-  badge: 'INFINITE PRODUCTION SCALE',
-  h2: 'Tens of Thousands of Pages. Connected Logic. Near-Zero Token Cost.',
+  badge: '70–90% TOKEN SAVINGS',
+  h2: 'Scalable Multi-Agent Systems with Near-Zero Token Cost',
   description:
-    'In the end you get an application that scales to any level — tens, hundreds, a thousand pages, bound together by shared logic and functionality, with near-zero token spend on coding agents. The MCP infrastructure drives the function calls that update one page, several, or sometimes every page at once.',
+    'In the end you get an application that scales to any level — tens, hundreds, a thousand pages, bound together by shared logic and functionality, with near-zero token spend on coding agents. Token spend drops 70–90% compared to classic vibe coding. The MCP infrastructure drives the function calls that update one page, several, or sometimes every page at once.',
   columns: [
     {
       title: 'A Pre-Built Project Skeleton',

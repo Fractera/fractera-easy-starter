@@ -5,7 +5,7 @@ type LoopShowcasePart = Pick<SiteContent, 'loopShowcase'>
 export const loopShowcase: LoopShowcasePart = {
   loopShowcase: {
     label: 'Step by step, how it works',
-    h2: 'Full Stack Ownership: Your Server, Your Domain, Your Product',
+    h2: 'Autonomous AI Orchestration Under Your Full Control',
     description:
       'Modern AI coding is easy — the hard part is owning the infrastructure. Fractera makes ownership effortless: a dedicated Ubuntu VPS, an automatic custom domain with SSL, and a production-ready product stack — all yours, forever.',
     // Slide images live in /public/section-step-by-step-images/<file>.png

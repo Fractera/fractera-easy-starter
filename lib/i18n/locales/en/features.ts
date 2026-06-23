@@ -9,7 +9,7 @@ type FeaturesPart = Pick<SiteContent,
 export const features: FeaturesPart = {
   featuresHeader: {
     label: "What's included",
-    h2: 'Production-Ready Full-Stack Engineering Features',
+    h2: 'Enterprise-Grade Features for Agentic Infrastructure',
     description: 'Fractera Light covers 90% of what a professional application needs. Fractera Pro unlocks the remaining 10%.',
   },
 
@@ -29,7 +29,7 @@ export const features: FeaturesPart = {
   ],
 
   promoSection: {
-    h2: 'Fork and Build a Custom White-Label AI Platform',
+    h2: 'Build Your Own White-Label AI Agent Platform',
     description:
       'Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.',
     githubButton: 'View on GitHub',
@@ -37,7 +37,7 @@ export const features: FeaturesPart = {
 
   faqHeader: {
     label: 'FAQ',
-    h2: 'Fractera Technical Architecture FAQ',
+    h2: 'Fractera Technical Architecture & FAQ',
     description: 'Everything you need to know before getting started.',
   },
 
