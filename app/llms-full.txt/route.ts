@@ -251,6 +251,37 @@ language-prefixed. Two self-sufficient agent skills ship with it — create-mult
 and install-language-switcher-dropdown (re-installs the language dropdown after you delete it) —
 and both are readable in the AI Core page of the deployed workspace.`
 
+const AUTH_FORMS_I18N = `# Multilingual login & registration forms — the sign-in speaks the visitor's language
+
+Reference page (news): https://www.fractera.ai/en/news/multilingual-auth-forms
+Raw doc (download): https://www.fractera.ai/docs/multilingual-auth-forms.md
+
+The login and registration forms shipped in every starter (rendered by the auth service,
+the process on port 3001) are now localized into all 82 catalog languages. After you deploy,
+you and your users see the form in your own language automatically — no setup.
+
+## Automatic, by browser language
+The form is a client component: on mount it reads the visitor's browser language
+(navigator.language, reduced to its primary subtag, e.g. pt-BR to pt) and selects the matching
+strings from a build-time dictionary (services/auth/lib/i18n/auth-strings.ts). Only the WORDS
+are localized — the email/password input fields are unchanged. English is the fallback when a
+browser asks for a language that is not present.
+
+## Static, zero extra server load
+Every language is compiled into the bundle ahead of time, so the /login and /register pages are
+served as static HTML. There is no per-visitor request to detect a language and no runtime
+generation — keeping server load minimal. The auth service is built once at full deploy
+(bootstrap build_auth); the routine app deploy loop does not rebuild it.
+
+## Trimming languages (planned)
+By default all 82 languages are baked in, because at deploy time the admin's own language is
+unknown — every language must be available for the first sign-up. A planned follow-up lets you
+list the languages to keep in an environment variable; a build-time generator (the Turbopack-safe
+parser-fs pattern) then emits a dictionary with only those languages plus English. Until it ships,
+an agent can do the same today by editing auth-strings.ts directly (remove unwanted entries, keep
+en) and rebuilding fractera-auth. The how-to doc loads into the workspace LightRAG so the Hermes
+agent can act on it.`
+
 const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
@@ -395,7 +426,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
