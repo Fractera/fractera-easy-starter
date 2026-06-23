@@ -11,8 +11,6 @@ export { SUPPORTED_LANGUAGES }
 const LOCALE_COOKIE = 'NEXT_LOCALE'
 const COOKIE_MAX_AGE = 365 * 24 * 60 * 60
 
-const PARTNER_APEX = 'partners.fractera.ai'
-
 // Public content pages an external agent / crawler / partner may link in a
 // language we do not ship (e.g. /ko/partners for Korean) or with a guessed
 // slug (/ar/term). These must NEVER 404 — they resolve to the page in the
@@ -64,34 +62,12 @@ function withLangCookie(response: NextResponse, lang: string): NextResponse {
 
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl
-  const host = (request.headers.get('host') ?? '').toLowerCase()
 
-  // ── Partner subdomain handling (must run BEFORE lang logic) ──
-  // partners.fractera.ai/<lang>/<slug> is an alias for fractera.ai/<lang>/partners/<slug>.
-  // The 'partners' segment is implicit in the subdomain. Apex bounces to the
-  // program description page on the main domain.
-  if (host === PARTNER_APEX) {
-    if (pathname === '/' || pathname === '') {
-      const target = request.nextUrl.clone()
-      target.host = 'fractera.ai'
-      target.pathname = '/en/partners'
-      return NextResponse.redirect(target)
-    }
-    const segments = pathname.split('/').filter(Boolean)
-    const first = segments[0]
-    if (SUPPORTED_LANGUAGES.includes(first)) {
-      const rest = segments.slice(1).join('/')
-      const url = request.nextUrl.clone()
-      url.pathname = rest ? `/${first}/partners/${rest}` : `/${first}/partners`
-      const res = NextResponse.rewrite(url)
-      res.headers.set('x-lang', first)
-      return withLangCookie(res, first)
-    }
-    // Path has no lang prefix — detect lang and redirect (stay on partners host).
-    const lang = detectLang(request)
-    const url = request.nextUrl.clone()
-    url.pathname = `/${lang}${pathname === '/' ? '' : pathname}`
-    return withLangCookie(NextResponse.redirect(url), lang)
+  // Partner mirror pages live at /partner/<lang>/<slug> on the main domain (the
+  // partners.fractera.ai subdomain was removed in step 130). Pass them through so
+  // the language router never rewrites the leading /partner segment under /<lang>/.
+  if (pathname === '/partner' || pathname.startsWith('/partner/')) {
+    return NextResponse.next()
   }
 
   // Single canonical reference page — served at the bare /mcp-info with NO lang

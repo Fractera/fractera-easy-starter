@@ -94,7 +94,7 @@ export default function HostingsPage() {
       </div>
 
       <p className="text-sm text-white/55 max-w-3xl">
-        Domains here are allowed on partner mirror pages (`partners.fractera.ai/&lt;slug&gt;`). Each entry is
+        Domains here are allowed on partner mirror pages (`www.fractera.ai/partner/&lt;slug&gt;`). Each entry is
         trusted as a <strong className="text-emerald-300/80">server</strong> provider, a <strong className="text-sky-300/80">domain</strong> registrar, or both — that decides which partner affiliate section it may appear in. The partner-cabinet widget tab does NOT restrict by whitelist.
       </p>
 

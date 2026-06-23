@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/debug', '/admin'],
+      disallow: ['/api/', '/debug', '/admin', '/partner'],
     },
     sitemap: 'https://www.fractera.ai/sitemap.xml',
   }

@@ -329,10 +329,10 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
 
       const origin = typeof window !== 'undefined'
         ? window.location.origin
-        : 'https://partners.fractera.ai'
+        : 'https://www.fractera.ai'
       const signInResult = await signIn('resend', {
         email: trimmed,
-        callbackUrl: `${origin}/${lang}/${partner.slug}`,
+        callbackUrl: `${origin}/partner/${lang}/${partner.slug}`,
         redirect: false,
       })
       if (signInResult?.error) { setError(t.sendFailed); return }

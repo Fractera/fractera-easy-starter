@@ -34,8 +34,8 @@ export default async function PartnersPage({
     featuresTitle: 'Что получает партнёр',
     features: [
       {
-        title: 'Личный поддомен — зеркало нашего сайта',
-        text: 'Адрес вида your-name.partners.fractera.ai с полной копией лендинга Fractera. Отличие одно: блок «Где купить VPS» содержит вашу партнёрскую ссылку вместо нашей. Поддомен решает требование любого хостинг-провайдера показать «сайт, где будет размещена партнёрская ссылка» — без этого партнёрский статус получить почти невозможно.',
+        title: 'Личная страница-зеркало нашего сайта',
+        text: 'Адрес вида www.fractera.ai/partner/<ваш-слаг> с полной копией лендинга Fractera. Отличие одно: блок «Где купить VPS» содержит вашу партнёрскую ссылку вместо нашей. Страница решает требование любого хостинг-провайдера показать «сайт, где будет размещена партнёрская ссылка» — без этого партнёрский статус получить почти невозможно.',
       },
       {
         title: 'Кабинет для управления партнёрскими ссылками',
@@ -80,8 +80,8 @@ export default async function PartnersPage({
     featuresTitle: 'What partners get',
     features: [
       {
-        title: 'Personal mirror subdomain',
-        text: 'An address like your-name.partners.fractera.ai — a full copy of the Fractera landing page. Only difference: the "Where to buy VPS" block carries your affiliate link instead of ours. The mirror solves what every hosting provider asks for — a page where the affiliate link will live. Without it, getting affiliate status is nearly impossible.',
+        title: 'Personal mirror page',
+        text: 'An address like www.fractera.ai/partner/<your-slug> — a full copy of the Fractera landing page. Only difference: the "Where to buy VPS" block carries your affiliate link instead of ours. The mirror solves what every hosting provider asks for — a page where the affiliate link will live. Without it, getting affiliate status is nearly impossible.',
       },
       {
         title: 'Affiliate link management cabinet',

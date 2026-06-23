@@ -9,8 +9,8 @@
 //      the SSH password; the user must confirm they will change it after deploy.
 //
 // These two partner surfaces use a self-contained bilingual `getTexts(lang)`
-// pattern (they render on the partners.fractera.ai host / inside an iframe,
-// outside the main i18n context), so this component carries its own EN+RU copy
+// pattern (they render on the partner mirror page /partner/<lang>/<slug> / inside
+// an iframe, outside the main i18n context), so this component carries its own EN+RU copy
 // (rule 4а — EN+RU coverage). Labels mirror the catalog grouping; the catalog
 // itself stays the single source of truth for the component ids.
 

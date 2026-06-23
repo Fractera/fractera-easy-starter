@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 import { Providers } from '@/components/providers'
 import { htmlFontClass } from '@/lib/fonts'
 import { SiteHeader } from '@/components/site-header'
@@ -175,25 +174,10 @@ export default async function LangLayout({
 
   if (!SUPPORTED_LANGS.includes(lang)) notFound()
 
-  // Partner subdomain (partners.fractera.ai) gets a bare layout: no Fractera
-  // SiteHeader / SiteFooter / CookieBanner / JSON-LD. The partner page brings
-  // its own footer. Detected server-side via the host header — a client-side
-  // pathname check cannot work here because proxy.ts rewrites the partner
-  // path internally, so usePathname() never sees a /partners/ segment.
-  //
-  // NOTE (step 130): this headers() call keeps the whole [lang] subtree dynamic.
-  // It is intentionally kept for now; sub-step 2 relocates partner rendering out
-  // of [lang] so this call can be removed and [lang] becomes fully static.
-  const headerStore = await headers()
-  const host = (headerStore.get('host') ?? '').toLowerCase()
-  const isPartnerHost = host.endsWith('partners.fractera.ai')
-
-  const inner = isPartnerHost ? (
-    <>
-      {children}
-      <Toaster position="top-center" theme="dark" />
-    </>
-  ) : (
+  // [lang] is fully static: no headers()/cookies() here. Partner mirrors moved to
+  // their own zone /partner/<lang>/<slug> (step 130, sub-step 2), so this layout no
+  // longer needs host detection.
+  const inner = (
     <>
       <script
         type="application/ld+json"

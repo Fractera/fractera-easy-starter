@@ -53,10 +53,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/',
   },
   callbacks: {
-    // Allow post-auth redirects to any fractera.ai host — the main domain,
-    // www, and the partner subdomain partners.fractera.ai. The default
-    // NextAuth redirect callback only permits same-origin, which would drop
-    // a cross-subdomain callbackUrl back to baseUrl.
+    // Allow post-auth redirects to any fractera.ai host (main domain + www).
+    // The default NextAuth redirect callback only permits same-origin, which
+    // would drop a cross-host callbackUrl back to baseUrl.
     async redirect({ url, baseUrl }) {
       try {
         const target = new URL(url, baseUrl)

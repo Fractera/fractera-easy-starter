@@ -705,7 +705,7 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
           From your partner cabinet (<a href="https://www.fractera.ai" style="color:#6c47ff;font-weight:600">fractera.ai</a> → Dashboard → Partner cabinet) you have two ready-to-use surfaces:
         </p>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.8;color:#1f2937;font-size:14px">
-          <li><strong>Partner page</strong> — your personal landing mirror at <a href="https://partners.fractera.ai/en/${slug}" style="color:#6c47ff;font-weight:600">partners.fractera.ai/en/${slug}</a>, where the “where to buy” block carries your own affiliate links.</li>
+          <li><strong>Partner page</strong> — your personal landing mirror at <a href="https://www.fractera.ai/partner/en/${slug}" style="color:#6c47ff;font-weight:600">www.fractera.ai/partner/en/${slug}</a>, where the “where to buy” block carries your own affiliate links.</li>
           <li><strong>Widget</strong> — an embeddable signup section for your own blog. Copy the snippet from the cabinet; it looks like this:</li>
         </ul>
 

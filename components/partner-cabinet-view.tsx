@@ -21,13 +21,13 @@ type PartnerLink = {
 type Surface = 'page' | 'widget'
 
 const EMBED_ORIGIN = 'https://fractera.ai'
-const PARTNERS_ORIGIN = 'https://partners.fractera.ai'
+const PARTNERS_ORIGIN = 'https://www.fractera.ai'
 
 function buildEmbedUrl(lang: Lang, slug: string) {
   return `${EMBED_ORIGIN}/${lang}/embed?ref=${slug}`
 }
 function buildPartnerPageUrl(lang: Lang, slug: string) {
-  return `${PARTNERS_ORIGIN}/${lang}/${slug}`
+  return `${PARTNERS_ORIGIN}/partner/${lang}/${slug}`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -69,8 +69,8 @@ function getTexts(lang: Lang) {
     surfaceWidget: isRu ? 'Виджет' : 'Widget',
     surfacePage: isRu ? 'Страница' : 'Page',
     surfaceHelp: isRu
-      ? 'Виджет — iframe для блогов. Страница — partners.fractera.ai/<slug>. Для страницы провайдер должен быть в whitelist доверенных.'
-      : 'Widget = iframe for blogs. Page = partners.fractera.ai/<slug>. Page requires the provider to be on the trusted whitelist.',
+      ? 'Виджет — iframe для блогов. Страница — www.fractera.ai/partner/<slug>. Для страницы провайдер должен быть в whitelist доверенных.'
+      : 'Widget = iframe for blogs. Page = www.fractera.ai/partner/<slug>. Page requires the provider to be on the trusted whitelist.',
 
     // Trusted whitelist
     trustedBadge: isRu ? 'Проверенный' : 'Trusted',
@@ -106,8 +106,8 @@ function getTexts(lang: Lang) {
 
     // Page tab specific
     pageLinksIntro: isRu
-      ? 'Ссылки, показываемые на вашей партнёрской странице partners.fractera.ai. Разрешены только проверенные хостинги — для защиты бренда Fractera.'
-      : 'Links shown on your partner page at partners.fractera.ai. Only trusted hosts are allowed — to protect the Fractera brand.',
+      ? 'Ссылки, показываемые на вашей партнёрской странице www.fractera.ai/partner/<slug>. Разрешены только проверенные хостинги — для защиты бренда Fractera.'
+      : 'Links shown on your partner page at www.fractera.ai/partner/<slug>. Only trusted hosts are allowed — to protect the Fractera brand.',
     pageUrlLabel: isRu ? 'URL вашей партнёрской страницы' : 'Your partner page URL',
     infoTitle: isRu ? 'Реквизиты для footer страницы' : 'Footer details',
     infoIntro: isRu

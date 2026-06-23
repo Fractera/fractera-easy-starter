@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 import { PartnerPageFlow } from '@/components/partner-page-flow'
 import { PartnerPageFooter } from '@/components/partner-page-footer'
@@ -15,7 +14,10 @@ export async function generateMetadata({
   const { lang, slug } = await params
   return {
     title: `Partner ${slug} — Fractera`,
-    alternates: { canonical: `https://partners.fractera.ai/${lang}/${slug}` },
+    // Partner mirrors are per-partner landing pages, not indexable site content
+    // (mirrored by robots.ts disallow /partner). Treated like the admin zone.
+    robots: { index: false, follow: false },
+    alternates: { canonical: `https://www.fractera.ai/partner/${lang}/${slug}` },
   }
 }
 
@@ -26,13 +28,6 @@ export default async function PartnerSlugPage({
 }) {
   const { lang: langParam, slug } = await params
   const lang: 'en' | 'ru' = langParam === 'ru' ? 'ru' : 'en'
-
-  // Partner pages live on the partners.fractera.ai subdomain only.
-  const headerStore = await headers()
-  const host = (headerStore.get('host') ?? '').toLowerCase()
-  if (!host.endsWith('partners.fractera.ai')) {
-    notFound()
-  }
 
   const partner = await db.partner.findUnique({
     where: { slug },
