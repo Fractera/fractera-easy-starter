@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { AdminRedirect } from '@/components/admin-redirect'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
@@ -96,7 +97,9 @@ export default async function HomePage({
                 <FractеraTestimonial />
               </div>
               <FractеraPromo />
-              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
+              <div id="sponsors" className="w-full scroll-mt-16">
+                <Suspense fallback={null}><SponsorshipSection /></Suspense>
+              </div>
               <div id="faq" className="mb-32 w-full scroll-mt-16"><FaqSection /></div>
 
             </section>
