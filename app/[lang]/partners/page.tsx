@@ -1,6 +1,4 @@
-import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { PartnersCta, OpenCabinetButton } from './partners-cta'
+import { PartnerStatusSection } from './partner-status'
 
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
@@ -17,14 +15,6 @@ export default async function PartnersPage({
 }) {
   const { lang } = await params
   const isRu = lang === 'ru'
-
-  const session = await auth()
-  const partner = session?.user?.id
-    ? await db.partner.findUnique({
-        where: { userId: session.user.id },
-        select: { slug: true, createdAt: true },
-      })
-    : null
 
   const t = isRu ? {
     badge: 'Партнёрская программа',
@@ -185,29 +175,16 @@ export default async function PartnersPage({
           <p className="text-sm text-white/75 leading-relaxed">{t.payoutsNoteBody}</p>
         </div>
 
-        {/* Join / Active partner state */}
-        {partner ? (
-          <div className="flex flex-col gap-5 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-emerald-900/20 to-black/60 p-8 items-start">
-            <span className="self-start text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest border border-emerald-500/40 bg-emerald-500/[0.08] px-3 py-1 rounded-full">
-              {t.activeBadge}
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.activeTitle}</h2>
-            <div className="w-full flex flex-col gap-2 rounded-xl border border-emerald-500/30 bg-black/40 p-5">
-              <p className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest">{t.activeIdLabel}</p>
-              <p className="font-mono text-2xl md:text-3xl font-bold text-white tracking-wide select-all">{partner.slug}</p>
-            </div>
-            <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.activeBody}</p>
-            <OpenCabinetButton label={t.activeButton} />
-            <p className="text-sm text-white/50">{t.activeNote}</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-5 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-violet-900/20 to-black/60 p-8 items-start">
-            <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{t.joinTitle}</h2>
-            <p className="text-base text-white/70 leading-relaxed max-w-2xl">{t.joinBody}</p>
-            <PartnersCta lang={lang} label={t.joinButton} />
-            <p className="text-sm text-white/50">{t.joinNote}</p>
-          </div>
-        )}
+        {/* Join / Active partner state — client island (reads session.partnerSlug)
+            so the page stays static. */}
+        <PartnerStatusSection
+          lang={lang}
+          t={{
+            activeBadge: t.activeBadge, activeTitle: t.activeTitle, activeIdLabel: t.activeIdLabel,
+            activeBody: t.activeBody, activeButton: t.activeButton, activeNote: t.activeNote,
+            joinTitle: t.joinTitle, joinBody: t.joinBody, joinButton: t.joinButton, joinNote: t.joinNote,
+          }}
+        />
 
       </div>
     </main>
