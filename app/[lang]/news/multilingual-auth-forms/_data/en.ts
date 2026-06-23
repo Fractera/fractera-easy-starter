@@ -20,8 +20,8 @@ const GRID_COL_3 = [
 ]
 
 export const en: NewsArticleBase = {
-  title: 'Your Login and Registration Forms Now Speak 82 Languages — Automatically',
-  seoTitle: 'Multilingual Login & Registration Forms: 82 Languages, Static, Zero Setup',
+  title: 'Multilingual Login & Registration Forms — 82 Languages, Static, in Every Starter',
+  seoTitle: 'Multilingual Login & Registration Forms: 82 Languages, Static, Build-Cost You Control',
   subtitle:
     'A small but important update to the starter templates of our agentic engineering platform: the sign-in and sign-up forms now appear in the visitor\'s own language out of the box — no work on your side',
   description:
@@ -74,9 +74,16 @@ export const en: NewsArticleBase = {
       ],
     },
     {
-      kind: 'callout',
-      title: 'Coming next: trim to just the languages you need',
-      text: 'Realistically, many of these languages you will never need. It does not slow down the finished page for your visitors — but it does add a few seconds your server spends building these forms. In a follow-up update you will be able to ask your Hermes agent to remove the languages you do not need and keep only the ones your users might actually use, to speed up the build. Hermes will read the document below — it will already be loaded into your own LightRAG knowledge base — and do the rest. That part is on the way; today every language simply works.',
+      kind: 'h2',
+      text: 'You decide the build cost — by the languages you activate',
+    },
+    {
+      kind: 'p',
+      text: 'Here is the part worth understanding, because it is yours to control. Every language you keep alive is a set of pages your server builds; the more languages, the longer each build takes. You decide which languages exist in one place — a single environment variable, `NEXT_PUBLIC_SUPPORTED_LANGUAGES`. From the full catalog of available languages, you keep only the ones your audience actually uses. For your **content pages this already takes effect today**: the build generates one set of pages per activated language, so fewer languages mean fewer pages and a faster build. To change it, open your workspace\'s environment variables, look at the list of available languages, and in the active-languages field keep just your own — entered as their standard ISO codes.',
+    },
+    {
+      kind: 'p',
+      text: 'These sign-in forms are the next thing to follow that exact rule, and it is worth being precise about how. Right now the forms carry all 82 languages on purpose: at the moment your server is built, we cannot yet know which language you — the very first account — will register in, so every language has to be present. In the **next step** the build will read the *same* active-languages list you curate, and a small build-time generator will emit the form dictionary for **only those languages**, with English always kept as the fallback. Nothing in the form changes for you; you will not edit a line of code. You curate that one environment list, and the build that produces your login and registration forms will contain exactly those languages — so the build cost of your authentication becomes proportional to your real audience, not to the whole catalog. This is the same principle the rest of the platform already follows: generate only what you actually use.',
     },
     {
       kind: 'docref',
@@ -113,8 +120,8 @@ export const en: NewsArticleBase = {
       a: 'All 82 languages in the platform catalog, from English, Spanish, French, German and Russian to Chinese, Japanese, Arabic, Hindi, Swahili and many more. English is always present as the fallback.',
     },
     {
-      q: 'Can I remove languages I do not need?',
-      a: 'That is coming in a follow-up update. You will be able to ask your Hermes agent to trim the unused languages and keep only the ones relevant to your users, which speeds up the build. The how-to document is loaded into your workspace memory so your agent can apply it. Today, every language simply works out of the box.',
+      q: 'How do I keep only the languages I need, and lower the build cost?',
+      a: 'You control it with one environment variable, NEXT_PUBLIC_SUPPORTED_LANGUAGES: from the full catalog of available languages you keep only the ones your audience uses, entered as their standard ISO codes. For your content pages this already decides how many pages are built — fewer activated languages, fewer pages, faster builds. The next step extends the same rule to these login and registration forms: a build-time generator will emit the form dictionary only for your activated languages, with English always kept as the fallback. You curate the list; you never touch code.',
     },
   ],
 }
