@@ -86,8 +86,11 @@ export function DoublePresentation() {
 
   // Internal-link CTA to the /ai-development-loop reference page, placed between
   // the animated containers and the three-column feature block (SEO interlinking).
+  // Negative top margin cancels the column's gap ABOVE the button (gap-6 mobile /
+  // gap-12 desktop) so it sits close to the cards above, while the gap BELOW it
+  // (to the feature blocks) is preserved.
   const devLoopButton = content.devLoopCta ? (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center -mt-6 md:-mt-12">
       <a
         href="/ai-development-loop"
         className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
