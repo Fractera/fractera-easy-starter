@@ -684,6 +684,14 @@ step "build_bridges_app" "Building admin (production)"   "npm run build --prefix
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
+# Additive: export the MCP secret into the env that the PM2 services inherit, so the
+# bridge process (and the coding agents it spawns) can authenticate to the L2 owner
+# bridges with `Bearer $HERMES_MCP_SECRET`. `source secrets.env` sets the var but does
+# NOT export it to children, so the per-agent MCP clients (.mcp.json / config.toml in
+# the slot) could not resolve ${HERMES_MCP_SECRET} without this. Deploy/wipe behaviour
+# is unchanged — this only exposes an already-generated secret to the agent runtime.
+export HERMES_MCP_SECRET
+
 step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
