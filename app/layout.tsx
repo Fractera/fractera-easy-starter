@@ -1,40 +1,15 @@
-import type { Metadata } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
-import { headers } from "next/headers";
-import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.fractera.ai"),
-};
-
-export default async function RootLayout({
+// Bare pass-through root layout (step 130 — static-rendering refactor).
+// It renders NO <html>/<body> and calls NO dynamic functions (headers()/cookies()),
+// so it never opts the app into dynamic rendering. Each zone owns its own root
+// layout with its own <html>: app/[lang] (lang from params), app/(reference)
+// (lang="en"), app/admin (lang="en"). globals.css is imported here once so styles
+// apply across every zone.
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const headersList = await headers();
-  const lang = headersList.get("x-lang") ?? "en";
-
-  return (
-    <html
-      lang={lang}
-      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
-      </body>
-    </html>
-  );
+}) {
+  return children;
 }

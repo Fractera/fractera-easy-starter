@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
+import { Providers } from '@/components/providers'
+import { htmlFontClass } from '@/lib/fonts'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CookieBanner } from '@/components/cookie-banner'
@@ -178,20 +180,20 @@ export default async function LangLayout({
   // its own footer. Detected server-side via the host header — a client-side
   // pathname check cannot work here because proxy.ts rewrites the partner
   // path internally, so usePathname() never sees a /partners/ segment.
+  //
+  // NOTE (step 130): this headers() call keeps the whole [lang] subtree dynamic.
+  // It is intentionally kept for now; sub-step 2 relocates partner rendering out
+  // of [lang] so this call can be removed and [lang] becomes fully static.
   const headerStore = await headers()
   const host = (headerStore.get('host') ?? '').toLowerCase()
   const isPartnerHost = host.endsWith('partners.fractera.ai')
 
-  if (isPartnerHost) {
-    return (
-      <>
-        {children}
-        <Toaster position="top-center" theme="dark" />
-      </>
-    )
-  }
-
-  return (
+  const inner = isPartnerHost ? (
+    <>
+      {children}
+      <Toaster position="top-center" theme="dark" />
+    </>
+  ) : (
     <>
       <script
         type="application/ld+json"
@@ -218,5 +220,13 @@ export default async function LangLayout({
       <AnchorScrollFix />
       <Toaster position="top-center" theme="dark" />
     </>
+  )
+
+  return (
+    <html lang={lang} className={htmlFontClass}>
+      <body className="min-h-full flex flex-col">
+        <Providers>{inner}</Providers>
+      </body>
+    </html>
   )
 }
