@@ -5,7 +5,7 @@ type LoopShowcasePart = Pick<SiteContent, 'loopShowcase'>
 export const loopShowcase: LoopShowcasePart = {
   loopShowcase: {
     label: 'Шаг за шагом, как это работает',
-    h2: 'Автономная AI-оркестрация под вашим полным контролем',
+    h2: 'Автономная AI-оркестрация под полным контролем — сервер и данные в РФ',
     description:
       'Современный AI-кодинг прост — сложно владеть инфраструктурой. Fractera делает владение лёгким: выделенный Ubuntu VPS, автоматический кастомный домен с SSL и production-ready стек продукта — всё ваше, навсегда.',
     // Изображения слайдов лежат в /public/section-step-by-step-images/<file>.png

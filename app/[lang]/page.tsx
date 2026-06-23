@@ -70,33 +70,39 @@ export default async function HomePage({
 
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
               {/* The architecture CTA + reference-links block was removed here. The
-                  single architecture-doc button now lives under the hero description
+                  single architecture-doc button now lives under the hero illustration
                   (in <Hero/>), pointing at /documentation/multi-agent-workspace-architecture. */}
+
+              {/* Marketing funnel order: agitate the problem first, then reveal the
+                  solution (infinite scale + 70–90% token savings), how it works, the
+                  product depth (coding + platforms), the feature set, and finally the
+                  framework breadth + the RU sovereignty narrative. The FAQ, Sponsors
+                  and GitHub-promo blocks stay pinned to the very bottom. */}
+              <div id="problem" className="w-full scroll-mt-16"><ProblemSection /></div>
               <UltimateScale />
               {/* The "Next.js Aircraft Carrier" deep-dive block moved off the homepage
                   to its own framework page (/framework/fractera-pro). */}
-              {/* "Connect your framework" — the framework catalog grid. */}
-              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
-              {/* Narrative slot — 'none' (EN, after the Elon block moved to the blog)
-                  has no component, so nothing renders. */}
-              {HeroNarrative && <HeroNarrative />}
               <div id="ai-loop" className="w-full scroll-mt-16"><LoopShowcase /></div>
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>
-              <div id="problem" className="w-full scroll-mt-16"><ProblemSection /></div>
+              <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
+              {/* "Connect your framework" — the framework catalog grid. */}
+              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
+              {/* Narrative slot — RU import-substitution (sovereignty differentiation);
+                  EN 'none' renders nothing. */}
+              {HeroNarrative && <HeroNarrative />}
 
               {/* Deploy form + MCP connector moved off the homepage to their own
                   pages (/deployments/vps and /deployments/mcp). The homepage no
                   longer carries the install form or any deploy CTA buttons. */}
 
-              <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
-              <FractеraPromo />
-              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
-              <div id="faq" className="w-full scroll-mt-16"><FaqSection /></div>
-
-              <div id="cases" className="mb-32 w-full flex justify-center scroll-mt-16">
+              {/* Social proof, then the pinned bottom trio (cases → GitHub → sponsors → FAQ). */}
+              <div id="cases" className="w-full flex justify-center scroll-mt-16">
                 <FractеraTestimonial />
               </div>
+              <FractеraPromo />
+              <div id="sponsors" className="w-full scroll-mt-16"><SponsorshipSection /></div>
+              <div id="faq" className="mb-32 w-full scroll-mt-16"><FaqSection /></div>
 
             </section>
           </ContentProvider>

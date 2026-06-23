@@ -9,7 +9,7 @@ type HeroPart = Pick<SiteContent,
 export const hero: HeroPart = {
   heroBadge: 'Open Source — бесплатно навсегда',
   heroNarrativeVariant: 'import-substitution',
-  heroTitle: 'Инфраструктура агентной инженерии: self-hosted и без оплаты за токены',
+  heroTitle: 'Инфраструктура агентной инженерии на вашем сервере в РФ',
   lightPitch: {
     label: 'Альтернатива',
     h2: 'Не нужна полная AI-автоматизация? Возьми только backend',
@@ -43,7 +43,7 @@ export const hero: HeroPart = {
     'Робот Fractera установит инфраструктуру агентной инженерии на ваш VPS за 10 минут.',
 
   heroBenefitsHeader: {
-    h2: 'Self-hosted инфраструктура AI-агентов: без оплаты за токены',
+    h2: 'Суверенная инфраструктура AI-агентов: данные в РФ, без оплаты за токены',
     cardLink: 'Подробнее',
   },
 

@@ -9,7 +9,7 @@ type FeaturesPart = Pick<SiteContent,
 export const features: FeaturesPart = {
   featuresHeader: {
     label: 'Что включено',
-    h2: 'Enterprise-функции для агентной инфраструктуры',
+    h2: 'Enterprise-функции агентной инфраструктуры с данными в РФ',
     description: 'Fractera Light покрывает 90% того, что нужно профессиональному приложению. Fractera Pro открывает оставшиеся 10%.',
   },
 
@@ -29,7 +29,7 @@ export const features: FeaturesPart = {
   ],
 
   promoSection: {
-    h2: 'Создайте свою white-label платформу AI-агентов',
+    h2: 'Своя white-label платформа AI-агентов на open-source',
     description:
       'Fractera полностью open source. Форкните репозиторий, разверните собственный инстанс и создавайте продукты с ИИ — для себя или как бизнес: деплой серверов для клиентов и консалтинговые услуги.',
     githubButton: 'Смотреть на GitHub',
@@ -37,7 +37,7 @@ export const features: FeaturesPart = {
 
   faqHeader: {
     label: 'FAQ',
-    h2: 'Техническая архитектура Fractera и FAQ',
+    h2: 'Техническая архитектура Fractera и ответы на вопросы',
     description: 'Всё, что нужно знать перед стартом.',
   },
 

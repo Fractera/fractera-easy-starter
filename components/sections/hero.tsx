@@ -29,33 +29,36 @@ export function Hero() {
       {/* ── Section 1 — hero intro. NO background video now: the agentic-engineering
           video sits inline, full-width, between the H1 and the description, and plays
           on its own (autoplay, muted, looped — no play button). ── */}
-      <div className="flex flex-col items-center text-center gap-6 pt-16 px-4">
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-          <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
+      <div className="flex flex-col items-center text-center pt-16 px-4">
+        {/* Top cluster — badge, brand, H1 keep their internal spacing; the H1 then
+            sits flush against the illustration below (no gap) by design. */}
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/50 bg-violet-500/[0.06]">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+            <span className="text-xs font-semibold text-violet-400 uppercase tracking-[0.15em]">{content.heroBadge}</span>
+          </div>
+          <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
+          <h1
+            className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl max-w-[1250px]"
+            style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
+          >
+            {content.heroTitle}
+          </h1>
         </div>
-        <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
-        <h1
-          className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl max-w-[1250px]"
-          style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
-        >
-          {content.heroTitle}
-        </h1>
 
-        {/* Full-width agentic-engineering video — background-style playback (autoplay,
-            muted, looped, inline; no controls / no play button). */}
+        {/* Agentic-engineering illustration video — background-style playback (autoplay,
+            muted, looped, inline; no controls). Capped at 1152px and flush against the
+            H1 above and the button below: the PNG/video carries its own whitespace
+            ledge, so touching the edges is intentional (the short subheading paragraph
+            was removed — it only added clutter under such a short title). */}
         <video
-          className="w-full h-auto pointer-events-none my-2"
+          className="w-full max-w-[1152px] h-auto pointer-events-none"
           src="/fractera-agentic-engineering.mp4"
           autoPlay loop muted playsInline
         />
 
-        {/* Description — widened to match the following section containers (was the
-            narrow max-w-xl that wrapped into a thin column). */}
-        <p className="text-lg text-white/80 leading-relaxed max-w-4xl">{content.description}</p>
-
-        {/* Single button under the description → the architecture documentation page
-            (the bilingual doc that replaced the homepage architecture/reference block). */}
+        {/* Single button directly under the illustration → the architecture doc page.
+            No top gap: it touches the natural bottom ledge of the image by design. */}
         {content.architectureCta && (
           <Link
             href={`/${lang}/documentation/multi-agent-workspace-architecture`}

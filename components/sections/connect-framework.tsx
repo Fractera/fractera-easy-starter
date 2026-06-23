@@ -97,8 +97,6 @@ export function ConnectFramework() {
           </button>
         </div>
       )}
-
-      <p className="text-xs text-orange-400/80 leading-relaxed">{cf.hint}</p>
     </div>
   )
 }
