@@ -93,19 +93,30 @@ export function StandardContentPage({
     <main className="min-h-screen bg-black text-white">
       <article className="mx-auto w-full max-w-5xl px-6 py-16 md:py-12">
 
-        {/* 1. Breadcrumb */}
+        {/* 1. Breadcrumb — single row, never wraps, never overflows.
+            The trail stays on one line (flex-nowrap) and the whole strip is
+            clipped (overflow-hidden) so a long page title can NEVER widen the
+            page on a phone (no horizontal scroll/swipe). The parent crumbs keep
+            their full width (shrink-0 + whitespace-nowrap); only the LAST crumb
+            — the page title, the long one — is allowed to shrink (min-w-0) and
+            truncates with an ellipsis. truncate needs min-w-0 on every flex
+            ancestor, otherwise the item refuses to shrink below its content and
+            pushes the row past the viewport. */}
         <nav aria-label="Breadcrumb" className="text-sm text-white/40">
-          <ol className="flex flex-wrap items-center gap-1.5">
+          <ol className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
             {breadcrumbs.map((c, i) => {
               const isLast = i === breadcrumbs.length - 1
               return (
-                <li key={i} className="flex items-center gap-1.5">
+                <li
+                  key={i}
+                  className={`flex items-center gap-1.5 ${isLast ? 'min-w-0' : 'shrink-0'}`}
+                >
                   {c.href && !isLast ? (
-                    <a href={c.href} className="hover:text-white">{c.label}</a>
+                    <a href={c.href} className="whitespace-nowrap hover:text-white">{c.label}</a>
                   ) : (
-                    <span aria-current="page" className="truncate text-white/60">{c.label}</span>
+                    <span aria-current="page" className="block min-w-0 truncate text-white/60">{c.label}</span>
                   )}
-                  {!isLast && <span aria-hidden className="text-white/25">/</span>}
+                  {!isLast && <span aria-hidden className="shrink-0 text-white/25">/</span>}
                 </li>
               )
             })}
