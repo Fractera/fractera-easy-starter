@@ -198,14 +198,19 @@ deploy, language unknown); set → only the chosen languages + `en`.
 directly — open `services/auth/lib/i18n/auth-strings.ts`, remove the language
 entries you do not need (keep `en`), then rebuild + reload (Part 7). See AP7/AP8.
 
-**The env-editing surface (admin):** the workspace exposes an env editor
-(`/api/config/env`) that writes `app/.env.local` and `services/auth/.env.local`,
-with a read-only `LOCKED_KEYS` set for values you must not change
-(`DATABASE_URL`, `COOKIE_DOMAIN`, `NEXTAUTH_URL`, `ALLOWED_ORIGINS`, …). The active-
-languages field (`NEXT_PUBLIC_SUPPORTED_LANGUAGES`) is editable; enter standard ISO
-639-1 codes. When the next step lands, the full catalog
-(`NEXT_PUBLIC_ALL_LANGUAGES`) is shown read-only as a reference, and the active
-field is validated so an invalid code cannot be saved.
+**The settings surface (admin):** the workspace curates languages through a
+dedicated **Languages** panel, not by hand-typing codes. It shows the full catalog
+of available languages as a **checklist**; you tick the ones you serve, pick a
+default, and `en` is locked on as the guaranteed fallback (you cannot untick it).
+Saving writes `NEXT_PUBLIC_SUPPORTED_LANGUAGES` / `NEXT_PUBLIC_DEFAULT_LOCALE` via a
+key-scoped, line-preserving route (`/api/config/languages`) and triggers a rebuild,
+because the language set is build-time. The server validates the submitted codes
+against the catalog and rejects any unknown code, so an invalid language cannot be
+saved even via a direct API call. The raw env editor (`/api/config/env`) still
+exists for other keys, but the language keys are **read-only there** (locked) —
+the checklist is the one safe place to change them. The same env editor keeps a
+read-only `LOCKED_KEYS` set for values you must never change (`DATABASE_URL`,
+`COOKIE_DOMAIN`, `NEXTAUTH_URL`, `ALLOWED_ORIGINS`, …).
 
 ---
 

@@ -20,8 +20,8 @@ const GRID_COL_3 = [
 ]
 
 export const en: NewsArticleBase = {
-  title: 'Multilingual Login & Registration Forms — 82 Languages, Static, in Every Starter',
-  seoTitle: 'Multilingual Login & Registration Forms: 82 Languages, Static, Build-Cost You Control',
+  title: 'Multilingual Authentication for Agentic Engineering — 82-Language Login & Registration Forms',
+  seoTitle: 'Multilingual Auth for Agentic Engineering: 82-Language Login & Registration Forms, Static',
   subtitle:
     'A small but important update to the starter templates of our agentic engineering platform: the sign-in and sign-up forms now appear in the visitor\'s own language out of the box — no work on your side',
   description:
@@ -32,7 +32,7 @@ export const en: NewsArticleBase = {
     'multilingual login form, localized registration form, 82 languages, static auth forms, agentic engineering platform, i18n authentication, native language sign-in',
   blocks: [
     {
-      kind: 'founder',
+      kind: 'quote',
       text: 'I want to keep this one simple. If you are building for clients in your region, the very first screen they meet should feel like home — and that screen is almost always the sign-in. So we made it speak their language by default. You deploy, and the registration and login forms are already in the right language, both for you and for the people you serve. Nothing to set up.',
     },
     {
@@ -79,11 +79,11 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'p',
-      text: 'Here is the part worth understanding, because it is yours to control. Every language you keep alive is a set of pages your server builds; the more languages, the longer each build takes. You decide which languages exist in one place — a single environment variable, `NEXT_PUBLIC_SUPPORTED_LANGUAGES`. From the full catalog of available languages, you keep only the ones your audience actually uses. For your **content pages this already takes effect today**: the build generates one set of pages per activated language, so fewer languages mean fewer pages and a faster build. To change it, open your workspace\'s environment variables, look at the list of available languages, and in the active-languages field keep just your own — entered as their standard ISO codes.',
+      text: 'Here is the part worth understanding, because it is yours to control. Every language you keep alive is a set of pages your server builds; the more languages, the longer each build takes. You curate the set in your workspace — open the **Languages** settings panel and you see the full catalog of available languages as a checklist. Tick the ones your audience actually uses; English stays on, always, as the guaranteed fallback. Saving applies the choice by rebuilding the app, which statically generates the pages for exactly those languages. For your **content pages this already works today**: fewer ticked languages mean fewer pages and a faster build. (Under the hood this is one environment list, `NEXT_PUBLIC_SUPPORTED_LANGUAGES`, but you never edit it by hand — the checklist does it for you, and an invalid code can\'t slip in.)',
     },
     {
       kind: 'p',
-      text: 'These sign-in forms are the next thing to follow that exact rule, and it is worth being precise about how. Right now the forms carry all 82 languages on purpose: at the moment your server is built, we cannot yet know which language you — the very first account — will register in, so every language has to be present. In the **next step** the build will read the *same* active-languages list you curate, and a small build-time generator will emit the form dictionary for **only those languages**, with English always kept as the fallback. Nothing in the form changes for you; you will not edit a line of code. You curate that one environment list, and the build that produces your login and registration forms will contain exactly those languages — so the build cost of your authentication becomes proportional to your real audience, not to the whole catalog. This is the same principle the rest of the platform already follows: generate only what you actually use.',
+      text: 'These sign-in forms are the next thing to follow that exact rule, and it is worth being precise about how. Right now the forms carry all 82 languages on purpose: at the moment your server is built, we cannot yet know which language you — the very first account — will register in, so every language has to be present. In the **next step** the build will read the *same* checklist you tick in Languages settings, and a small build-time generator will emit the form dictionary for **only those languages**, with English always kept as the fallback. Nothing in the form changes for you; you will not edit a line of code — you tick your languages, and the build that produces your login and registration forms contains exactly those. So the build cost of your authentication becomes proportional to your real audience, not to the whole catalog — the same principle the rest of the platform already follows: generate only what you actually use.',
     },
     {
       kind: 'docref',
@@ -121,7 +121,7 @@ export const en: NewsArticleBase = {
     },
     {
       q: 'How do I keep only the languages I need, and lower the build cost?',
-      a: 'You control it with one environment variable, NEXT_PUBLIC_SUPPORTED_LANGUAGES: from the full catalog of available languages you keep only the ones your audience uses, entered as their standard ISO codes. For your content pages this already decides how many pages are built — fewer activated languages, fewer pages, faster builds. The next step extends the same rule to these login and registration forms: a build-time generator will emit the form dictionary only for your activated languages, with English always kept as the fallback. You curate the list; you never touch code.',
+      a: 'In your workspace open the Languages settings panel: the full catalog of available languages is a checklist. Tick only the ones your audience uses; English stays on as the guaranteed fallback, and saving rebuilds the app to apply the choice. For your content pages this already decides how many pages are built — fewer ticked languages, fewer pages, faster builds. The next step extends the same rule to these login and registration forms: a build-time generator will emit the form dictionary only for your ticked languages, English kept as fallback. You tick the list; you never touch code or type an ISO code, so an invalid one cannot slip in.',
     },
   ],
 }
