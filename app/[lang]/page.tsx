@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { auth } from '@/lib/auth'
+import { AdminRedirect } from '@/components/admin-redirect'
 import { getContent } from '@/lib/i18n/content'
 import { ContentProvider } from '@/components/content-provider'
 import { Hero } from '@/components/sections/hero'
@@ -47,16 +46,12 @@ export default async function HomePage({
 }) {
   const { lang } = await params
 
-  const session = await auth()
-  if (session?.user?.email === 'admin@fractera.ai') {
-    redirect('/admin')
-  }
-
   const content = getContent(lang)
   const HeroNarrative = HERO_NARRATIVE_REGISTRY[content.heroNarrativeVariant]
 
   return (
     <>
+      <AdminRedirect />
       {/* FAQ JSON-LD disabled — do NOT delete, re-enable later (kept out of prod).
       <script
         type="application/ld+json"

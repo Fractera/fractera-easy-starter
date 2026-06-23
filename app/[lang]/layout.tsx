@@ -78,6 +78,14 @@ export function generateStaticParams() {
   return SUPPORTED_LANGS.map(lang => ({ lang }))
 }
 
+// All supported languages are enumerated above and prerendered at build.
+// dynamicParams=false → an unlisted language 404s instead of spawning an on-demand
+// function, so static [lang] pages compile to pure static (○) with no fallback
+// lambda (and Vercel's Functions count drops). proxy.ts already redirects unknown /
+// invented locales to a supported one, so an unlisted lang never reaches the route.
+// (step 130)
+export const dynamicParams = false
+
 function buildOrganizationSchema(lang: string) {
   const m = getMeta(lang)
   return {

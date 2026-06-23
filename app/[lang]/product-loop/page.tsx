@@ -1,4 +1,6 @@
 import { getContent } from '@/lib/i18n/content'
+import { Suspense } from 'react'
+import { LinkedNote } from '@/components/linked-note'
 
 import type { Metadata } from 'next'
 import { buildAlternates } from '@/lib/seo/alternates'
@@ -10,13 +12,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function ProductLoopPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ lang: string }>
-  searchParams: Promise<{ id?: string }>
 }) {
   const { lang } = await params
-  const { id } = await searchParams
   const c = getContent(lang).marketplace
   const m = c.productLoop
 
@@ -37,7 +36,7 @@ export default async function ProductLoopPage({
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-bold tracking-tight">{m.h1}</h1>
             <p className="max-w-2xl text-base text-white/50">{m.intro}</p>
-            {id && <p className="text-xs text-white/30">{c.linkedNote}</p>}
+            <Suspense fallback={null}><LinkedNote text={c.linkedNote} className="text-xs text-white/30" /></Suspense>
           </div>
 
           <div className="border border-white/10 rounded-2xl p-12 text-center flex flex-col gap-3">
