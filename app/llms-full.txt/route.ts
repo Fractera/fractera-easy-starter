@@ -370,6 +370,37 @@ it at once, even across hundreds of pages. Presentation is managed by structure,
 propagates everywhere. That dynamically-managed design system is the second payoff of the same
 architecture that saves the tokens. The document is bilingual (EN/RU).`
 
+const APP_CONFIG = `# App Config automation — the MCP connector for managing project configuration
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/app-config-mcp-connector
+Raw living standard (download): https://www.fractera.ai/docs/app-config-automation.md
+
+A deployed app carries owner-editable settings that brand it and control how it appears
+to visitors, search engines and PWA installs: name, description, canonical URL, SEO,
+OpenGraph, PWA/theme, author, social profiles, JSON-LD, local business — and the language
+set. The automated MCP connector for managing project configuration lets any of the six AI
+agents read and change these by plain request, instead of clicking the admin panel.
+
+The settings live in a plain JSON file on disk (app/APP-CONFIG/app-config.json), deep-merged
+over the code defaults on every render. A file is chosen over a database (opaque to agents,
+needs a query layer) and over env vars (flat, and NEXT_PUBLIC_* bakes into the build so it
+would need a rebuild): the file is transparent, holds nested structure, and applies without a
+rebuild. The distinction that matters is substrate vs write path — the file is the substrate,
+but every write goes through a validated setter (the app-settings-bridge MCP, port 3218),
+never raw hand-editing: it validates against a field catalog, writes atomically (temp file +
+rename), and triggers on-demand revalidation so the change shows on the next page load while
+the public pages stay static. Languages are the one build-time exception (they feed static
+page generation), so changing them needs a rebuild and the agent says so.
+
+The capability is duplicated into all six agents (Claude, Codex, Gemini, Qwen, Kimi, Hermes)
+as both a skill (manage-app-settings) and the MCP connector, so a project running a single
+agent with no orchestrator still has it. The same change runs directly on one coding agent or
+through the Hermes orchestrator; the write mechanics are identical, Hermes only adds multi-step
+orchestration. Access is constrained in depth: writing configuration is architect-only and
+checked at every layer; the connector binds to localhost and is never exposed to the internet;
+every call carries a per-deploy Bearer secret; and a mutating tool confirms the change before
+writing. The document is English (TechArticle), written for a hybrid human + AI reader.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -426,7 +457,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

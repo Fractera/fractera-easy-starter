@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/static-first-rendering-economics', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/content-engine-architecture', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/documentation/app-config-mcp-connector', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation/multi-agent-workspace-architecture', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
     { path: '/deployments',       changeFrequency: 'weekly'  as const, priority: 0.7 },
