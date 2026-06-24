@@ -127,6 +127,13 @@ export const en: NewsArticleBase = {
       text: 'And here is the part we have not even announced until now: every deployed Fractera app ships with a single **App Settings** screen (in the Admin area) where you manage all of this in one place — branding, SEO, OpenGraph, PWA, author, social, structured data, languages, and images. You type a value, you save, and it shows up on the next page load — with **no rebuild** and, crucially, without ever forcing the site dynamic. It applies through cache revalidation, the same disciplined approach behind [static-first rendering](/en/documentation/static-first-rendering-economics).',
     },
     {
+      kind: 'figure',
+      media: 'image',
+      src: '/news/fractera-app-config-architecture/fractera-app-config-architecture-mcp-and-Manual-settings-screenshot-2026-06-24.jpg',
+      alt: 'The App Settings panel in the Fractera Admin: brand name, short name and description fields on the left, with a live App Preview on the right rendering the app named AIFA.',
+      caption: 'App Settings in the live Admin: type the brand name, short name and description on the left and the App Preview on the right updates immediately — here the app is renamed to AIFA. Saved on the server, shown on the next page load, no rebuild.',
+    },
+    {
       kind: 'p',
       text: 'For a startup this is quietly huge: real, production-grade SEO and branding on day zero, with no specialist, no separate tool, and no chance of the configuration step quietly wrecking your hosting bill. It is the boring, expensive part of launch — done for you, safely.',
     },

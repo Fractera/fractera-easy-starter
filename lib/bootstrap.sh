@@ -396,7 +396,16 @@ else
 fi' || true
 maybe_step "brain" "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
 maybe_step "brain" "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
-maybe_step "brain" "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
+# Skills are directory-form `<name>/SKILL.md` (+ YAML frontmatter) — the ONLY shape Hermes
+# discovers (agent/skill_utils.py walks for files literally named SKILL.md). `cp -r` preserves
+# that structure so each `<name>/SKILL.md` lands discoverable; a flat `cp` of bare `<name>.md`
+# left them invisible to Hermes (it then picked the wrong vendored skill). → step 137.
+maybe_step "brain" "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp -r /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
+# SOUL.md = Hermes persona + operating rules, injected into the system prompt fresh every
+# message (no restart). Stock Hermes ships an empty template; we install the Fractera persona
+# so Hermes grounds itself in its real toolkit before acting and offers the capability
+# catalogue to a human instead of guessing. → step 140.
+maybe_step "brain" "install_hermes_soul" "Hermes persona (SOUL.md)" "[ -d /root/.hermes ] && [ -f /opt/fractera/services/hermes-soul/SOUL.md ] && cp /opt/fractera/services/hermes-soul/SOUL.md /root/.hermes/SOUL.md || true"
 maybe_step "brain" "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
 maybe_step "brain" "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
 
@@ -436,6 +445,15 @@ source /etc/fractera/secrets.env
 # IP-mode CORS: include cross-port origins so http://IP:3000 can call auth on :3001.
 IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3300"
 
+# Languages are owner-editable AFTER deploy (Admin → languages and the app-settings MCP write
+# NEXT_PUBLIC_SUPPORTED_LANGUAGES into THIS file, then trigger a rebuild — step 138). Preserve an
+# existing set on a re-bootstrap so a redeploy does NOT reset the owner's languages back to bilingual.
+# Default to en,es only on a fresh slot (no prior .env.local). Captured BEFORE the heredoc truncates it.
+EXISTING_LANGS="$(grep -E '^NEXT_PUBLIC_SUPPORTED_LANGUAGES=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
+EXISTING_LOCALE="$(grep -E '^NEXT_PUBLIC_DEFAULT_LOCALE=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
+SUPPORTED_LANGS="${EXISTING_LANGS:-en,es}"
+DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-en}"
+
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
@@ -448,6 +466,11 @@ APP_DB_PATH=/opt/fractera/app/data/app.db
 # does not affect the L1 deploy MCP or any existing bridge behaviour.
 DATA_SECRET=$DATA_SECRET
 REMOTE_DATA_URL=http://localhost:3300
+# The app-settings MCP (bridges/platforms, :3218) writes the language set here and then triggers a
+# rebuild via the admin deploy endpoint (POST :3002/api/deploy) — that needs the deploy secret. The
+# bridge loads THIS file, so the secret must be present here too (it is already in bridges/app/.env.local
+# for the admin's own deploy route). Server-side only, never NEXT_PUBLIC. → step 138.
+DEPLOY_SECRET=$DEPLOY_SECRET
 # The Documents page (/documents) ingests knowledge-base files into Company
 # Memory (LightRAG :9621) via /api/documents/ingest. It posts to LightRAG with
 # this key (X-API-Key) — same key the admin app and the rag service use, so the
@@ -466,9 +489,10 @@ FRACTERA_IP_NODOMAIN_MODE=true
 # language → pages serve from the bare root and the button hides. These are
 # NEXT_PUBLIC_* (baked at build time), so the slot ships bilingual out of the box
 # (English + Spanish) and the switcher is visible by default. Harmless for slots
-# that do not use them.
-NEXT_PUBLIC_SUPPORTED_LANGUAGES=en,es
-NEXT_PUBLIC_DEFAULT_LOCALE=en
+# that do not use them. Preserved across re-bootstrap (see EXISTING_LANGS capture above):
+# a redeploy keeps the owner's language set instead of resetting it to en,es. → step 138.
+NEXT_PUBLIC_SUPPORTED_LANGUAGES=$SUPPORTED_LANGS
+NEXT_PUBLIC_DEFAULT_LOCALE=$DEFAULT_LOCALE_VAL
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
@@ -698,15 +722,19 @@ step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth &
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-# Hermes binds :9119 only AFTER a slow first-boot warmup (it installs TUI deps
-# on the first `dashboard` run — can take 1-3 min). A fixed `sleep 8` returned
-# before that, so a user who attached a domain right after deploy hit a Hermes
-# that wasn't listening yet → the secure-transition health-check got 502 and
-# blocked the switch. Poll until :9119 actually answers (up to ~180s) so this
-# step doesn't complete until Hermes is genuinely up; after this first install
-# the deps are cached and later restarts are fast.
-# → reports/errors/hermes-startup-race-secure-healthcheck.md
-maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 0.0.0.0 --port 9119 --no-open --insecure && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
+# Hermes binds :9119 — MUST be 127.0.0.1, not 0.0.0.0. The June-2026 Hermes
+# hardening REFUSES a non-loopback (0.0.0.0) bind unless a dashboard auth provider
+# is configured (basic_auth/OAuth), and `--insecure` is now a deprecated NO-OP.
+# A 0.0.0.0 bind therefore crash-loops the process ("Refusing to bind dashboard to
+# 0.0.0.0…") → :9119 never listens → nginx returns 502 on the hermes host. nginx is
+# local, so 127.0.0.1 is sufficient AND the blessed setup. The agent dashboard also
+# now validates the Host header against its bound host, so the secure nginx config
+# (route.ts buildNginxConfig) presents Host: 127.0.0.1:9119 to it — see step 136.
+# (First-boot warmup still applies: it installs TUI deps on the first `dashboard`
+# run, 1-3 min; poll until :9119 actually answers, up to ~180s.)
+# → reports/errors/hermes-refuses-0.0.0.0-bind-and-host-check.md (step 136)
+# → reports/errors/hermes-startup-race-secure-healthcheck.md (step 91)
+maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
 # Messaging gateway — the process that connects to Telegram/Discord/etc and
 # polls for messages. The dashboard above does NOT poll messengers; without
 # this process a saved Telegram token does nothing (the old "press Gateway run"
