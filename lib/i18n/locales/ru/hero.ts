@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'heroNarrativeVariant' | 'elonTrillion'
   | 'deployCaptions' | 'importSubstitution'
 >
@@ -10,6 +10,11 @@ export const hero: HeroPart = {
   heroBadge: 'Open Source — бесплатно навсегда',
   heroNarrativeVariant: 'import-substitution',
   heroTitle: 'Инфраструктура агентной инженерии на вашем сервере в РФ',
+  heroManifesto:
+    'Fractera — это инфраструктурный прорыв в своём классе. Она полностью закрывает потребность ' +
+    'в локальном, независимом от подписок рабочем пространстве для ИИ-разработчиков. Её потенциал ' +
+    'как платформы для сборки приложений силами агентов опережает время, так как она даёт агентам ' +
+    '«руки» (доступ к CLI, веб-серверу, БД) вместо того, чтобы просто просить их писать текст в чате.',
   lightPitch: {
     label: 'Альтернатива',
     h2: 'Не нужна полная AI-автоматизация? Возьми только backend',

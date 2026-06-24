@@ -68,6 +68,21 @@ export function Hero() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
         )}
+
+        {/* Manifesto — a powerful-but-soft positioning statement directly under the hero
+            illustration + CTA. Centered serif paragraph with a thin violet divider above
+            and a gentle violet glow (deliberately softer than the H1's hard stroke). */}
+        {content.heroManifesto && (
+          <div className="mt-12 flex flex-col items-center">
+            <div className="h-px w-16 bg-violet-500/70" />
+            <p
+              className="mt-7 max-w-3xl font-serif text-lg leading-relaxed text-white/85 md:text-xl md:leading-relaxed"
+              style={{ textShadow: '0 0 24px rgba(139,92,246,0.25)' }}
+            >
+              {content.heroManifesto}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ── Section 2 — "Self-Hosting Platform". The ai-loop video moved here from the

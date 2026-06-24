@@ -13,6 +13,9 @@ export type FaqItem = {
 export type SiteContent = {
   heroBadge: string
   heroTitle: string
+  // Manifesto statement shown directly under the hero illustration — a powerful but
+  // soft one-paragraph positioning of what Fractera is.
+  heroManifesto?: string
   deployButton: string
   heroButtonCaption?: string
   // Label for the "learn the architecture" link under the hero benefits block.

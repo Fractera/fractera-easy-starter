@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'heroNarrativeVariant' | 'elonTrillion'
   | 'deployCaptions'
 >
@@ -12,6 +12,11 @@ export const hero: HeroPart = {
   // /blog/trillion-dollar-service-opportunity. No narrative section renders here.
   heroNarrativeVariant: 'none',
   heroTitle: 'Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
+  heroManifesto:
+    'Fractera is an infrastructure breakthrough in its class. It fully answers the need for a ' +
+    'local, subscription-independent workspace for AI developers. Its potential as a platform for ' +
+    'building applications by agents is ahead of its time — because it gives agents real hands ' +
+    '(access to the CLI, the web server, the database) instead of merely asking them to write text in a chat.',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",
