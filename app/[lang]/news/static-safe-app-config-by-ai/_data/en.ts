@@ -44,7 +44,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'Metadata — the thing everyone leaves for later',
+      text: 'Metadata in agentic engineering: the SEO groundwork everyone leaves for last',
     },
     {
       kind: 'p',
@@ -52,7 +52,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'h3',
-      text: 'What actually counts as metadata',
+      text: 'What counts as metadata in a Next app',
     },
     {
       kind: 'p',
@@ -60,7 +60,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'h3',
-      text: 'Why the standard Next path leaves you alone with the rakes',
+      text: 'Why the standard Next metadata path leaves an AI agent with the rakes',
     },
     {
       kind: 'p',
@@ -69,7 +69,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'The €90,000 night',
+      text: 'The €90,000 night: when a static site silently turns dynamic',
     },
     {
       kind: 'p',
@@ -81,7 +81,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'h3',
-      text: 'What “dynamic mode” actually means',
+      text: 'What “dynamic rendering” actually means for a self-hosted app',
     },
     {
       kind: 'p',
@@ -89,7 +89,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'h3',
-      text: 'One line that drops the whole project into dynamic',
+      text: 'The one line that flips a whole Next app into dynamic rendering',
     },
     {
       kind: 'p',
@@ -97,7 +97,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'h3',
-      text: 'Why an AI agent is especially prone to it',
+      text: 'Why an AI agent in agentic engineering is especially prone to it',
     },
     {
       kind: 'p',
@@ -106,7 +106,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'Why postponing metadata is a trap',
+      text: 'Why postponing metadata is a trap for any agentic engineering project',
     },
     {
       kind: 'p',
@@ -120,7 +120,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'The solution, part one — settings by hand, from the panel',
+      text: 'The fix, part one: app settings by hand on the agentic engineering platform',
     },
     {
       kind: 'p',
@@ -133,7 +133,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'What you can actually set — the full map',
+      text: 'What you can configure: the full app-settings map',
     },
     {
       kind: 'p',
@@ -284,7 +284,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'The solution, part two — the same thing, just by asking the AI',
+      text: 'The fix, part two: app config by an AI agent',
     },
     {
       kind: 'p',
@@ -297,7 +297,7 @@ export const en: NewsArticleBase = {
 
     {
       kind: 'h2',
-      text: 'How we keep the project from sliding into dynamic',
+      text: 'How the agentic engineering platform keeps your app static',
     },
     {
       kind: 'p',
