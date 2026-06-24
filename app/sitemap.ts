@@ -25,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/documentation/content-engine-architecture', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation/app-config-mcp-connector', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation/multi-agent-workspace-architecture', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/documentation/hermes-brain-setup-and-recovery', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/cases',   changeFrequency: 'weekly'  as const, priority: 0.6 },
     { path: '/deployments',       changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/deployments/vps',   changeFrequency: 'monthly' as const, priority: 0.7 },
