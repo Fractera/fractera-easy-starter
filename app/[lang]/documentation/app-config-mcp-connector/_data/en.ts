@@ -5,7 +5,7 @@ import type { DocBase } from '../../_lib/types'
 // AND an AI agent) — not a press release. The RU override (../_data/ru) ships the full
 // Russian version. SEO key: "agentic engineering" / configuration automation.
 export const en: DocBase = {
-  title: 'App Config Automation in Agentic Engineering: Settings by an Agent’s Voice',
+  title: 'Using MCP for App Settings in Agentic Engineering | How an Agent Changes the App Config',
   description:
     'How an AI agent manages a deployed app’s configuration in agentic engineering — name, description, SEO, PWA and languages changed by a plain request and applied on the next page load, with no rebuild. The App Config MCP connector explained.',
   summary:
@@ -32,8 +32,8 @@ export const en: DocBase = {
   ],
   blocks: [
     {
-      kind: 'founder',
-      text: 'Here is the idea in one breath: the workspace where AI writes your app should also let AI retune the app itself. Changing your site’s name, description, SEO or languages should not be a hunt through an admin panel — it should be a sentence. So we took the settings panel built for humans and gave the AI its own door into it. The same assistant that ships your features can now rebrand the site on request — and the change is live on the next page load, no rebuild.',
+      kind: 'quote',
+      text: 'Change your site’s name, description, or SEO — even its languages — just by asking an AI agent, in chat or by voice. No admin panel to click through. No rebuild to wait for.',
     },
     {
       kind: 'p',
@@ -251,9 +251,8 @@ export const en: DocBase = {
       label: 'Deploy with AI',
     },
     {
-      kind: 'quote',
+      kind: 'founder',
       text: 'Experiment relentlessly. If you work “the way it’s done,” your ceiling is known in advance. Try to do things differently — not like everyone else.',
-      cite: 'Roma Armstrong, Founder at Fractera',
     },
   ],
 }
