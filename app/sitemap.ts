@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/news',    changeFrequency: 'weekly'  as const, priority: 0.7 },
     { path: '/news/ai-draft-settings-evolutionary-pipeline', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news/multilingual-auth-forms', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/news/static-safe-app-config-by-ai', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },

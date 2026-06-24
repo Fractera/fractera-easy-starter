@@ -282,6 +282,43 @@ an agent can do the same today by editing auth-strings.ts directly (remove unwan
 en) and rebuilding fractera-auth. The how-to doc loads into the workspace LightRAG so the Hermes
 agent can act on it.`
 
+const APP_CONFIG_NEWS = `# Safe static generation: App Config by an AI agent and in the settings
+
+Reference page (news): https://www.fractera.ai/en/news/static-safe-app-config-by-ai
+Documentation: https://www.fractera.ai/en/documentation/app-config-mcp-connector
+Raw standard (download): https://www.fractera.ai/docs/app-config-automation.md
+
+Every deployed Fractera app ships an App Settings screen (in the Admin area) that manages
+everything the app says about itself — branding, SEO, OpenGraph, PWA, author, social profiles,
+structured data (JSON-LD), the language set, and images — in one place. A change applies on the
+next page load with no rebuild, while the pages stay static (the language set is the build-time
+exception). The same settings can be changed without the panel by simply asking any of the six AI
+agents in plain words (the App Config MCP connector, :3218); a project with a single lone agent
+still has the full capability.
+
+## Why this matters: the dynamic-rendering trap
+Metadata is usually left for last, and that is when the expensive mistake happens. If a shared,
+top-level layout reads per-request data (calling headers() or cookies() in the root layout),
+Next.js renders EVERYTHING beneath it per request — the whole site silently leaves the cheap
+static path and rebuilds on every visit, including every bot. Under a traffic spike that is how
+projects run up eye-watering hosting bills (the best-documented case, the art app Cara, hit
+roughly $96k on its serverless host over one viral weekend). An AI agent is especially prone to
+adding that call because it is often the easiest path. Fractera guards the app skeleton — routing,
+generateMetadata, language handling — so an agent cannot flip the site dynamic, and settings apply
+through revalidation, never by forcing dynamic rendering.
+
+## The full field set
+Brand & identity (name, short name, description, site URL, support email, chat brand); App icons &
+PWA (theme/background colors, display, orientation, start URL, scope, light/dark browser-bar
+colors); Author (name, email, URL, job title, bio, Twitter/LinkedIn/Facebook); Social profiles
+(Twitter, GitHub, LinkedIn, Facebook — Organization sameAs); SEO (indexing, title template, robots
+index/follow, keywords, canonical base, sitemap URL, Google/Yandex verification); OpenGraph (type,
+site name, locale, image width/height); Analytics (enable GA, GA measurement ID); Structured data
+(WebSite, Organization, LocalBusiness); Local business / address (street, city, country, postal
+code, phone, latitude, longitude, opening hours). Images are uploaded via the panel and come in
+light/dark pairs (home illustration, loading, chatbot, author photo, and custom 404/500 error
+pages) — the site shows the right one for the visitor's theme automatically.`
+
 const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
@@ -457,7 +494,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${APP_CONFIG_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
