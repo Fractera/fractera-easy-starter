@@ -71,6 +71,22 @@ export const en: DocBase = {
       text: 'install plugins      -> /root/.hermes/plugins/\ninstall skills       -> /root/.hermes/skills/<name>/SKILL.md   (folders, not flat files)\ninstall SOUL.md      -> the Fractera persona + architecture self-knowledge\nstart agent          -> dashboard on 127.0.0.1:9119  (NOT 0.0.0.0)\nstart gateway        -> messaging + cron\ninstall web UI       -> chat on :9120\nsave process list    -> survives a reboot',
     },
     {
+      kind: 'h2',
+      text: 'Where skills and MCP live — and how /ai-core mirrors them',
+    },
+    {
+      kind: 'p',
+      text: 'This is the part that actually bit us, so it is worth seeing the data move. A **skill** is a folder, `<name>/SKILL.md`, with a small header (its name and a description of when to use it). One canonical copy lives in a shared `.agents/skills` folder that two agents read directly; the other coding agents keep a copy in their own folder; and Hermes keeps its copy in the workspace substrate, which the install step lays down into its home on every deploy. An **MCP** (a tool the agent calls) is a bridge process plus a one-line registration in every agent’s MCP config. The flow, end to end:',
+    },
+    {
+      kind: 'code',
+      text: 'A WISH                  →  A STEP            →  MATERIALIZE (write real files)     →  MIRROR\narchitect/agent writes     drafts collected      the agent writes the capability        /ai-core re-reads\na draft on the             into one dev step      in the canonical shape for EVERY       the disk and shows\nAI Draft Settings page                            agent:                                 the live catalogue\n(no real file touched)                            - skill  -> <name>/SKILL.md (+ copies\n                                                            + Hermes substrate)\n                                                  - mcp    -> bridge + register in each\n                                                            agent’s MCP config\n                                                  - instr. -> the agent’s root file\n                                                            (SOUL.md for Hermes)',
+    },
+    {
+      kind: 'p',
+      text: 'The catalogue you actually browse is the architect-only `/ai-core` page inside the workspace: it is a **live mirror** — every time you open it, it re-reads the real files on disk and renders the tree, so it always shows what is truly installed on this server (the public site has read-only showcase pages too). The one rule that keeps this honest: the **format on disk, the scanner that reads it, and the install step that places it must all agree**. Our outage was exactly this disagreeing — skills were moved to folders but the mirror still looked for flat files, so Hermes’ skills showed as empty. One shape everywhere fixes it for good.',
+    },
+    {
       kind: 'callout',
       title: 'Why this document exists',
       text: 'A brain can be deleted by accident, or you may simply want to set one up again. When that happens, the knowledge of what Hermes is made of and where it bites must be on hand — not rediscovered under pressure. This page, and its downloadable reference, are that safety net.',
