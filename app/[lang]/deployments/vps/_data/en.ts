@@ -41,7 +41,7 @@ export const en: DeploymentBase = {
     {
       kind: 'p',
       text:
-        'Any standard Ubuntu 24.04 VPS with root SSH privileges is fully compatible. Cost-effective infrastructure hosts like Contabo or Hetzner rent high-core environments for a few dollars a month. The automated installer configures the entire workspace as resilient, background-monitored PM2 processes on that hardware. The open-source layer belongs strictly to your business entity: the source code, user data, and vector structures stay on your local storage blocks.',
+        'Any standard Ubuntu 24.04 VPS with root SSH privileges is fully compatible. Cost-effective infrastructure hosts like Contabo or Hetzner rent high-core environments for a few dollars a month. The automated installer configures the entire workspace as resilient, background-monitored PM2 processes on that hardware. The Open Code layer belongs strictly to your business entity: the source code, user data, and vector structures stay on your local storage blocks.',
     },
 
     { kind: 'h2', text: 'Anatomy of the Production Server Workspace' },

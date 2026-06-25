@@ -15,7 +15,7 @@ export const pricing: PricingPart = {
     label: 'Начать',
     h2: 'Разверните частную AI-инфраструктуру на российском VPS',
     // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: оригинал — 'Деплой в один клик с включённым сервером или установка на собственный VPS — оба варианта дают полную среду Fractera.'
-    description: 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно и open source.',
+    description: 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно, Open Code (исходники открыты).',
   },
 
   planLabels: {
@@ -44,7 +44,7 @@ export const pricing: PricingPart = {
       '5 платформ для кода',
       'LightRAG — мозг компании',
       'База данных, файлы, auth — из коробки',
-      'Open source — навсегда на своём сервере',
+      'Open Code — навсегда на своём сервере',
     ],
     subscribeButton: 'Подписаться · {price} →',
     subscribeButtonWait: 'Подписаться · {price} (~60 мин) →',

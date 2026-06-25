@@ -53,7 +53,7 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
 
   // Free-card feature list. On a framework page the framework name is the first
   // item (bold); otherwise the base list is rendered unchanged. The last item
-  // ("Open source — self-hosted forever") keeps its ◈ marker regardless.
+  // ("Open Code — self-hosted forever") keeps its ◈ marker regardless.
   const freeFeatures = framework
     ? [framework.name, ...content.planLabels.freeFeatures]
     : content.planLabels.freeFeatures
@@ -117,7 +117,7 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
   return (
     <>
       {/* ── Payment success ── */}
-      {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная стратегия развёртывания временно скрыта для позиционирования проекта как полностью бесплатного и open-source */}
+      {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная стратегия развёртывания временно скрыта для позиционирования проекта как полностью бесплатного и Open Code */}
       {false && paymentSuccess && (
         <div className="w-full max-w-4xl flex flex-col gap-4 py-32">
           <div className="flex items-center gap-2">

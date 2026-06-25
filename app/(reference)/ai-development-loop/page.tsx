@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
 
 // Two linked entities: the page (TechArticle) and the software it describes
 // (SoftwareApplication, the shared @id), so Google understands this describes an
-// open-source developer platform's development workflow, not just an article.
+// source-available (Open Code) developer platform's development workflow, not just an article.
 const JSON_LD = [
   {
     '@context': 'https://schema.org',
@@ -71,10 +71,10 @@ const JSON_LD = [
     name: 'Fractera AI Workspace',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux (Ubuntu VPS)',
-    description: 'Open-source, self-hosted AI agent platform: multi-agent orchestration (Hermes), LightRAG Knowledge Graph memory, five coding agents, and MCP — deployed to your own VPS.',
+    description: 'Open Code (source-available), self-hosted AI agent platform: multi-agent orchestration (Hermes), LightRAG Knowledge Graph memory, five coding agents, and MCP — deployed to your own VPS.',
     url: 'https://www.fractera.ai',
     isAccessibleForFree: true,
-    license: 'https://opensource.org/licenses/MIT',
+    license: 'https://polyformproject.org/licenses/small-business/1.0.0/',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     sameAs: [GITHUB_REPO],
   },
@@ -134,7 +134,7 @@ export default function AiDevelopmentLoopPage() {
             or go back to{' '}
             <a href="/" className="font-medium text-violet-700 underline hover:text-violet-900">fractera.ai</a>.
           </p>
-          {/* Social proof — star the open-source repo */}
+          {/* Social proof — star the Open Code repo */}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <a
               href={GITHUB_REPO}
@@ -147,7 +147,7 @@ export default function AiDevelopmentLoopPage() {
               </svg>
               Star Fractera on GitHub
             </a>
-            <span className="text-xs text-zinc-400">Open-source · MIT · self-hosted</span>
+            <span className="text-xs text-zinc-400">Open Code · source-available · self-hosted</span>
           </div>
         </header>
 

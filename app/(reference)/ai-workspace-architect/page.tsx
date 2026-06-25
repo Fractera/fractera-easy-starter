@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 
 // Two linked entities: the page (TechArticle) and the software it describes
 // (SoftwareApplication) — the article's mainEntity, so Google understands this
-// describes an open-source developer platform, not just an article.
+// describes a source-available (Open Code) developer platform, not just an article.
 const JSON_LD = [
   {
     '@context': 'https://schema.org',
@@ -62,10 +62,10 @@ const JSON_LD = [
     name: 'Fractera AI Workspace',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux (Ubuntu VPS)',
-    description: 'Open-source, self-hosted AI agent platform: multi-agent orchestration (Hermes), LightRAG Knowledge Graph memory, five coding agents, and MCP — deployed to your own VPS.',
+    description: 'Open Code (source-available), self-hosted AI agent platform: multi-agent orchestration (Hermes), LightRAG Knowledge Graph memory, five coding agents, and MCP — deployed to your own VPS.',
     url: 'https://www.fractera.ai',
     isAccessibleForFree: true,
-    license: 'https://opensource.org/licenses/MIT',
+    license: 'https://polyformproject.org/licenses/small-business/1.0.0/',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     sameAs: [GITHUB_REPO],
   },
@@ -81,7 +81,7 @@ export default function AiWorkspaceArchitectPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest text-zinc-400">AI Workspace · architecture</p>
-              <h1 className="mt-2 text-2xl font-bold">AI Workspace Architect — Open-Source AI Agent Platform</h1>
+              <h1 className="mt-2 text-2xl font-bold">AI Workspace Architect — Open Code AI Agent Platform</h1>
             </div>
             {/* Return to the site root */}
             <a href="/" aria-label="Fractera home" title="Fractera home" className="shrink-0">
@@ -90,14 +90,14 @@ export default function AiWorkspaceArchitectPage() {
             </a>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            A complete technical blueprint of Fractera — an <strong className="font-semibold text-zinc-900">open-source AI agent platform</strong> for
+            A complete technical blueprint of Fractera — an <strong className="font-semibold text-zinc-900">Open Code AI agent platform</strong> for
             automated software development: multi-agent orchestration, Knowledge Graph RAG, and seamless tool integration via MCP.
             Built for AI agents scanning the web and for developers who want the whole picture in one place. See also the{' '}
             <a href="/mcp-info" className="font-medium text-violet-700 underline hover:text-violet-900">project knowledge base</a>,
             or go back to{' '}
             <a href="/" className="font-medium text-violet-700 underline hover:text-violet-900">fractera.ai</a>.
           </p>
-          {/* Social proof — star the open-source repo */}
+          {/* Social proof — star the Open Code repo */}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <a
               href={GITHUB_REPO}
@@ -110,7 +110,7 @@ export default function AiWorkspaceArchitectPage() {
               </svg>
               Star Fractera on GitHub
             </a>
-            <span className="text-xs text-zinc-400">Open-source · MIT · self-hosted</span>
+            <span className="text-xs text-zinc-400">Open Code · source-available · self-hosted</span>
           </div>
         </header>
 
@@ -154,7 +154,7 @@ export default function AiWorkspaceArchitectPage() {
                 <figure className="mb-4">
                   <ZoomImage
                     src={IMAGE_SCREENSHOT}
-                    alt="Fractera Open Source AI Agent Admin Panel Screenshot"
+                    alt="Fractera Open Code AI Agent Admin Panel Screenshot"
                     thumbClassName="w-full rounded-xl border border-zinc-200"
                   />
                 </figure>

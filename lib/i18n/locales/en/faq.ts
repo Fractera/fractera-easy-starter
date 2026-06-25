@@ -144,7 +144,7 @@ export const faqItems: FaqItem[] = [
   /* {
     q: 'Pricing and plans — details',
     a: [
-      'Fractera is open-source — you can self-host and run it entirely on your own infrastructure at no cost.',
+      'Fractera is Open Code (source-available) — you can self-host and run it entirely on your own infrastructure at no cost.',
       'Deploying with our tools gives you Fractera Light, which covers roughly 90% of everything you need to build and ship a professional application.',
       'Need the fastest path to a live environment? Our hosted plan includes the server, full Fractera Pro, and everything pre-configured — $25/month or $199/year.',
     ],
@@ -237,7 +237,7 @@ export const faqItems: FaqItem[] = [
     q: 'Are you looking for regional partners?',
     a: [
       'Yes — and this is a different kind of opportunity. We are looking for official regional partners to build localized versions of Fractera together: adapted for local regulations, delivered in the native language of the region, backed by people who understand the local market from the inside.',
-      'This is not a reseller arrangement. A regional partnership means your own branded product, your own customer base, your own revenue stream — on an open-source foundation that is already production-ready. The infrastructure is built. What a regional partner brings is market knowledge, local trust, and the ability to serve customers in ways a remote team cannot.',
+      'This is not a reseller arrangement. A regional partnership means your own branded product, your own customer base, your own revenue stream — on an Open Code foundation that is already production-ready. The infrastructure is built. What a regional partner brings is market knowledge, local trust, and the ability to serve customers in ways a remote team cannot.',
     ],
     bullets: [
       'Regulatory alignment — help your region meet local data residency and compliance requirements.',

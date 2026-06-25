@@ -105,7 +105,7 @@ export const en: DeploymentBase = {
     },
     {
       q: 'Do I need a paid Anthropic subscription to run the Fractera MCP connector?',
-      a: 'No. If the Fractera connector is your only active custom protocol extension, you can interface with our endpoint using Anthropic’s free tier. Keeping multiple custom connectors active simultaneously requires a standard Claude Pro or Team account, which is managed directly by Anthropic—Fractera’s core system is open-source and free.',
+      a: 'No. If the Fractera connector is your only active custom protocol extension, you can interface with our endpoint using Anthropic’s free tier. Keeping multiple custom connectors active simultaneously requires a standard Claude Pro or Team account, which is managed directly by Anthropic—Fractera’s core system is Open Code (source-available) and free.',
     },
     {
       q: 'What server utilities can I execute directly through the chat interface?',

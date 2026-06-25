@@ -126,7 +126,7 @@ function buildDocs(lang: Lang, operator: string, contact: string | null): Record
         title: 'Условия использования',
         paragraphs: [
           `Используя эту страницу, вы соглашаетесь с настоящими условиями. Страница предоставлена ${operator} в рамках партнёрской программы Fractera и носит информационный характер.`,
-          'Fractera — open-source платформа, устанавливаемая на ваш собственный VPS. Покупка VPS осуществляется напрямую у выбранного вами хостинг-провайдера; договор оказания услуг хостинга заключается между вами и этим провайдером.',
+          'Fractera — Open Code (source-available) платформа, устанавливаемая на ваш собственный VPS. Покупка VPS осуществляется напрямую у выбранного вами хостинг-провайдера; договор оказания услуг хостинга заключается между вами и этим провайдером.',
           `${operator} и Fractera не несут ответственности за доступность, качество или тарифы VPS-провайдеров, а также за любые споры между вами и провайдером.`,
           'Программное обеспечение Fractera предоставляется «как есть», без гарантий. Вы самостоятельно отвечаете за безопасность вашего сервера, включая смену паролей доступа после установки.',
           contactLine,
@@ -159,7 +159,7 @@ function buildDocs(lang: Lang, operator: string, contact: string | null): Record
       title: 'Terms of Service',
       paragraphs: [
         `By using this page you agree to these terms. The page is provided by ${operator} as part of the Fractera Partner Program and is informational in nature.`,
-        'Fractera is an open-source platform installed on your own VPS. Purchasing a VPS is done directly with the hosting provider you select; the hosting service contract is between you and that provider.',
+        'Fractera is an Open Code (source-available) platform installed on your own VPS. Purchasing a VPS is done directly with the hosting provider you select; the hosting service contract is between you and that provider.',
         `${operator} and Fractera are not responsible for the availability, quality, or pricing of VPS providers, nor for any dispute between you and a provider.`,
         'The Fractera software is provided "as is", without warranties. You are responsible for the security of your server, including changing access passwords after installation.',
         contactLine,

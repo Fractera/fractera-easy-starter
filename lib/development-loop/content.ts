@@ -62,7 +62,7 @@ export const SECTIONS: LoopSection[] = [
 
 **8. The output is a secure web app.** What ships is a real, running application — served over **HTTPS on your own domain**, or plain HTTP on an IP while you onboard. Your code, your server.
 
-**Why it is a loop, not a pipeline.** Every pass writes back to LightRAG and to the recorded history, so the next request starts smarter than the last. Memory compounds, mistakes feed corrections, and the whole cycle runs on **your own VPS** — fully open-source, no cloud lock-in.`,
+**Why it is a loop, not a pipeline.** Every pass writes back to LightRAG and to the recorded history, so the next request starts smarter than the last. Memory compounds, mistakes feed corrections, and the whole cycle runs on **your own VPS** — fully Open Code (source-available), no cloud lock-in.`,
   },
   {
     id: 'steps-1-2',
@@ -224,7 +224,7 @@ Both records are pushed back into LightRAG, closing the loop: the memory that gr
 
 - **Memory grows.** Each request writes its decisions, code and outcomes back into LightRAG, so the next agent starts already knowing them.
 - **History accumulates.** Completed steps and the deployments record build a real account of how the project was made — and which agents and models work best for it.
-- **It is all yours, and open.** The whole loop runs on **your own VPS**, fully **open-source**: you can read every file, inspect every decision, and verify exactly what the agents do. No cloud lock-in, no black box.
+- **It is all yours, and open.** The whole loop runs on **your own VPS**, fully **Open Code (source-available)**: you can read every file, inspect every decision, and verify exactly what the agents do. No cloud lock-in, no black box.
 
 The result is a development cycle where one natural-language request becomes shipped software — and the system that shipped it is a little more capable every time. Deploy the whole stack to your own server in about ten minutes, and start the loop.
 

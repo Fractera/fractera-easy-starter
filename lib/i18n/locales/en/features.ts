@@ -31,7 +31,7 @@ export const features: FeaturesPart = {
   promoSection: {
     h2: 'Build Your Own White-Label AI Agent Platform',
     description:
-      'Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.',
+      'Fractera is fully Open Code (source-available). Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.',
     githubButton: 'View on GitHub',
   },
 

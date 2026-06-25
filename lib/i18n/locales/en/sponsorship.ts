@@ -5,7 +5,7 @@ type SponsorshipPart = Pick<SiteContent, 'sponsorship'>
 export const sponsorship: SponsorshipPart = {
   sponsorship: {
     label: 'Support the project',
-    h2: 'Support Open-Source Agentic Engineering Projects',
+    h2: 'Support Open Code Agentic Engineering Projects',
     body: [
       'This project is built by one person. Many exciting features are still ahead — and your support keeps the lights on.',
       'If you have the means to help, your name will appear on the «Sponsors» tab of our project here and on GitHub.',

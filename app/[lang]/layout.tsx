@@ -157,7 +157,7 @@ const softwareApplicationSchema = {
   name: 'Fractera',
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Linux (Ubuntu 24.04 VPS)',
-  description: 'AI-native self-hosting platform — Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees. Free and open source.',
+  description: 'AI-native self-hosting platform — Deploy Hermes orchestrator, LightRAG memory, Claude Code, Codex, Gemini CLI on your own VPS in 10 minutes. Zero API fees. Free and Open Code (source-available).',
   url: 'https://www.fractera.ai',
   // Fractera is free — there are no paid tiers. The only money is the user's own
   // VPS (paid to their host) and optional, voluntary sponsorship ($1/$5/$20),
@@ -167,7 +167,7 @@ const softwareApplicationSchema = {
     price: '0',
     priceCurrency: 'USD',
     name: 'Fractera',
-    description: 'Free and open source — install the full Fractera AI stack on your own VPS. No tiers, no API fees; optional voluntary sponsorship only.',
+    description: 'Free and Open Code (source-available) — install the full Fractera AI stack on your own VPS. No tiers, no API fees; optional voluntary sponsorship only.',
   },
 }
 

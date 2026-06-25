@@ -37,8 +37,8 @@ const FAQ_ITEMS = [
     a: 'Yes. The default deploy is "IP-first": your workspace goes live at http://<your-IP>:3002 in about 10 minutes, with no DNS or certificate wait. Attaching your own domain with HTTPS is an optional later step done from inside the workspace (Admin → Personal Domain).',
   },
   {
-    q: 'Is Fractera open-source and self-hosted?',
-    a: 'Yes. The Agentic Engineering Infrastructure layer (the open-source L2 that runs on your VPS) is open-source under MIT. It runs entirely on your own VPS — no data leaves your server. You own the code, the database, and the AI memory.',
+    q: 'Is Fractera Open Code and self-hosted?',
+    a: 'Yes. The Agentic Engineering Infrastructure layer (the L2 that runs on your VPS) is Open Code — source-available under the PolyForm Small Business license: free for individuals and small businesses, with a separate commercial license for larger companies. It runs entirely on your own VPS — no data leaves your server. You own the code, the database, and the AI memory.',
   },
 ]
 
@@ -50,7 +50,7 @@ const JSON_LD = [
     description:
       'Static knowledge base about Fractera for AI agents scanning the site to learn its purpose, answer questions during deployment, and act as a project help desk.',
     audience: { '@type': 'Audience', audienceType: 'AI agents, developers' },
-    about: 'Fractera — open-source AI-native self-hosting platform for your own VPS',
+    about: 'Fractera — Open Code (source-available) AI-native self-hosting platform for your own VPS',
     url: 'https://www.fractera.ai/mcp-info',
     inLanguage: 'en',
   },
@@ -238,7 +238,7 @@ export default function McpInfoPage() {
         </section>
 
         <footer className="mt-16 border-t border-zinc-200 pt-6 text-xs text-zinc-400">
-          <p>Fractera · open-source AI-native self-hosting · <a href="/" className="hover:underline">fractera.ai</a></p>
+          <p>Fractera · Open Code AI-native self-hosting · <a href="/" className="hover:underline">fractera.ai</a></p>
           {/* MCP registry listings */}
           <p className="mt-4 text-xs text-zinc-400">Find this MCP connector in:</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">

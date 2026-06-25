@@ -18,7 +18,7 @@ export const dynamic = 'force-static'
 
 const INTRO = `# Fractera — full knowledge base
 
-> Open-source, AI-native self-hosting platform. Deploy a complete AI coding
+> Open Code (source-available), AI-native self-hosting platform. Deploy a complete AI coding
 > workspace — 5 AI engines, an autonomous Hermes orchestrator, and private graph
 > memory (LightRAG) — onto your own Ubuntu VPS in about 10 minutes. This file is
 > the complete /mcp-info knowledge base plus the full /ai-workspace-architect and
@@ -319,6 +319,34 @@ code, phone, latitude, longitude, opening hours). Images are uploaded via the pa
 light/dark pairs (home illustration, loading, chatbot, author photo, and custom 404/500 error
 pages) — the site shows the right one for the visitor's theme automatically.`
 
+const OPEN_CODE_NEWS = `# Fractera moves to Open Code — a source-available license
+
+Reference page (news): https://www.fractera.ai/en/news/open-code-license-agentic-engineering
+Raw doc (download): https://www.fractera.ai/docs/open-code-license.md
+
+Fractera is moving its core (the Agent-Engineering-Infrastructure repository) from the MIT
+license to Open Code — the PolyForm Small Business license. The principle: you may copy, modify
+and use the software commercially for free, with one exception — large corporations. The cut is by
+company size: free for individuals and small businesses (fewer than 100 people AND under 1,000,000
+USD annual revenue); companies above that threshold need a separate commercial license
+(admin@fractera.ai). The restriction is permanent and the code stays fully public to read, audit,
+fork and self-host.
+
+## Open Code is source-available, not OSI "open source"
+The Open Source Definition forbids discriminating against any person, group or field of use.
+Because Open Code restricts large corporations, it is — by that strict definition — not open
+source; it is source-available. Fractera uses the accurate term "Open Code" rather than borrow a
+label it no longer fits. The ready-made starters (e.g. fractera-next-starter) remain MIT, so the
+funnel for forking and building stays wide; only the core infrastructure moves to Open Code. The
+L1 Easy Starter service stays closed (never published).
+
+## Why now
+A permissive license lets a large, well-funded company take the whole project, rebrand it and
+resell it at scale without giving anything back. Ahead of revealing the technology behind
+self-replicating MCP coding agents — which pushes development speed up by several orders of
+magnitude — Fractera draws a clear commercial boundary so the largest players license commercial
+use, while independent builders and small teams keep every freedom they had under MIT.`
+
 const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
@@ -528,7 +556,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

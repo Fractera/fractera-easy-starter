@@ -55,8 +55,8 @@ function getTexts(lang: Lang) {
     label: isRu ? 'Начать' : 'Get Started',
     h2: isRu ? 'Разверните приватную AI-инфраструктуру на своём сервере' : 'Deploy Private AI Infrastructure on Your Own Server',
     description: isRu
-      ? 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно и open source.'
-      : 'Install Fractera on your own VPS and get the full AI development environment — completely free and open source.',
+      ? 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно, Open Code (исходники открыты).'
+      : 'Install Fractera on your own VPS and get the full AI development environment — completely free, Open Code (source-available).',
 
     serverLabel: isRu ? 'Где купить VPS' : 'Where to buy VPS',
     serverHeader: isRu ? 'Проверенные VPS-провайдеры для AI' : 'Recommended VPS Providers for AI',

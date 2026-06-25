@@ -16,7 +16,7 @@ export const pricing: PricingPart = {
     label: 'Get Started',
     h2: 'Deploy Private AI Infrastructure on Your Own Server',
     // PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ: оригинал — 'One-click deployment with a server included, or install on your own VPS — both give you the full Fractera environment.'
-    description: 'Install Fractera on your own VPS and get the full AI development environment — completely free and open source.',
+    description: 'Install Fractera on your own VPS and get the full AI development environment — completely free, Open Code (source-available).',
   },
 
   planLabels: {
@@ -45,7 +45,7 @@ export const pricing: PricingPart = {
       '5 coding platforms',
       'LightRAG — the company brain',
       'Database, file storage & auth — built in',
-      'Open source — self-hosted forever',
+      'Open Code — self-hosted forever',
     ],
     subscribeButton: 'Subscribe · {price} →',
     subscribeButtonWait: 'Subscribe · {price} (ready in ~60 min) →',

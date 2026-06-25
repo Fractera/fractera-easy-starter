@@ -7,7 +7,7 @@ type HeroPart = Pick<SiteContent,
 >
 
 export const hero: HeroPart = {
-  heroBadge: 'Open Source — бесплатно навсегда',
+  heroBadge: 'Open Code — бесплатно навсегда',
   heroNarrativeVariant: 'import-substitution',
   heroTitle: 'Инфраструктура агентной инженерии на вашем сервере в РФ',
   heroManifesto:

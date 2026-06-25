@@ -21,7 +21,7 @@
 // dashboard/email pipeline mechanics). Refer to it only in general, results-only
 // terms ("an external Fractera service provisions and configures everything for
 // you"). What IS fine to describe fully: the Agentic Engineering Infrastructure that
-// runs ON the user's server (all its layers) and the fact it is open-source on GitHub; and
+// runs ON the user's server (all its layers) and the fact it is Open Code (source-available) on GitHub; and
 // the user-facing RESULTS/outcomes of the external service without internals.
 
 import type { SiteContent } from '@/lib/i18n/types'
@@ -44,12 +44,12 @@ export const SECTIONS: InfoSection[] = [
     id: 'what-is-fractera',
     title: 'What is Fractera',
     titleRu: 'Что такое Fractera',
-    body: `Fractera is an open-source platform that turns a bare Ubuntu VPS into a complete, self-hosted, AI-native development environment in about 10 minutes — with one click or a short chat.
+    body: `Fractera is a source-available (Open Code) platform that turns a bare Ubuntu VPS into a complete, self-hosted, AI-native development environment in about 10 minutes — with one click or a short chat.
 
 On your own server you get: five AI coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code), the **Hermes** orchestrator, **LightRAG** persistent memory, authentication, a database, and file storage — all pre-wired. No Clerk, no Supabase, no Vercel. One bill (your VPS), one place, full ownership of code and data.
 
 You can install the full stack, or pick only the components you need — down to a plain server with a database and sign-in and no AI at all.`,
-    bodyRu: `Fractera — это open-source платформа, которая за ~10 минут превращает чистый Ubuntu VPS в полноценную, самостоятельно размещённую, AI-native среду разработки — в один клик или через короткий чат.
+    bodyRu: `Fractera — это Open Code (source-available) платформа, которая за ~10 минут превращает чистый Ubuntu VPS в полноценную, самостоятельно размещённую, AI-native среду разработки — в один клик или через короткий чат.
 
 На вашем сервере вы получаете: пять платформ для AI-разработки (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code), оркестратор **Hermes**, постоянную память **LightRAG**, авторизацию, базу данных и хранилище файлов — уже связанные между собой. Без Clerk, без Supabase, без Vercel. Один счёт (ваш VPS), одно место, полное владение кодом и данными.
 
@@ -670,14 +670,14 @@ Responsibility boundary (honest): the infrastructure is sovereign; responsibilit
   },
   {
     id: 'open-source',
-    title: 'Open source & what runs where',
+    title: 'Open Code & what runs where',
     titleRu: 'Открытый код и что где работает',
-    body: `The workspace that runs on your server is open and will be available as open source on GitHub — every layer of it: the web app, authentication, database/storage service, the coding-platform bridges, the memory (LightRAG) and orchestrator (Hermes) integrations. You own it and can inspect, extend, or self-host it entirely.
+    body: `The workspace that runs on your server is open and available as Open Code on GitHub — every layer of it: the web app, authentication, database/storage service, the coding-platform bridges, the memory (LightRAG) and orchestrator (Hermes) integrations. You own it and can inspect, extend, or self-host it entirely.
 
-Provisioning, billing, and the automated setup/delivery are handled by an external Fractera service that we operate. It is what puts the open-source workspace onto your server and manages your account — you interact with its results (the deploy, the dashboard, the emails), not its internals.
+Provisioning, billing, and the automated setup/delivery are handled by an external Fractera service that we operate. It is what puts the Open Code workspace onto your server and manages your account — you interact with its results (the deploy, the dashboard, the emails), not its internals.
 
 So: the product on your server = open. The service that delivers and bills it = operated by Fractera. Your code and data always stay on your server.`,
-    bodyRu: `Рабочее пространство, которое работает на вашем сервере, — открытое и будет доступно как open source на GitHub — все его слои: веб-приложение, авторизация, сервис базы данных/хранилища, мосты к платформам разработки, интеграции памяти (LightRAG) и оркестратора (Hermes). Вы им владеете и можете изучать, расширять или размещать его полностью самостоятельно.
+    bodyRu: `Рабочее пространство, которое работает на вашем сервере, — открытое и доступно как Open Code на GitHub — все его слои: веб-приложение, авторизация, сервис базы данных/хранилища, мосты к платформам разработки, интеграции памяти (LightRAG) и оркестратора (Hermes). Вы им владеете и можете изучать, расширять или размещать его полностью самостоятельно.
 
 Провижининг, биллинг и автоматическая настройка/доставка обеспечиваются внешним сервисом Fractera, который мы эксплуатируем. Именно он размещает открытое рабочее пространство на вашем сервере и управляет вашим аккаунтом — вы взаимодействуете с его результатами (развёртывание, панель, письма), а не с его внутренним устройством.
 
@@ -700,10 +700,10 @@ One strong recommendation: **do this while in insecure (IP) mode.** Insecure mod
     titleRu: 'Добавление инструментов и изменение проекта — это поощряется',
     body: `You can add tools yourself through the system terminal — OpenClaw, OpenCode, or any other tool. The AI model has enough patterns in the codebase to copy how an existing platform works and add a new window plus a carousel button for it — just ask it directly to do this.
 
-More broadly, you may change the architecture, add skills, or optimize the project however you see fit. This is not only allowed — it is recommended. That is exactly why every part of the Agentic Engineering Infrastructure is fully open source.`,
+More broadly, you may change the architecture, add skills, or optimize the project however you see fit. This is not only allowed — it is recommended. That is exactly why every part of the Agentic Engineering Infrastructure is fully Open Code (source-available).`,
     bodyRu: `Вы можете добавлять инструменты самостоятельно через системный терминал — OpenClaw, OpenCode или любой другой. У ИИ-модели достаточно паттернов в кодовой базе, чтобы скопировать принцип работы существующей платформы и добавить новое окно плюс кнопку в карусель — просто попросите её сделать это прямо.
 
-Шире: вы можете менять архитектуру, добавлять навыки или оптимизировать проект по своему усмотрению. Это не только не запрещено — это рекомендуется. Именно поэтому каждый элемент Agentic Engineering Infrastructure полностью открыт (open source).`,
+Шире: вы можете менять архитектуру, добавлять навыки или оптимизировать проект по своему усмотрению. Это не только не запрещено — это рекомендуется. Именно поэтому каждый элемент Agentic Engineering Infrastructure полностью открыт (Open Code).`,
   },
   {
     id: 'removing-the-footer',
@@ -831,13 +831,13 @@ Only ports 22/80/443 are public. The service ports are reached through Nginx in 
 - **Open layer (the app):** where the in-VPS coding agents work freely — this is your product.
 - **Guarded layers (auth, data, memory, bridges):** soft-protected from accidental agent edits; advanced users can still extend them — add an auth provider, a new data strategy, or tune the agent ↔ memory wiring.
 
-The whole product on your server is open-source-ready. A security audit confirmed that a deployed server cannot push to Fractera's own repositories — your instance is isolated and yours.`,
+The whole product on your server is Open Code (source-available). A security audit confirmed that a deployed server cannot push to Fractera's own repositories — your instance is isolated and yours.`,
     bodyRu: `Продукт существует, чтобы ИИ-агенты собирали ВАШЕ приложение, поэтому у слоёв разные правила доступа:
 
 - **Открытый слой (приложение):** где агенты разработки на VPS работают свободно — это ваш продукт.
 - **Мягко-защищённые слои (auth, data, memory, bridges):** защищены от случайных правок агентами; продвинутые пользователи всё же могут их расширять — добавить провайдера авторизации, новую стратегию данных или донастроить связку агент ↔ память.
 
-Весь продукт на вашем сервере готов к open-source. Аудит безопасности подтвердил, что развёрнутый сервер не может пушить в собственные репозитории Fractera — ваш экземпляр изолирован и принадлежит вам.`,
+Весь продукт на вашем сервере — Open Code (исходники открыты). Аудит безопасности подтвердил, что развёрнутый сервер не может пушить в собственные репозитории Fractera — ваш экземпляр изолирован и принадлежит вам.`,
   },
   {
     id: 'security-model',
@@ -860,14 +860,14 @@ In onboarding (IP) mode the ports stay open on purpose for zero-friction first a
     id: 'security-audit',
     title: 'Is it safe to install? Audit the code yourself',
     titleRu: 'Безопасно ли это устанавливать? Проверьте код сами',
-    body: `A fair question: could the installed software hide a threat — something that quietly runs an unwanted behavior? The honest answer is the strongest one: you are installing **open-source** software, so you can verify everything.
+    body: `A fair question: could the installed software hide a threat — something that quietly runs an unwanted behavior? The honest answer is the strongest one: you are installing **Open Code (source-available)** software, so you can verify everything.
 
 - **Audit before going live.** At any time you can ask an AI agent to run a detailed audit of the files installed on your own server. Your agent can confirm the installed code is safe and matches the public reference on Fractera's GitHub.
 - **Go as deep as you want.** You can ask the agent to analyze every file on your server, not just ours. This is exactly the right instinct: we are entering an era where you should trust no one blindly, and installing files from someone else's source genuinely can carry hidden risk.
 - **Why ours stands up to it.** The packages we install are maximally transparent — all from open source, so they can be inspected by any security team or accredited auditor without a shred of doubt. Source of truth: https://github.com/Fractera/Agent-Engineering-Infrastructure.
 
 In short: don't take our word for it — have your AI agent check, before and after deployment.`,
-    bodyRu: `Справедливый вопрос: нет ли в устанавливаемом ПО скрытой угрозы — чего-то, что тихо запустит нежелательное поведение? Честный ответ — самый сильный: вы устанавливаете программное обеспечение **с открытым исходным кодом**, поэтому можете проверить всё.
+    bodyRu: `Справедливый вопрос: нет ли в устанавливаемом ПО скрытой угрозы — чего-то, что тихо запустит нежелательное поведение? Честный ответ — самый сильный: вы устанавливаете программное обеспечение **с открытым исходным кодом (Open Code)**, поэтому можете проверить всё.
 
 - **Аудит перед вводом в эксплуатацию.** В любой момент вы можете попросить ИИ-агента провести детальный аудит файлов, установленных на ваш собственный сервер. Ваш агент подтвердит, что установленный код безопасен и соответствует публичному образцу на GitHub Fractera.
 - **Идите настолько глубоко, насколько хотите.** Вы можете попросить агента проанализировать все файлы вашего сервера, не только наши. Это и есть правильное поведение: мы входим в эпоху, когда нельзя слепо доверять никому, и установка файлов с чужого ресурса действительно может нести скрытую угрозу.
@@ -938,10 +938,10 @@ Sponsors at the **$5 tier (white-label)** have it removed automatically and perm
     id: 'external-service',
     title: 'How Fractera (the service) connects to your server',
     titleRu: 'Как сервис Fractera взаимодействует с вашим сервером',
-    body: `A clear split. The product runs on **your** server (open-source, all the layers above). An external Fractera service — operated by us — is what **provisions** it, **delivers** it and its updates, **sends** your emails, **powers** the dashboard and the MCP chat-deploy, and handles **billing / sponsorship**.
+    body: `A clear split. The product runs on **your** server (Open Code, all the layers above). An external Fractera service — operated by us — is what **provisions** it, **delivers** it and its updates, **sends** your emails, **powers** the dashboard and the MCP chat-deploy, and handles **billing / sponsorship**.
 
 You interact only with the RESULTS of that service — the deploy, the dashboard, the emails, the MCP agent — and your code and data always stay on your server. (How that service is built internally is intentionally not part of this reference.)`,
-    bodyRu: `Чёткое разделение. Продукт работает на **вашем** сервере (open-source, все слои выше). Внешний сервис Fractera — который мы эксплуатируем — это то, что его **провижинит**, **доставляет** его и обновления, **отправляет** ваши письма, **обеспечивает** работу кабинета и развёртывания через MCP-чат, а также занимается **биллингом / спонсорством**.
+    bodyRu: `Чёткое разделение. Продукт работает на **вашем** сервере (Open Code, все слои выше). Внешний сервис Fractera — который мы эксплуатируем — это то, что его **провижинит**, **доставляет** его и обновления, **отправляет** ваши письма, **обеспечивает** работу кабинета и развёртывания через MCP-чат, а также занимается **биллингом / спонсорством**.
 
 Вы взаимодействуете только с РЕЗУЛЬТАТАМИ этого сервиса — развёртывание, кабинет, письма, MCP-агент — а ваш код и данные всегда остаются на вашем сервере. (Как этот сервис устроен внутри — намеренно не часть этого справочника.)`,
   },

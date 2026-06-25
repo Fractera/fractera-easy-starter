@@ -219,7 +219,7 @@ export function SiteHeader() {
                       </div>
                       {!isAdmin && (
                         <>
-                          {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Subscription скрыта для позиционирования как бесплатного open-source проекта */}
+                          {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: кнопка Subscription скрыта для позиционирования как бесплатного Open Code проекта */}
                           {false && (
                           <button
                             type="button"

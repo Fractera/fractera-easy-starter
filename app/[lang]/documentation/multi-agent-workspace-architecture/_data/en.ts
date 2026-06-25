@@ -41,7 +41,7 @@ export const en: DocBase = {
     {
       kind: 'p',
       text:
-        '**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This open-source, self-hosted AI platform runs on Next.js on a standard VPS, with a built-in local database and object storage, plus many tools that streamline the work.',
+        '**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This Open Code (source-available), self-hosted AI platform runs on Next.js on a standard VPS, with a built-in local database and object storage, plus many tools that streamline the work.',
     },
     {
       kind: 'p',
@@ -73,7 +73,7 @@ export const en: DocBase = {
     {
       kind: 'p',
       text:
-        '**It explains and improves itself.** The project ships fully open-source, so Hermes — or any model — can read this very codebase and explain any feature, or improve not only your end apps but the admin panel itself. A word of caution: experiment on a secondary account and keep your main one on proven solutions. Found a bug or want to add something? Open a pull request.',
+        '**It explains and improves itself.** The project ships fully Open Code (source-available), so Hermes — or any model — can read this very codebase and explain any feature, or improve not only your end apps but the admin panel itself. A word of caution: experiment on a secondary account and keep your main one on proven solutions. Found a bug or want to add something? Open a pull request.',
     },
     {
       kind: 'p',
@@ -161,7 +161,7 @@ export const en: DocBase = {
     },
     {
       q: 'Where does the workspace run?',
-      a: 'On your own VPS or local machine. It is an open-source, self-hosted platform on Next.js with a built-in local database and object storage; your data and code stay on your server.',
+      a: 'On your own VPS or local machine. It is an Open Code (source-available), self-hosted platform on Next.js with a built-in local database and object storage; your data and code stay on your server.',
     },
     {
       q: 'How long does deployment take?',

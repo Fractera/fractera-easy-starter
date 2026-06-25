@@ -34,8 +34,8 @@ function getTexts(lang: Lang) {
     label: isRu ? 'Начать' : 'Get Started',
     h2: isRu ? 'Разверните приватную AI-инфраструктуру на своём сервере' : 'Deploy Private AI Infrastructure on Your Own Server',
     description: isRu
-      ? 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно и open source.'
-      : 'Install Fractera on your own VPS and get the full AI development environment — completely free and open source.',
+      ? 'Установите Fractera на свой VPS и получите полную среду AI-разработки — полностью бесплатно, Open Code (исходники открыты).'
+      : 'Install Fractera on your own VPS and get the full AI development environment — completely free, Open Code (source-available).',
     serverLabel: isRu ? 'Где купить' : 'Where to buy',
     serverHeader: isRu ? 'Рекомендуемый Ubuntu 24.04 VPS-провайдер для AI' : 'Recommended Ubuntu 24.04 VPS Provider for AI Workloads',
     serverDescription: isRu
@@ -55,13 +55,13 @@ function getTexts(lang: Lang) {
       '5 платформ для кода',
       'LightRAG — мозг компании',
       'База данных, файлы, auth — из коробки',
-      'Open source — навсегда на своём сервере',
+      'Open Code — навсегда на своём сервере',
     ] : [
       'Hermes — AI orchestration agent',
       '5 coding platforms',
       'LightRAG — the company brain',
       'Database, file storage & auth — built in',
-      'Open source — self-hosted forever',
+      'Open Code — self-hosted forever',
     ],
     trust: isRu ? ['Ваш сервер', 'Ваш домен', 'Ваш AI'] : ['Your server', 'Your domain', 'Your AI'],
 

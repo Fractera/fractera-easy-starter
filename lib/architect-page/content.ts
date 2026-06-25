@@ -23,7 +23,7 @@ export const GITHUB_REPO = 'https://github.com/Fractera/Agent-Engineering-Infras
 export const ARCHITECT_META = {
   title: 'Fractera AI Agent Platform Architecture | Multi-Agent System & RAG',
   description:
-    'Complete architecture of Fractera, an open-source AI agent platform: multi-agent orchestration via Hermes, LightRAG Knowledge Graph memory, five coding agents (Claude Code, Codex, Gemini), and Model Context Protocol (MCP). Self-host your AI dev workspace on your own VPS.',
+    'Complete architecture of Fractera, a source-available (Open Code) AI agent platform: multi-agent orchestration via Hermes, LightRAG Knowledge Graph memory, five coding agents (Claude Code, Codex, Gemini), and Model Context Protocol (MCP). Self-host your AI dev workspace on your own VPS.',
 }
 
 export type ArchitectSection = {
@@ -51,7 +51,7 @@ export const SECTIONS: ArchitectSection[] = [
 
 **Hermes is the brain; the coding agents do the heavy lifting.** We call Hermes the central brain, but the hardest work — generating code — is done by the **coding agents** such as Claude Code. Hermes is a light **multi-agent orchestrator**: it tracks each platform's token use, picks the right platform for a task, dispatches the work, launches deployments, and talks to GitHub.
 
-**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This **open-source, self-hosted AI platform** runs on **Next.js** on a standard **VPS**, with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
+**It also runs locally.** Without a paid subscription you can still use AI models — Hermes can run automatically, or you use the manual tools. This **Open Code, self-hosted AI platform** runs on **Next.js** on a standard **VPS**, with a built-in local **database** and **object storage**, plus many tools that streamline the work; it can also use the vector database to accumulate experience with your users and admins, steadily growing useful business data.
 
 **The output is a secure web app.** On the way out the project is served over a **secure HTTPS connection** when you run it on your own domain, or it runs on a local machine over a plain **IP address** — in which case you secure the connection with one of the available options.
 
@@ -69,7 +69,7 @@ To see how this architecture actually *builds* software — how one request beco
 
 **Everything is one panel.** On the left, the **Settings** tab opens full control over your app and tools. In the footer you will find buttons to connect your **GitHub** repository, trigger a **deploy** by hand, and buttons that switch on later — when the marketplace of skills and ready-made digitized businesses goes live. Top-right, **Preview** shows the current state of the page you are building and the service pages that let you watch development. Unlike the main app, this view can highlight code and helps you find the right element — routing a request from a selected element straight to the Hermes chat or Telegram.
 
-**It explains and improves itself.** The project ships fully **open-source**, so Hermes — or any model — can read this very codebase and give you a complete, detailed explanation of any feature: how it works and how it is built. You can just as easily ask a model to improve not only your end apps but the **admin panel shown here**. A word of caution: experiment on a **secondary account**, and keep your main one on reliable, proven solutions. If you want to add something, or you found a bug, please do not hesitate to open a **pull request** — we hope your contribution helps strengthen an already powerful architecture.
+**It explains and improves itself.** The project ships fully **Open Code (source-available)**, so Hermes — or any model — can read this very codebase and give you a complete, detailed explanation of any feature: how it works and how it is built. You can just as easily ask a model to improve not only your end apps but the **admin panel shown here**. A word of caution: experiment on a **secondary account**, and keep your main one on reliable, proven solutions. If you want to add something, or you found a bug, please do not hesitate to open a **pull request** — we hope your contribution helps strengthen an already powerful architecture.
 
 **Found this while researching modern architectures?** Then it is worth knowing: this whole complex setup on your **own server** takes literally one click. Enter your server credentials, start the deployment, make no settings and no choices — and in about **10 minutes** you get a fully configured app. After that you change your server access and connect a domain, and the security certificates assemble themselves automatically.`,
   },

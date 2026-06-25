@@ -7,7 +7,7 @@ type HeroPart = Pick<SiteContent,
 >
 
 export const hero: HeroPart = {
-  heroBadge: 'Open Source — Free Forever',
+  heroBadge: 'Open Code — Free Forever',
   // 'none' — the Elon-Trillion narrative moved off the homepage into the blog post
   // /blog/trillion-dollar-service-opportunity. No narrative section renders here.
   heroNarrativeVariant: 'none',
