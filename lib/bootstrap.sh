@@ -677,6 +677,16 @@ mcp_servers:
     url: http://localhost:3222
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Frozen Archetypes: any of the 6 coding agents adds a whole page group
+  # (news/blog/docs) by thawing a frozen archetype from the closed store (data :3300)
+  # into the slot — pure file copy + token substitution, no code generation.
+  # owner_archetype_list_frozen (catalog) + owner_archetype_thaw_content_group
+  # (mutating, §8.2 dry_run). Served by bridges/platforms/server.js
+  # (ArchetypesMcpServer, :3223). Step 146.
+  archetypes-bridge:
+    url: http://localhost:3223
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app

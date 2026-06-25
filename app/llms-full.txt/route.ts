@@ -347,6 +347,45 @@ self-replicating MCP coding agents — which pushes development speed up by seve
 magnitude — Fractera draws a clear commercial boundary so the largest players license commercial
 use, while independent builders and small teams keep every freedom they had under MIT.`
 
+const FROZEN_ARCHETYPES_NEWS = `# Frozen archetypes — add a whole page group without code generation
+
+Reference page (news): https://www.fractera.ai/en/news/frozen-archetypes-page-groups-without-code
+Raw doc (download): https://www.fractera.ai/docs/frozen-archetypes.md
+
+Adding a page group (a news section, a blog, a documentation section) used to mean an AI coding
+agent writing about thirty files by hand — slow, token-heavy, and prone to drifting from the
+standard. A frozen archetype replaces that with one call. It is a "project in a box, frozen": an
+inert tree of template files with no fixed records, where the specifics (which group, which
+languages, the label, how many examples) are parameters, not content. An agent thaws it into the
+site with those parameters.
+
+## Thawing is file copy, not code generation
+Thawing is deliberately dumb. The agent copies the template files into the project and fills in the
+blanks: it installs the shared content engine only if the slot lacks it (idempotent), creates the
+section plus a couple of placeholder posts (Lorem body, placeholder image, but the full ideal page
+structure — SEO metadata, breadcrumbs, table of contents, FAQ), and translates the single section
+label into each configured language. No model writes code, so any model — the built-in brain or any
+of the coding agents — produces an identical result in seconds, and the pages are static and work
+with JavaScript off.
+
+## The closed store and the two layers
+The frozen archetype lives in a closed store on the user's own server (the data service), served
+read-only. It has two layers: an engine layer (the shared content engine, installed only when the
+slot has none — it belongs to no single tab) and a tab layer (the parameterized section itself,
+which refuses to overwrite an existing tab). The engine is distilled from the platform's mature
+content engine and decoupled from anything project-specific, with brand and domain read from
+environment variables, so it is portable to any starter.
+
+## Honest refusal — match a real capability or decline
+One archetype does not serve everything. The manifest declares what it fits (news, blog,
+documentation, announcements, changelog, guides) and what it does not serve (a cart/checkout, a
+graded course with tests, an interactive app screen). The agent consults that manifest instead of
+guessing; asked for something outside it, the agent says so honestly and offers to author a new
+archetype — it will not force a bad fit or invent fragile code. Surfaces: the owner-tier
+archetypes-bridge MCP (port 3223, owner_archetype_list_frozen + owner_archetype_thaw_content_group
+with a confirm-first dry run) and the self-sufficient thaw-frozen-archetype skill, shipped to every
+agent so it works on a lone agent with no orchestrator.`
+
 const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
@@ -556,7 +595,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
