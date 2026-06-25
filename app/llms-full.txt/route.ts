@@ -407,6 +407,40 @@ it at once, even across hundreds of pages. Presentation is managed by structure,
 propagates everywhere. That dynamically-managed design system is the second payoff of the same
 architecture that saves the tokens. The document is bilingual (EN/RU).`
 
+const BUILD_TIME_ENV = `# Build-time environment variables & production redeploy — the bake contract
+
+Reference page (documentation): https://www.fractera.ai/en/documentation/build-time-env-and-redeploy
+Raw living standard (download): https://www.fractera.ai/docs/build-time-env-and-redeploy.md
+
+A deployed app reads configuration two ways. Runtime values are read fresh on every
+request. Build-time values are frozen into the app when it is built: every NEXT_PUBLIC_*
+is inlined into the browser bundle, and anything read while pages are generated (the
+language set, a Stripe publishable key, a feature flag, analytics IDs) is captured at
+next build. Build-time values therefore change only by a rebuild — and the rebuild must
+read the app slot's own .env.local. If it reads the wrong file, the saved value is baked
+as missing while the build still reports success: a silent failure.
+
+This was a whole class of bug, first seen as the language switcher disappearing after a
+language was added — the same mechanism would have silently dropped Stripe keys, custom
+API URLs or feature flags. Root cause: the workspace has two Next apps (the Admin cockpit
+and the App slot); when the owner changes a setting, the Admin process spawns the slot
+build and hands down its whole environment. Next's env loader sets a cross-process marker
+(__NEXT_PROCESSED_ENV) on first run and then refuses to re-read .env files; the child
+build inherited that marker and skipped loading the slot's own .env.local entirely, so
+every declared value came back empty. A fresh wipe+bootstrap builds from a clean shell and
+was fine on day one — the trap only bit on the owner's later change-a-setting path.
+
+The fix is the slot-scoped bake contract: the slot's own .env.local is authoritative for
+every key it declares, on every redeploy. The spawned build is given a clean, slot-scoped
+environment — drop the marker so the loader reads the slot file fresh, drop every key the
+slot declares so no inherited copy shadows it, keep everything else (PATH, HOME,
+externally-provisioned vars). General by construction: languages, Stripe keys and product
+ids, custom DB/API URLs, analytics and feature flags all behave the same. When a feature
+needs a build-time variable: write it through the proper setter (never raw), trigger a
+rebuild (a restart re-reads an already-built bundle and will not help), state the rebuild
+cost honestly, and never reach for force-dynamic (build-time changes by rebuild; instant
+text updates use on-demand revalidation — a different mechanism). The document is bilingual (EN/RU).`
+
 const APP_CONFIG = `# App Config automation — the MCP connector for managing project configuration
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/app-config-mcp-connector
@@ -494,7 +528,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${APP_CONFIG_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
