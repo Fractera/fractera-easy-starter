@@ -66,6 +66,10 @@ export async function generateMetadata({
     },
     keywords: m.keywords,
     robots: { index: true, follow: true },
+    // Yandex Webmaster site verification (meta-tag method). Next renders this as
+    // <meta name="yandex-verification" content="..."/> in <head> on the root and
+    // every [lang] page, so Yandex finds it at www.fractera.ai/.
+    verification: { yandex: 'd56017774e6b821d' },
     // Home-page alternates (subPath ''). Sub-pages override this with their own
     // generateMetadata + buildAlternates('/slug') so each is self-canonical —
     // without that override they would inherit canonical = the language root and
