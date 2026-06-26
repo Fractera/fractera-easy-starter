@@ -697,6 +697,16 @@ mcp_servers:
     url: http://localhost:3224
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Slot Rebuild / Deploy: lets any of the 6 agents make file changes visible by
+  # rebuilding the slot — the same "Deploy" the footer button runs (next build + pm2
+  # reload + health check). Closes the "wrote files but invisible" gap so an agent can
+  # finish a task itself. owner_deploy_rebuild_slot (mutating, §8.2 dry_run). Rebuilds
+  # the EXISTING slot — NOT provisioning/wiping (frozen L1 install flow untouched).
+  # Served by bridges/platforms/server.js (DeployMcpServer, :3225). Step 147 (variant B).
+  deploy-bridge:
+    url: http://localhost:3225
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
