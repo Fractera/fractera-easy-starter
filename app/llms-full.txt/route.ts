@@ -386,6 +386,45 @@ archetypes-bridge MCP (port 3223, owner_archetype_list_frozen + owner_archetype_
 with a confirm-first dry run) and the self-sufficient thaw-frozen-archetype skill, shipped to every
 agent so it works on a lone agent with no orchestrator.`
 
+const FROZEN_TEMPLATE_CONSTRUCTOR_NEWS = `# The Frozen Template Constructor — whole structures, composed not generated
+
+Reference page (news): https://www.fractera.ai/en/news/frozen-template-constructor-compose-structures
+Raw strategy (download): https://www.fractera.ai/docs/frozen-template-constructor.md
+
+The clean evolution of "frozen archetypes". Adding a structure to a site has several independent
+dimensions — how deep the hierarchy is, where the data comes from, who may see it, which languages.
+A catalogue would need a finished template for every combination (hundreds). So instead of a
+catalogue, a CONSTRUCTOR composes a structure to order from a small basis of vetted frozen bricks —
+file copy plus token substitution, ZERO code generation, so the built-in brain and every coding
+agent produce the identical result.
+
+## Two slots, additive not combinatorial
+Every property of a structure lives in exactly one of two slots and they never interact: a LIST
+PROVIDER (where the children come from — a filesystem scan, or a database read AT BUILD TIME so the
+output stays static) or a UNIFORM ASPECT (a rule applied identically at every level — languages,
+or role-based access). Because an aspect is the same rule at any depth and any data source, the
+cost is additive, not the N-squared explosion of a special case per combination. The base grid is
+{files | DB-at-build} x {depth 1..4} = eight static skeletons, plus one dynamic descriptor for the
+rare case where a structure genuinely cannot be static (it returns access rules, not pages).
+
+## Envelope matching and honest refusal
+Each brick declares an envelope — its position on every axis (source, depth, static/dynamic, roles,
+languages). A request matches a brick only if it fits on EVERY axis; otherwise the agent refuses
+naming the exact axis that fails (a live dashboard fails on rendering; a database catalogue fails on
+source; a two-level tree fails on depth), then offers to harvest a new brick (only once the shape is
+proven and repeats) or to use classic development. It never forces a bad fit and never generates
+fragile code. This is capability-grounded selection at scale, in the content space.
+
+## Grown by harvest, one proven brick at a time
+The grid of possibilities is a map, not a build plan. A cell is frozen into a brick only once it has
+proven itself in real work and repeats (rule-of-three); everything else is served by classic
+development until it earns its brick. The constructor is Open/Closed: a new brick slots in through
+the seams (list provider, uniform aspect) without touching the core. Today there is one reference
+brick — flat, file-backed, multilingual (news / blog / docs feed); deeper trees and database-backed
+catalogues are on the roadmap. Surfaces: the owner-tier template-constructor-bridge MCP (port 3224,
+owner_template_list_primitives + owner_template_compose_structure with a confirm-first dry run) and
+the self-sufficient compose-frozen-template skill shipped to every agent.`
+
 const STATIC_FIRST = `# Static-first rendering — the economics of a near-zero server bill
 
 Reference page (documentation): https://www.fractera.ai/en/documentation/static-first-rendering-economics
@@ -595,7 +634,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

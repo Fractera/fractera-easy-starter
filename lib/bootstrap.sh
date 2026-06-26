@@ -687,6 +687,16 @@ mcp_servers:
     url: http://localhost:3223
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Frozen Template Constructor: any of the 6 agents composes a whole structure
+  # (news/blog/docs/…) from the constructor's basis of vetted frozen bricks — file
+  # copy + token substitution, no code generation. owner_template_list_primitives
+  # (basis/matching) + owner_template_compose_structure (mutating, §8.2 dry_run;
+  # refuses by axis when no primitive fits). Served by bridges/platforms/server.js
+  # (TemplateConstructorMcpServer, :3224). Step 147.
+  template-constructor-bridge:
+    url: http://localhost:3224
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
