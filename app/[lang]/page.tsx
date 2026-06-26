@@ -15,6 +15,7 @@ import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
+import { SiteToc } from '@/components/site-toc'
 
 /* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
    not emitted to production on the next deployment.
@@ -64,6 +65,9 @@ export default async function HomePage({
           <ContentProvider value={content}>
             <section className="flex flex-col gap-32 items-start w-full">
 
+              {/* SEO site contents — top. Server-rendered section links in static HTML. */}
+              <div className="w-full pt-8"><SiteToc lang={lang} /></div>
+
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
               {/* The architecture CTA + reference-links block was removed here. The
                   single architecture-doc button now lives under the hero illustration
@@ -101,6 +105,9 @@ export default async function HomePage({
                 <Suspense fallback={null}><SponsorshipSection /></Suspense>
               </div>
               <div id="faq" className="mb-32 w-full scroll-mt-16"><FaqSection /></div>
+
+              {/* SEO site contents — duplicated at the bottom of the feed as navigation. */}
+              <div className="w-full"><SiteToc lang={lang} /></div>
 
             </section>
           </ContentProvider>

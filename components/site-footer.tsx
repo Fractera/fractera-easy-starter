@@ -8,6 +8,7 @@ type FooterLabels = {
   terms: string
   refund: string
   cookies: string
+  license: string
   partners: string
   regionalPartners: string
   documentation: string
@@ -29,6 +30,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     terms: 'Условия использования',
     refund: 'Политика возврата',
     cookies: 'Политика куки',
+    license: 'Лицензия',
     partners: 'Партнёрская программа',
     regionalPartners: 'Региональные партнёры',
     documentation: 'Документация',
@@ -59,6 +61,7 @@ const FOOTER_LABELS: Record<string, FooterLabels> = {
     terms: 'Terms of Service',
     refund: 'Refund Policy',
     cookies: 'Cookie Policy',
+    license: 'License',
     partners: 'Partner Program',
     regionalPartners: 'Regional Partners',
     documentation: 'Documentation',
@@ -114,6 +117,7 @@ export function SiteFooter() {
           <a href={`/${lang}/terms`} className="hover:text-violet-400 transition-colors">{t.terms}</a>
           <a href={`/${lang}/refund`} className="hover:text-violet-400 transition-colors">{t.refund}</a>
           <a href={`/${lang}/cookies`} className="hover:text-violet-400 transition-colors">{t.cookies}</a>
+          <a href={`/${lang}/license`} className="hover:text-violet-400 transition-colors">{t.license}</a>
           <a href={`/${lang}/partners`} className="hover:text-violet-400 transition-colors">{t.partners}</a>
           <a href={`/${lang}/regional-partners`} className="hover:text-violet-400 transition-colors">{t.regionalPartners}</a>
           <a href={`/${lang}/documentation`} className="hover:text-violet-400 transition-colors">{t.documentation}</a>
