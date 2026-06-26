@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { SUPPORTED_LANGUAGES } from '@/config/translations/translations.config'
 
 type FooterLabels = {
   privacy: string
@@ -98,6 +99,15 @@ export function SiteFooter() {
   const lang = FOOTER_LABELS[rawSeg] ? rawSeg : 'en'
   const t = FOOTER_LABELS[lang] ?? FOOTER_LABELS.en
 
+  // The "Site contents" scroll-to-sections nav belongs ONLY on the home page — its
+  // anchors (#hero, #faq…) point at the home sections, which exist nowhere else.
+  // Home = the bare language root (/en, /ru) or "/" (single-lang); anything deeper
+  // (/en/news, /mcp-info) is not home. Strip a known language segment, then home
+  // means nothing is left.
+  const parts = (pathname ?? '/').split('/').filter(Boolean)
+  const rest = parts[0] && SUPPORTED_LANGUAGES.includes(parts[0]) ? parts.slice(1) : parts
+  const isHome = rest.length === 0
+
   function openCookieSettings() {
     window.dispatchEvent(new Event('open-cookie-settings'))
   }
@@ -136,21 +146,24 @@ export function SiteFooter() {
           </button>
         </div>
 
-        {/* Table of contents — animated scroll to landing sections */}
-        <div className="flex flex-col gap-3 border-t border-white/20 pt-6">
-          <p className="text-xs font-mono font-bold text-white/50 uppercase tracking-widest">{t.tocLabel}</p>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75 font-medium">
-            {t.toc.map(item => (
-              <a
-                key={item.id}
-                href={`/${lang}#${item.id}`}
-                className="hover:text-violet-400 transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-        </div>
+        {/* Table of contents — scroll back to the landing sections. HOME PAGE ONLY:
+            its anchors target the home sections, which do not exist on other pages. */}
+        {isHome && (
+          <div className="flex flex-col gap-3 border-t border-white/20 pt-6">
+            <p className="text-xs font-mono font-bold text-white/50 uppercase tracking-widest">{t.tocLabel}</p>
+            <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75 font-medium">
+              {t.toc.map(item => (
+                <a
+                  key={item.id}
+                  href={`/${lang}#${item.id}`}
+                  className="hover:text-violet-400 transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-white border-t border-white/20 pt-6">
           <div className="flex flex-col gap-1">

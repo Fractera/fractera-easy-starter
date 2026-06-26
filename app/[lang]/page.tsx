@@ -15,8 +15,7 @@ import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
-import { SiteToc } from '@/components/site-toc'
-import { SiteNav } from '@/components/site-nav'
+import { PageContents } from '@/components/page-contents'
 import { ClosingQuote } from '@/components/closing-quote'
 
 /* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
@@ -67,10 +66,11 @@ export default async function HomePage({
           <ContentProvider value={content}>
             <section className="flex flex-col gap-32 items-start w-full">
 
-              {/* SEO site contents — top. Server-rendered section links in static HTML. */}
-              <div className="w-full pt-8"><SiteToc lang={lang} /></div>
-
               <div id="hero" className="w-full scroll-mt-16"><Hero /></div>
+
+              {/* Page contents — table of contents for THIS page's sections, under the
+                  hero, above the first content block. Scroll-to anchors, SEO links. */}
+              <div className="w-full"><PageContents lang={lang} /></div>
               {/* The architecture CTA + reference-links block was removed here. The
                   single architecture-doc button now lives under the hero illustration
                   (in <Hero/>), pointing at /documentation/multi-agent-workspace-architecture. */}
@@ -110,9 +110,6 @@ export default async function HomePage({
 
               {/* Closing editorial assessment — bottom of the feed. */}
               <div className="w-full"><ClosingQuote lang={lang} /></div>
-
-              {/* Site navigation — scroll-to anchors for the home sections (bottom). */}
-              <div className="w-full"><SiteNav lang={lang} /></div>
 
             </section>
           </ContentProvider>
