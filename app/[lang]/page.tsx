@@ -16,6 +16,7 @@ import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 import { SiteToc } from '@/components/site-toc'
+import { SiteNav } from '@/components/site-nav'
 import { ClosingQuote } from '@/components/closing-quote'
 
 /* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
@@ -110,8 +111,8 @@ export default async function HomePage({
               {/* Closing editorial assessment — bottom of the feed. */}
               <div className="w-full"><ClosingQuote lang={lang} /></div>
 
-              {/* SEO site contents — duplicated at the bottom of the feed as navigation. */}
-              <div className="w-full"><SiteToc lang={lang} /></div>
+              {/* Site navigation — scroll-to anchors for the home sections (bottom). */}
+              <div className="w-full"><SiteNav lang={lang} /></div>
 
             </section>
           </ContentProvider>
