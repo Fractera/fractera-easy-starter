@@ -9,6 +9,7 @@ import { CookieBanner } from '@/components/cookie-banner'
 import { AnchorScrollFix } from '@/components/anchor-scroll-fix'
 import { AskAiWidget } from '@/components/ask-ai-widget'
 import { GoogleAnalytics } from '@/components/google-analytics'
+import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/google-tag-manager'
 import { SUPPORTED_LANGUAGES as SUPPORTED_LANGS, DEFAULT_LANGUAGE } from '@/config/translations/translations.config'
 import { getMeta } from '@/lib/i18n/locales'
 import { buildAlternates } from '@/lib/seo/alternates'
@@ -209,6 +210,7 @@ export default async function LangLayout({
       <CookieBanner />
       <AskAiWidget lang={lang} />
       <GoogleAnalytics />
+      <GoogleTagManager />
       <AnchorScrollFix />
       <Toaster position="top-center" theme="dark" />
     </>
@@ -217,6 +219,8 @@ export default async function LangLayout({
   return (
     <html lang={lang} className={htmlFontClass}>
       <body className="min-h-full flex flex-col">
+        {/* GTM noscript — immediately after <body>, per Google's install guide. */}
+        <GoogleTagManagerNoscript />
         <Providers>{inner}</Providers>
       </body>
     </html>
