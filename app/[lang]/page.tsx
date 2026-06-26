@@ -16,6 +16,7 @@ import { FaqSection } from '@/components/sections/faq-section'
 import { SponsorshipSection } from '@/components/sections/sponsorship-section'
 import { FractеraTestimonial } from '@/components/sections/testimonial'
 import { SiteToc } from '@/components/site-toc'
+import { ClosingQuote } from '@/components/closing-quote'
 
 /* FAQ JSON-LD disabled — do NOT delete, re-enable later. Commented out so it is
    not emitted to production on the next deployment.
@@ -105,6 +106,9 @@ export default async function HomePage({
                 <Suspense fallback={null}><SponsorshipSection /></Suspense>
               </div>
               <div id="faq" className="mb-32 w-full scroll-mt-16"><FaqSection /></div>
+
+              {/* Closing editorial assessment — bottom of the feed. */}
+              <div className="w-full"><ClosingQuote lang={lang} /></div>
 
               {/* SEO site contents — duplicated at the bottom of the feed as navigation. */}
               <div className="w-full"><SiteToc lang={lang} /></div>
