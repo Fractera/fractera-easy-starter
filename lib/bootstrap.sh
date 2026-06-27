@@ -707,6 +707,16 @@ mcp_servers:
     url: http://localhost:3226
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Content Orchestrator: the FROZEN PROCESS for content ops. The agent passes only an
+  # INTENT; this decomposes it by slot state into dependent development steps and runs each
+  # through open->execute->deploy->RECORD(gate)->close. The deployment record is a GATE — a
+  # step never closes without a deployment_records row (the Vercel invariant). Also records
+  # blockers as open steps (owner_report_blocker_step) when work exceeds the agent's tools.
+  # Served by bridges/platforms/server.js (ContentOrchestratorMcpServer, :3227). Step 156.
+  content-orchestrator-bridge:
+    url: http://localhost:3227
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
