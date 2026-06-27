@@ -697,6 +697,16 @@ mcp_servers:
     url: http://localhost:3225
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Content CRUD: any of the 6 agents creates/edits/deletes a content GROUP (tab) or
+  # PAGE (post) in the slot — deterministic file CRUD, NO code generation (the agent passes
+  # DATA, the slot emitter writes the files). owner_content_manage_collection (mutating,
+  # §8.2 dry_run; anti-destructive + integrity gates). create group delegates to the Frozen
+  # Template Constructor. Every success is fixed in the Deployment table (deployment_records).
+  # Served by bridges/platforms/server.js (ContentCrudMcpServer, :3226). Step 154.
+  content-crud-bridge:
+    url: http://localhost:3226
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
