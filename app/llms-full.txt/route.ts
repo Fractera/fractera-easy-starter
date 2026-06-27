@@ -350,26 +350,27 @@ use, while independent builders and small teams keep every freedom they had unde
 const FROZEN_ARCHETYPES_NEWS = `# Frozen archetypes — add a whole page group without code generation
 
 Reference page (news): https://www.fractera.ai/en/news/frozen-archetypes-page-groups-without-code
-Raw doc (download): https://www.fractera.ai/docs/frozen-archetypes.md
+Raw doc (download): https://www.fractera.ai/docs/frozen-template-constructor.md
 
-Adding a page group (a news section, a blog, a documentation section) used to mean an AI coding
-agent writing about thirty files by hand — slow, token-heavy, and prone to drifting from the
-standard. A frozen archetype replaces that with one call. It is a "project in a box, frozen": an
-inert tree of template files with no fixed records, where the specifics (which group, which
-languages, the label, how many examples) are parameters, not content. An agent thaws it into the
-site with those parameters.
+This was the first prototype of "add a whole page group without code"; it has since matured into the
+Frozen Template Constructor (see the next story). Adding a page group (a news section, a blog, a
+documentation section) used to mean an AI coding agent writing about thirty files by hand — slow,
+token-heavy, and prone to drifting from the standard. A frozen archetype replaced that with one
+call. It is a "project in a box, frozen": an inert tree of template files with no fixed records,
+where the specifics (which group, which languages, the label, how many examples) are parameters, not
+content. An agent composes it into the site with those parameters.
 
-## Thawing is file copy, not code generation
-Thawing is deliberately dumb. The agent copies the template files into the project and fills in the
-blanks: it installs the shared content engine only if the slot lacks it (idempotent), creates the
-section plus a couple of placeholder posts (Lorem body, placeholder image, but the full ideal page
-structure — SEO metadata, breadcrumbs, table of contents, FAQ), and translates the single section
-label into each configured language. No model writes code, so any model — the built-in brain or any
-of the coding agents — produces an identical result in seconds, and the pages are static and work
-with JavaScript off.
+## Composition is file copy, not code generation
+Composition is deliberately dumb. The agent copies the vetted template files into the project and
+fills in the blanks: it installs the shared content engine only if the slot lacks it (idempotent),
+creates the section plus a couple of placeholder posts (Lorem body, placeholder image, but the full
+ideal page structure — SEO metadata, breadcrumbs, table of contents, FAQ), and translates the single
+section label into each configured language. No model writes code, so any model — the built-in brain
+or any of the coding agents — produces an identical result in seconds, and the pages are static and
+work with JavaScript off.
 
 ## The closed store and the two layers
-The frozen archetype lives in a closed store on the user's own server (the data service), served
+The frozen brick lives in a closed store on the user's own server (the data service), served
 read-only. It has two layers: an engine layer (the shared content engine, installed only when the
 slot has none — it belongs to no single tab) and a tab layer (the parameterized section itself,
 which refuses to overwrite an existing tab). The engine is distilled from the platform's mature
@@ -377,14 +378,12 @@ content engine and decoupled from anything project-specific, with brand and doma
 environment variables, so it is portable to any starter.
 
 ## Honest refusal — match a real capability or decline
-One archetype does not serve everything. The manifest declares what it fits (news, blog,
-documentation, announcements, changelog, guides) and what it does not serve (a cart/checkout, a
-graded course with tests, an interactive app screen). The agent consults that manifest instead of
-guessing; asked for something outside it, the agent says so honestly and offers to author a new
-archetype — it will not force a bad fit or invent fragile code. Surfaces: the owner-tier
-archetypes-bridge MCP (port 3223, owner_archetype_list_frozen + owner_archetype_thaw_content_group
-with a confirm-first dry run) and the self-sufficient thaw-frozen-archetype skill, shipped to every
-agent so it works on a lone agent with no orchestrator.`
+One frozen brick does not serve everything. It declares what it fits (news, blog, documentation,
+announcements, changelog, guides) and what it does not serve (a cart/checkout, a graded course with
+tests, an interactive app screen). The agent consults that declaration instead of guessing; asked
+for something outside it, the agent says so honestly and offers to harvest a new brick — it will not
+force a bad fit or invent fragile code. The current, fuller mechanism — the composer, its basis and
+the matching rules — is the Frozen Template Constructor (next story).`
 
 const FROZEN_TEMPLATE_CONSTRUCTOR_NEWS = `# The Frozen Template Constructor — whole structures, composed not generated
 
