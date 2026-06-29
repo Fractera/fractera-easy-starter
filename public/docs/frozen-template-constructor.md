@@ -1,282 +1,308 @@
-# Конструктор замороженных шаблонов
+# The Frozen Template Constructor — the one core doc
 
-> Авторитетная стратегия, с первого принципа: как платформа добавляет на сайт **целую структуру** (ленту
-> новостей, дерево документации, каталог) — **собирая** её из проверенных замороженных строительных блоков,
-> **без единой строки генерации кода**, так что любая ИИ-модель даёт одинаковый результат. Англоязычный
-> оригинал — `CRUD-DOCS/workspace-standards/frozen-template-constructor.md`. Спутник — `content-engine.md`
-> (как устроена одна готовая страница внутри). Заметка-прототип (`frozen-archetypes.md`) выведена из обращения —
-> это единственный источник.
-
----
-
-## 1. Проблема, честно
-
-Мы хотим, чтобы ИИ-агент добавлял целую структуру — «сделай раздел новостей», «добавь документацию» — **без**
-ручного написания десятков файлов (медленно, дорого по токенам, расходится со стандартом) и **без генерации
-кода** (недетерминизм, непротестированные комбинации, разный результат у разных моделей).
-
-Наивное решение — **каталог готовых шаблонов**: отдельный для новостей, для блога, для документации, для
-2-уровневого дерева, для каталога из базы… Не масштабируется. Реальное пространство структур имеет несколько
-независимых измерений (насколько глубока иерархия, откуда данные, кому видно, какие языки). Каталогу
-понадобился бы шаблон на **каждую комбинацию** — сотни; каждое новое измерение умножает их число. Тысяча
-шаблонов — не стратегия.
-
-Второе наивное решение — **генерировать структуру ИИ каждый раз** — возвращает ровно то, от чего мы бежим:
-непротестированный код, разный результат у разных моделей, риск в каждом создании.
-
-Ответ — ни то, ни другое. Ответ — **конструктор**.
+> **This single file is self-sufficient.** It is the authoritative strategy, from first principles, for how an
+> AI agent (the built-in brain **Hermes**, or any coding agent — Codex / Claude / Gemini / Qwen / Kimi) adds a
+> **whole structure** to a site — a news feed, a blog, a documentation tree, a catalogue — by **composing** it
+> from proven, frozen building blocks, with **zero code generation**. If every other doc were deleted and only
+> this one kept, frozen-template development could continue without reading any prior step or pattern.
+> This doc is agent-facing and English-only (no RU translation — it is read by AI agents). The site's
+> download button serves the identical English copy at FES `public/docs/frozen-template-constructor.md`.
 
 ---
 
-## 2. Суть: конструктор, а не каталог
+## 0. Why this exists — complex tasks at minimal token cost
 
-> **Конструктор — это детерминированная функция, которая СОБИРАЕТ структуру из небольшого базиса проверенных
-> замороженных примитивов, параметризованная описанием того, что нужно. Она никогда не генерирует код.**
+Adding a real, multilingual, access-gated, menu-registered content section to a Next.js app is a **large,
+error-prone technical task**: dozens of files, exact conventions, i18n fallback, route skeletons, a list
+provider, a menu manifest, a build. Done by hand it is slow and token-heavy; done by **LLM code generation**
+it is non-deterministic — a different, untested result per model, with risk baked into every creation.
 
-Представьте LEGO: горстка хорошо сделанных кирпичей собирается в огромное пространство моделей. Мы не строим
-каждую модель заранее; держим маленький набор **проверенных кирпичей** и маленький набор **правил сборки**.
-Комбинаторный взрыв уходит из «сколько шаблонов» в «насколько мало и ортогональны кирпичи».
+The Frozen Template Constructor removes both costs. The agent does **not** write the files and does **not**
+generate code. It **describes intent** (a few light parameters — "a news section, en+es, public, 2 sample
+posts") and the constructor **composes** the structure by copying + token-substituting **vetted frozen
+bricks**. Consequences:
 
-Два следствия делают это безопасным:
-- **Детерминизм.** Сборка копирует и связывает проверенные замороженные части — не сочиняет код. Встроенный
-  мозг (Hermes) и каждый кодящий агент дают **одинаковый** результат. *Замораживай паттерн, а не догадку.*
-- **Open/Closed.** Новая способность — это **новый кирпич в базисе**, никогда не переписывание ядра
-  конструктора. Ядро закрыто для модификации, открыто для расширения.
+- **Minimal tokens.** The agent emits a short intent, not hundreds of lines of code. A whole section is one
+  tool call.
+- **Determinism.** Composition wires frozen pieces; **any model produces the identical result.** *Freeze a
+  pattern, not a guess.*
+- **Safety.** No untested code reaches the build. Integrity is enforced (folder===slug, only the app's
+  languages, no foreign-script junk).
 
-Существующий эмиттер — уже зародыш этого: берёт параметры, собирает два слоя. Конструктор обобщает зародыш с
-одной ручки (`format`) до полного описания.
+This is how a weak model (Hermes mini) can reliably perform a task that would otherwise need a senior engineer:
+the intelligence is **frozen into the bricks once**, not re-derived per request.
 
 ---
 
-## 3. 🔒 Закон двух слотов (вот что делает стоимость аддитивной, а не N²)
+## 1. The complete call map (every operation the agent has)
 
-Каждое свойство структуры обязано жить **ровно в одном из двух слотов — и никогда не пересекаться между ними**:
+The capability spans four MCP servers + one dependency. **Every logical operation is its own row** — one MCP
+tool may carry several operations (create/edit/delete; or path/roles/languages/menus). All are `owner`-tier;
+every **mutating** call must preview with `dry_run` and get explicit confirmation (§"Confirm-first") before
+the real call. After **any** mutation the slot needs a **rebuild** (#18) to go live.
 
-| Слот | Держит | Примеры |
+| # | Tool · operation | This call lets the agent… |
 |---|---|---|
-| **A. Поставщик списка** (данные) | *откуда берутся дети* | скан файловой системы · запрос к БД на сборке · (в будущем) рантайм |
-| **B. Единообразный аспект** (layout) | *сквозное правило, применённое одинаково на каждом уровне* | i18n · роли/доступ · тема |
+| 1 | `owner_template_list_primitives` | see **which kinds of structure can be composed** (the available bricks). Read-only. |
+| 2 | `owner_template_compose_structure` | **create a whole new section** (news/blog/docs) at once — with `samples=N` placeholder posts in one shot. |
+| 3 | `owner_template_list_groups` | **list every existing page-group** and its settings (languages, access, menu placement). Read-only. |
+| 4 | `owner_template_update_group` · path | **change a group's URL/folder** (rename the section, e.g. `news`→`guides`) + parser-fs. |
+| 5 | `owner_template_update_group` · roles | **restrict a section's access** to roles (or make it public) — rewrites the layout gate. |
+| 6 | `owner_template_update_group` · languages | **change a section's language set** (add/remove a language's UI chrome). |
+| 7 | `owner_template_update_group` · menus | **show a section in a menu** (top/footer/left/right) and **set its button order**. |
+| 8 | `owner_template_update_group` · children-dropdown | **expand a section's child pages as a dropdown** in the menu (vs a link to the index). |
+| 9 | `owner_content_manage_collection` · create group | **create a new page-group** (tab) for content. |
+| 10 | `owner_content_manage_collection` · edit group | **change the tab's chrome/labels.** |
+| 11 | `owner_content_manage_collection` · delete group | **delete a whole page-group.** |
+| 12 | `owner_content_manage_collection` · create page | **create a new page inside a group** (a clone of the frozen stub; light metadata only). |
+| 13 | `owner_content_manage_collection` · edit page | **change a page** (title/date/tags). |
+| 14 | `owner_content_manage_collection` · delete page | **delete one page** from a group. |
+| 15 | `owner_content_orchestrate` | **do a content task end-to-end** — it decomposes the intent into dev-steps, runs each, deploys, records it. |
+| 16 | `owner_perceive_workspace` | **see what actually exists now** (live tree of sections+pages) before acting. Read-only. |
+| 17 | `owner_report_blocker_step` | **stop honestly and file a blocker step** for a coding agent when the task is beyond no-code. |
+| 18 | `owner_deploy_rebuild_slot` | **rebuild the site** so any change goes live. **Mandatory after every mutation.** |
+| 19 | `owner_app_settings_set_languages` | **add a language to the whole app** — the prerequisite before authoring content in it (#6 stays within this set). |
 
-**Закон:**
+**Which tool when.** Brand-new section with test posts → **#2** (compose; `samples=N` is the right way to get
+several test posts, *not* repeated #12). One page in an existing section → **#12**. Re-arranging menus / access
+/ path / languages of an existing group → **#4–#8**. "Just make it right, end-to-end" → **#15** (it picks #2
+or #12 for you, runs the full step lifecycle, and records the deploy — the gate that closes a step). Always
+**#16 first** to see reality; **#18 last** to publish.
 
-> Свойство — это либо **поставщик списка**, либо **единообразный аспект**. Третьего слота нет. Единообразный
-> аспект встраивается **одинаково на каждом уровне** структуры (он живёт в layout), **независимо от глубины
-> иерархии и источника данных**. **Взаимодействие между слотами запрещено.**
-
-Почему это важно: это разница между **аддитивной** и **квадратичной** стоимостью. Если бы аспекты вели себя
-по-разному в зависимости от глубины или источника, каждая комбинация (аспект × глубина × источник) была бы
-спец-случаем — ловушка N², убивающая product-lines. По **закону** этого не происходит: роль-гейт — одно
-правило, встроенное в каждый уровень layout одинаково, дерево 1 уровня или 4, на файлах или на БД.
-
-**Принуждение (смелл — отвергать, не аккомодировать):** если предлагаемая фича *требует* спец-случая по
-глубине или источнику — это дизайн-смелл. Мы **отвергаем** её, не гнём конструктор под неё. Два слота — весь
-контракт; больше ничего не добавляется.
-
----
-
-## 4. Базис: базовая сетка + динамический дескриптор
-
-### 4.1 База = {источник данных} × {глубина}
-
-Структурный скелет фиксируется двумя базовыми измерениями:
-
-```
-            глубина 1       глубина 2         глубина 3          глубина 4
-          (плоский список) (раздел→элементы) (таксономия)       (глубокое дерево)
-файлы     ▢ новости/блог   ▢ docs-по-катег.  ▢ база знаний       ▢ глубокий мануал
-БД        ▢ список из БД   ▢ разделы из БД    ▢ каталог           ▢ глубокий каталог
-```
-
-- **Источник данных** — сменный **поставщик списка** (Slot A): сегодня скан файловой системы (`parser-fs`
-  строит список детей); для БД — **запрос на сборке** (вывод всё равно статический). Один шов, разные
-  поставщики.
-- **Глубина** — структурная вложенность (сколько индекс-уровней). **Рекурсивный параметр** одного скелета,
-  не четыре написанных вручную файла: каждый уровень — хаб, перечисляющий уровень ниже; лист — документ.
-
-Это **8 статических скелетов** — каждая клетка `(источник, глубина)`, и static-first держится во всех (каталог
-из БД читает БД **на сборке** и отдаёт статические страницы; см. `static-first.md`).
-
-### 4.2 Девятое: динамический дескриптор
-
-Когда структура **по-настоящему не может быть статической** (данные на пользователя, на запрос,
-транзакционные — живой дашборд, корзина), конструктор **не** гнёт статический скелет. Он возвращает
-**динамический дескриптор**: не страницы, а **спецификацию** — контекст обращения к данным, правила доступа,
-границы — которая передаёт работу классической разработке по правилам платформы. Это честный выход, не плохая
-подгонка.
-
-### 4.3 Static-first управляет осью данных
-
-Ось данных — спектр: `файлы → БД-на-сборке (+ISR) → БД-на-запрос → запись ввода → транзакции`. Канон платформы
-(`static-first.md`) держит дефолт **слева/посередине** (файлы · БД-на-сборке · ISR); правая часть (динамика на
-запрос, запись, транзакции) допускается только при **абсолютной необходимости** и с двойным подтверждением
-архитектора. Значит «шаблон с БД» по умолчанию = **БД-на-сборке → статический вывод**.
+**Not yet covered (roadmap, refuse honestly if asked):** re-ordering *pages within a group* (post order is
+by data/date, no move-op), *moving a page between groups*, and *reading one page's body* (only the tree is
+read, #16). These are candidate future bricks — propose, don't fake.
 
 ---
 
-## 5. Аспекты (Slot B): единообразные, тумблеры, независимые от уровня
+## 2. The core idea: a constructor, not a catalogue
 
-Аспекты — сквозные тумблеры, каждый встроен **одинаково на каждом уровне** через layout:
+> **A constructor is a deterministic function that COMPOSES a structure from a small basis of proven, frozen
+> primitives, parameterised by a description of what you need. It never generates code.**
 
-- **i18n** — каждый уровень локализован одинаково (`[lang]` + UI-хром вкладки с поключевым EN-fallback).
-  Доказан в прототипе; это канонический пример единообразного аспекта.
-- **Роли / доступ** — кому видна структура. Два слоя: **enforced-тиры** (`guest` / `user` / `architect`) и
-  **бизнес-RBAC** (`ALL_ROLES`: `vip_user`, `subscriber_lite/standard/max`, `buyer`, `manager`, …). Структура
-  объявляет доступ; гейт — **одно правило, встроенное в каждый уровень layout**, одинаковое на глубине 1 и 4.
-  (Доступ решается *до* постройки структуры — см. `HOW-USE-AUTH.md`.)
-- (в будущем) тема и любое правило, по-настоящему одинаковое на каждом уровне.
-
-Аспект, который нельзя выразить как «одно правило на каждом уровне», — это **не аспект**: ему не место в Slot B,
-а по Закону двух слотов — нигде. Отвергаем.
+A catalogue of finished templates (one for news, one for blog, one for a 2-level docs tree, one for a DB
+catalogue…) does **not** scale: the real space has several independent dimensions (depth, data source, access,
+languages); a catalogue needs a template for **every combination** — the N² trap. Generating per request
+brings back untested, model-dependent code. The answer is neither — it is **LEGO**: a few well-made bricks +
+a few composition rules compose an enormous space. Two properties make it safe: **determinism** (identical
+result from any model) and **Open/Closed** (a new capability = a new brick in the basis, never a rewrite of the
+core).
 
 ---
 
-## 6. Envelope: матч запроса к примитиву
+## 3. 🔒 The Two-Slot Law (what makes it additive, not N²)
 
-Примитив объявляет свой **envelope** — позицию по каждой оси. Запрос матчится **проекцией на те же оси**:
+Every property of a structure lives in **exactly one of two slots — never interacting across them**:
 
-| Ось | Примеры значений | Слот |
+| Slot | Holds | Examples |
 |---|---|---|
-| источник данных | файлы · БД-на-сборке · рантайм | A |
-| глубина | 1 · 2 · 3 · 4 | база |
-| статика vs динамика | статика · динамик-дескриптор | база |
-| роли/доступ | public · guest · `[роль,…]` | B (аспект) |
-| i18n | моно · мульти | B (аспект) |
+| **A. List provider** (data) | *where the children come from* | filesystem scan · DB-at-build · (future) runtime |
+| **B. Uniform aspect** (layout) | *a cross-cutting rule applied identically at every level* | i18n · roles/access · (future) theme |
 
-> **Тест 100%-fit.** Запрос матчит примитив, только если укладывается по **каждой** оси. Частичное совпадение —
-> это **не** тот примитив. Поэтому отказ **объясним конкретной осью** («не подходит: ось *роли* = `architect`,
-> примитив = `public`»).
+> A property is either a **list provider** or a **uniform aspect**. There is no third slot. A uniform aspect is
+> embedded the **same way at every level** (it lives in the layout), **independent of hierarchy depth and data
+> source**. **Cross-slot interaction is forbidden.**
 
-Это машинно-проверяемая форма «100% или никак» и контентный частный случай **выбора способности на масштабе**:
-матч по реальной декларации, никогда по ключевым словам. (Ключевые подсказки — проза «fits/does-not-serve» —
-могут сопровождать envelope как человеческая опора, но авторитет — envelope.)
+This is the line between **additive** and **quadratic** cost. **Enforcement:** if a feature *requires* a
+special case by depth or by data source, that is a design smell — **reject it**, do not bend the constructor.
 
 ---
 
-## 7. Decision-flow: собрать, найти другой, или честно отказать
+## 4. The basis: base grid + dynamic descriptor
+
+**Base = {data source} × {depth}.**
 
 ```
-запрос
-  └─ проекция на оси envelope
-       ├─ примитив подходит на 100% ──────► СОБРАТЬ его (детерминированно, без кодогена)
-       ├─ подходит другой примитив ───────► собрать его
-       └─ не подходит ни один ────────────► ЧЕСТНЫЙ ОТКАЗ (назвать провалившую ось), затем ОДНО из:
-             (a) предложить архитектору ЗАМОРОЗИТЬ НОВЫЙ ПРИМИТИВ
-                   — только если форма ПРОВЕРЕНА живой разработкой, ПОВТОРЯЕТСЯ (rule-of-three)
-                     и чисто параметризуется. Агент ПРЕДЛАГАЕТ, не создаёт сам; тяжёлый
-                     харвест-анализ — только после «делаем» архитектора (не спекулятивно).
-             (b) КЛАССИЧЕСКАЯ РАЗРАБОТКА в рамках имеющейся архитектуры
-                   — если форма новая / разовая / нестабильная / рискованная.
+            depth 1        depth 2          depth 3            depth 4
+          (flat list)   (section→items)  (taxonomy)        (deep tree)
+files     ▢ news/blog    ▢ docs-by-cat     ▢ knowledge base   ▢ deep manual
+DB        ▢ DB list      ▢ DB sections     ▢ catalogue        ▢ deep catalogue
 ```
 
-(a) и (b) — **не «или-или»**, а **градиент зрелости**. Новая форма начинается с классической разработки (b);
-доказав себя и повторяясь, она **зарабатывает** право быть замороженной в примитив (a). *Замораживай паттерн,
-а не догадку.*
+- **Data source** = a swappable **list provider** (Slot A): today a filesystem scan (`parser-fs` builds the
+  child list); for DB, a **build-time query** (output is still static). Same seam, different provider.
+- **Depth** = structural nesting, a **recursive parameter** of one skeleton (each level is a hub listing the
+  level below; the leaf is the document) — not four hand-written files.
+
+That is **8 static skeletons**; static-first holds across all (a DB catalogue reads the DB **at build** and
+ships static pages).
+
+**The 9th — the dynamic descriptor.** When a structure **genuinely cannot be static** (per-user, per-request,
+transactional — a live dashboard, a cart) the constructor does not force a static skeleton; it returns a
+**specification** (data-access context, access rules, boundaries) that hands the work to classic development.
+The honest exit, not a bad fit.
+
+**Static-first governs the data axis.** The spectrum `files → DB-at-build(+ISR) → DB-per-request → writes →
+transactions` defaults to the **left/middle**; the right side needs the architect's double confirmation. So "a
+DB template" means, by default, **DB-at-build → static output**.
 
 ---
 
-## 8. Версионирование движка: side-by-side, с пиннингом
+## 5. The aspects (Slot B): uniform, toggled, level-independent
 
-Рендер-движок эволюционирует. Эволюция не должна ломать уже существующую структуру.
+- **i18n** — every level localised the same way (`[lang]` + per-tab UI chrome with per-key EN fallback). The
+  canonical uniform aspect.
+- **Roles / access** — two layers: enforced tiers (`guest`/`user`/`architect`) + business RBAC (`ALL_ROLES`:
+  `vip_user`, `subscriber_lite/standard/max`, `buyer`, `manager`, …). The gate is **one rule embedded into
+  every layout level**, identical at depth 1 or 4. Access is decided **before** building. On a wrong-role
+  visit: a **localized access-denied toast** (all 82 languages, manual close) then a soft redirect.
+- (future) theme, and any rule that is genuinely the same at every level.
 
-- **Установленная версия движка неизменна.** Ломающий мажор приезжает **рядом** со старым, в свой неймспейс:
-  `lib/content-v1/**` + `components/content-page-v1/**`, затем `lib/content-v2/**` через год.
-- **Каждая структура прибита к версии, под которую собрана** (импорты на `@/lib/content-v1/…`), поэтому старые
-  «Новости» работают на v1 даже после прихода v2. Конфликт невозможен — неймспейсы разные.
-- **Сторож по-версионный** (ставит copy-if-absent *для этой версии*; чужую не трогает).
-- **Личность НЕ версионируется.** `brand` и `author` — одна личность сайта на все версии; набор языков и
-  тривиальная инфраструктура тоже общие и не версионируются.
-
-Осознанный размен: две структуры на разных мажорах движка **могут выглядеть по-разному**, пока владелец явно
-не **мигрирует** одну. Меняем «единый вид везде» на «старая структура не ломается никогда» — верный размен для
-само-эволюционирующей ИИ-системы, где агенту год спустя нельзя доверить совместимость, поэтому мы убираем само
-требование. (Классика: side-by-side versioning + consumer pinning — .NET SxS, Go modules, Nix.)
+An aspect that cannot be "the same rule at every level" is **not an aspect** — reject it.
 
 ---
 
-## 9. 🛑 Дисциплина харвеста (самое важное правило)
+## 6. The envelope: matching a request to a primitive
 
-Сетка из §4 — **карта для матча и дорожная карта**, а **не план построить все клетки**. Шаблон под каждую
-клетку заранее — та же не-масштабируемость с другого конца (преждевременная абстракция).
+A primitive declares its **envelope** (its position on every axis); a request is matched by projecting it onto
+the same axes.
 
-> Асфальтируй дорогу там, где трафик. **Замораживай клетку в примитив, только когда она (1) проверена живой
-> разработкой, (2) повторяется, (3) чисто параметризуется.** Остальное обслуживает классическая разработка,
-> пока не заработает свой примитив. Конструктор **Open/Closed**: расти базис по одному проверенному кирпичу.
+| Axis | Example values | Slot |
+|---|---|---|
+| data source | files · DB-at-build · runtime | A |
+| depth | 1 · 2 · 3 · 4 | base |
+| static vs dynamic | static · dynamic-descriptor | base |
+| roles/access | public · guest · `[role,…]` | B |
+| i18n | mono · multi | B |
+| (later) scale | units · thousands (SSG vs ISR) | base hint |
 
-Сегодня в базисе **один** собранный примитив — `(файлы × глубина-1)` — эталон. Дорожная карта (строить каждый
-когда доказан, не сейчас): `(файлы × глубина-2)` (docs-по-категориям) · `(БД-на-сборке × глубина-1)` (каталог)
-· динамический дескриптор.
-
----
-
-## 10. Эталонный примитив — `(файлы × глубина-1, i18n вкл, роли выкл)`
-
-Первый и эталонный кирпич: плоский, на файлах, многоязычный список документов (лента новостей / блог). Он
-демонстрирует **швы** конструктора, чтобы следующий кирпич встал без касания ядра:
-
-- **Шов поставщика списка (Slot A):** список детей приходит из скана файловой системы на сборке (`parser-fs`).
-  Подмена на поставщика БД-на-сборке меняет только этот шов.
-- **Шов аспекта (Slot B):** i18n встроен единообразно в layout. Включение аспекта ролей добавляет гейт в тот
-  же шов layout — без изменения глубины или поставщика.
-- **Глубина:** глубина-1 — базовый случай рекурсивного параметра глубины.
-- **Версионный движок:** рендерер ставится в `lib/content-v1/…`; структура прибита к v1.
-
-Это контент, не фича: собранная структура отдаёт документы-заглушки (Lorem-текст + картинка-заглушка), которые
-владелец заменяет; добавление следующего документа — одна папка.
+> **100%-fit test.** A request matches only if it fits on **every** axis. A partial fit is **not** that
+> primitive. A refusal is **explainable by the specific axis** that failed ("does not fit: *roles* is
+> `architect`, this primitive is `public`"). Match against the declared capability — never guess from keywords.
 
 ---
 
-## 11. Регистрация группы: манифест (размещение в меню — метаданные, НЕ аспект)
+## 7. Decision flow: compose, find another, or refuse honestly
 
-Собранная группа также объявляет, **как она появляется в меню сайта**. Это свойство отношения группы к
-**оболочке** (одна запись на всю группу), а не свойство внутренней композиции структуры — поэтому по Закону
-двух слотов это **ни поставщик списка (A), ни единообразный аспект (B)**. Это **третья, ортогональная сущность:
-метаданные регистрации**. Закон управляет *внутренней* композицией; манифест — *внешней* регистрацией. (Ложный
-«третий слот» в композицию не вводится — манифест лежит рядом с данными, развязанно.)
+```
+request
+  └─ project onto the envelope axes
+       ├─ a primitive fits 100% ──────────► COMPOSE it (deterministic, no codegen)
+       ├─ another primitive fits ─────────► compose that one
+       └─ none fits ──────────────────────► HONEST REFUSAL (name the failing axis), then ONE of:
+             (a) PROPOSE freezing a new primitive — only if PROVEN by live dev, REPEATING
+                   (rule-of-three), cleanly parameterisable. The agent PROPOSES; it does not
+                   self-create. The "study all primitives + extract the pattern" analysis runs
+                   ONLY after the architect says "go".
+             (b) CLASSIC DEVELOPMENT within the existing architecture — if new/one-off/unstable.
+```
 
-Композер эмитит лёгкий **манифест группы** в `_data/group.ts` (`GroupManifest`, тип в версионируемом движке
-`lib/content-<ver>/group-manifest.ts`):
-
-- `slug`, `languages`, `roles` — **эхо конверта**, чтобы система меню читала идентичность, набор языков и форму
-  доступа группы из **одного места** (она не парсит `layout.tsx` и не считает файлы `_data/*`).
-- `menus` — четыре слота `top` / `footer` / `left` / `right` (левый и правый — выдвижные ящики некоторых
-  дизайнов), каждый `{ enabled: boolean, order: number }`. **По умолчанию все слоты выключены, order 10** —
-  вывод группы в меню это осознанный opt-in.
-- `childrenAsDropdown: boolean` (по умолчанию `false`) — `true` → меню раскрывает дочерние страницы группы
-  выпадающим списком; `false` → кнопка ведёт на индекс-маршрут группы. Меню решает *как* рендерить; манифест
-  лишь объявляет намерение.
-
-### 11.1 Чтение и редактирование живой группы (как работают настройки меню)
-
-Собранная группа не заморожена навсегда — её **регистрация** (путь, доступ, языки, размещение в меню)
-редактируется потом, **детерминированными правками файлов, без генерации кода**. Манифест `_data/group.ts` —
-единая поверхность, которую читает меню; правки держат реальные артефакты в синхроне, чтобы эхо не врало. Два
-MCP-инструмента (и эмиттер `manage-group.mjs`, поставляемый каждому агенту рядом с композером):
-
-- **`owner_template_list_groups`** (read-only) — все собранные группы + их манифесты. Группа без манифеста
-  возвращается с выведенным конвертом (`hasManifest:false`).
-- **`owner_template_update_group`** — точечно правит существующую группу, передавайте только меняемые поля:
-  `slug` (переименование папки = путь + `parser-fs`), `roles` (`off`/`guest`/csv/`all` → перезапись гейта в
-  layout + эхо), `languages` (добавить/убрать UI-chrome `_data/<lang>.ts` + индекс + эхо, строго в наборе
-  приложения), `menus` (`{top,footer,left,right}`, каждый `{enabled,order}` — **именно так группа добавляется в
-  меню и переупорядочивается**), `children_as_dropdown` (раскрытие дочерних кнопкой). Мутирующий → сперва
-  `dry_run` (§8.2); после записи слоту нужна **пересборка**.
-
-Сами компоненты меню — **не** часть конструктора, это потребители манифеста (отдельная забота).
+(a) and (b) are a **maturity gradient**: a new shape starts as classic development; when proven and repeating,
+it **earns** the right to be frozen. *Freeze a pattern, not a guess.*
 
 ---
 
-## 12. Инварианты (не нарушать)
+## 8. Group registration: the manifest (menu placement — metadata, NOT a slot)
 
-- Только сборка — **никогда не генерация кода ИИ**; одинаковый результат у любой модели.
-- **Закон двух слотов:** свойство — поставщик списка (данные) или единообразный аспект (layout); **никакого
-  взаимодействия слотов**; отвергать фичи, которым нужен спец-случай по глубине/источнику.
-- **Envelope 100%-fit** или это не тот примитив; отказы называют провалившую ось.
-- **Static-first / no-JS**; единственный динамический путь — примитив-дескриптор, по правилам.
-- **Версионирование side-by-side, с пиннингом; личность не версионируется.**
-- **Манифест группы = метаданные регистрации, не слот:** размещение в меню (`_data/group.ts`) выводит группу
-  в оболочке; это ни поставщик списка, ни единообразный аспект — не сворачивать в композицию и не выдумывать
-  «третий слот».
-- **Дисциплина харвеста:** замораживать проверенную, повторяющуюся, чисто параметризуемую форму — никогда
-  догадку; растить базис Open/Closed, по одному кирпичу.
-- **Самодостаточная способность** (навык + MCP + композер у каждого агента; работает для одиночного агента,
-  без оркестратора) — см. `authoring-skills-instructions-mcp.md`.
+A composed group also declares **how it surfaces in the site's menus** — a property of the group's relation to
+the **shell** (one record per group), not of internal composition. By the Two-Slot Law it is **neither A nor
+B**: it is a **third, orthogonal thing — registration metadata** (the law governs internal composition; the
+manifest governs external registration — no false "third slot" enters composition).
+
+The composer emits a lean **group manifest** into `_data/group.ts` (`GroupManifest`, typed in the versioned
+engine `lib/content-<ver>/group-manifest.ts`):
+
+- `slug`, `languages`, `roles` — an **echo of the envelope**, so the menu reads identity/languages/access from
+  **one place** (never parsing `layout.tsx` or counting `_data/*`).
+- `menus` — four slots `top`/`footer`/`left`/`right` (left & right are drawer menus some designs render), each
+  `{ enabled, order }`. **Default: every slot disabled, order 10** — surfacing is an explicit opt-in.
+- `childrenAsDropdown` (default `false`) — `true` → menu expands the group's child pages as a dropdown;
+  `false` → the button navigates to the group index. The menu decides *how*; the manifest declares *intent*.
+
+The menu **components** are **not** part of the constructor — they are consumers that read this manifest (a
+separate concern). The constructor's job ends at emitting the metadata.
+
+**Editing a live group** (calls #4–#8) is deterministic file edits, never codegen: `slug` renames the folder +
+parser-fs; `roles` rewrites the layout gate + echo; `languages` adds/removes `_data/<lang>.ts` chrome (within
+the app set — add an app language via #19 first); `menus` sets visibility+order; `children_as_dropdown` flips
+the dropdown. The manifest is the single surface; edits keep the real artifacts in sync so the echo never lies.
+
+---
+
+## 9. Engine versioning: side-by-side, pinned
+
+- **An installed engine version is immutable.** A breaking major ships **beside** the old in its own namespace:
+  `lib/content-v1/**` + `components/content-page-v1/**`, then `lib/content-v2/**` later.
+- **Each structure pins its version** (imports point at `@/lib/content-v1/…`), so an old tab keeps rendering on
+  v1 after v2 arrives. Namespaces differ → collision impossible. The version sentinel is **per-version**.
+- **Identity is NOT versioned** — `brand`, `author`, the language set, trivial infra are the site's one shared
+  identity across versions.
+
+Trade-off (conscious): two structures on different majors may **look different** until the owner **migrates**
+one. We trade "one look everywhere" for "an old structure never breaks" — right for a self-evolving system
+where a year-later agent cannot be trusted to preserve backward-compat. (Pattern: SxS versioning + consumer
+pinning — .NET assemblies, Go modules, Nix.)
+
+---
+
+## 10. 🛑 Harvest discipline (the most important rule)
+
+The §4 grid is a **map for matching and a roadmap** — **not a plan to build all cells** (that is premature
+abstraction from the other end).
+
+> Pave the road where the traffic is. **Freeze a cell into a primitive only when it is (1) proven by live
+> development, (2) repeating, (3) cleanly parameterisable.** Everything else is served by classic development
+> until it earns its primitive. Grow the basis **Open/Closed**, one proven brick at a time.
+
+Today the basis has **one** composed primitive — `(files × depth-1, i18n on, roles off)`, the reference: a
+flat, file-backed, multilingual list (news/blog). It demonstrates every seam — list-provider (Slot A, swap to
+DB-at-build changes only this), aspect (Slot B, turning on roles adds a gate to the same layout seam), depth
+(base case), versioned engine (pins v1) — so the next brick slots in without touching the core. It ships
+placeholder documents (Lorem + placeholder image) the owner replaces; adding a document is one folder.
+Roadmap (build when proven): `(files × depth-2)` docs-by-category · `(DB-at-build × depth-1)` catalogue · the
+dynamic descriptor.
+
+---
+
+## 11. 🔧 Bridge & emitter contract (hard-won; violate → silent breakage)
+
+The composer/manager `.mjs` emitters run **per-agent** (shipped beside the skill into every agent dir); the MCP
+servers spawn them and parse their output. These rules are non-negotiable — each is a real outage we paid for:
+
+- **Last stdout line = one compact JSON object.** The MCP bridge parses the **last line** of the emitter's
+  stdout as JSON. An emitter that prints pretty/multi-line JSON (`JSON.stringify(x,null,2)`) makes the bridge
+  read a fragment (`}`, `10`) → `JSON.parse` fails → the tool reports **`failed (0)` on exit-code 0** even
+  though the write succeeded. Always emit **single-line** JSON; lead with `ok:true|false`. *(The 158
+  `manage-group` outage: success mis-read as failure → the agent stopped mid-task and filed a false blocker.)*
+- **Store and slot-composer are ONE version.** The frozen-template store (`services/data/frozen-templates`,
+  ships the `.tpl` bricks incl. `group.ts.tpl`) and the slot's `compose-frozen-template.mjs` must be the **same
+  step**. A half-update (new store + old composer) leaves **unsubstituted `{{TOKENS}}`**; the composer's
+  hard-gate (any `{{TOKEN}}` → refuse, even in a comment) then aborts the write — correctly. A clean deploy
+  from `main` keeps them in lockstep; never hand-patch only one side on the server.
+- **Mandatory rebuild after every mutation.** Compose/CRUD/update write files; the running app serves the
+  **old build** until `owner_deploy_rebuild_slot` (#18). `pm2 restart` alone does not help — it re-reads the
+  stale `.next/`.
+- **Language default = the slot's authority, not a hardcode.** The one language authority is
+  `NEXT_PUBLIC_SUPPORTED_LANGUAGES` (read via `config/translations/translations.config.ts`). Compose/orchestrate
+  must default to **that set**, never a baked `en,ru` — a mismatch ships orphaned files for an unsupported
+  language. To add a language, use #19 (rebuild) **first**, then author.
+- **Emitted artifacts stay lean.** Comments in generated files = ready-to-use logic + a one-line benefit, NOT
+  design lore — the text is duplicated into hundreds of client files and burns tokens for zero executable value.
+- **Engine `.tpl` carry no tokens even in comments**; tokens live only in the per-instance templates the
+  composer substitutes.
+
+**Why the first cycle failed (so it is never repeated).** The retired step-146 "frozen-archetypes" was a
+**catalogue (N²)** that did not own the architecture; its MCP referenced a missing `.mjs` → `MODULE_NOT_FOUND`
+that broke compose. Step-147 reframed it as a **constructor** (this doc). Step-151's parallel "different design
++ `_meta.ts`" was rolled back for build-design divergence. The lesson is §3 + this §11: own the architecture
+with the Two-Slot Law and the bridge contract, or it breaks in production under a weak model.
+
+---
+
+## 12. Invariants (do not violate)
+
+- Composition only — **never LLM code generation**; identical result from any model.
+- **Two-Slot Law:** a property is a list-provider (data) or a uniform aspect (layout); **no cross-slot
+  interaction**; reject features needing a special case by depth/source.
+- **Envelope 100%-fit** or it is not that primitive; refusals name the failing axis.
+- **Static-first / no-JS**; the only dynamic path is the dynamic-descriptor primitive, under the rules.
+- **Versioning side-by-side, pinned; identity never versioned.**
+- **Group manifest = registration metadata, never a slot:** menu placement (`_data/group.ts`) surfaces the
+  group in the shell; do not fold it into composition or invent a "third slot".
+- **Harvest discipline:** freeze a proven, repeating, cleanly-parameterisable shape — never a guess.
+- **Bridge contract (§11):** single-line JSON · store↔composer one version · rebuild after every mutation ·
+  language default = slot authority · lean emitted artifacts.
+- **Confirm-first (mutating):** preview with `dry_run`, show the owner, get explicit confirmation, then the real
+  call. The agent never self-creates a new primitive; it proposes.
+- **Self-sufficient capability:** skill + MCP + composer `.mjs` shipped to **every** agent — works for a lone
+  agent, no Hermes and no orchestrator required.
