@@ -385,6 +385,31 @@ for something outside it, the agent says so honestly and offers to harvest a new
 force a bad fit or invent fragile code. The current, fuller mechanism — the composer, its basis and
 the matching rules — is the Frozen Template Constructor (next story).`
 
+const UNIVERSAL_FOOTER_NEWS = `# A universal footer that builds itself — and already speaks 82 languages
+
+Reference page (news): https://www.fractera.ai/en/news/universal-multilingual-footer
+Raw standard (download): https://www.fractera.ai/docs/universal-footer.md
+
+It is hard to imagine a page that does not need a footer, so every Fractera project ships one
+universal, multilingual footer that fits a portfolio, a company page or a full app — and configures
+itself almost entirely on its own. On most pages it has two horizontal sections; the home page adds
+a third.
+
+## The sections
+1. Footer pages (top): links to the pages the owner chose to surface in the footer. Pages opt in via
+their group manifest (the footer menu slot + an order), edited by voice through an AI agent over MCP —
+the links form and reorder automatically, never hand-wired. 2. Home-section navigation (home page
+only): in-page navigation between the sections of the home page (e.g. SITE CONTENTS); it renders only
+on the home page on purpose, because the home page carries the bulk of the content that benefits from
+in-page jumps while other pages are more compact. 3. Company block (bottom): pulled straight from app
+config with no setup — company name and address from App Settings, social icons once the profiles are
+set, a theme toggle (light/dark/system), and a language switcher that appears automatically, with a
+searchable region-grouped dropdown, only when more than one language is configured (hidden in
+single-language mode). The footer's built-in labels exist in 82 languages (English fallback). The
+recurring word is "automatically": in most cases you never think about building the footer at all.
+
+`
+
 const APP_SHELL_AUTH_NEWS = `# Login is now optional — one switch, near-zero token cost
 
 Reference page (news): https://www.fractera.ai/en/news/optional-authorization-one-switch
@@ -662,7 +687,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
