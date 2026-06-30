@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/news/open-code-license-agentic-engineering', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news/frozen-archetypes-page-groups-without-code', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news/frozen-template-constructor-compose-structures', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/news/optional-authorization-one-switch', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },

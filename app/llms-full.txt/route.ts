@@ -385,6 +385,35 @@ for something outside it, the agent says so honestly and offers to harvest a new
 force a bad fit or invent fragile code. The current, fuller mechanism — the composer, its basis and
 the matching rules — is the Frozen Template Constructor (next story).`
 
+const APP_SHELL_AUTH_NEWS = `# Login is now optional — one switch, near-zero token cost
+
+Reference page (news): https://www.fractera.ai/en/news/optional-authorization-one-switch
+Raw standard (download): https://www.fractera.ai/docs/app-shell-authorization.md
+
+Public authorization is now an opt-in switch, not a build job. Every workspace already contains
+the authorization layer and an always-present admin login; this switch only decides whether the
+PUBLIC, visitor-facing login renders in the app shell, controlled by one build-time key
+(NEXT_PUBLIC_APP_SHELL_AUTH = off | left | right; left/right also sets the side the account drawer
+opens from). Off by default, so a landing page, company page or portfolio ships lighter and
+deploys faster — a login it never uses only adds page weight and deploy time. On in one move for a
+store, subscription service or delivery app, where people sign in to track orders, keep a cart, or
+manage a subscription.
+
+## Roles, panel and voice
+When on, access is role-based out of the box: every registered visitor starts as user, and by app
+logic (a paid subscription, a completed purchase, a staff function) can hold any of ALL_ROLES
+(guest, user, architect, buyer, vip_user, subscriber_lite/standard/max, manager, senior_manager,
+support_manager, delivery_manager, finance, content_editor, admin) — granted automatically by
+settings or by hand in the admin panel. You flip the switch from the panel (App Settings → App
+Authorization) or by voice through the Hermes AI agent over MCP (owner_app_settings_set_app_shell_auth);
+tell it what you are building and it decides whether to add a login by itself, asking only the
+drawer side. The account buttons (sign in / account / sign out) ship pre-translated into 82
+languages, idiomatically per language. Making this decision cost near-zero tokens is the building
+block for expanding the starter-template library (an online store, a knowledge platform, more) at
+minimal cost.
+
+`
+
 const FROZEN_TEMPLATE_CONSTRUCTOR_NEWS = `# The Frozen Template Constructor — whole structures, composed not generated
 
 Reference page (news): https://www.fractera.ai/en/news/frozen-template-constructor-compose-structures
@@ -633,7 +662,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
