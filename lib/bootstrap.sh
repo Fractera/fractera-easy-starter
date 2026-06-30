@@ -717,6 +717,15 @@ mcp_servers:
     url: http://localhost:3227
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # Language Expansion — THE only way to add a language to existing content: fan it out across all
+  # groups+posts seeded with the default language (noindex until translated — Doorway guard) + one
+  # translation step per language; plus the non-blocking translation runner (the agent translates
+  # strings, no deploy). owner_content_add_site_language + owner_content_translate_pending.
+  # Served by bridges/platforms/server.js (LanguageExpansionMcpServer, :3228). Step 163.
+  language-expansion-bridge:
+    url: http://localhost:3228
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app

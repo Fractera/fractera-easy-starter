@@ -410,6 +410,56 @@ recurring word is "automatically": in most cases you never think about building 
 
 `
 
+const LANGUAGE_EXPANSION_NEWS = `# Add any language to a site you already built — without blocking anything
+
+Reference page (news): https://www.fractera.ai/en/news/add-any-language-to-an-existing-site
+Raw docs (download): https://www.fractera.ai/docs/scale-site-language-expansion.md and https://www.fractera.ai/docs/translate-pending-runner.md
+
+Speaking your reader's language is one of the cleanest, fully legitimate ways to grow audience and
+search presence — Google itself documents it: give each language its own real URL and declare, in the
+page markup, that those URLs are the same content in different languages (the alternate-language links,
+hreflang). Done right, every language is a new honest door; done wrong — duplicate pages with the wrong
+markup — it is punished as a doorway. So the job is not just "translate the words", it is "translate
+the words AND keep the markup flawless", and the markup is treated as first-class.
+
+Adding a NEW language to a site that ALREADY has content is now a single, calm, non-blocking move. In
+one pass, an AI agent gives every section and every post a version in the new language, SEEDED with the
+site's default language — so the site is complete and valid the instant the build finishes, with no
+machine-translation bill and nothing broken. Every language-dependent link is rewritten to the new
+language, and all four menus (header, footer, left drawer, right drawer) get the new language
+automatically, because the architecture derives them from each section.
+
+The Doorway guard: a freshly seeded page still shows the default language, so it is marked
+"needs translation", which makes the engine serve it as robots:noindex — Google never indexes a
+cross-language duplicate. The canonical and hreflang markup stay correct the whole time (built
+automatically from the configured language set, self-canonical + a reciprocal hreflang per language +
+x-default), so the moment a page is translated it flips to indexable and counts as a proper alternate.
+
+Translation is a SEPARATE, non-blocking step, on purpose. The platform runs on a subscription with
+per-period limits, and translating a whole site is one of the heaviest text jobs there is — welding it
+onto the build could blow a budget and stall the work. So the structure is finished and deployed first;
+the translations are done later, on a fresh budget, even with a different and cheaper model. The
+expansion opens ONE tracked development step per language, listing every page that language is waiting
+on, so nothing is ever forgotten — visible (and editable) on the Development Steps service page, where
+you can add a per-language note (e.g. "for Spanish, focus on Spanish law and link the real statutes")
+that the model honors when it generates that translation, turning a translation step into a place to add
+regional value. A second tool — the runner — walks those pages, writes the real translation into the
+frozen structure (strings only, never the block structure), clears the needs-translation mark, and does
+NOT deploy: you press Deploy in the footer when you are ready to publish.
+
+Two tools, served by the owner-tier language-expansion MCP bridge (:3228): owner_content_add_site_language
+(the expansion) and owner_content_translate_pending (the non-blocking runner). A third, read-only tool —
+owner_content_scan_broken_characters (and the project-root npm run check:encoding) — is the
+encoding-integrity guard: a lossy step (voice dictation, copy-paste, a bad transform) can leave a control
+byte or replacement character where an accented letter belonged, shipping silently so a visitor sees a box
+where the "o" in "Documentacion" (with its accent) should be. The content tools refuse such characters on
+write; the scanner sweeps every language and every file and reports exactly where one hides, to be fixed
+by hand with the correct letter. Bottom line: prototype in one or two languages, then scale to the rest
+safely — pages valid immediately, translation on your own schedule, menus for free, and markup Google
+rewards rather than penalizes.
+
+`
+
 const APP_SHELL_AUTH_NEWS = `# Login is now optional — one switch, near-zero token cost
 
 Reference page (news): https://www.fractera.ai/en/news/optional-authorization-one-switch
@@ -687,7 +737,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
