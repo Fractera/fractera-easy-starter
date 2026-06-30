@@ -3,7 +3,7 @@ import type { NewsArticleMeta } from '../../_lib/types'
 
 export const meta: NewsArticleMeta = {
   slug: 'add-any-language-to-an-existing-site',
-  date: '2026-06-30',
+  date: '2026-07-01',
   readingMinutes: 7,
   tags: ['Agentic Engineering Platform', 'Multilingual', 'hreflang', 'SEO', 'Internationalization', 'No-Code'],
   author: { name: AUTHOR.name, role: AUTHOR.role },
