@@ -9,6 +9,6 @@ export const meta: NewsArticleMeta = {
   author: { name: AUTHOR.name, role: AUTHOR.role },
   // The shipped starter home page with the account control ("My account") in the
   // top-right of the header — the public login you switch on only when the app needs it.
-  heroImage: '/news/app-shell-auth/account-button.png',
-  ogImage: '/news/app-shell-auth/account-button.png',
+  heroImage: '/news/fractera-auth-button-mcp-activtion/my-account-button-screenshot-2026-06-30.jpg',
+  ogImage: '/news/fractera-auth-button-mcp-activtion/my-account-button-screenshot-2026-06-30.jpg',
 }

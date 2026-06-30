@@ -94,7 +94,7 @@ export const en: NewsArticleBase = {
     {
       kind: 'figure',
       media: 'image',
-      src: '/news/app-shell-auth/account-button.png',
+      src: '/news/fractera-auth-button-mcp-activtion/my-account-button-screenshot-2026-06-30.jpg',
       alt: 'The shipped starter home page with the "My account" control highlighted in the top-right of the header',
       caption: 'When the public login is on, the account control sits in the top-right of the header: a guest sees "Sign in", a signed-in visitor sees "My account" and opens a full-height account drawer.',
     },

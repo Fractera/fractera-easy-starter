@@ -94,7 +94,7 @@ export const ru: NewsArticleOverride = {
     {
       kind: 'figure',
       media: 'image',
-      src: '/news/app-shell-auth/account-button.png',
+      src: '/news/fractera-auth-button-mcp-activtion/my-account-button-screenshot-2026-06-30.jpg',
       alt: 'Главная страница стартера с подсвеченной кнопкой «My account» в правом верхнем углу хедера',
       caption: 'Когда публичный логин включён, кнопка аккаунта стоит справа в хедере: гость видит «Войти», вошедший — «Личный кабинет» и открывает полноэкранный ящик аккаунта.',
     },
