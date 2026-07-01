@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: 'frame-ancestors *;' },
         ],
       },
+      {
+        // Anti-clickjacking on the whole site EXCEPT /*/embed/* (negative lookahead).
+        // Two CSP headers on one path intersect to the strictest, so embed must be
+        // excluded here or frame-ancestors * would be narrowed back to 'self'.
+        source: '/((?!.*/embed/).*)',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'self';" },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
     ]
   },
 };
