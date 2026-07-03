@@ -25,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/news/universal-multilingual-footer', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news/add-any-language-to-an-existing-site', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/news/mcp-coding-decompose-requests-into-pipeline', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/news/only-the-architect-changes-your-workspace', changeFrequency: 'monthly' as const, priority: 0.7 },
     { path: '/documentation', changeFrequency: 'weekly' as const, priority: 0.7 },
     { path: '/documentation/one-button-workspace-ai-consultant', changeFrequency: 'monthly' as const, priority: 0.6 },
     { path: '/documentation/authentication-roles-and-providers', changeFrequency: 'monthly' as const, priority: 0.6 },

@@ -510,6 +510,42 @@ completion time down to the second. Both poll the filesystem and pulse the nodes
 The direction: application development up to 100x faster and 100x cheaper than traditional
 app-generation systems — final testing is near.`
 
+const ARCHITECT_GATE_NEWS = `# Only the architect changes your workspace — a secure-mode mutation gate
+
+Reference page (news): https://www.fractera.ai/en/news/only-the-architect-changes-your-workspace
+
+When you self-host your own workspace, one question follows fast: who is allowed to CHANGE it —
+not view it, but rewrite configuration, touch the database, redeploy the app? In secure mode the
+answer is now precise and enforced: only you, the architect. This update closes the gap where
+simply holding a session, or holding a shared secret, could be mistaken for permission.
+
+## Logging in is not the same as permission
+Most systems check one coarse thing before a sensitive action: are you logged in at all? A
+workspace has many kinds of members — visitor, customer, subscriber — and none of them should
+rewrite the site's configuration just because they hold a valid session. So the gate no longer
+asks "is there a session?" It asks "is this the ARCHITECT?" A shared secret is treated the same
+way: a key proves what you hold, not who you are, and for changing a system where a real human
+owner exists we require the role, not merely the key. Machine-to-machine paths that legitimately
+carry a secret still work; the human path is gated by role.
+
+## The same rule at every door — not one central guard
+A single central checkpoint is a single point of failure: bypass it, or run a project that does
+not include it, and the protection is gone. So the rule lives at every door independently, on
+three surfaces: (1) the AI tool bridges an agent uses to act require a valid credential on every
+call — an anonymous request is refused; (2) the admin interface serving configuration, database
+and deployment operations verifies the architect role before any change, not just a logged-in
+session; (3) the data service storing products, media and records requires the architect role for
+every write, while ordinary reads can stay broader. Because the rule is duplicated into each
+surface rather than centralized, it survives even a minimal setup — a workspace running a single
+AI agent with no central brain still enforces the same gate (the same self-sufficiency principle
+behind one-switch optional authorization).
+
+## Reads broad, writes locked — and onboarding stays open
+Reading can stay broad and tiered by who is asking; only mutations — anything that writes to files
+or the database — are restricted to the architect. And the tightening applies to SECURE mode only:
+the fast open onboarding mode, where you first meet your workspace on a plain address, stays fully
+open by design, so nothing about getting started becomes harder.`
+
 const APP_SHELL_AUTH_NEWS = `# Login is now optional — one switch, near-zero token cost
 
 Reference page (news): https://www.fractera.ai/en/news/optional-authorization-one-switch
@@ -787,7 +823,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}\n\n===\n\n${ARCHITECT_GATE_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
