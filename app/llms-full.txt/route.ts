@@ -460,6 +460,56 @@ rewards rather than penalizes.
 
 `
 
+const MCP_CODING_NEWS = `# MCP coding — one messy request becomes a development pipeline
+
+Reference page (news): https://www.fractera.ai/en/news/mcp-coding-decompose-requests-into-pipeline
+Raw skill (download): https://www.fractera.ai/docs/orchestrate-content-by-steps.md
+
+Until recently you fed tasks to AI agents one at a time: add a news section, wait; add a
+documentation section, wait; add a sign-in button, wait; make documentation members-only, wait.
+Now the platform takes the whole order at once — long, unstructured, even error-ridden — and
+decomposes it BY THE SITE'S ACTUAL STATE (does the section exist? is login enabled?) into an
+ordered pipeline of development steps. Dependencies are understood as dependencies: "docs for
+signed-in users only" implies enabling site login and gating one section by role, and the plan
+shows this as an explicitly marked implied line.
+
+## The order sheet and the approval token
+The decomposed request becomes an order sheet: one resolved human line per section ("news —
+visible to EVERYONE — appears in: top menu, footer"), the implied consequences, and an honest
+content boundary — new pages come up as frozen placeholder stubs; real prose is a separate,
+later request. Two questions per section are mandatory and never guessed (admin panel? dashboard?).
+An explicit "yes" issues an approval token bound to exactly that plan; a changed or unconfirmed
+plan cannot start. Every sub-step then runs the full lifecycle: open a development step -> execute ->
+deploy -> RECORD the deployment (a hard gate — a step cannot close without a confirmed row in the
+deployments table) -> close.
+
+## Materialize-first and resume
+On approval the orchestrator FIRST writes the entire queue to disk — every sub-step becomes its
+own file on the Development Steps page carrying its full machine spec (order-sheet id, sequence,
+kind, args, the page URL, the approved order line) — and only then executes. The plan history
+exists on disk BEFORE any work, so a timeout, crash or lost session loses nothing: to resume,
+even in a brand-new session, the agent calls the same tool with the same plan and the same
+approval token — completed sub-steps are skipped, pending ones re-execute from their files.
+
+## Two scenarios: flat MCP coding vs recursive development
+Standing up new structure (sections, pages, menus, access) is MCP coding: assembly from vetted
+frozen templates by file copy + token substitution, zero code generation — so any model produces
+the identical result, and the whole flat pipeline is deliberately run by Hermes on inexpensive
+models. MCP coding scales the architecture flat: it adds structure, never rewrites what exists.
+When a task cannot be finished by MCP coding alone (real prose, a real feature, changing an
+existing page), Hermes delegates it to an available coding agent — Claude Code, Codex, Gemini CLI,
+Qwen Code or Kimi Code, whichever currently has tokens or an open session window within its
+subscription; a coding agent's process may be recursive and more creative, at its own discretion.
+If no coding agent is active, that is not a failure — the task is saved as a development step.
+
+## Watching it live
+While the pipeline runs the chat goes quiet, and two realtime service pages replace the black box:
+Architecture shows new routes, pages and service components appear on the live map of the app;
+Development Steps shows each step with a status badge (new / in progress / completed) and a
+completion time down to the second. Both poll the filesystem and pulse the nodes that changed.
+The direction: application development up to 100x faster and 100x cheaper than traditional
+app-generation systems — final testing is near.`
+
 const APP_SHELL_AUTH_NEWS = `# Login is now optional — one switch, near-zero token cost
 
 Reference page (news): https://www.fractera.ai/en/news/optional-authorization-one-switch
@@ -737,7 +787,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
