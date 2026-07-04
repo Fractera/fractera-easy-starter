@@ -253,6 +253,8 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
         'Register Architecture Tasks: Append fresh database records to your system layout dashboard to trace route changes or declare new endpoints. Handled by tool `owner_arch_create_record`.',
         'Consolidate Build Chains: Move pending development logs into active build steps inside your control dashboard, resetting temporary task records. Handled by tool `owner_arch_send_to_steps`.',
         'Generate New MCP Servers: Draft custom agent capabilities inside the configuration panel, establishing their target access tiers and compiling them into production. Handled by tool `owner_draft_send_to_steps`.',
+        'Route Service Requests: Segment any "I want a service / tool / automation" wish into public product pages versus a private project level (automations, page management, personal services) before any pipeline runs; an ambiguous wish triggers one clarifying question and the route is only fixed after your explicit confirmation. Handled by tool `owner_projects_route_request`.',
+        'Survey Automation Needs: Collect scheduled-job (cron) intents and external integration requirements for a private project as a simple checklist, normalizing each integration into the API environment keys the project will need. Handled by tool `owner_projects_survey_automation_needs`.',
       ],
     },
 

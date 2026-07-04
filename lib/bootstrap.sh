@@ -736,6 +736,16 @@ mcp_servers:
     url: http://localhost:3228
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # Projects Router — the TOP-LEVEL fork of the Projects layer: segment an owner's wish into
+  # PAGES (public surface -> task-scenario-router) vs PROJECTS (private /projects level), plus
+  # the cron/integrations survey. Both tools advisory/read-only; the route is only fixed by the
+  # owner's explicit confirmed answer. owner_projects_route_request +
+  # owner_projects_survey_automation_needs.
+  # Served by bridges/platforms/server.js (ProjectsRouterMcpServer, :3229). Step 180.
+  projects-router-bridge:
+    url: http://localhost:3229
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
