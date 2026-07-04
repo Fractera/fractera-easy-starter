@@ -746,6 +746,16 @@ mcp_servers:
     url: http://localhost:3229
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # Doc Transfer — token-lean documentation courier: coding agents have no internet, so
+  # Hermes (with the owner's agreement) transfers external docs (URL -> clean markdown ->
+  # CRUD-DOCS/external/) and submits the Company Memory ingest itself; the model receives
+  # ONLY metadata (path, bytes, title, TOC) — the document body never enters the context.
+  # owner_docs_transfer_external_documentation, dry_run=true default.
+  # Served by bridges/platforms/server.js (DocTransferMcpServer, :3230). Step 181.
+  doc-transfer-bridge:
+    url: http://localhost:3230
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app

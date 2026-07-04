@@ -255,6 +255,7 @@ HERMES_HOME=/root/.hermes-public  FRACTERA_AGENT_MAX_TIER=user  hermes dashboard
         'Generate New MCP Servers: Draft custom agent capabilities inside the configuration panel, establishing their target access tiers and compiling them into production. Handled by tool `owner_draft_send_to_steps`.',
         'Route Service Requests: Segment any "I want a service / tool / automation" wish into public product pages versus a private project level (automations, page management, personal services) before any pipeline runs; an ambiguous wish triggers one clarifying question and the route is only fixed after your explicit confirmation. Handled by tool `owner_projects_route_request`.',
         'Survey Automation Needs: Collect scheduled-job (cron) intents and external integration requirements for a private project as a simple checklist, normalizing each integration into the API environment keys the project will need. Handled by tool `owner_projects_survey_automation_needs`.',
+        'Transfer External Documentation: Carry the documentation an automation depends on (an API reference, an SDK guide) from the internet onto your workspace disk and into Company Memory — with your agreement first — so coding agents, which usually have no internet access, find it locally; the document body never passes through the model, only its path, size and table of contents. Handled by tool `owner_docs_transfer_external_documentation`.',
       ],
     },
 
