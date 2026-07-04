@@ -543,6 +543,16 @@ DATA_SECRET=$DATA_SECRET
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
+# Substrate cron runner (fractera-cron, step 179) — schedules the Projects layer.
+# Zero npm deps (no install step); reads project cron.json declarations from the
+# SLOT every tick and journals runs through the data service (:3300).
+mkdir -p /opt/fractera/services/cron
+cat > /opt/fractera/services/cron/.env <<ENVEOF
+DATA_URL=http://localhost:3300
+DATA_SECRET=$DATA_SECRET
+SLOT_DIR=/opt/fractera/app
+ENVEOF
+
 cat > /opt/fractera/services/rag/.env <<ENVEOF
 # IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
 # can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
@@ -770,6 +780,7 @@ step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platfor
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
+step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 # Hermes binds :9119 — MUST be 127.0.0.1, not 0.0.0.0. The June-2026 Hermes
 # hardening REFUSES a non-loopback (0.0.0.0) bind unless a dashboard auth provider
@@ -800,7 +811,7 @@ maybe_step "brain" "start_hermes_gateway" "Hermes messaging gateway" "HERMES_PY=
 # Hermes, never a separate component. Binds 0.0.0.0 (installer default): reachable
 # directly on :9120 in IP mode, ufw-closed + nginx-proxied (/chat/) in Secure mode.
 maybe_step "brain" "install_hermes_webui" "Hermes Web UI" "bash /opt/fractera/services/hermes-webui-installer/install.sh >> \"$LOG_FILE\" 2>&1 || true"
-log_email "start_data" "All 7 services started" 65
+log_email "start_data" "All 8 services started" 65
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
