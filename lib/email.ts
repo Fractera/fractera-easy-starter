@@ -101,6 +101,9 @@ function destinationButtons(appUrl: string, chatUrl: string, adminUrl: string): 
 
           <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
           <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
+
+          <a href="${adminUrl}/service/architecture" style="display:block;text-align:center;background:#0d9488;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-top:14px">Your Projects →</a>
+          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Your automations and project workspaces — open one to continue development or add the keys it needs.</p>
         </div>`
 }
 
@@ -127,6 +130,11 @@ function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): st
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Main Control Panel</div>
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The full professional workspace — coding agents, database, file storage, analytics and everything you installed. Best on a wide screen.</div>
             <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:13px;text-decoration:underline">Open Main Control Panel →</a>
+          </td></tr>
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#0d9488;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your Projects</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your automations and project workspaces. Open one to continue development or add the keys it needs.</div>
+            <a href="${adminUrl}/service/architecture" style="color:#0d9488;font-weight:600;font-size:13px;text-decoration:underline">Open your Projects →</a>
           </td></tr>
         </table>`
 }
