@@ -767,6 +767,51 @@ checked at every layer; the connector binds to localhost and is never exposed to
 every call carries a per-deploy Bearer secret; and a mutating tool confirms the change before
 writing. The document is English (TechArticle), written for a hybrid human + AI reader.`
 
+const PROJECT_DECOMPOSITION_NEWS = `# Projects now decompose before they are built — the frozen process for private automations
+
+Reference page (news): https://www.fractera.ai/en/news/project-decomposition-frozen-process
+Raw skill (download): https://www.fractera.ai/docs/orchestrate-project-by-steps.md
+
+A private automation ("summarize my YouTube channels to Telegram every morning") was the last
+thing an AI agent still planned in its head — and a plan that lives only in a context window is
+invisible, fragile and unverifiable: you cannot read or correct it, a crash or a subscription
+limit erases it, and nobody gates whether each piece was actually specified before someone
+started coding it. The platform now applies the same frozen, materialize-first discipline to
+projects that already governs content — with one difference: content decomposes deterministically
+by the state of the site, while a project graph is proposed by the model, and a frozen engine
+then validates, gates, documents and materializes. The engine never writes the automation code.
+
+## A validated graph of small nodes
+Every node carries its own contract: a title, a kind (trigger / action / transform), an
+exhaustive task description, the tools it uses, the environment keys it needs (never hardcoded —
+set through the same rebuild-safe channel as every build-time setting), inputs and outputs, a
+to-do list, and dependencies. The engine checks the DAG for cycles and broken links, then applies
+the real gate — specification completeness: a node with an empty task or no to-do items is
+refused with a precise list of what is missing, and nothing is written to disk until the graph
+is complete. The resolved plan is shown to the owner verbatim as an order sheet; a real run
+requires an approval token bound to exactly that plan. Graphs over ten nodes receive an MVP
+recommendation — launch a ten-node MVP and grow each node by separate future tasks, so the owner
+always understands exactly how the project works; a soft gate, the decision stays with the owner.
+
+## Materialized queue: README + spec + coder handoff per node
+On approval the first artifact is the project-root README, generated from the graph itself: why
+the project exists, how it works (a table of every node in execution order), efficiency, reuse,
+and the expected result. Every agent instruction on the platform requires reading that README
+first when working on any project step. Then the whole queue lands in the Development Steps
+system: one exhaustive specification step per node plus one separate coder-handoff step per node
+(fixed first actions, deliverable, tools and keys, acceptance criteria, finish protocol). The
+coding agent receives exactly one thing — a step number; handing over the number does not close
+the node — the orchestrator watches for real completion (step closed, deployment recorded)
+before opening any dependent node. A crash loses nothing: re-running with the same plan and the
+same token, even in a new session, skips existing files and creates only the missing ones.
+
+## Self-sufficient by design
+The process ships as a self-sufficient skill in every agent entity — a lone agent with no central
+brain runs the identical process directly — and as the owner-tier MCP tool
+owner_projects_orchestrate_decomposition (same dry-run, same order sheet, same approval token).
+Scope is deliberate: projects and automations only — public site pages keep their own frozen
+pipeline, and the two never mix.`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -823,7 +868,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}\n\n===\n\n${ARCHITECT_GATE_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}\n\n===\n\n${ARCHITECT_GATE_NEWS}\n\n===\n\n${PROJECT_DECOMPOSITION_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
