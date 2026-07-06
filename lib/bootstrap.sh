@@ -756,16 +756,16 @@ mcp_servers:
     url: http://localhost:3230
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
-  # Web Search — Hermes-native ONE-OFF ability (step 190 E2.1): the request router sends
-  # one-off "search the web / look this up" wishes here; Hermes performs the search itself
-  # (exa.ai) and answers, building nothing (no durable automation). owner_web_search,
-  # read-only, returns compact cited results. EXA_API_KEY is provisioned by the owner via
-  # the missing-keys modal into the slot's app/.env.local; the bridge reads it lazily (no
-  # bridge restart needed). Served by bridges/platforms/server.js (WebSearchMcpServer, :3231).
-  web-search-bridge:
-    url: http://localhost:3231
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
+
+# Web search & extract — Hermes' NATIVE tools (web_search / web_extract), step 192.
+# The custom web-search MCP bridge (step 190 E2.1) was REMOVED: a coder must not reinvent
+# what Hermes provides natively (see the prefer-hermes-native law + native-capability catalog).
+# On-brand default = the Nous Tool Gateway (one Nous Portal subscription → web/browser/image/
+# TTS, no separate provider keys). Alternatives, pick anytime via `hermes tools`: searxng
+# (free, self-hosted, no key) · exa/firecrawl/tavily (own key). Without a Nous subscription
+# Hermes shows a clear prompt to choose a backend — native search stays owner-configurable.
+web:
+  use_gateway: true
 
 terminal:
   cwd: /opt/fractera/app
