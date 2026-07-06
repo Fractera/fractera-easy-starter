@@ -756,6 +756,16 @@ mcp_servers:
     url: http://localhost:3230
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # Web Search — Hermes-native ONE-OFF ability (step 190 E2.1): the request router sends
+  # one-off "search the web / look this up" wishes here; Hermes performs the search itself
+  # (exa.ai) and answers, building nothing (no durable automation). owner_web_search,
+  # read-only, returns compact cited results. EXA_API_KEY is provisioned by the owner via
+  # the missing-keys modal into the slot's app/.env.local; the bridge reads it lazily (no
+  # bridge restart needed). Served by bridges/platforms/server.js (WebSearchMcpServer, :3231).
+  web-search-bridge:
+    url: http://localhost:3231
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 terminal:
   cwd: /opt/fractera/app
