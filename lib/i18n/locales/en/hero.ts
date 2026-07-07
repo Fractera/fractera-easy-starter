@@ -13,10 +13,9 @@ export const hero: HeroPart = {
   heroNarrativeVariant: 'none',
   heroTitle: 'Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
   heroManifesto:
-    'Fractera is an infrastructure breakthrough in its class. It fully answers the need for a ' +
-    'local, subscription-independent workspace for AI developers. Its potential as a platform for ' +
-    'building applications by agents is ahead of its time — because it gives agents real hands ' +
-    '(access to the CLI, the web server, the database) instead of merely asking them to write text in a chat.',
+    'Deploys your OS, databases, and SSL on your VPS in just 10 minutes. Orchestrates a team of ' +
+    'AI agents for coding, marketing, and sales. The built-in optimizer saves up to 90% on token ' +
+    'costs, letting you build and manage your online business directly through chat. Fully open-source.',
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",

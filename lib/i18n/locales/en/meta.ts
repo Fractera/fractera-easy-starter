@@ -1,22 +1,23 @@
 import type { SiteMeta } from '../../types'
 
 export const meta: SiteMeta = {
-  title: 'Fractera | Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
+  title: 'Fractera | Agentic Automation Platform: Self-Hosted & Token-Free',
   description:
-    'The Fractera robot installs agentic engineering infrastructure on your VPS in 10 minutes. Token spend drops 70–90% versus classic vibe coding.',
+    'Fractera deploys your OS, databases, and SSL on your VPS in 10 minutes and orchestrates a team of AI agents for coding, marketing, and sales. A built-in optimizer cuts token costs up to 90% — build and manage your online business through chat. Fully open-source.',
   keywords: [
+    'agentic automation platform',
+    'agentic automation',
+    'self-hosted agentic automation',
+    'deploy agentic automation vps',
+    'AI agents coding marketing sales',
     'agentic engineering infrastructure',
-    'agentic engineering',
-    'deploy agentic engineering infrastructure vps',
-    'self-hosted agentic engineering',
-    'agentic engineering platform',
     'token savings vibe coding',
     'Hermes orchestrator',
     'LightRAG persistent memory',
   ],
-  ogTitle: 'Fractera | Agentic Engineering Infrastructure: Self-Hosted & Token-Free',
+  ogTitle: 'Fractera | Agentic Automation Platform: Self-Hosted & Token-Free',
   ogDescription:
-    'The Fractera robot installs agentic engineering infrastructure on your VPS in 10 minutes. Token spend drops 70–90% versus classic vibe coding.',
+    'Fractera deploys your OS, databases, and SSL on your VPS in 10 minutes and orchestrates a team of AI agents for coding, marketing, and sales. A built-in optimizer cuts token costs up to 90% — build your online business through chat. Fully open-source.',
   organizationDescription:
-    'Fractera deploys agentic engineering infrastructure to your own VPS in 10 minutes — a curated stack (Hermes orchestrator, LightRAG memory, five AI coding platforms) that cuts token spend 70–90% versus classic vibe coding.',
+    'Fractera is a self-hosted agentic automation platform: it deploys your OS, database, and SSL on your VPS in 10 minutes, orchestrates a team of AI agents for coding, marketing and sales, and its built-in optimizer cuts token costs up to 90% so you can build and run your online business from chat. Fully open-source.',
 }
