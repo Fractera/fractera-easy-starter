@@ -83,6 +83,30 @@ export function Hero() {
             </p>
           </div>
         )}
+
+        {/* Three solution groups — a GitHub-style bordered container directly below the
+            manifesto (the "2nd paragraph"): code generation, agentic automation via Hermes,
+            and the killer feature (a self-running optimizer on a cheap model). */}
+        {content.solutionTrio && (
+          <div className="mt-10 mx-auto w-full max-w-3xl px-4">
+            <div className="rounded-lg border border-white/15 bg-white/[0.03] p-5 md:p-6">
+              <p className="text-sm font-semibold uppercase tracking-wide text-violet-300/90">
+                {content.solutionTrio.heading}
+              </p>
+              <ul className="mt-4 flex flex-col gap-3">
+                {content.solutionTrio.items.map(({ title, text }, i) => (
+                  <li
+                    key={i}
+                    className="flex flex-col gap-1 border-l-2 border-violet-500/40 pl-4 text-left"
+                  >
+                    <span className="font-semibold text-white/90">{title}</span>
+                    <span className="text-sm leading-relaxed text-white/70">{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Section 2 — "Self-Hosting Platform". The ai-loop video moved here from the

@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'solutionTrio' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'heroNarrativeVariant' | 'elonTrillion'
   | 'deployCaptions'
 >
@@ -16,6 +16,23 @@ export const hero: HeroPart = {
     'Deploys your OS, databases, and SSL on your VPS in just 10 minutes. Orchestrates a team of ' +
     'AI agents for coding, marketing, and sales. The built-in optimizer saves up to 90% on token ' +
     'costs, letting you build and manage your online business directly through chat. Fully open-source.',
+  solutionTrio: {
+    heading: 'Three ways Fractera automates your business',
+    items: [
+      {
+        title: '1. Code generation',
+        text: 'Five AI coding platforms on your own server turn a request into a shipped feature — production starters, no scaffolding, and no per-token API bills.',
+      },
+      {
+        title: '2. Agentic automation with Hermes',
+        text: 'The Hermes orchestrator drives a team of agents across coding, marketing and sales — one chat command becomes a real, multi-step workflow with hands on your server (CLI, web server, database).',
+      },
+      {
+        title: '3. Killer feature — self-running optimizers on a cheap model',
+        text: 'Hermes designs an automation once with a strong model, then runs it autonomously on the cheapest model for every repeating cycle — you pay for intelligence once and it keeps working almost for free.',
+      },
+    ],
+  },
   lightPitch: {
     label: 'Alternative',
     h2: "Don't need full AI automation? Take just the backend",

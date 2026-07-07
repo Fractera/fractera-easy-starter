@@ -16,6 +16,14 @@ export type SiteContent = {
   // Manifesto statement shown directly under the hero illustration — a powerful but
   // soft one-paragraph positioning of what Fractera is.
   heroManifesto?: string
+  // A GitHub-style container right below the manifesto (the "2nd paragraph") naming the
+  // three solution groups Fractera offers: code generation, agentic automation via Hermes,
+  // and the killer feature — Hermes building a self-running optimizer on a cheap model for
+  // repeating cycles.
+  solutionTrio?: {
+    heading: string
+    items: { title: string; text: string }[]
+  }
   deployButton: string
   heroButtonCaption?: string
   // Label for the "learn the architecture" link under the hero benefits block.

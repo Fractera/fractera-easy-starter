@@ -1,7 +1,7 @@
 import type { SiteContent } from '../../types'
 
 type HeroPart = Pick<SiteContent,
-  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
+  | 'heroBadge' | 'heroTitle' | 'heroManifesto' | 'solutionTrio' | 'deployButton' | 'heroButtonCaption' | 'architectureCta' | 'devLoopCta' | 'referenceLinks' | 'description'
   | 'featureItems' | 'heroBenefitsHeader' | 'heroBenefits' | 'lightPitch' | 'heroNarrativeVariant' | 'elonTrillion'
   | 'deployCaptions' | 'importSubstitution'
 >
@@ -14,6 +14,23 @@ export const hero: HeroPart = {
     'За 10 минут развернёт на вашем VPS в РФ операционную систему, базы данных и SSL. Оркеструет ' +
     'команду AI-агентов для кодинга, маркетинга и продаж. Встроенный процессор экономит до 90% затрат ' +
     'на токены, позволяя создавать и управлять онлайн-бизнесом напрямую через чат. Полностью открытый исходный код.',
+  solutionTrio: {
+    heading: 'Три способа, которыми Fractera автоматизирует ваш бизнес',
+    items: [
+      {
+        title: '1. Генерация кода',
+        text: 'Пять AI-платформ на вашем сервере превращают запрос в готовую фичу — production-стартеры, без чернового кода и без оплаты за токены по API.',
+      },
+      {
+        title: '2. Агентная автоматизация через Hermes',
+        text: 'Оркестратор Hermes ведёт команду агентов в кодинге, маркетинге и продажах — одна команда в чате становится реальным многошаговым процессом с «руками» на вашем сервере (CLI, веб-сервер, БД).',
+      },
+      {
+        title: '3. Киллер-фича — автономные оптимизаторы на дешёвой модели',
+        text: 'Hermes один раз проектирует автоматизацию сильной моделью, а затем запускает её автономно на самой дешёвой модели для каждого повторяющегося цикла — за интеллект платите один раз, а работает он почти бесплатно и постоянно.',
+      },
+    ],
+  },
   lightPitch: {
     label: 'Альтернатива',
     h2: 'Не нужна полная AI-автоматизация? Возьми только backend',
