@@ -553,6 +553,19 @@ DATA_SECRET=$DATA_SECRET
 SLOT_DIR=/opt/fractera/app
 ENVEOF
 
+# Substrate automations listener (fractera-automations, step 201) — the @fractera_auto
+# receiver. Zero npm deps; polls the AUTOMATIONS bot (a bot SEPARATE from the Hermes chat
+# bot) and dispatches each hook message to the owning automation's /run via a deterministic
+# project_hooks lookup. AUTOMATIONS_BOT_TOKEN is set post-deploy via Admin → Telegram settings;
+# inert (idles, no crash) until then. server.js ships in the cloned ai-workspace repo.
+mkdir -p /opt/fractera/services/automations-listener
+cat > /opt/fractera/services/automations-listener/.env <<ENVEOF
+DATA_URL=http://localhost:3300
+DATA_SECRET=$DATA_SECRET
+APP_URL=http://localhost:3000
+POLL_TIMEOUT_S=25
+ENVEOF
+
 cat > /opt/fractera/services/rag/.env <<ENVEOF
 # IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
 # can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
@@ -811,6 +824,7 @@ step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth &
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
+step "start_automations" "Starting automations listener" "cd /opt/fractera/services/automations-listener && pm2 start node --name fractera-automations -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 # Hermes binds :9119 — MUST be 127.0.0.1, not 0.0.0.0. The June-2026 Hermes
 # hardening REFUSES a non-loopback (0.0.0.0) bind unless a dashboard auth provider
