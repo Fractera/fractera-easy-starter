@@ -85,19 +85,16 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
 }
 
 // Shared destination block for the welcome / domain-activated / cert-expiry
-// emails. Three top buttons + three descriptive cards, in the SAME order:
-//   1. Your App  2. Remote Command Post (the chat — recommended)  3. Main Control Panel
-// The Remote Command Post is the built-in Hermes Web Chat: light, fast project
-// management by chat (incl. from a phone), no control panel needed.
-function destinationButtons(appUrl: string, chatUrl: string, adminUrl: string): string {
+// emails. Top buttons + descriptive cards, in the SAME order:
+//   1. Your App  2. Main Control Panel  3. Your Projects
+// (step 205) The "Remote Command Post" (built-in Hermes Web Chat, :9120) was removed — only the
+// Hermes Agent remains inside the Control Panel, and you chat with the brain via Telegram.
+function destinationButtons(appUrl: string, adminUrl: string): string {
   return `
-        <!-- Top destination buttons (orange / green / purple) -->
+        <!-- Top destination buttons (orange / purple) -->
         <div style="margin:26px 0 0">
           <a href="${appUrl}" style="display:block;text-align:center;background:#ea580c;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Your App →</a>
           <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Your starter Next.js app template includes authentication, a database, object storage, and tools.</p>
-
-          <a href="${chatUrl}" style="display:block;text-align:center;background:#16a34a;color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">✨ Remote Command Post →</a>
-          <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Light, fast, convenient — manage your whole project by chat, right from your phone.</p>
 
           <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
           <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
@@ -107,7 +104,7 @@ function destinationButtons(appUrl: string, chatUrl: string, adminUrl: string): 
         </div>`
 }
 
-function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): string {
+function destinationCards(appUrl: string, adminUrl: string): string {
   return `
         <!-- Destination cards (same order as the buttons) -->
         <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
@@ -115,16 +112,6 @@ function destinationCards(appUrl: string, chatUrl: string, adminUrl: string): st
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your App</div>
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The public site you publish for your end users.</div>
             <a href="${appUrl}" style="color:#ea580c;font-weight:600;font-size:13px;text-decoration:underline">Open your App →</a>
-          </td></tr>
-          <tr><td style="background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:12px;padding:18px 20px">
-            <div style="font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">✨ Remote Command Post</div>
-            <div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:6px">Run your whole project by chat — even from your phone</div>
-            <div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:12px">
-              A built-in AI chat that drives your entire setup remotely. Talk to it in plain language — build
-              features, manage the project, run multi-step work — light, fast and convenient, with no control
-              panel needed. Just add a model to start. <em>Available when Brain is installed.</em>
-            </div>
-            <a href="${chatUrl}" style="color:#16a34a;font-weight:700;font-size:13px;text-decoration:underline">Open your Remote Command Post →</a>
           </td></tr>
           <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Main Control Panel</div>
@@ -151,7 +138,6 @@ export async function sendWelcomeEmail(
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
   // Remote Command Post = the built-in Hermes Web Chat (the super-agent surface).
   // Dedicated subdomain in secure mode; direct port in IP mode.
-  const chatUrl   = isIpMode ? `http://${ip}:9120` : `https://chat.${subdomain}`
 
   await sendEmail({
     from: FROM,
@@ -179,9 +165,9 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
-        ${destinationCards(appUrl, chatUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl)}
 
         <!-- Next steps — getting the most out of the workspace -->
         <div style="margin:32px 0 8px">
@@ -302,7 +288,6 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
   const adminUrl  = `https://admin.${domain}`
   const authUrl   = `https://auth.${domain}`
   // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
-  const chatUrl   = `https://chat.${domain}`
 
   return sendEmail({
     from: FROM,
@@ -318,9 +303,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
-        ${destinationCards(appUrl, chatUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl)}
 
         <!-- Sign-in note (secure mode) -->
         <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
@@ -414,7 +399,6 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
 // SUBSCRIPTION, not the certificate).
 export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
   const appUrl   = `https://${domain}`
-  const chatUrl  = `https://chat.${domain}`
   const adminUrl = `https://admin.${domain}`
   const urgent = daysLeft <= 3
   const accent = urgent ? '#dc2626' : '#d97706'
@@ -434,7 +418,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
         </div>
 
-        ${destinationButtons(appUrl, chatUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
         <!-- Renew CTA -->
         <div style="text-align:center;margin:24px 0 0">
