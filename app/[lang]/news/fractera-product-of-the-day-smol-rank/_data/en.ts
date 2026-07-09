@@ -53,12 +53,6 @@ export const en: NewsArticleBase = {
       text: 'If you found us through the ranking, welcome. The self-hosted AI workspace behind the badge is worth a closer look: see how a single request becomes tested, deployed, recorded code in the [autonomous development loop](https://www.fractera.ai/ai-development-loop), or read why we moved the core to [Open Code](https://www.fractera.ai/en/news/open-code-license-agentic-engineering) so you can copy, audit and self-host everything. The whole thing runs on your VPS — your code, your data, your database.',
     },
     {
-      kind: 'docref',
-      title: 'content-engine.md — the Zero-Agent Design System behind the listing',
-      summary: 'The Smol Rank tagline calls out our "Zero-Agent Design System." This is the raw document behind it: one self-contained, auto-discovered, statically-rendered content shape that doubles as a design system you change once and see everywhere — the machinery an AI agent uses to build pages without regenerating code.',
-      href: '/docs/content-engine-en.md',
-    },
-    {
       kind: 'cta',
       text: 'Deploy your own private AI coding workspace on your VPS — choose your framework and get started in minutes.',
       href: 'https://www.fractera.ai/',
@@ -66,7 +60,7 @@ export const en: NewsArticleBase = {
     },
     {
       kind: 'founder',
-      text: 'Awards are never the point — shipping is. But I will not pretend a "Product of the Day" badge does not put a smile on the whole team\'s face. What it really means to me is that someone outside our own heads looked at a private, self-hosted AI stack and thought: yes, this should exist. So thank you for the upvotes. Now back to building — the best version of Fractera is always the next deploy.',
+      text: 'New markets are usually not new markets — they are new forms of fulfilling old, well-known needs.',
     },
   ],
   faq: [
