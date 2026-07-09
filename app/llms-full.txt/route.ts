@@ -812,6 +812,24 @@ owner_projects_orchestrate_decomposition (same dry-run, same order sheet, same a
 Scope is deliberate: projects and automations only — public site pages keep their own frozen
 pipeline, and the two never mix.`
 
+const SMOL_RANK_NEWS = `# Fractera is Product of the Day — Top 2 Daily Winner on Smol Rank
+
+Reference page (news): https://www.fractera.ai/en/news/fractera-product-of-the-day-smol-rank
+Listing: https://smolrank.com/projects/fractera
+
+On 2026-07-08 Fractera launched on Smol Rank and closed the day as a Top 2 Daily Winner,
+earning the "Smol Rank Top 2 Daily Winner" badge and the Product of the Day rank. The listing:
+Web platform, free pricing, 5 upvotes, categories Artificial Intelligence and Developer Tools,
+tech-stack tags Hermes, NGINX, Next.js, Coding agent, publisher Iuliia Kovalchuk. The listing
+tagline: "One-Click Private AI Stack on your VPS. Deployed with a pre-built 50k-line Next.js
+Aircraft Carrier (or any repo) & Zero-Agent Design System."
+
+A short celebratory note, not a feature release. It states the facts of the ranking, thanks the
+people who upvoted, and points a first-time visitor deeper into the platform behind the badge:
+the Next.js Aircraft Carrier (the pre-built 50,000-line parallel-routing framework), the
+autonomous development loop (one request becomes tested, deployed, recorded code), and the Open
+Code license (copy, audit and self-host everything on your own VPS). Bilingual (EN/RU).`
+
 export function GET() {
   const lang = 'en' as const
 
@@ -868,7 +886,7 @@ Reference page: ${ECON_URL}
 
 ${econBody}`
 
-  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}\n\n===\n\n${ARCHITECT_GATE_NEWS}\n\n===\n\n${PROJECT_DECOMPOSITION_NEWS}`
+  const body = `${projectBody}\n\n===\n\n${architect}\n\n===\n\n${loop}\n\n===\n\n${carrier}\n\n===\n\n${econ}\n\n===\n\n${CONSULTANT}\n\n===\n\n${AUTHENTICATION}\n\n===\n\n${DRAFT_SETTINGS}\n\n===\n\n${MULTILINGUAL}\n\n===\n\n${AUTH_FORMS_I18N}\n\n===\n\n${STATIC_FIRST}\n\n===\n\n${CONTENT_ENGINE}\n\n===\n\n${APP_CONFIG}\n\n===\n\n${BUILD_TIME_ENV}\n\n===\n\n${APP_CONFIG_NEWS}\n\n===\n\n${OPEN_CODE_NEWS}\n\n===\n\n${FROZEN_ARCHETYPES_NEWS}\n\n===\n\n${FROZEN_TEMPLATE_CONSTRUCTOR_NEWS}\n\n===\n\n${APP_SHELL_AUTH_NEWS}\n\n===\n\n${UNIVERSAL_FOOTER_NEWS}\n\n===\n\n${LANGUAGE_EXPANSION_NEWS}\n\n===\n\n${MCP_CODING_NEWS}\n\n===\n\n${ARCHITECT_GATE_NEWS}\n\n===\n\n${PROJECT_DECOMPOSITION_NEWS}\n\n===\n\n${SMOL_RANK_NEWS}`
 
   return new NextResponse(`${INTRO}\n${body}\n`, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
