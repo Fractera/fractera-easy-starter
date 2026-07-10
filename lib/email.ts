@@ -89,7 +89,7 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
 //   1. Your App  2. Main Control Panel  3. Your Projects
 // (step 205) The "Remote Command Post" (built-in Hermes Web Chat, :9120) was removed — only the
 // Hermes Agent remains inside the Control Panel, and you chat with the brain via Telegram.
-function destinationButtons(appUrl: string, adminUrl: string): string {
+function destinationButtons(appUrl: string, adminUrl: string, projectsUrl: string): string {
   return `
         <!-- Top destination buttons (orange / purple) -->
         <div style="margin:26px 0 0">
@@ -99,12 +99,12 @@ function destinationButtons(appUrl: string, adminUrl: string): string {
           <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
           <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
 
-          <a href="${appUrl}/projects/personal" style="display:block;text-align:center;background:#0d9488;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-top:14px">Your Projects →</a>
+          <a href="${projectsUrl}/projects/personal" style="display:block;text-align:center;background:#0d9488;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-top:14px">Your Projects →</a>
           <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Your automations and project workspaces — open one to continue development or add the keys it needs.</p>
         </div>`
 }
 
-function destinationCards(appUrl: string, adminUrl: string): string {
+function destinationCards(appUrl: string, adminUrl: string, projectsUrl: string): string {
   return `
         <!-- Destination cards (same order as the buttons) -->
         <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
@@ -121,7 +121,7 @@ function destinationCards(appUrl: string, adminUrl: string): string {
           <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
             <div style="font-size:11px;color:#0d9488;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your Projects</div>
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your automations and project workspaces. Open one to continue development or add the keys it needs.</div>
-            <a href="${appUrl}/projects/personal" style="color:#0d9488;font-weight:600;font-size:13px;text-decoration:underline">Open your Projects →</a>
+            <a href="${projectsUrl}/projects/personal" style="color:#0d9488;font-weight:600;font-size:13px;text-decoration:underline">Open your Projects →</a>
           </td></tr>
         </table>`
 }
@@ -136,6 +136,8 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
+  // Projects service (step 197): its own process :3003 / projects.<domain> — no longer inside the app.
+  const projectsUrl = isIpMode ? `http://${ip}:3003` : `https://projects.${subdomain}`
   // Remote Command Post = the built-in Hermes Web Chat (the super-agent surface).
   // Dedicated subdomain in secure mode; direct port in IP mode.
 
@@ -165,9 +167,9 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
 
-        ${destinationCards(appUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl, projectsUrl)}
 
         <!-- Next steps — getting the most out of the workspace -->
         <div style="margin:32px 0 8px">
@@ -286,6 +288,7 @@ export async function sendWelcomeEmail(
 export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
+  const projectsUrl = `https://projects.${domain}`
   const authUrl   = `https://auth.${domain}`
   // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
 
@@ -303,9 +306,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
 
-        ${destinationCards(appUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl, projectsUrl)}
 
         <!-- Sign-in note (secure mode) -->
         <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
@@ -400,6 +403,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
 export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
   const appUrl   = `https://${domain}`
   const adminUrl = `https://admin.${domain}`
+  const projectsUrl = `https://projects.${domain}`
   const urgent = daysLeft <= 3
   const accent = urgent ? '#dc2626' : '#d97706'
   const dayWord = daysLeft === 1 ? 'day' : 'days'
@@ -418,7 +422,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
 
         <!-- Renew CTA -->
         <div style="text-align:center;margin:24px 0 0">
