@@ -11,9 +11,10 @@ import { useState, Fragment } from 'react'
 
 type Lang = 'en' | 'ru'
 
-// The 8 hostnames covered by one multi-SAN cert (ai-workspace domain/route.ts
-// SUBDOMAINS). Each needs an A record to the server IP. "@" = the apex domain.
-const DNS_HOSTS = ['@', 'www', 'auth', 'admin', 'data', 'hermes', 'lightrag', 'chat']
+// The 9 hostnames covered by one multi-SAN cert (ai-workspace lib/server-ip.ts SUBDOMAINS —
+// keep in sync). Each needs an A record to the server IP. "@" = the apex domain.
+// `chat` removed (step 205, webui gone); `projects`/`design` added (step 197, own processes).
+const DNS_HOSTS = ['@', 'www', 'auth', 'admin', 'projects', 'design', 'data', 'hermes', 'lightrag']
 
 function getTexts(lang: Lang) {
   const isRu = lang === 'ru'
