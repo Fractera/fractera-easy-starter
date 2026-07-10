@@ -330,6 +330,23 @@ step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
   "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app" "bridges/app"
 step_npm "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data" "services/data"
+
+# Projects service (step 197) — its own Next app; needs the same native Tailwind v4 binaries as
+# the slot plus a better-sqlite3 rebuild (lib/db uses it even in remote mode via the shared client).
+step_npm "deps_projects_app" "Installing dependencies (projects)" \
+  "npm install --prefix projects-app && npm rebuild better-sqlite3 --prefix projects-app" "projects-app"
+if [ "$ARCH" = "x86_64" ]; then
+  npm install --prefix projects-app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "projects-app native modules install failed"
+elif [ "$ARCH" = "aarch64" ]; then
+  npm install --prefix projects-app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "projects-app native modules install failed"
+fi
+# Design service (step 197) — lighter empty stub; Next + Tailwind only, no better-sqlite3 yet.
+step_npm "deps_design_app"  "Installing dependencies (design)" "npm install --prefix design-app" "design-app"
+if [ "$ARCH" = "x86_64" ]; then
+  npm install --prefix design-app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "design-app native modules install failed"
+elif [ "$ARCH" = "aarch64" ]; then
+  npm install --prefix design-app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "design-app native modules install failed"
+fi
 log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
@@ -443,7 +460,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 source /etc/fractera/secrets.env
 
 # IP-mode CORS: include cross-port origins so http://IP:3000 can call auth on :3001.
-IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3300"
+IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3003,http://$SERVER_IP:3004,http://$SERVER_IP:3300"
 
 # Languages are owner-editable AFTER deploy (Admin → languages and the app-settings MCP write
 # NEXT_PUBLIC_SUPPORTED_LANGUAGES into THIS file, then trigger a rebuild — step 138). Preserve an
@@ -532,6 +549,35 @@ LIGHTRAG_URL=http://localhost:9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
 RAG_ENV_PATH=/opt/fractera/services/rag/.env
+FRACTERA_IP_NODOMAIN_MODE=true
+ENVEOF
+
+# Projects service (fractera-projects, :3003, step 197) — the automations layer moved out of the
+# app slot into its own process so a broken slot build can no longer stop live automations. DB +
+# media are reached over the network via the data service (:3300): REMOTE_DATA_URL + DATA_API_KEY
+# (== DATA_SECRET) force lib/db into REMOTE mode — WITHOUT BOTH it silently opens an empty local
+# SQLite and sees none of the owner's rows. APP_BASE_URL is the public origin for absolute
+# media/preview links returned into chat (IP mode: http://<ip>:3003).
+cat > /opt/fractera/projects-app/.env.local <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
+REMOTE_DATA_URL=http://localhost:3300
+DATA_API_KEY=$DATA_SECRET
+DATA_SECRET=$DATA_SECRET
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+ADMIN_INTERNAL_URL=http://localhost:3002
+AUTOMATIONS_REGISTRY_PATH=/opt/fractera/services/automations-listener/registry.json
+APP_BASE_URL=http://$SERVER_IP:3003
+SLOT_DIR=/opt/fractera/app
+DEPLOY_SECRET=$DEPLOY_SECRET
+FRACTERA_IP_NODOMAIN_MODE=true
+ENVEOF
+
+# Design service (fractera-design, :3004, step 197) — a real-but-empty architect-gated sibling,
+# stood up now so the design layer is later developed on its own process. No data/RAG keys yet
+# (no content); add them (mirroring projects-app) when the layer grows real surfaces.
+cat > /opt/fractera/design-app/.env.local <<ENVEOF
+AUTH_SERVICE_URL=http://localhost:3001
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
@@ -806,6 +852,8 @@ log_email "build_start" "Building services (this takes 5-10 min)" 40
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
 step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
+step "build_projects_app" "Building projects (production)" "npm run build --prefix projects-app"
+step "build_design_app"  "Building design (production)"  "npm run build --prefix design-app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
@@ -822,6 +870,8 @@ step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 star
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
+step "start_projects" "Starting projects service" "cd /opt/fractera/projects-app && pm2 start npm --name fractera-projects -- run start && cd /opt/fractera"
+step "start_design" "Starting design service"  "cd /opt/fractera/design-app && pm2 start npm --name fractera-design -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
 step "start_automations" "Starting automations listener" "cd /opt/fractera/services/automations-listener && pm2 start node --name fractera-automations -- server.js && cd /opt/fractera"
@@ -849,7 +899,7 @@ maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/l
 maybe_step "brain" "start_hermes_gateway" "Hermes messaging gateway" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes-gateway --interpreter \$HERMES_PY -- gateway || true"
 # (step 205) The built-in Hermes Web UI chat (fractera-hermes-webui, :9120) was removed — only the
 # Hermes Agent remains; users chat via Telegram. The installer + PM2 process are no longer installed.
-log_email "start_data" "All 8 services started" 65
+log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"
 CURRENT_LABEL="Saving configuration"
@@ -874,8 +924,8 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
 # Default HTTP server — catches all requests to the bare IP and proxies to
-# the shell on :3000. Other services (auth :3001, admin :3002, data :3300,
-# hermes :9119, lightrag :9621) are reached directly on their ports until
+# the shell on :3000. Other services (auth :3001, admin :3002, projects :3003,
+# design :3004, data :3300, hermes :9119, lightrag :9621) are reached directly on their ports until
 # the user attaches a domain.
 server {
     listen 80 default_server;
@@ -985,4 +1035,4 @@ for _attempt in 1 2 3 4 5; do
 done
 
 echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
-echo "FRACTERA_READY: http://$SERVER_IP:3000 (app) | http://$SERVER_IP:3002 (admin) | http://$SERVER_IP:3001 (auth)"
+echo "FRACTERA_READY: http://$SERVER_IP:3000 (app) | http://$SERVER_IP:3002 (admin) | http://$SERVER_IP:3003 (projects) | http://$SERVER_IP:3004 (design) | http://$SERVER_IP:3001 (auth)"
