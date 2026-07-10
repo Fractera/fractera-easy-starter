@@ -596,7 +596,10 @@ mkdir -p /opt/fractera/services/cron
 cat > /opt/fractera/services/cron/.env <<ENVEOF
 DATA_URL=http://localhost:3300
 DATA_SECRET=$DATA_SECRET
-SLOT_DIR=/opt/fractera/app
+# Projects moved to their own process in step 197: scan projects-app for cron.json + read its
+# integration-key .env.local, and POST due jobs to fractera-projects (:3003), not the slot shell.
+PROJECTS_DIR=/opt/fractera/projects-app
+APP_URL=http://localhost:3003
 ENVEOF
 
 # Substrate automations listener (fractera-automations, step 201) — the @fractera_auto
@@ -608,7 +611,8 @@ mkdir -p /opt/fractera/services/automations-listener
 cat > /opt/fractera/services/automations-listener/.env <<ENVEOF
 DATA_URL=http://localhost:3300
 DATA_SECRET=$DATA_SECRET
-APP_URL=http://localhost:3000
+# step 197: automations' /run routes live in fractera-projects (:3003), not the slot shell (:3000).
+APP_URL=http://localhost:3003
 POLL_TIMEOUT_S=25
 ENVEOF
 
