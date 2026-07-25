@@ -819,6 +819,18 @@ mcp_servers:
     url: http://localhost:3230
     headers:
       Authorization: "Bearer $HERMES_MCP_SECRET"
+  # L2 Geo: address geocoding, road matrix, route, and courier TSP optimize over the
+  # self-hosted fractera-geo service (:3400, OSRM+Nominatim on OpenStreetMap). Read-only;
+  # returns { error } when the "maps" component is off. Served by bridges/platforms/
+  # server.js (GeoMcpServer, :3232). This block registers it for HERMES only.
+  # ⚠ SELF-SUFFICIENCY GAP (to finish): for a project WITHOUT Hermes (e.g. a single Codex)
+  # to have maps, geo-bridge must ALSO be added to each coding agent's per-agent MCP config
+  # — those files live in the SLOT / guest repo (FNS: .mcp.json / .codex config.toml), NOT
+  # in this bootstrap. This is NOT done yet; do it in the guest repo. → MCP-REGISTRY §24.
+  geo-bridge:
+    url: http://localhost:3232
+    headers:
+      Authorization: "Bearer $HERMES_MCP_SECRET"
 
 # Web search & extract — Hermes' NATIVE tools (web_search / web_extract), step 192.
 # The custom web-search MCP bridge (step 190 E2.1) was REMOVED: a coder must not reinvent
@@ -879,6 +891,21 @@ step "start_design" "Starting design service"  "cd /opt/fractera/design-app && p
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
 step "start_automations" "Starting automations listener" "cd /opt/fractera/services/automations-listener && pm2 start node --name fractera-automations -- server.js && cd /opt/fractera"
+# ── GEO SUBSYSTEM (optional "maps"): "the map brain" for real map automations (courier routing, min-fuel
+#    TSP, address geocoding). Self-hosted, free, no third-party keys — OpenStreetMap data behind Docker:
+#    OSRM (routing/matrix) + Nominatim (geocoding), fronted by the fractera-geo facade (:3400, loopback).
+#    Enabled only when the deployment selects "maps". Region extract defaults to Île-de-France (small, fast
+#    import); for a larger region change GEO_PBF_URL/GEO_PBF (the .osrm base name is derived). Steps are soft:
+#    a maps failure never blocks the rest of the boot. Nominatim import runs in the container for several
+#    minutes — the facade starts immediately, geocoding just reports "down" until the import finishes.
+GEO_PBF_URL="https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf"
+GEO_PBF="ile-de-france-latest.osm.pbf"
+GEO_OSRM="${GEO_PBF%.osm.pbf}.osrm"
+maybe_step "maps" "geo_docker"    "Docker (geo engines)" "command -v docker >/dev/null 2>&1 || (curl -fsSL https://get.docker.com | sh); systemctl enable --now docker"
+maybe_step "maps" "geo_osrm"      "Geo routing (OSRM)" "mkdir -p /opt/fractera-geo/osrm && cd /opt/fractera-geo/osrm && { [ -f $GEO_PBF ] || curl -fsSL -o $GEO_PBF $GEO_PBF_URL; } && docker pull osrm/osrm-backend && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/$GEO_PBF && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-partition /data/$GEO_OSRM && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-customize /data/$GEO_OSRM && docker rm -f fractera-osrm 2>/dev/null; docker run -d --name fractera-osrm --restart unless-stopped -p 127.0.0.1:5000:5000 -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-routed --algorithm mld /data/$GEO_OSRM; cd /opt/fractera"
+maybe_step "maps" "geo_nominatim" "Geo geocoding (Nominatim import, several min)" "docker rm -f fractera-nominatim 2>/dev/null; docker pull mediagis/nominatim:4.4 && docker run -d --name fractera-nominatim --restart unless-stopped -e PBF_URL=$GEO_PBF_URL -e IMPORT_STYLE=address -e NOMINATIM_PASSWORD=fractera_geo_pw -p 127.0.0.1:8080:8080 mediagis/nominatim:4.4"
+maybe_step "maps" "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
+maybe_step "maps" "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 # Hermes binds :9119 — MUST be 127.0.0.1, not 0.0.0.0. The June-2026 Hermes
 # hardening REFUSES a non-loopback (0.0.0.0) bind unless a dashboard auth provider
