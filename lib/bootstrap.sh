@@ -468,8 +468,14 @@ IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:300
 # Default to en,es only on a fresh slot (no prior .env.local). Captured BEFORE the heredoc truncates it.
 EXISTING_LANGS="$(grep -E '^NEXT_PUBLIC_SUPPORTED_LANGUAGES=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
 EXISTING_LOCALE="$(grep -E '^NEXT_PUBLIC_DEFAULT_LOCALE=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
-SUPPORTED_LANGS="${EXISTING_LANGS:-en,es}"
+# Public app-shell auth (header login → cockpit) — preserved across re-bootstrap; a fresh slot
+# ships it ON (account drawer from the right), matching the platform's showcase-with-login default.
+EXISTING_AUTH="$(grep -E '^NEXT_PUBLIC_APP_SHELL_AUTH=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
+# Fresh slot ships the platform's ten admin-layer languages (en + the nine others) so the showcase
+# is multilingual out of the box; an owner's edited set is preserved on re-bootstrap.
+SUPPORTED_LANGS="${EXISTING_LANGS:-en,es,fr,it,ru,de,pt,pl,tr,nl}"
 DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-en}"
+APP_SHELL_AUTH_VAL="${EXISTING_AUTH:-right}"
 
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
@@ -504,12 +510,16 @@ FRACTERA_IP_NODOMAIN_MODE=true
 # Multilingual content routing (the app slot reads these). Two or more languages
 # → the /<lang> prefix is active and the language switcher button shows; a single
 # language → pages serve from the bare root and the button hides. These are
-# NEXT_PUBLIC_* (baked at build time), so the slot ships bilingual out of the box
-# (English + Spanish) and the switcher is visible by default. Harmless for slots
-# that do not use them. Preserved across re-bootstrap (see EXISTING_LANGS capture above):
-# a redeploy keeps the owner's language set instead of resetting it to en,es. → step 138.
+# NEXT_PUBLIC_* (baked at build time), so a fresh slot ships with the platform's ten
+# admin-layer languages and the switcher visible by default. Harmless for slots that do
+# not use them. Preserved across re-bootstrap (see EXISTING_LANGS capture above): a redeploy
+# keeps the owner's language set instead of resetting it to the default. → step 138.
 NEXT_PUBLIC_SUPPORTED_LANGUAGES=$SUPPORTED_LANGS
 NEXT_PUBLIC_DEFAULT_LOCALE=$DEFAULT_LOCALE_VAL
+# Public app-shell auth: the header account/login control (guest → Sign in; architect/manager →
+# account drawer with the link into the cockpit at :3003). Build-time (baked); a fresh slot ships
+# it ON from the right. Owner flips it via Admin → App authorization (writes this key + rebuilds).
+NEXT_PUBLIC_APP_SHELL_AUTH=$APP_SHELL_AUTH_VAL
 ENVEOF
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
