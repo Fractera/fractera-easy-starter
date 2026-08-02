@@ -168,8 +168,15 @@ echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
 step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx"
-step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
-step "node_install" "Installing Node.js 20"   "apt-get install -y nodejs"
+# Node 22 LTS (was 20 until 2026-08-02). Hermes' own monorepo lock carries
+# @electron/rebuild@4.2.0 — a DESKTOP-app dependency requiring node>=22.12.0 — and its
+# .npmrc sets engine-strict=true, so on Node 20 the dashboard's web-UI build died with
+# EBADENGINE, the process exited, pm2 restarted it forever (5792 loops observed) and
+# :9119 never listened → Admin's Brain button returned 502 on every fresh server.
+# Node 22 is LTS and satisfies it; all our own services were rebuilt and verified on it.
+# → reports/errors/hermes-webui-build-node-engine-loop.md
+step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"
+step "node_install" "Installing Node.js 22"   "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
 log_email "pm2" "Node.js + PM2 installed" 10
 
@@ -412,6 +419,16 @@ else
   fi
 fi' || true
 maybe_step "brain" "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
+# Pre-build the dashboard's web UI ONCE, here, instead of letting the service build it on
+# every start. `hermes dashboard` otherwise runs `npm ci --include dev --workspace web` at
+# each launch — a production process compiling its own frontend at boot, which turns any
+# upstream dependency change into a crash loop (that is exactly what happened: EBADENGINE
+# from a desktop-only dep, see the Node 22 note above). Built here, the start step below
+# passes --skip-build and the service never touches npm again.
+# The artefact lands in hermes_cli/web_dist (NOT web/dist, as `--skip-build --help` claims)
+# — verified live 2026-08-02, 3.1 MB. engine-strict is disabled for this one install so a
+# future upstream bump of an unrelated desktop dep cannot break the UI build again.
+maybe_step "brain" "build_hermes_webui" "Hermes dashboard UI" "cd /usr/local/lib/hermes-agent && npm_config_engine_strict=false npm ci --include dev --workspace web && npm_config_engine_strict=false npm run build -w web; cd /opt/fractera"
 maybe_step "brain" "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
 # Skills are directory-form `<name>/SKILL.md` (+ YAML frontmatter) — the ONLY shape Hermes
 # discovers (agent/skill_utils.py walks for files literally named SKILL.md). `cp -r` preserves
@@ -929,7 +946,13 @@ maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/u
 # run, 1-3 min; poll until :9119 actually answers, up to ~180s.)
 # → reports/errors/hermes-refuses-0.0.0.0-bind-and-host-check.md (step 136)
 # → reports/errors/hermes-startup-race-secure-healthcheck.md (step 91)
-maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY -- dashboard --host 127.0.0.1 --port 9119 --no-open && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
+# --skip-build is added ONLY when the UI was actually pre-built above (`|| true` inside the
+# substitution: without it a missing dist makes the assignment exit non-zero and the whole
+# && chain would skip starting Hermes at all). Dist missing → we fall back to today's
+# behaviour rather than serving an empty panel.
+# --max-restarts turns a future crash into a visible `errored` status instead of the silent
+# 5792-restart storm that burned CPU and wrote megabytes of logs for days.
+maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && SKIP=\$([ -d /usr/local/lib/hermes-agent/hermes_cli/web_dist ] && echo --skip-build || true) && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY --max-restarts 10 --restart-delay 10000 -- dashboard --host 127.0.0.1 --port 9119 --no-open \$SKIP && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
 # Messaging gateway — the process that connects to Telegram/Discord/etc and
 # polls for messages. The dashboard above does NOT poll messengers; without
 # this process a saved Telegram token does nothing (the old "press Gateway run"
