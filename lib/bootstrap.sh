@@ -169,7 +169,7 @@ maybe_step() {
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
 step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
-step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx"
+step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx ffmpeg"
 # Node 22 LTS (was 20 until 2026-08-02). Hermes' own monorepo lock carries
 # @electron/rebuild@4.2.0 — a DESKTOP-app dependency requiring node>=22.12.0 — and its
 # .npmrc sets engine-strict=true, so on Node 20 the dashboard's web-UI build died with
