@@ -62,13 +62,7 @@ export const install: InstallPart = {
       servicesTitle: 'AI services',
       coreNote: 'Always included: the server, database, object storage, authentication, and the admin panel with its own terminal — even with everything below unchecked.',
       items: {
-        'claude-code': { name: 'Claude Code', desc: 'Anthropic Claude coding agent' },
-        'codex': { name: 'Codex', desc: 'OpenAI Codex CLI' },
-        'gemini-cli': { name: 'Gemini CLI', desc: 'Google Gemini coding agent' },
-        'qwen-code': { name: 'Qwen Code', desc: 'Alibaba Qwen coding agent' },
-        'kimi-code': { name: 'Kimi Code', desc: 'Moonshot Kimi coding agent' },
         'memory': { name: 'Memory', desc: 'LightRAG vector knowledge base' },
-        'brain': { name: 'Brain', desc: 'Hermes orchestration agent' },
       },
     },
     frameworkSelect: {

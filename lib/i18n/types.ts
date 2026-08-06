@@ -186,7 +186,7 @@ export type SiteContent = {
       servicesTitle: string
       coreNote: string
       items: Record<
-        'claude-code' | 'codex' | 'gemini-cli' | 'qwen-code' | 'kimi-code' | 'memory' | 'brain',
+        'memory',
         { name: string; desc: string }
       >
     }

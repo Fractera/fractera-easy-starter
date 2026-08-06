@@ -40,13 +40,7 @@ function getTexts(lang: Lang) {
       ? 'Я понимаю, что должен сменить пароль сервера после развёртывания.'
       : 'I understand I should change my server password after deployment.',
     items: {
-      'claude-code': { name: 'Claude Code', desc: isRu ? 'Агентный CLI для кода' : 'Agentic coding CLI' },
-      'codex':       { name: 'Codex',       desc: isRu ? 'Агентный CLI для кода' : 'Agentic coding CLI' },
-      'gemini-cli':  { name: 'Gemini CLI',  desc: isRu ? 'Агентный CLI для кода' : 'Agentic coding CLI' },
-      'qwen-code':   { name: 'Qwen Code',   desc: isRu ? 'Агентный CLI для кода' : 'Agentic coding CLI' },
-      'kimi-code':   { name: 'Kimi Code',   desc: isRu ? 'Агентный CLI для кода' : 'Agentic coding CLI' },
       'memory':      { name: isRu ? 'Память (LightRAG)' : 'Memory (LightRAG)', desc: isRu ? 'Векторная база знаний' : 'Vector knowledge base' },
-      'brain':       { name: isRu ? 'Мозг (Hermes)' : 'Brain (Hermes)',        desc: isRu ? 'AI-оркестратор агентов' : 'AI orchestration agent' },
     } as Record<ComponentId, { name: string; desc: string }>,
   }
 }

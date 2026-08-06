@@ -62,13 +62,7 @@ export const install: InstallPart = {
       servicesTitle: 'Сервисы ИИ',
       coreNote: 'Всегда устанавливается: сам сервер, база данных, хранилище объектов, авторизация и панель администратора с собственным терминалом — даже если снять все галочки ниже.',
       items: {
-        'claude-code': { name: 'Claude Code', desc: 'Агент разработки Anthropic Claude' },
-        'codex': { name: 'Codex', desc: 'CLI OpenAI Codex' },
-        'gemini-cli': { name: 'Gemini CLI', desc: 'Агент разработки Google Gemini' },
-        'qwen-code': { name: 'Qwen Code', desc: 'Агент разработки Alibaba Qwen' },
-        'kimi-code': { name: 'Kimi Code', desc: 'Агент разработки Moonshot Kimi' },
         'memory': { name: 'Память', desc: 'Векторная база знаний LightRAG' },
-        'brain': { name: 'Мозг', desc: 'Оркестратор Hermes' },
       },
     },
     frameworkSelect: {

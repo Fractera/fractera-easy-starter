@@ -6,14 +6,16 @@ SESSION_ID="$1"
 PROGRESS_URL="https://www.fractera.ai/api/progress"
 PING_URL="https://www.fractera.ai/api/server/ping"
 INSTALL_SECRET="$2"
-PLATFORM="${3:-claude-code}"
+PLATFORM="${3:-}"  # step 500: coding agents removed; accepted for back-compat, ignored
 SERVER_TOKEN="${4:-}"
 SUBDOMAIN_OVERRIDE="${5:-}"  # accepted for back-compat with old deploy.ts callers; ignored
 GITHUB_TOKEN="${6:-}"
 SERVER_ID="${7:-}"  # ServerToken.id — non-secret, baked as NEXT_PUBLIC_SERVER_ID for marketplace links
 COMPONENTS="${8:-}" # selective install (S1). "" or "all" => install everything (default,
                     # byte-identical to pre-selection deploys); "none" => CORE only; otherwise a
-                    # csv subset of: claude-code,codex,gemini-cli,qwen-code,kimi-code,memory,brain
+                    # csv subset of: memory
+                    # (step 500 — the five coding agents and Hermes/brain are no longer installed;
+                    #  their ids are accepted and silently ignored for back-compat with old callers)
 LOG_FILE="/tmp/fractera-install-$SESSION_ID.log"
 
 CURRENT_STEP=""
@@ -200,18 +202,8 @@ soft_step "dns_resolver" "Configuring DNS resolver" "mkdir -p /etc/systemd/resol
 # → reports/patterns/mode-aware-firewall.md
 soft_step "firewall_open" "Opening firewall for IP mode" "command -v ufw >/dev/null 2>&1 && { ufw --force reset >/dev/null 2>&1; ufw --force disable; } || true"
 
-# === Clear previous platform credentials (safe on fresh servers — rm -f never fails) ===
-CURRENT_STEP="clear_creds"
-CURRENT_LABEL="Clearing platform credentials"
-report "$CURRENT_STEP" "$CURRENT_LABEL" false
-rm -rf \
-  ~/.gemini \
-  ~/.claude \
-  ~/.config/openai ~/.openai \
-  ~/.config/qwen-code ~/.qwen \
-  ~/.config/kimi-cli ~/.kimi ~/.local/share/kimi-cli ~/.local/share/kimi \
-  2>/dev/null || true
-report "$CURRENT_STEP" "$CURRENT_LABEL" true
+# (step 500) The "clear previous platform credentials" step is gone together with the
+# five coding agents — there are no agent credential directories to clear any more.
 
 # === SERVER IP detection ===
 SERVER_IP=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 ifconfig.me || hostname -I | awk '{print $1}')
@@ -303,7 +295,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 {
   printf '['
   _first=1
-  for _c in claude-code codex gemini-cli qwen-code kimi-code memory brain; do
+  for _c in memory; do
     if should_install "$_c"; then
       [ "$_first" -eq 1 ] && _first=0 || printf ','
       printf '"%s"' "$_c"
@@ -338,22 +330,6 @@ step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
 step_npm "deps_data"        "Installing dependencies (6/6)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data" "services/data"
 
-# Projects service (step 197) — its own Next app; needs the same native Tailwind v4 binaries as
-# the slot plus a better-sqlite3 rebuild (lib/db uses it even in remote mode via the shared client).
-step_npm "deps_projects_app" "Installing dependencies (projects)" \
-  "npm install --prefix projects-app && npm rebuild better-sqlite3 --prefix projects-app" "projects-app"
-if [ "$ARCH" = "x86_64" ]; then
-  npm install --prefix projects-app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "projects-app native modules install failed"
-elif [ "$ARCH" = "aarch64" ]; then
-  npm install --prefix projects-app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "projects-app native modules install failed"
-fi
-# Design service (step 197) — lighter empty stub; Next + Tailwind only, no better-sqlite3 yet.
-step_npm "deps_design_app"  "Installing dependencies (design)" "npm install --prefix design-app" "design-app"
-if [ "$ARCH" = "x86_64" ]; then
-  npm install --prefix design-app lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "design-app native modules install failed"
-elif [ "$ARCH" = "aarch64" ]; then
-  npm install --prefix design-app lightningcss-linux-arm64-gnu @tailwindcss/oxide-linux-arm64-gnu --save-optional >> "$LOG_FILE" 2>&1 || fail "design-app native modules install failed"
-fi
 log_email "deps_data" "All dependencies installed" 30
 
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
@@ -364,11 +340,9 @@ log_email "deps_data" "All dependencies installed" 30
 # pipeline. NOTE the de-coupled `uv`: it used to be installed only as a side
 # effect of install_kimi, but install_lightrag (memory) needs it too — so memory
 # could be picked without kimi. lightrag now self-ensures uv first.
-maybe_step "claude-code" "install_claude"   "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash && ln -sf /root/.local/bin/claude /usr/local/bin/claude || true"
-maybe_step "codex"       "install_codex"    "Codex"       "npm install -g @openai/codex"
-maybe_step "gemini-cli"  "install_gemini"   "Gemini CLI"  "npm install -g @google/gemini-cli"
-maybe_step "qwen-code"   "install_qwen"     "Qwen Code"   "npm install -g @qwen-code/qwen-code@latest"
-maybe_step "kimi-code"   "install_kimi"     "Kimi Code"   "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install --force --python 3.13 kimi-cli && ln -sf \$HOME/.local/bin/kimi /usr/local/bin/kimi || true"
+# (step 500) The five coding agents (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code)
+# are no longer installed. `uv` is now ensured by install_lightrag itself (it used to be a
+# side effect of install_kimi), so removing them does not touch the memory component.
 maybe_step "memory"      "install_lightrag" "LightRAG"    "{ command -v \"\$HOME/.local/bin/uv\" >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh; }; export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
 # v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
 # from the repo). Without this step lightrag-server falls back to a 307 to /docs
@@ -418,30 +392,8 @@ else
     echo "  ! no webui dist found in archive or checkout — Company Brain will 307 to Swagger (blocked by nginx)"
   fi
 fi' || true
-maybe_step "brain" "install_hermes"  "Hermes Agent" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup --skip-browser || true"
-# Pre-build the dashboard's web UI ONCE, here, instead of letting the service build it on
-# every start. `hermes dashboard` otherwise runs `npm ci --include dev --workspace web` at
-# each launch — a production process compiling its own frontend at boot, which turns any
-# upstream dependency change into a crash loop (that is exactly what happened: EBADENGINE
-# from a desktop-only dep, see the Node 22 note above). Built here, the start step below
-# passes --skip-build and the service never touches npm again.
-# The artefact lands in hermes_cli/web_dist (NOT web/dist, as `--skip-build --help` claims)
-# — verified live 2026-08-02, 3.1 MB. engine-strict is disabled for this one install so a
-# future upstream bump of an unrelated desktop dep cannot break the UI build again.
-maybe_step "brain" "build_hermes_webui" "Hermes dashboard UI" "cd /usr/local/lib/hermes-agent && npm_config_engine_strict=false npm ci --include dev --workspace web && npm_config_engine_strict=false npm run build -w web; cd /opt/fractera"
-maybe_step "brain" "install_hermes_plugins" "Hermes memory plugins" "[ -d /root/.hermes ] && mkdir -p /root/.hermes/plugins && cp -r /opt/fractera/services/hermes-plugins/* /root/.hermes/plugins/ || true"
-# Skills are directory-form `<name>/SKILL.md` (+ YAML frontmatter) — the ONLY shape Hermes
-# discovers (agent/skill_utils.py walks for files literally named SKILL.md). `cp -r` preserves
-# that structure so each `<name>/SKILL.md` lands discoverable; a flat `cp` of bare `<name>.md`
-# left them invisible to Hermes (it then picked the wrong vendored skill). → step 137.
-maybe_step "brain" "install_hermes_skills" "Hermes delegation skills" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-skills ] && mkdir -p /root/.hermes/skills && cp -r /opt/fractera/services/hermes-skills/* /root/.hermes/skills/ || true"
-# SOUL.md = Hermes persona + operating rules, injected into the system prompt fresh every
-# message (no restart). Stock Hermes ships an empty template; we install the Fractera persona
-# so Hermes grounds itself in its real toolkit before acting and offers the capability
-# catalogue to a human instead of guessing. → step 140.
-maybe_step "brain" "install_hermes_soul" "Hermes persona (SOUL.md)" "[ -d /root/.hermes ] && [ -f /opt/fractera/services/hermes-soul/SOUL.md ] && cp /opt/fractera/services/hermes-soul/SOUL.md /root/.hermes/SOUL.md || true"
-maybe_step "brain" "install_hermes_theme" "Hermes dashboard theme" "[ -d /root/.hermes ] && [ -d /opt/fractera/services/hermes-dashboard-themes ] && mkdir -p /root/.hermes/dashboard-themes && cp /opt/fractera/services/hermes-dashboard-themes/* /root/.hermes/dashboard-themes/ || true"
-maybe_step "brain" "hermes_docs_dir" "Hermes protected docs dir" "mkdir -p /opt/fractera/app/docs/hermes/{decisions,project-model,feedback-history} && chown -R root:root /opt/fractera/app/docs/hermes && chmod -R 750 /opt/fractera/app/docs/hermes || true"
+# (step 500) Hermes Agent removed — the installer, its dashboard UI build, plugins, skills,
+# SOUL.md persona, dashboard theme and protected docs dir are no longer installed.
 
 # === Prepare secrets (idempotent — never overwrite existing AUTH_SECRET) ===
 CURRENT_STEP="prepare_secrets"
@@ -579,35 +531,6 @@ RAG_ENV_PATH=/opt/fractera/services/rag/.env
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
-# Projects service (fractera-projects, :3003, step 197) — the automations layer moved out of the
-# app slot into its own process so a broken slot build can no longer stop live automations. DB +
-# media are reached over the network via the data service (:3300): REMOTE_DATA_URL + DATA_API_KEY
-# (== DATA_SECRET) force lib/db into REMOTE mode — WITHOUT BOTH it silently opens an empty local
-# SQLite and sees none of the owner's rows. APP_BASE_URL is the public origin for absolute
-# media/preview links returned into chat (IP mode: http://<ip>:3003).
-cat > /opt/fractera/projects-app/.env.local <<ENVEOF
-AUTH_SERVICE_URL=http://localhost:3001
-REMOTE_DATA_URL=http://localhost:3300
-DATA_API_KEY=$DATA_SECRET
-DATA_SECRET=$DATA_SECRET
-LIGHTRAG_URL=http://localhost:9621
-LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
-ADMIN_INTERNAL_URL=http://localhost:3002
-AUTOMATIONS_REGISTRY_PATH=/opt/fractera/services/automations-listener/registry.json
-APP_BASE_URL=http://$SERVER_IP:3003
-SLOT_DIR=/opt/fractera/app
-DEPLOY_SECRET=$DEPLOY_SECRET
-FRACTERA_IP_NODOMAIN_MODE=true
-ENVEOF
-
-# Design service (fractera-design, :3004, step 197) — a real-but-empty architect-gated sibling,
-# stood up now so the design layer is later developed on its own process. No data/RAG keys yet
-# (no content); add them (mirroring projects-app) when the layer grows real surfaces.
-cat > /opt/fractera/design-app/.env.local <<ENVEOF
-AUTH_SERVICE_URL=http://localhost:3001
-FRACTERA_IP_NODOMAIN_MODE=true
-ENVEOF
-
 cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
@@ -623,10 +546,10 @@ mkdir -p /opt/fractera/services/cron
 cat > /opt/fractera/services/cron/.env <<ENVEOF
 DATA_URL=http://localhost:3300
 DATA_SECRET=$DATA_SECRET
-# Projects moved to their own process in step 197: scan projects-app for cron.json + read its
-# integration-key .env.local, and POST due jobs to fractera-projects (:3003), not the slot shell.
-PROJECTS_DIR=/opt/fractera/projects-app
-APP_URL=http://localhost:3003
+# (step 500) The projects layer is gone: scan the SLOT for cron.json declarations
+# and POST due jobs to the slot shell (:3000).
+PROJECTS_DIR=/opt/fractera/app
+APP_URL=http://localhost:3000
 ENVEOF
 
 # Substrate automations listener (fractera-automations, step 201) — the @fractera_auto
@@ -639,7 +562,7 @@ cat > /opt/fractera/services/automations-listener/.env <<ENVEOF
 DATA_URL=http://localhost:3300
 DATA_SECRET=$DATA_SECRET
 # step 197: automations' /run routes live in fractera-projects (:3003), not the slot shell (:3000).
-APP_URL=http://localhost:3003
+APP_URL=http://localhost:3000
 POLL_TIMEOUT_S=25
 ENVEOF
 
@@ -673,221 +596,6 @@ EMBEDDING_DIM=1536
 CORS_ORIGINS=http://localhost:3002
 ENVEOF
 
-# === Hermes config (if installed) ===
-if [ -d "/root/.hermes" ]; then
-  cat > /root/.hermes/config.yaml <<HERMESEOF
-model:
-  # API-first low-cost default: direct OpenAI API with the cheap gpt-5-mini,
-  # matching the welcome-email recommendation (top up an OpenAI balance from
-  # ~$5; gpt-5-mini ≈ 1 cent/hour — plenty for Brain + Memory). Until the user
-  # pastes an OpenAI key in the Hermes panel this provider has no credentials
-  # and the agent refuses to run (intended UX — no silent paid calls). Pasting
-  # a key (step 87 key→provider) keeps this openai-api/gpt-5-mini pairing.
-  # Heavy users can instead connect a Codex / Claude Code subscription via
-  # OAuth in the panel and switch the active provider there.
-  provider: openai-api
-  model: gpt-5-mini
-  # IMPORTANT: the web chat (fractera-hermes-webui, :9120) reads the default
-  # model from `model.default`, NOT `model.model` (which the :9119 agent reads).
-  # Both must be set or the chat opens with an empty model and stays silent.
-  # → reports/errors/hermes-key-pool-and-model-default.md (step 89).
-  default: gpt-5-mini
-  # Anthropic Claude Code is an equally valid subscription; the user can
-  # sign in there too and switch the active provider in the Hermes /env
-  # panel. We don't set it as fallback because both providers go through
-  # the same credential_pool — first match wins.
-  fallback_provider: anthropic
-  fallback_model: claude-opus-4.7
-
-memory:
-  provider: lightrag-memory
-
-plugins:
-  enabled:
-    - fractera-platforms
-
-mcp_servers:
-  claude-bridge:
-    url: http://localhost:3210
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  codex-bridge:
-    url: http://localhost:3211
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  gemini-bridge:
-    url: http://localhost:3212
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  qwen-bridge:
-    url: http://localhost:3213
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  kimi-bridge:
-    url: http://localhost:3214
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Product Loop: Hermes records one row per deployment after delegating +
-  # deploying. Served by bridges/platforms/server.js (DeploymentsMcpServer,
-  # :3215) → data service. Separate from the L1 claude.ai deploy MCP.
-  deployments-bridge:
-    url: http://localhost:3215
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Agent Readiness: one call → readiness snapshot of all 5 coding agents
-  # (installed / logged_in / busy / last-worked) so Hermes delegates with open
-  # eyes. Served by bridges/platforms/server.js (ReadinessMcpServer, :3216).
-  # Facts only; the choose-which-agent logic is the Hermes skill choose-agent.
-  readiness-bridge:
-    url: http://localhost:3216
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Parallel Routing: Hermes reads/controls the Shell's parallel-routing layout
-  # (parallelRouting flag + active slots) via this server — the SAME on-disk
-  # platform-config the visual Platform selector writes (no external DB). Served by
-  # bridges/platforms/server.js (ParallelRoutingMcpServer, :3217). Tools (owner tier):
-  # owner_parallel_routing_get_state + owner_parallel_routing_toggle_slot + footer_slot_owner_*.
-  # Separate from the L1 claude.ai deploy MCP.
-  parallel-routing-bridge:
-    url: http://localhost:3217
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 App Settings: Hermes enumerates/sets the app's TEXT settings (App Settings —
-  # branding/SEO/PWA), flags which the owner has not filled, and explains each. Images
-  # are panel-only. Served by bridges/platforms/server.js (AppSettingsMcpServer, :3218),
-  # same on-disk app-config the App Settings panel writes. Separate from the L1 deploy MCP.
-  app-settings-bridge:
-    url: http://localhost:3218
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 AI Draft: any of the 6 coding agents calls owner_draft_create_record to propose
-  # a new skill or MCP connector. Generates source skeleton + tasks from description,
-  # publishes the draft to AI-DRAFT-SETTINGS/ via the app API (:3000). §8.2 dry_run flow.
-  # Served by bridges/platforms/server.js (AiDraftMcpServer, :3221). Step 123.
-  ai-draft-bridge:
-    url: http://localhost:3221
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Architecture: any of the 6 coding agents calls owner_arch_create_record to put a
-  # code item on the Shell /architecture page (declare page/endpoint · to-do · deletion)
-  # for a later step to build. Forwards to the app API (:3000) — same endpoints the
-  # self-sufficient skill declare-architecture-page-or-task uses. §8.2 dry_run flow.
-  # Served by bridges/platforms/server.js (ArchMcpServer, :3222). Step 126.
-  arch-bridge:
-    url: http://localhost:3222
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Frozen Template Constructor: any of the 6 agents composes a whole structure
-  # (news/blog/docs/…) from the constructor's basis of vetted frozen bricks — file
-  # copy + token substitution, no code generation. owner_template_list_primitives
-  # (basis/matching) + owner_template_compose_structure (mutating, §8.2 dry_run;
-  # refuses by axis when no primitive fits). Served by bridges/platforms/server.js
-  # (TemplateConstructorMcpServer, :3224). Step 147.
-  template-constructor-bridge:
-    url: http://localhost:3224
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Slot Rebuild / Deploy: lets any of the 6 agents make file changes visible by
-  # rebuilding the slot — the same "Deploy" the footer button runs (next build + pm2
-  # reload + health check). Closes the "wrote files but invisible" gap so an agent can
-  # finish a task itself. owner_deploy_rebuild_slot (mutating, §8.2 dry_run). Rebuilds
-  # the EXISTING slot — NOT provisioning/wiping (frozen L1 install flow untouched).
-  # Served by bridges/platforms/server.js (DeployMcpServer, :3225). Step 147 (variant B).
-  deploy-bridge:
-    url: http://localhost:3225
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Content CRUD: any of the 6 agents creates/edits/deletes a content GROUP (tab) or
-  # PAGE (post) in the slot — deterministic file CRUD, NO code generation (the agent passes
-  # DATA, the slot emitter writes the files). owner_content_manage_collection (mutating,
-  # §8.2 dry_run; anti-destructive + integrity gates). create group delegates to the Frozen
-  # Template Constructor. Every success is fixed in the Deployment table (deployment_records).
-  # Served by bridges/platforms/server.js (ContentCrudMcpServer, :3226). Step 154.
-  content-crud-bridge:
-    url: http://localhost:3226
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Content Orchestrator: the FROZEN PROCESS for content ops. The agent passes only an
-  # INTENT; this decomposes it by slot state into dependent development steps and runs each
-  # through open->execute->deploy->RECORD(gate)->close. The deployment record is a GATE — a
-  # step never closes without a deployment_records row (the Vercel invariant). Also records
-  # blockers as open steps (owner_report_blocker_step) when work exceeds the agent's tools.
-  # Served by bridges/platforms/server.js (ContentOrchestratorMcpServer, :3227). Step 156.
-  content-orchestrator-bridge:
-    url: http://localhost:3227
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # Language Expansion — THE only way to add a language to existing content: fan it out across all
-  # groups+posts seeded with the default language (noindex until translated — Doorway guard) + one
-  # translation step per language; plus the non-blocking translation runner (the agent translates
-  # strings, no deploy). owner_content_add_site_language + owner_content_translate_pending.
-  # Served by bridges/platforms/server.js (LanguageExpansionMcpServer, :3228). Step 163.
-  language-expansion-bridge:
-    url: http://localhost:3228
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # Projects Router — the TOP-LEVEL fork of the Projects layer: segment an owner's wish into
-  # PAGES (public surface -> task-scenario-router) vs PROJECTS (private /projects level), plus
-  # the cron/integrations survey. Both tools advisory/read-only; the route is only fixed by the
-  # owner's explicit confirmed answer. owner_projects_route_request +
-  # owner_projects_survey_automation_needs.
-  # Served by bridges/platforms/server.js (ProjectsRouterMcpServer, :3229). Step 180.
-  projects-router-bridge:
-    url: http://localhost:3229
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # Doc Transfer — token-lean documentation courier: coding agents have no internet, so
-  # Hermes (with the owner's agreement) transfers external docs (URL -> clean markdown ->
-  # CRUD-DOCS/external/) and submits the Company Memory ingest itself; the model receives
-  # ONLY metadata (path, bytes, title, TOC) — the document body never enters the context.
-  # owner_docs_transfer_external_documentation, dry_run=true default.
-  # Served by bridges/platforms/server.js (DocTransferMcpServer, :3230). Step 181.
-  doc-transfer-bridge:
-    url: http://localhost:3230
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-  # L2 Geo: address geocoding, road matrix, route, and courier TSP optimize over the
-  # self-hosted fractera-geo service (:3400, OSRM+Nominatim on OpenStreetMap). Read-only;
-  # returns { error } when the "maps" component is off. Served by bridges/platforms/
-  # server.js (GeoMcpServer, :3232). This block registers it for HERMES only.
-  # ⚠ SELF-SUFFICIENCY GAP (to finish): for a project WITHOUT Hermes (e.g. a single Codex)
-  # to have maps, geo-bridge must ALSO be added to each coding agent's per-agent MCP config
-  # — those files live in the SLOT / guest repo (FNS: .mcp.json / .codex config.toml), NOT
-  # in this bootstrap. This is NOT done yet; do it in the guest repo. → MCP-REGISTRY §24.
-  geo-bridge:
-    url: http://localhost:3232
-    headers:
-      Authorization: "Bearer $HERMES_MCP_SECRET"
-
-# Web search & extract — Hermes' NATIVE tools (web_search / web_extract), step 192.
-# The custom web-search MCP bridge (step 190 E2.1) was REMOVED: a coder must not reinvent
-# what Hermes provides natively (see the prefer-hermes-native law + native-capability catalog).
-# On-brand default = the Nous Tool Gateway (one Nous Portal subscription → web/browser/image/
-# TTS, no separate provider keys). Alternatives, pick anytime via `hermes tools`: searxng
-# (free, self-hosted, no key) · exa/firecrawl/tavily (own key). Without a Nous subscription
-# Hermes shows a clear prompt to choose a backend — native search stays owner-configurable.
-web:
-  use_gateway: true
-
-terminal:
-  cwd: /opt/fractera/app
-
-dashboard:
-  theme: fractera-black
-
-logging:
-  level: INFO
-HERMESEOF
-  if ! grep -q "OPENAI_API_KEY=" /root/.hermes/.env 2>/dev/null; then
-    printf "\n# Fractera — set your API keys here\nOPENAI_API_KEY=\nOPENROUTER_API_KEY=\n" >> /root/.hermes/.env
-  fi
-  if ! grep -q "LIGHTRAG_URL=" /root/.hermes/.env 2>/dev/null; then
-    printf "LIGHTRAG_URL=http://localhost:9621\nLIGHTRAG_API_KEY=$LIGHTRAG_API_KEY\n" >> /root/.hermes/.env
-  fi
-  if ! grep -q "MCP_SECRET=" /root/.hermes/.env 2>/dev/null; then
-    printf "MCP_SECRET=$HERMES_MCP_SECRET\n" >> /root/.hermes/.env
-  fi
-fi
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
@@ -895,8 +603,6 @@ log_email "build_start" "Building services (this takes 5-10 min)" 40
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
 step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
-step "build_projects_app" "Building projects (production)" "npm run build --prefix projects-app"
-step "build_design_app"  "Building design (production)"  "npm run build --prefix design-app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
@@ -913,8 +619,6 @@ step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 star
 step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
-step "start_projects" "Starting projects service" "cd /opt/fractera/projects-app && pm2 start npm --name fractera-projects -- run start && cd /opt/fractera"
-step "start_design" "Starting design service"  "cd /opt/fractera/design-app && pm2 start npm --name fractera-design -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
 step "start_automations" "Starting automations listener" "cd /opt/fractera/services/automations-listener && pm2 start node --name fractera-automations -- server.js && cd /opt/fractera"
@@ -934,35 +638,6 @@ maybe_step "maps" "geo_nominatim" "Geo geocoding (Nominatim import, several min)
 maybe_step "maps" "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
 maybe_step "maps" "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
 maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-# Hermes binds :9119 — MUST be 127.0.0.1, not 0.0.0.0. The June-2026 Hermes
-# hardening REFUSES a non-loopback (0.0.0.0) bind unless a dashboard auth provider
-# is configured (basic_auth/OAuth), and `--insecure` is now a deprecated NO-OP.
-# A 0.0.0.0 bind therefore crash-loops the process ("Refusing to bind dashboard to
-# 0.0.0.0…") → :9119 never listens → nginx returns 502 on the hermes host. nginx is
-# local, so 127.0.0.1 is sufficient AND the blessed setup. The agent dashboard also
-# now validates the Host header against its bound host, so the secure nginx config
-# (route.ts buildNginxConfig) presents Host: 127.0.0.1:9119 to it — see step 136.
-# (First-boot warmup still applies: it installs TUI deps on the first `dashboard`
-# run, 1-3 min; poll until :9119 actually answers, up to ~180s.)
-# → reports/errors/hermes-refuses-0.0.0.0-bind-and-host-check.md (step 136)
-# → reports/errors/hermes-startup-race-secure-healthcheck.md (step 91)
-# --skip-build is added ONLY when the UI was actually pre-built above (`|| true` inside the
-# substitution: without it a missing dist makes the assignment exit non-zero and the whole
-# && chain would skip starting Hermes at all). Dist missing → we fall back to today's
-# behaviour rather than serving an empty panel.
-# --max-restarts turns a future crash into a visible `errored` status instead of the silent
-# 5792-restart storm that burned CPU and wrote megabytes of logs for days.
-maybe_step "brain" "start_hermes" "Hermes Agent service" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && SKIP=\$([ -d /usr/local/lib/hermes-agent/hermes_cli/web_dist ] && echo --skip-build || true) && pm2 start \$HERMES_BIN --name fractera-hermes --interpreter \$HERMES_PY --max-restarts 10 --restart-delay 10000 -- dashboard --host 127.0.0.1 --port 9119 --no-open \$SKIP && for i in \$(seq 1 36); do curl -sf http://127.0.0.1:9119/ >> \"$LOG_FILE\" 2>&1 && break || sleep 5; done || true"
-# Messaging gateway — the process that connects to Telegram/Discord/etc and
-# polls for messages. The dashboard above does NOT poll messengers; without
-# this process a saved Telegram token does nothing (the old "press Gateway run"
-# trap). Runs always (also drives the cron scheduler); connects platforms once
-# a token is present in /root/.hermes/.env. The Hermes settings panel restarts
-# THIS process on token save so the new token is picked up. Telegram polling is
-# outbound, so this needs no inbound firewall port (works in secure mode too).
-maybe_step "brain" "start_hermes_gateway" "Hermes messaging gateway" "HERMES_PY=/usr/local/lib/hermes-agent/venv/bin/python && HERMES_BIN=/usr/local/lib/hermes-agent/venv/bin/hermes && [ -x \"\$HERMES_BIN\" ] && pm2 start \$HERMES_BIN --name fractera-hermes-gateway --interpreter \$HERMES_PY -- gateway || true"
-# (step 205) The built-in Hermes Web UI chat (fractera-hermes-webui, :9120) was removed — only the
-# Hermes Agent remains; users chat via Telegram. The installer + PM2 process are no longer installed.
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"

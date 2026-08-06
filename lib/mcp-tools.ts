@@ -66,7 +66,7 @@ export const MCP_TOOLS = [
             enum: ALL_COMPONENT_IDS,
           },
           description:
-            'Optional — which AI tools to install (lets the user save money on a smaller server). OMIT this to install the full recommended set (5 coding agents + Memory + Brain). Pass a subset of ["claude-code","codex","gemini-cli","qwen-code","kimi-code","memory","brain"] to install only those. Pass an empty array [] for a plain server with NO AI at all (just database + sign-in). The server, database, storage, sign-in and Admin panel are always installed regardless.',
+            'Optional — which optional services to install. The only id is "memory" (LightRAG vector knowledge base). OMIT this to install it; pass an empty array [] for a plain server with NO AI at all. The server, database, storage, sign-in and Admin panel are always installed regardless.',
         },
         components_selected: {
           type: 'boolean',

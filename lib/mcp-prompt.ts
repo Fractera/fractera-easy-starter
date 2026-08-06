@@ -57,9 +57,9 @@ The DEFAULT is "everything is installed" — frame it as the user *removing* wha
 
 Then confirm the resulting set in one short line — this is what lets you pass components_selected: true at Launch.
 
-How to turn their answers into the call (component ids are EXACTLY: "claude-code", "codex", "gemini-cli", "qwen-code", "kimi-code", "memory", "brain"):
+How to turn their answers into the call (the only component id is EXACTLY: "memory"):
 - Wants everything / no preference on all three → call register_and_deploy WITHOUT the components argument (installs the full set).
-- A subset → pass components as an array of the kept ids. Example: all five assistants + Memory, no Brain → components: ["claude-code","codex","gemini-cli","qwen-code","kimi-code","memory"].
+- Only Memory is optional → components: ["memory"], or [] for none.
 - A plain server with no AI at all (just database + sign-in, e.g. to sync with a local IDE) → components: [] (an empty array).
 - The server, database, object storage, sign-in, and the Admin panel itself are ALWAYS installed — never list them as optional.
 
