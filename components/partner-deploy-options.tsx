@@ -40,7 +40,7 @@ function getTexts(lang: Lang) {
       ? 'Я понимаю, что должен сменить пароль сервера после развёртывания.'
       : 'I understand I should change my server password after deployment.',
     items: {
-      'memory':      { name: isRu ? 'Память (LightRAG)' : 'Memory (LightRAG)', desc: isRu ? 'Векторная база знаний' : 'Vector knowledge base' },
+
     } as Record<ComponentId, { name: string; desc: string }>,
   }
 }

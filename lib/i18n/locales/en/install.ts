@@ -62,7 +62,6 @@ export const install: InstallPart = {
       servicesTitle: 'AI services',
       coreNote: 'Always included: the server, database, object storage, authentication, and the admin panel with its own terminal — even with everything below unchecked.',
       items: {
-        'memory': { name: 'Memory', desc: 'LightRAG vector knowledge base' },
       },
     },
     frameworkSelect: {

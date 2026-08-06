@@ -12,17 +12,17 @@
 // Display labels/descriptions live in i18n locales (rule 4а) — this file holds
 // only stable ids + grouping metadata, never user-facing copy.
 
-// Step 500: the five coding agents and Hermes ('brain') were removed from the
-// product — they are neither installed nor selectable any more. 'memory'
-// (LightRAG) is the only remaining optional component.
-export type ComponentId =
-  | 'memory' // LightRAG  (fractera-rag :9621)
+// Step 500: nothing is optional any more. The five coding agents and Hermes
+// ('brain') were removed from the product; LightRAG ('memory') followed them,
+// because it had been installed to make Hermes smarter — its vector half now
+// lives inside the data service (:3300) as CORE, alongside rows and objects.
+// The selection UI therefore has nothing to offer, and every deploy installs
+// exactly the same set.
+export type ComponentId = never
 
 export type ComponentGroup = 'agent' | 'service'
 
-export const SELECTABLE_COMPONENTS: { id: ComponentId; group: ComponentGroup }[] = [
-  { id: 'memory', group: 'service' },
-]
+export const SELECTABLE_COMPONENTS: { id: ComponentId; group: ComponentGroup }[] = []
 
 export const ALL_COMPONENT_IDS: ComponentId[] = SELECTABLE_COMPONENTS.map((c) => c.id)
 

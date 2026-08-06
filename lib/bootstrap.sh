@@ -193,7 +193,7 @@ soft_step "dns_resolver" "Configuring DNS resolver" "mkdir -p /etc/systemd/resol
 
 # === Firewall: open for IP mode ===
 # Bootstrap always yields IP/insecure mode, where the service ports (3000-3002,
-# 3200-3206, 3300, 9119, 9621) MUST be reachable. A genuinely fresh VPS has ufw
+# 3300) MUST be reachable. A genuinely fresh VPS has ufw
 # inactive, but a RE-bootstrap of a server that was once in Secure mode inherits
 # its lockdown (ufw 22/80/443 only) — wipe doesn't reset it — so the admin port
 # would silently time out from outside. Disable ufw here so every deploy/redeploy/
@@ -335,63 +335,6 @@ log_email "deps_data" "All dependencies installed" 30
 # === Install AI platform binaries (soft — each failure is skipped, not fatal) ===
 # soft_step() is defined near step()/step_npm() above (it must precede its first
 # callers dns_resolver + firewall_open). Do NOT redefine it here.
-# Selective install (S1): each component is gated by maybe_step <id>. When all
-# are selected (default / arg "" / "all") this is identical to the old fixed
-# pipeline. NOTE the de-coupled `uv`: it used to be installed only as a side
-# effect of install_kimi, but install_lightrag (memory) needs it too — so memory
-# could be picked without kimi. lightrag now self-ensures uv first.
-# (step 500) The five coding agents (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code)
-# are no longer installed. `uv` is now ensured by install_lightrag itself (it used to be a
-# side effect of install_kimi), so removing them does not touch the memory component.
-maybe_step "memory"      "install_lightrag" "LightRAG"    "{ command -v \"\$HOME/.local/bin/uv\" >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh; }; export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
-# v1.4.9.3+ ships sources without a pre-built WebUI (frontend artifacts removed
-# from the repo). Without this step lightrag-server falls back to a 307 to /docs
-# (Swagger) and Company Brain in admin shows 404/Swagger instead of the React UI.
-# Build the webui from the uv checkout and copy dist/ into api/webui/ where
-# lightrag_server.py looks for it (Path(__file__).parent / 'webui' — line ~164).
-# NOTE on shell discipline below: this body is run by `eval "$cmd"` inside
-# soft_step(), which executes in the CURRENT shell (not a subshell). That
-# means an `exit 0` here would terminate the entire bootstrap.sh, not just
-# this step (precisely the bug that froze deploys at 57% in v5847cbe).
-# Same hazard for `set -e` — it would leak into the parent shell. Use only
-# if/elif/else control flow; let soft_step's `|| true` handle errors.
-maybe_step "memory" "build_lightrag_webui" "Company Brain UI build" '
-SITE=$(ls -d /root/.local/share/uv/tools/lightrag-hku/lib/python*/site-packages/lightrag/api 2>/dev/null | head -1)
-SRC=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag_webui 2>/dev/null | head -1)
-if [ -z "$SITE" ] || [ -z "$SRC" ]; then
-  echo "  ! lightrag api dir or webui sources not found — skipping"
-elif [ -d "$SITE/webui" ] && [ -f "$SITE/webui/index.html" ]; then
-  echo "  webui already built — skipping"
-else
-  # bun installer needs unzip; not in the minimal Ubuntu image.
-  apt-get install -y -qq unzip >/dev/null 2>&1 || true
-  command -v bun >/dev/null 2>&1 || { curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 ; }
-  export PATH="$HOME/.bun/bin:$PATH"
-  cd "$SRC"
-  bun install --frozen-lockfile >/dev/null 2>&1 || bun install >/dev/null 2>&1
-  bun run build >/dev/null 2>&1 || true
-  # vite is configured to emit to ../lightrag/api/webui/ relative to
-  # lightrag_webui/. There are TWO places we may find a usable dist:
-  #   1) uv-archive snapshot — vite-emitted target (best case)
-  #   2) the git-checkout itself ships a pre-built webui under
-  #      lightrag/api/webui/ — present when bun build silently fails
-  #      (exit 0 but no output, observed in production on 2026-05-23).
-  # Try the archive first, fall back to the checkout, and finally fall back
-  # to the source tree next to the checkout (some snapshots have it).
-  CHECKOUT_WEBUI=$(ls -d /root/.cache/uv/git-v0/checkouts/*/*/lightrag/api/webui 2>/dev/null | head -1)
-  ARCHIVE_WEBUI=$(find /root/.cache/uv/archive-v0 -path "*/lightrag/api/webui" -type d 2>/dev/null | head -1)
-  for CANDIDATE in "$ARCHIVE_WEBUI" "$CHECKOUT_WEBUI"; do
-    if [ -n "$CANDIDATE" ] && [ -f "$CANDIDATE/index.html" ]; then
-      mkdir -p "$SITE/webui"
-      cp -r "$CANDIDATE"/. "$SITE/webui/"
-      echo "  webui copied to $SITE/webui from $CANDIDATE"
-      break
-    fi
-  done
-  if [ ! -f "$SITE/webui/index.html" ]; then
-    echo "  ! no webui dist found in archive or checkout — Company Brain will 307 to Swagger (blocked by nginx)"
-  fi
-fi' || true
 # (step 500) Hermes Agent removed — the installer, its dashboard UI build, plugins, skills,
 # SOUL.md persona, dashboard theme and protected docs dir are no longer installed.
 
@@ -411,15 +354,11 @@ fi
 if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
-if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
-  echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
-fi
 if ! grep -q "HERMES_MCP_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "HERMES_MCP_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
-mkdir -p /opt/fractera/services/rag/storage
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Initial .env.local files (before build, without real subdomain) ===
@@ -463,16 +402,6 @@ REMOTE_DATA_URL=http://localhost:3300
 # bridge loads THIS file, so the secret must be present here too (it is already in bridges/app/.env.local
 # for the admin's own deploy route). Server-side only, never NEXT_PUBLIC. → step 138.
 DEPLOY_SECRET=$DEPLOY_SECRET
-# The Documents page (/documents) ingests knowledge-base files into Company
-# Memory (LightRAG :9621) via /api/documents/ingest. It posts to LightRAG with
-# this key (X-API-Key) — same key the admin app and the rag service use, so the
-# public app authenticates instead of getting a 403. Generated at the secrets
-# step above (openssl rand -hex 32), so it is always present and non-empty.
-LIGHTRAG_URL=http://localhost:9621
-LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
-# Lets the Documents page report whether LightRAG has an OpenAI embedding key
-# (read-only) so Activate can say "indexing will/won't finish" honestly.
-RAG_ENV_PATH=/opt/fractera/services/rag/.env
 # IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
 # or recovery sed command in /opt/fractera/services/auth/.env.local.
 FRACTERA_IP_NODOMAIN_MODE=true
@@ -524,18 +453,22 @@ AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_SERVER_ID=$SERVER_ID
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
-LIGHTRAG_URL=http://localhost:9621
-LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
-LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
-RAG_ENV_PATH=/opt/fractera/services/rag/.env
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
+# (step 500) The data service now holds the THIRD warehouse — vectors — next to
+# rows and objects, in the same SQLite file. It embeds text itself, so it needs an
+# OpenAI key; the owner pastes it in Admin → OpenAI settings, which writes THIS
+# file and restarts the service. Shipped empty: without a key the vector doors
+# answer with an honest error instead of pretending to index.
 cat > /opt/fractera/services/data/.env <<ENVEOF
 AUTH_SERVICE_URL=http://localhost:3001
 DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
+OPENAI_API_KEY=
+EMBED_MODEL=text-embedding-3-small
+EMBED_DIMS=1536
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
@@ -564,36 +497,6 @@ DATA_SECRET=$DATA_SECRET
 # step 197: automations' /run routes live in fractera-projects (:3003), not the slot shell (:3000).
 APP_URL=http://localhost:3000
 POLL_TIMEOUT_S=25
-ENVEOF
-
-cat > /opt/fractera/services/rag/.env <<ENVEOF
-# IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
-# can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
-# either way). When switching to Secure mode, gate this port via UFW or
-# nginx auth_request.
-HOST=0.0.0.0
-PORT=9621
-LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
-LIGHTRAG_KV_STORAGE=JsonKVStorage
-LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
-LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
-LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
-WORKING_DIR=/opt/fractera/services/rag/storage
-LLM_BINDING=openai
-LLM_BINDING_HOST=https://api.openai.com/v1
-LLM_BINDING_API_KEY=
-LLM_MODEL=gpt-4o-mini
-EMBEDDING_BINDING=openai
-EMBEDDING_BINDING_HOST=https://api.openai.com/v1
-EMBEDDING_BINDING_API_KEY=
-# 3-small chosen over 3-large: embeddings dominate Company Brain cost
-# (every chunk gets embedded vs. one LLM call per chunk), and -small
-# is ~7x cheaper with quality difference imperceptible for the typical
-# partner workload. Dim must match the model: 1536 for -small, 3072
-# for -large. Mismatched dim crashes LightRAG indexing.
-EMBEDDING_MODEL=text-embedding-3-small
-EMBEDDING_DIM=1536
-CORS_ORIGINS=http://localhost:3002
 ENVEOF
 
 
@@ -637,7 +540,6 @@ maybe_step "maps" "geo_osrm"      "Geo routing (OSRM)" "mkdir -p /opt/fractera-g
 maybe_step "maps" "geo_nominatim" "Geo geocoding (Nominatim import, several min)" "docker rm -f fractera-nominatim 2>/dev/null; docker pull mediagis/nominatim:4.4 && docker run -d --name fractera-nominatim --restart unless-stopped -e PBF_URL=$GEO_PBF_URL -e IMPORT_STYLE=address -e NOMINATIM_PASSWORD=fractera_geo_pw -p 127.0.0.1:8080:8080 mediagis/nominatim:4.4"
 maybe_step "maps" "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
 maybe_step "maps" "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
-maybe_step "memory" "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"
@@ -664,7 +566,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
 # Default HTTP server — catches all requests to the bare IP and proxies to
 # the shell on :3000. Other services (auth :3001, admin :3002, projects :3003,
-# design :3004, data :3300, hermes :9119, lightrag :9621) are reached directly on their ports until
+# data :3300) are reached directly on their ports until
 # the user attaches a domain.
 server {
     listen 80 default_server;

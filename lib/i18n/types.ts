@@ -186,7 +186,7 @@ export type SiteContent = {
       servicesTitle: string
       coreNote: string
       items: Record<
-        'memory',
+        never,
         { name: string; desc: string }
       >
     }
