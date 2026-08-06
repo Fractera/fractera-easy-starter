@@ -573,6 +573,11 @@ server {
     listen [::]:80 default_server;
     server_name _;
 
+    # nginx defaults to a 1 MB request body, which silently kills media uploads
+    # (the browser only sees "Failed to fetch"). 200m matches the multer limit in
+    # services/data/server.js — keep the two equal.
+    client_max_body_size 200m;
+
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
