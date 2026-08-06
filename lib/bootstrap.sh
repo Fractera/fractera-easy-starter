@@ -453,6 +453,12 @@ AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_SERVER_ID=$SERVER_ID
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
+# (step 500) The admin calls the data service SERVER-SIDE for the vector store —
+# its status and its meaning-search. Those calls carry no browser cookie, so they
+# authenticate with the shared service secret. Without this key every such call
+# came back 401 and the panel silently reported "embeddings key: not set" even
+# when the key was there. Must equal DATA_SECRET in services/data/.env.
+DATA_SECRET=$DATA_SECRET
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
