@@ -9,10 +9,8 @@ import { useLang } from '@/lib/i18n/use-lang'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
 import { buildUrls } from '@/lib/subdomain-helpers'
-import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ChevronDown } from 'lucide-react'
-import { SELECTABLE_COMPONENTS, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, type FrameworkId } from '@/lib/frameworks-catalog'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
@@ -62,10 +60,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   // password after deployment (Fractera never stores it). Always required —
   // gates the launch button regardless of login state.
   const [passwordAck, setPasswordAck] = useState(false)
-  // Selective install (S3): full mode installs everything (default, sends no
-  // `components`); custom mode sends the checked subset (may be empty = no AI).
-  const [customMode, setCustomMode] = useState(false)
-  const [selected, setSelected] = useState<ComponentId[]>(ALL_COMPONENT_IDS)
+  // Selective install (S3) removed in step 500: the catalog is empty, every
+  // deploy installs the same set, so `components` is never sent.
   // Which project lands in the app slot (:3000). Default = the page-provided
   // framework (framework catalog page) or Fractera-Pro otherwise. 'own-repo' reveals
   // the repo-URL field. → frameworks-catalog.
@@ -201,7 +197,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       // becomes a real pluggable repo).
       body: JSON.stringify({
         ip, login, password, session_id,
-        ...(customMode ? { components: selected } : {}),
         ...(framework !== DEFAULT_FRAMEWORK ? { framework } : {}),
         ...(framework === 'own-repo' && repoUrl.trim() ? { repoUrl: repoUrl.trim() } : {}),
       }),
@@ -358,55 +353,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
               />
               <p className="text-xs text-white/75 leading-relaxed pl-1">{t.passwordHint}</p>
             </div>
-          </div>
-
-          {/* Component selection (S3) — full vs custom install */}
-          <div className="flex flex-col gap-3 bg-white/[0.03] border border-white/15 rounded-xl p-4">
-            <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
-              <span className="text-sm text-white font-medium">
-                {customMode ? t.componentSelect.customLabel : t.componentSelect.fullLabel}
-              </span>
-              {/* Switch ON = standard/full build (default — everything installed);
-                  turning it OFF reveals the custom checkbox selection. Visual is
-                  inverted from `customMode` so "all active" reads as ON. Effective
-                  default is unchanged: customMode stays false → no `components` sent. */}
-              <Switch checked={!customMode} onCheckedChange={(v) => setCustomMode(!v)} />
-            </label>
-
-            {customMode && (
-              <div className="flex flex-col gap-4 pt-1">
-                <p className="text-xs text-white/45 leading-relaxed">{t.componentSelect.customHint}</p>
-                {(['agent', 'service'] as const).map(group => (
-                  <div key={group} className="flex flex-col gap-2.5">
-                    <p className="text-[11px] uppercase tracking-widest text-white/40">
-                      {group === 'agent' ? t.componentSelect.agentsTitle : t.componentSelect.servicesTitle}
-                    </p>
-                    {SELECTABLE_COMPONENTS.filter(c => c.group === group).map(c => {
-                      const it = t.componentSelect.items[c.id]
-                      const on = selected.includes(c.id)
-                      return (
-                        <label key={c.id} className="flex items-start gap-3 cursor-pointer select-none">
-                          <Checkbox
-                            checked={on}
-                            onCheckedChange={(v) =>
-                              setSelected(prev => v ? [...new Set([...prev, c.id])] : prev.filter(x => x !== c.id))
-                            }
-                            className="mt-0.5"
-                          />
-                          <span className="flex flex-col">
-                            <span className="text-sm text-white leading-snug">{it.name}</span>
-                            <span className="text-xs text-white/40 leading-snug">{it.desc}</span>
-                          </span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                ))}
-                <p className="text-xs text-white/35 leading-relaxed border-t border-white/10 pt-2">
-                  {t.componentSelect.coreNote}
-                </p>
-              </div>
-            )}
           </div>
 
           {serverStatus === 'checking' && (

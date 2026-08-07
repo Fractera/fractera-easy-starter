@@ -178,18 +178,6 @@ export type SiteContent = {
     updatesTo: string
     emailConfirmCheck: string
     emailConfirmNote: string
-    componentSelect: {
-      fullLabel: string
-      customLabel: string
-      customHint: string
-      agentsTitle: string
-      servicesTitle: string
-      coreNote: string
-      items: Record<
-        never,
-        { name: string; desc: string }
-      >
-    }
     frameworkSelect: {
       chooseLabel: string
       soon: string

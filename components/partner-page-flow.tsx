@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { PartnerDeployOptions } from './partner-deploy-options'
 import { DomainDnsBlock } from './domain-dns-block'
-import { ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 
 type Lang = 'en' | 'ru'
 type State =
@@ -215,10 +214,8 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
   const [login, setLogin] = useState('root')
   const [password, setPassword] = useState('')
   // Deploy options — parity with the live install form (S7):
-  // password-change ack (step 78) + custom component selection (step 85).
+  // password-change ack (step 78). Component selection removed in step 500.
   const [passwordAck, setPasswordAck] = useState(false)
-  const [customMode, setCustomMode] = useState(false)
-  const [selected, setSelected] = useState<ComponentId[]>(ALL_COMPONENT_IDS)
   const [deploySessionId, setDeploySessionId] = useState<string | null>(null)
   const [progress, setProgress] = useState<ProgressData | null>(null)
   const [deployError, setDeployError] = useState<string | null>(null)
@@ -379,7 +376,7 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
     fetch('/api/embed/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: embedToken, ip: ip.trim(), login: login.trim(), password, sessionId, ...(customMode ? { components: selected } : {}) }),
+      body: JSON.stringify({ token: embedToken, ip: ip.trim(), login: login.trim(), password, sessionId}),
     }).catch(() => {})
   }
 
@@ -502,10 +499,6 @@ export function PartnerPageFlow({ partner, lang }: { partner: PartnerData; lang:
 
                 <PartnerDeployOptions
                   lang={lang}
-                  customMode={customMode}
-                  setCustomMode={setCustomMode}
-                  selected={selected}
-                  setSelected={setSelected}
                   passwordAck={passwordAck}
                   setPasswordAck={setPasswordAck}
                   disabled={busy}

@@ -54,16 +54,6 @@ export const install: InstallPart = {
     updatesTo: 'Installation updates will be sent to',
     emailConfirmCheck: 'I understand and have access to this email address',
     emailConfirmNote: "If you don't have access to this email, sign out and sign in with an account you can access, then try again.",
-    componentSelect: {
-      fullLabel: 'Full install (recommended)',
-      customLabel: 'Choose components manually',
-      customHint: 'Uncheck what you don\'t need — a lighter, cheaper server. You can always add any tool later from the terminal built into your admin panel.',
-      agentsTitle: 'Coding agents',
-      servicesTitle: 'AI services',
-      coreNote: 'Always included: the server, database, object storage, authentication, and the admin panel with its own terminal — even with everything below unchecked.',
-      items: {
-      },
-    },
     frameworkSelect: {
       chooseLabel: 'Click to choose another starter',
       soon: 'coming soon',
