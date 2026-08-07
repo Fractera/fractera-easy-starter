@@ -322,7 +322,6 @@ elif [ "$ARCH" = "aarch64" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step_npm "deps_bridge"      "Installing dependencies (3/6)" "npm install --prefix bridges/platforms" "bridges/platforms"
 step_npm "deps_auth"        "Installing dependencies (4/6)" \
   "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth" "services/auth"
 step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
@@ -391,16 +390,12 @@ NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
-# The platforms bridge (bridges/platforms/server.js) loads THIS file via dotenv.
-# Its deployments MCP server (:3215) writes Product Loop rows to the data
-# service (:3300) and needs the data secret + URL here. Additive L2-only —
-# does not affect the L1 deploy MCP or any existing bridge behaviour.
+# The data secret + URL: services that talk to the data layer (:3300) read them
+# from THIS file. Server-side only, never NEXT_PUBLIC.
 DATA_SECRET=$DATA_SECRET
 REMOTE_DATA_URL=http://localhost:3300
-# The app-settings MCP (bridges/platforms, :3218) writes the language set here and then triggers a
-# rebuild via the admin deploy endpoint (POST :3002/api/deploy) — that needs the deploy secret. The
-# bridge loads THIS file, so the secret must be present here too (it is already in bridges/app/.env.local
-# for the admin's own deploy route). Server-side only, never NEXT_PUBLIC. → step 138.
+# Deploy secret for the admin rebuild endpoint (POST :3002/api/deploy). Kept here
+# as well as in the admin's own .env.local. Server-side only, never NEXT_PUBLIC.
 DEPLOY_SECRET=$DEPLOY_SECRET
 # IP-only deploy → open demo mode by default. Toggle via Admin → Security panel
 # or recovery sed command in /opt/fractera/services/auth/.env.local.
@@ -525,7 +520,6 @@ pm2 delete all >> "$LOG_FILE" 2>&1 || true
 export HERMES_MCP_SECRET
 
 step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
-step "start_bridge" "Starting bridge service"  "cd /opt/fractera/bridges/platforms && pm2 start npm --name fractera-bridge -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
