@@ -485,6 +485,48 @@ DATA_SECRET=$DATA_SECRET
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
+# (step 500) These two services read their configuration from a file at start,
+# so the file has to exist BEFORE anything starts them. Writing it down here,
+# in prepare_env, is not tidiness: the blocks used to sit after the start steps,
+# where LightRAG came up with no storage path and no key.
+mkdir -p /opt/fractera/services/channels
+cat > /opt/fractera/services/channels/.env <<ENVEOF
+PORT=3500
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+CHANNELS_CONFIG=/opt/fractera/services/channels/config.json
+ENVEOF
+
+cat > /opt/fractera/services/rag/.env <<ENVEOF
+# IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
+# can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
+# either way). When switching to Secure mode, gate this port via UFW or
+# nginx auth_request.
+HOST=0.0.0.0
+PORT=9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_KV_STORAGE=JsonKVStorage
+LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
+LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
+LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
+WORKING_DIR=/opt/fractera/services/rag/storage
+LLM_BINDING=openai
+LLM_BINDING_HOST=https://api.openai.com/v1
+LLM_BINDING_API_KEY=
+LLM_MODEL=gpt-4o-mini
+EMBEDDING_BINDING=openai
+EMBEDDING_BINDING_HOST=https://api.openai.com/v1
+EMBEDDING_BINDING_API_KEY=
+# 3-small chosen over 3-large: embeddings dominate Company Brain cost
+# (every chunk gets embedded vs. one LLM call per chunk), and -small
+# is ~7x cheaper with quality difference imperceptible for the typical
+# partner workload. Dim must match the model: 1536 for -small, 3072
+# for -large. Mismatched dim crashes LightRAG indexing.
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIM=1536
+CORS_ORIGINS=http://localhost:3002
+ENVEOF
+
 # (step 500) The data service now holds the THIRD warehouse — vectors — next to
 # rows and objects, in the same SQLite file. It embeds text itself, so it needs an
 # OpenAI key; the owner pastes it in Admin → OpenAI settings, which writes THIS
@@ -516,36 +558,8 @@ step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 star
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
+step "start_channels" "Starting channels service" "cd /opt/fractera/services/channels && pm2 start node --name fractera-channels -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
-cat > /opt/fractera/services/rag/.env <<ENVEOF
-# IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
-# can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
-# either way). When switching to Secure mode, gate this port via UFW or
-# nginx auth_request.
-HOST=0.0.0.0
-PORT=9621
-LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
-LIGHTRAG_KV_STORAGE=JsonKVStorage
-LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
-LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
-LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
-WORKING_DIR=/opt/fractera/services/rag/storage
-LLM_BINDING=openai
-LLM_BINDING_HOST=https://api.openai.com/v1
-LLM_BINDING_API_KEY=
-LLM_MODEL=gpt-4o-mini
-EMBEDDING_BINDING=openai
-EMBEDDING_BINDING_HOST=https://api.openai.com/v1
-EMBEDDING_BINDING_API_KEY=
-# 3-small chosen over 3-large: embeddings dominate Company Brain cost
-# (every chunk gets embedded vs. one LLM call per chunk), and -small
-# is ~7x cheaper with quality difference imperceptible for the typical
-# partner workload. Dim must match the model: 1536 for -small, 3072
-# for -large. Mismatched dim crashes LightRAG indexing.
-EMBEDDING_MODEL=text-embedding-3-small
-EMBEDDING_DIM=1536
-CORS_ORIGINS=http://localhost:3002
-ENVEOF
 
 # ── GEO SUBSYSTEM — "the map brain" for map automations (courier routing, min-fuel TSP,
 #    address geocoding). Self-hosted, free, no third-party keys — OpenStreetMap data behind
