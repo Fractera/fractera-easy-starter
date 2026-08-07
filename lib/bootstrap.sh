@@ -543,6 +543,16 @@ EMBED_DIMS=1536
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
+# (step 500) Appended AFTER the file is written: the data service is the one
+# published door, so it needs to know where the loopback services live in
+# order to forward /service/rag, /service/geo and /service/channels to them.
+cat >> /opt/fractera/services/data/.env <<ENVEOF
+LIGHTRAG_URL=http://127.0.0.1:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+GEO_URL=http://127.0.0.1:3400
+CHANNELS_URL=http://127.0.0.1:3500
+ENVEOF
+
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
