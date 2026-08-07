@@ -285,6 +285,10 @@ if [ -n "$APP_SLOT_REPO_URL" ]; then
   rm -rf /opt/fractera/app/.git
   git -C /opt/fractera/app init -q >> "$LOG_FILE" 2>&1
   git -C /opt/fractera/app symbolic-ref HEAD refs/heads/main >> "$LOG_FILE" 2>&1
+  # app/.gitkeep belongs to the substrate - it is how ai-workspace keeps the empty slot
+  # directory in its own history, and any checkout there puts it back. It is not part of
+  # the user's project, so exclude it locally instead of editing the guest's .gitignore.
+  echo '/.gitkeep' >> /opt/fractera/app/.git/info/exclude
   git -C /opt/fractera/app add -A >> "$LOG_FILE" 2>&1
   git -C /opt/fractera/app -c user.email="admin@fractera.ai" -c user.name="Fractera Admin" \
     commit -q -m "Fractera slot: $APP_SLOT_FRAMEWORK baseline" >> "$LOG_FILE" 2>&1
