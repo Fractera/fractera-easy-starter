@@ -172,11 +172,9 @@ step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nod
 step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx ffmpeg"
 # Node 22 LTS (was 20 until 2026-08-02). Hermes' own monorepo lock carries
 # @electron/rebuild@4.2.0 — a DESKTOP-app dependency requiring node>=22.12.0 — and its
-# .npmrc sets engine-strict=true, so on Node 20 the dashboard's web-UI build died with
-# EBADENGINE, the process exited, pm2 restarted it forever (5792 loops observed) and
-# :9119 never listened → Admin's Brain button returned 502 on every fresh server.
-# Node 22 is LTS and satisfies it; all our own services were rebuilt and verified on it.
-# → reports/errors/hermes-webui-build-node-engine-loop.md
+# Node 22 is LTS; all our services are built and verified on it. (The original
+# reason for pinning 22 — an engine-strict build loop in the removed Hermes
+# dashboard — is gone, but 22 stays: it is what everything is tested against.)
 step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"
 step "node_install" "Installing Node.js 22"   "apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
@@ -307,8 +305,8 @@ echo "=== COMPONENTS: $(cat /opt/fractera/installed-components.json) (arg='$COMP
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 
-step_npm "deps_root"   "Installing dependencies (1/6)" "npm install" ""
-step_npm "deps_app"    "Installing dependencies (2/6)" "npm install --prefix app" "app"
+step_npm "deps_root"   "Installing dependencies (1/5)" "npm install" ""
+step_npm "deps_app"    "Installing dependencies (2/5)" "npm install --prefix app" "app"
 
 # Install native binaries for Tailwind v4
 ARCH=$(uname -m)
@@ -322,11 +320,11 @@ elif [ "$ARCH" = "aarch64" ]; then
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-step_npm "deps_auth"        "Installing dependencies (4/6)" \
+step_npm "deps_auth"        "Installing dependencies (3/5)" \
   "npm install --prefix services/auth && npm rebuild better-sqlite3 --prefix services/auth" "services/auth"
-step_npm "deps_bridges_app" "Installing dependencies (5/6)" \
+step_npm "deps_bridges_app" "Installing dependencies (4/5)" \
   "npm install --prefix bridges/app && npm rebuild better-sqlite3 --prefix bridges/app" "bridges/app"
-step_npm "deps_data"        "Installing dependencies (6/6)" \
+step_npm "deps_data"        "Installing dependencies (5/5)" \
   "npm install --prefix services/data && npm rebuild better-sqlite3 --prefix services/data && npm rebuild sharp --prefix services/data" "services/data"
 
 log_email "deps_data" "All dependencies installed" 30
@@ -352,9 +350,6 @@ if ! grep -q "DEPLOY_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
 fi
 if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
-fi
-if ! grep -q "HERMES_MCP_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
-  echo "HERMES_MCP_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
@@ -473,33 +468,6 @@ EMBED_DIMS=1536
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 
-# Substrate cron runner (fractera-cron, step 179) — schedules the Projects layer.
-# Zero npm deps (no install step); reads project cron.json declarations from the
-# SLOT every tick and journals runs through the data service (:3300).
-mkdir -p /opt/fractera/services/cron
-cat > /opt/fractera/services/cron/.env <<ENVEOF
-DATA_URL=http://localhost:3300
-DATA_SECRET=$DATA_SECRET
-# (step 500) The projects layer is gone: scan the SLOT for cron.json declarations
-# and POST due jobs to the slot shell (:3000).
-PROJECTS_DIR=/opt/fractera/app
-APP_URL=http://localhost:3000
-ENVEOF
-
-# Substrate automations listener (fractera-automations, step 201) — the @fractera_auto
-# receiver. Zero npm deps; polls the AUTOMATIONS bot (a bot SEPARATE from the Hermes chat
-# bot) and dispatches each hook message to the owning automation's /run via a deterministic
-# project_hooks lookup. AUTOMATIONS_BOT_TOKEN is set post-deploy via Admin → Telegram settings;
-# inert (idles, no crash) until then. server.js ships in the cloned ai-workspace repo.
-mkdir -p /opt/fractera/services/automations-listener
-cat > /opt/fractera/services/automations-listener/.env <<ENVEOF
-DATA_URL=http://localhost:3300
-DATA_SECRET=$DATA_SECRET
-# step 197: automations' /run routes live in fractera-projects (:3003), not the slot shell (:3000).
-APP_URL=http://localhost:3000
-POLL_TIMEOUT_S=25
-ENVEOF
-
 
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
@@ -511,35 +479,15 @@ step "build_bridges_app" "Building admin (production)"   "npm run build --prefix
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
-# Additive: export the MCP secret into the env that the PM2 services inherit, so the
-# bridge process (and the coding agents it spawns) can authenticate to the L2 owner
-# bridges with `Bearer $HERMES_MCP_SECRET`. `source secrets.env` sets the var but does
-# NOT export it to children, so the per-agent MCP clients (.mcp.json / config.toml in
-# the slot) could not resolve ${HERMES_MCP_SECRET} without this. Deploy/wipe behaviour
-# is unchanged — this only exposes an already-generated secret to the agent runtime.
-export HERMES_MCP_SECRET
-
 step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
-step "start_cron"   "Starting cron runner"     "cd /opt/fractera/services/cron && pm2 start node --name fractera-cron -- server.js && cd /opt/fractera"
-step "start_automations" "Starting automations listener" "cd /opt/fractera/services/automations-listener && pm2 start node --name fractera-automations -- server.js && cd /opt/fractera"
-# ── GEO SUBSYSTEM (optional "maps"): "the map brain" for real map automations (courier routing, min-fuel
-#    TSP, address geocoding). Self-hosted, free, no third-party keys — OpenStreetMap data behind Docker:
-#    OSRM (routing/matrix) + Nominatim (geocoding), fronted by the fractera-geo facade (:3400, loopback).
-#    Enabled only when the deployment selects "maps". Region extract defaults to Île-de-France (small, fast
-#    import); for a larger region change GEO_PBF_URL/GEO_PBF (the .osrm base name is derived). Steps are soft:
-#    a maps failure never blocks the rest of the boot. Nominatim import runs in the container for several
-#    minutes — the facade starts immediately, geocoding just reports "down" until the import finishes.
-GEO_PBF_URL="https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf"
-GEO_PBF="ile-de-france-latest.osm.pbf"
-GEO_OSRM="${GEO_PBF%.osm.pbf}.osrm"
-maybe_step "maps" "geo_docker"    "Docker (geo engines)" "command -v docker >/dev/null 2>&1 || (curl -fsSL https://get.docker.com | sh); systemctl enable --now docker"
-maybe_step "maps" "geo_osrm"      "Geo routing (OSRM)" "mkdir -p /opt/fractera-geo/osrm && cd /opt/fractera-geo/osrm && { [ -f $GEO_PBF ] || curl -fsSL -o $GEO_PBF $GEO_PBF_URL; } && docker pull osrm/osrm-backend && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/$GEO_PBF && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-partition /data/$GEO_OSRM && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-customize /data/$GEO_OSRM && docker rm -f fractera-osrm 2>/dev/null; docker run -d --name fractera-osrm --restart unless-stopped -p 127.0.0.1:5000:5000 -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-routed --algorithm mld /data/$GEO_OSRM; cd /opt/fractera"
-maybe_step "maps" "geo_nominatim" "Geo geocoding (Nominatim import, several min)" "docker rm -f fractera-nominatim 2>/dev/null; docker pull mediagis/nominatim:4.4 && docker run -d --name fractera-nominatim --restart unless-stopped -e PBF_URL=$GEO_PBF_URL -e IMPORT_STYLE=address -e NOMINATIM_PASSWORD=fractera_geo_pw -p 127.0.0.1:8080:8080 mediagis/nominatim:4.4"
-maybe_step "maps" "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
-maybe_step "maps" "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
+# (step 500) The geo subsystem is gone with the projects layer: services/geo no
+# longer exists in the repository, and the component catalog is empty, so these
+# steps would have run on EVERY deploy (empty $8 means "install everything"),
+# downloading an OSM extract and running a multi-minute Nominatim import for a
+# service that cannot start.
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"
@@ -565,9 +513,8 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 
 cat > /etc/nginx/sites-available/fractera <<'NGINXEOF'
 # Default HTTP server — catches all requests to the bare IP and proxies to
-# the shell on :3000. Other services (auth :3001, admin :3002, projects :3003,
-# data :3300) are reached directly on their ports until
-# the user attaches a domain.
+# the shell on :3000. Other services (auth :3001, admin :3002, data :3300) are
+# reached directly on their ports until the user attaches a domain.
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -681,4 +628,4 @@ for _attempt in 1 2 3 4 5; do
 done
 
 echo "=== Fractera bootstrap finished: $(date) ===" >> "$LOG_FILE"
-echo "FRACTERA_READY: http://$SERVER_IP:3000 (app) | http://$SERVER_IP:3002 (admin) | http://$SERVER_IP:3003 (projects) | http://$SERVER_IP:3004 (design) | http://$SERVER_IP:3001 (auth)"
+echo "FRACTERA_READY: http://$SERVER_IP:3000 (app) | http://$SERVER_IP:3001 (auth) | http://$SERVER_IP:3002 (admin) | http://$SERVER_IP:3300 (data)"
