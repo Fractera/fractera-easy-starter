@@ -491,6 +491,7 @@ step "start_data"   "Starting data service"    "cd /opt/fractera/services/data &
 #    import); the Admin map panel re-provisions any other region later. Steps are SOFT: a map
 #    failure never blocks the rest of the boot. The Nominatim import runs in the container for
 #    several minutes — the facade starts immediately, geocoding reports "down" until it finishes.
+GEO_PBF_URL="https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf"
 GEO_PBF="ile-de-france-latest.osm.pbf"
 GEO_OSRM="${GEO_PBF%.osm.pbf}.osrm"
 soft_step "geo_docker"    "Docker (geo engines)" "command -v docker >/dev/null 2>&1 || (curl -fsSL https://get.docker.com | sh); systemctl enable --now docker"
