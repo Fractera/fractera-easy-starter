@@ -305,6 +305,20 @@ echo "=== COMPONENTS: $(cat /opt/fractera/installed-components.json) (arg='$COMP
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 
+# ── AGENTIC RAG (LightRAG) — the graph half of knowledge: it extracts entities and
+#    relations at ingest, so questions that span many documents are answered from a
+#    precomputed graph instead of re-reading everything. (step 500) ALWAYS installed,
+#    like the vector store and object storage — a storage primitive, not an optional
+#    component. The architect turns it on or off in Admin, the installer always puts
+#    it there. Soft steps: a RAG failure never blocks the rest of the boot.
+soft_step "install_lightrag" "LightRAG"    "{ command -v \"\$HOME/.local/bin/uv\" >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh; }; export PATH=\"\$HOME/.local/bin:\$PATH\" && \$HOME/.local/bin/uv tool install 'lightrag-hku[api] @ git+https://github.com/HKUDS/LightRAG.git@v1.4.16' || true"
+# (step 500) LightRAG's own React WebUI is NOT built. Building it was the longest
+#    step of the whole install (bun install + bun run build inside a Python package),
+#    and nothing opens it: the Admin panel talks to LightRAG through our own server
+#    routes, so the browser never reaches :9621. That is also why :9621 needs no
+#    subdomain and no certificate host. If the native graph explorer is ever wanted,
+#    the build, the subdomain and an iframe come back together as one piece.
+
 step_npm "deps_root"   "Installing dependencies (1/5)" "npm install" ""
 step_npm "deps_app"    "Installing dependencies (2/5)" "npm install --prefix app" "app"
 
@@ -351,8 +365,12 @@ fi
 if ! grep -q "DATA_SECRET=" "$SECRETS_FILE" 2>/dev/null; then
   echo "DATA_SECRET=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
+if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
+mkdir -p /opt/fractera/services/rag/storage
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 # === Initial .env.local files (before build, without real subdomain) ===
@@ -385,6 +403,17 @@ NEXT_PUBLIC_AUTH_URL=
 NEXT_PUBLIC_ADMIN_URL=
 NEXT_PUBLIC_MEDIA_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
+DEPLOY_SECRET=$DEPLOY_SECRET
+# The Documents page (/documents) ingests knowledge-base files into Company
+# Memory (LightRAG :9621) via /api/documents/ingest. It posts to LightRAG with
+# this key (X-API-Key) — same key the admin app and the rag service use, so the
+# public app authenticates instead of getting a 403. Generated at the secrets
+# step above (openssl rand -hex 32), so it is always present and non-empty.
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+# Lets the Documents page report whether LightRAG has an OpenAI embedding key
+# (read-only) so Activate can say "indexing will/won't finish" honestly.
+RAG_ENV_PATH=/opt/fractera/services/rag/.env
 # The data secret + URL: services that talk to the data layer (:3300) read them
 # from THIS file. Server-side only, never NEXT_PUBLIC.
 DATA_SECRET=$DATA_SECRET
@@ -443,6 +472,10 @@ AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_SERVER_ID=$SERVER_ID
 DEPLOY_SECRET=$DEPLOY_SECRET
 APP_DB_PATH=/opt/fractera/app/data/app.db
+LIGHTRAG_URL=http://localhost:9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_LLM_OPENAI_MODEL=gpt-4o-mini
+RAG_ENV_PATH=/opt/fractera/services/rag/.env
 # (step 500) The admin calls the data service SERVER-SIDE for the vector store —
 # its status and its meaning-search. Those calls carry no browser cookie, so they
 # authenticate with the shared service secret. Without this key every such call
@@ -483,6 +516,37 @@ step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 star
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
 step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
+soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
+cat > /opt/fractera/services/rag/.env <<ENVEOF
+# IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
+# can reach LightRAG. Healthchecks below still hit 127.0.0.1 (loopback works
+# either way). When switching to Secure mode, gate this port via UFW or
+# nginx auth_request.
+HOST=0.0.0.0
+PORT=9621
+LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
+LIGHTRAG_KV_STORAGE=JsonKVStorage
+LIGHTRAG_DOC_STATUS_STORAGE=JsonDocStatusStorage
+LIGHTRAG_GRAPH_STORAGE=NetworkXStorage
+LIGHTRAG_VECTOR_STORAGE=NanoVectorDBStorage
+WORKING_DIR=/opt/fractera/services/rag/storage
+LLM_BINDING=openai
+LLM_BINDING_HOST=https://api.openai.com/v1
+LLM_BINDING_API_KEY=
+LLM_MODEL=gpt-4o-mini
+EMBEDDING_BINDING=openai
+EMBEDDING_BINDING_HOST=https://api.openai.com/v1
+EMBEDDING_BINDING_API_KEY=
+# 3-small chosen over 3-large: embeddings dominate Company Brain cost
+# (every chunk gets embedded vs. one LLM call per chunk), and -small
+# is ~7x cheaper with quality difference imperceptible for the typical
+# partner workload. Dim must match the model: 1536 for -small, 3072
+# for -large. Mismatched dim crashes LightRAG indexing.
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIM=1536
+CORS_ORIGINS=http://localhost:3002
+ENVEOF
+
 # ── GEO SUBSYSTEM — "the map brain" for map automations (courier routing, min-fuel TSP,
 #    address geocoding). Self-hosted, free, no third-party keys — OpenStreetMap data behind
 #    Docker: OSRM (routing/matrix) + Nominatim (geocoding), fronted by the fractera-geo facade
