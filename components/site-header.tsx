@@ -8,7 +8,6 @@ import { useState } from 'react'
 import { useAuthModal, useDashboard } from '@/components/providers'
 import { useLang } from '@/lib/i18n/use-lang'
 import { getContent } from '@/lib/i18n/locales'
-import { ICON, frameworkPath } from '@/components/sections/connect-framework'
 
 export function SiteHeader() {
   const pathname = usePathname() ?? ''
@@ -17,13 +16,11 @@ export function SiteHeader() {
   const { openServers, openSubscription, openPurchases, openPartnerCabinet } = useDashboard()
   const [menuOpen, setMenuOpen] = useState(false)
   const [deployOpen, setDeployOpen] = useState(false)
-  const [fwOpen, setFwOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const isAdmin = session?.user?.email === 'admin@fractera.ai'
   const isPartner = !!session?.user?.partnerSlug
   const lang = useLang()
   const content = getContent(lang)
-  const frameworks = content.connectFramework.frameworks
   // Header nav labels follow the site language (RU site → RU header).
   const t = content.siteHeader
 
@@ -88,67 +85,6 @@ export function SiteHeader() {
               )}
             </div>
 
-            {/* Frameworks dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setFwOpen(v => !v)}
-                className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
-              >
-                {t.frameworks}
-                <svg
-                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  className={`transition-transform duration-200 ${fwOpen ? 'rotate-180' : ''}`}
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-
-              {fwOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setFwOpen(false)} />
-                  <div className="thin-scroll absolute left-0 top-full mt-1 z-50 w-64 max-h-[600px] overflow-y-auto bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
-                    {frameworks.map((name) => (
-                      <a
-                        key={name}
-                        href={frameworkPath(name, lang)}
-                        onClick={() => setFwOpen(false)}
-                        className="group flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
-                      >
-                        {name === 'Fractera Pro' ? (
-                          <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center">
-                            <img
-                              src="/favicon-32x32.png"
-                              alt="" width={20} height={20} loading="lazy"
-                              className="h-full w-full object-contain rounded-sm"
-                            />
-                          </span>
-                        ) : ICON[name] ? (
-                          <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center">
-                            <img
-                              src={`/framework-icons/${ICON[name]}.svg`}
-                              alt="" width={20} height={20} loading="lazy"
-                              className="h-full w-full object-contain"
-                            />
-                          </span>
-                        ) : (
-                          <span
-                            aria-hidden
-                            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/[0.04] text-[10px] font-bold text-violet-300"
-                          >
-                            {name.charAt(0)}
-                          </span>
-                        )}
-                        <span className="text-sm font-medium text-white/85 group-hover:text-white truncate transition-colors">
-                          {name}
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
 
             <Link
               href={`/${lang}/deployments/local`}
@@ -329,9 +265,6 @@ export function SiteHeader() {
             </Link>
             <Link href={`/${lang}/deployments/mcp`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.mcpDeploy}
-            </Link>
-            <Link href={`/${lang}/framework`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              {t.frameworks}
             </Link>
             <Link href={`/${lang}/deployments/local`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.companyBrain}

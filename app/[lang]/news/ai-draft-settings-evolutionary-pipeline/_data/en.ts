@@ -143,9 +143,6 @@ export const en: NewsArticleBase = {
       text: 'The way we do it is straightforward. For each framework, we build a dedicated **ai-workspace transport**: a ready-made integration layer that wires that framework into Fractera\'s shared services, so you never have to figure out the plumbing yourself. Here is the full set of stacks we are bringing on board — open it up to see them all:',
     },
     {
-      kind: 'frameworks',
-    },
-    {
       kind: 'h3',
       text: 'What every framework gets',
     },

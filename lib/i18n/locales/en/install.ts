@@ -54,13 +54,6 @@ export const install: InstallPart = {
     updatesTo: 'Installation updates will be sent to',
     emailConfirmCheck: 'I understand and have access to this email address',
     emailConfirmNote: "If you don't have access to this email, sign out and sign in with an account you can access, then try again.",
-    frameworkSelect: {
-      chooseLabel: 'Click to choose another starter',
-      soon: 'coming soon',
-      repoUrlLabel: 'Your public repository',
-      repoUrlPlaceholder: 'https://github.com/you/your-repo',
-      repoUrlHint: 'A public Git repository. We clone it, detect the stack and bring it up on your server. Cloud-only dependencies can be migrated to your own backend later by the AI.',
-    },
     launchButton: 'Launch my server →',
     credentials: 'Your credentials are used only for installation and are never stored on our servers.',
     installFailed: 'Installation failed',

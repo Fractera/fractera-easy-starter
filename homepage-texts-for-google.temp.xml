@@ -1,0 +1,434 @@
+<!-- TEMP doc for SEO optimization (homepage EN texts). Not part of the build.
+     Round-trip contract: id = exact locale path (lib/i18n/locales/en/*) for write-back,
+     type = semantic role for Google, <t> body = current text. Return the same XML with
+     the same id/type, changing only the <t> contents; it will be written back to the locales.
+
+  LEGEND (types):
+    meta-title | meta-description | meta-og-title | meta-og-description | meta-keyword
+    h1            — the page's single first-level heading (hero)
+    h2            — section heading
+    h3            — sub/card heading
+    p             — paragraph
+    eyebrow       — small label above a heading (decorative)
+    badge | tag   — pill label
+    card-title | card-text | card-meta — text inside a card
+    card-eyebrow | card-meta — slide/card small labels
+    li            — list item
+    button | link-label — button / link text
+    note          — footnote / disclaimer / hint
+    label         — standalone label (column header)
+    faq-question | faq-answer
+    proper-nouns  — proper nouns (do NOT translate/change)
+-->
+<homepage lang="en">
+
+  <meta>
+    <t id="meta.title" type="meta-title">Fractera — One-Click Private AI Stack: Deploy Any Framework or Repository to Your VPS</t>
+    <t id="meta.description" type="meta-description">Deploy a complete self-hosted AI stack to your own VPS in one click — a starter of any framework or any public repository (the 50k-line Next.js reference app included). Zero-Agent MCP-First architecture eliminates context inflation: rotate pre-built components like a Rubik's Cube via short execution commands with near-zero token spend.</t>
+    <t id="meta.ogTitle" type="meta-og-title">Fractera — One-Click Private AI Stack: Deploy Any Framework or Repository to Your VPS</t>
+    <t id="meta.ogDescription" type="meta-og-description">Deploy a complete self-hosted AI stack to your own VPS in one click — a starter of any framework or any public repository (the 50k-line Next.js reference app included). Zero-Agent MCP-First architecture cuts token spend to near zero.</t>
+    <t id="meta.keywords[0]" type="meta-keyword">mcp first ai development</t>
+    <t id="meta.keywords[1]" type="meta-keyword">zero agent web infrastructure</t>
+    <t id="meta.keywords[2]" type="meta-keyword">deploy any framework vps</t>
+    <t id="meta.keywords[3]" type="meta-keyword">self-hosted starter deploy</t>
+    <t id="meta.keywords[4]" type="meta-keyword">nextjs mcp server deploy</t>
+    <t id="meta.keywords[5]" type="meta-keyword">rubiks cube code architecture</t>
+    <t id="meta.keywords[6]" type="meta-keyword">prevent context window inflation ai</t>
+    <t id="meta.keywords[7]" type="meta-keyword">self-hosted AI infrastructure</t>
+    <t id="meta.keywords[8]" type="meta-keyword">Hermes orchestrator</t>
+    <t id="meta.keywords[9]" type="meta-keyword">LightRAG persistent memory</t>
+    <t id="meta.keywords[10]" type="meta-keyword">Claude Code MCP server</t>
+    <t id="meta.keywords[11]" type="meta-keyword">one-click AI deploy VPS</t>
+  </meta>
+
+  <section name="hero">
+    <t id="hero.heroBadge" type="eyebrow">Open Source — Free Forever</t>
+    <t id="hero.heroTitle" type="h1">One-Click Open-Source AI Coding Infrastructure on Your VPS — Deploy a Starter of Any Framework or Any Repository</t>
+    <t id="hero.description" type="p">Deploy a complete, self-hosted AI-native ecosystem on your server in 10 minutes. Fractera lands a production-grade starter on your VPS — Next.js (our 50,000-line reference app) or any other framework, including any public repository — all controlled through one architectural shift: MCP-First Engineering. By moving the workload from heavy code-generation loops to atomic MCP execution commands, the system frees your AI from constantly reading and parsing the file system. Build, scale, and design with token consumption driven toward zero. Your server, your immutable patterns, your zero-waste execution.</t>
+    <t id="hero.architectureCta" type="link-label">More about the AI Workspace architecture</t>
+    <t id="hero.heroBenefitsHeader.h2" type="h2">The AI-Native Self-Hosting Platform — Every AI Agent Runs on Your Subscription, No Per-Token Metering or Usage Limits</t>
+    <t id="hero.heroBenefitsHeader.cardLink" type="link-label">Learn more</t>
+    <t id="hero.heroBenefits[0].title" type="card-title">Hermes Orchestrator: Multi-Model Agentic Loops</t>
+    <t id="hero.heroBenefits[0].text" type="card-text">Hermes Agent by Nous Research, deployed and configured on your VPS. Coordinates Claude Code, Codex, and Gemini CLI through shared context. Switch to API mode for autonomous agentic workflows that run without your input — every loop refines the next.</t>
+    <t id="hero.heroBenefits[1].title" type="card-title">LightRAG: Persistent Memory for AI Agents</t>
+    <t id="hero.heroBenefits[1].text" type="card-text">A persistent vector store by HKUDS, shared across all five coding platforms. Your codebase, every architectural decision, every solved problem — always in context. No more starting each AI session from scratch. The company brain that compounds with every iteration.</t>
+    <t id="hero.heroBenefits[2].title" type="card-title">Five AI Coding Platforms, One Server</t>
+    <t id="hero.heroBenefits[2].text" type="card-text">Claude Code, Codex, Gemini CLI, Qwen Code, and Kimi Code — all preconfigured on your server. Run on your existing AI subscriptions. No API keys to manage, no per-token billing. Switch platforms mid-task without losing your project context — LightRAG keeps the thread.</t>
+    <t id="hero.heroBenefits[3].title" type="card-title">Dedicated VPS Environment with Custom Domain</t>
+    <t id="hero.heroBenefits[3].text" type="card-text">Dedicated Ubuntu 24.04 VPS configured automatically. Custom domain provisioned, SSL issued, Nginx routed — before you write the first line of code. Recommended provider: Contabo. 4 cores and 6 GB RAM is the minimum we recommend.</t>
+    <t id="hero.heroBenefits[4].title" type="card-title">Pre-Configured Secure Database &amp; Auth Stack</t>
+    <t id="hero.heroBenefits[4].text" type="card-text">Google OAuth, magic-link email, SQLite with WAL mode, file storage, and vector store — preconfigured on your server. No Clerk subscription, no Supabase invoice, no separate email provider. One stack, owned by you, billed once through your VPS provider.</t>
+    <t id="hero.heroBenefits[5].title" type="card-title">Monetize AI Workflows via Skills Marketplace</t>
+    <t id="hero.heroBenefits[5].text" type="card-text">Package the workflows you've solved into reusable AI Skills. Sell them in the community marketplace, share them free, or buy battle-tested recipes from other builders. Your self-hosted stack becomes a passive revenue stream — your best work earns while you sleep.</t>
+  </section>
+
+  <section name="ultimateScale">
+    <t id="ultimateScale.badge" type="eyebrow">INFINITE PRODUCTION SCALE</t>
+    <t id="ultimateScale.h2" type="h2">Tens of Thousands of Pages. Connected Logic. Near-Zero Token Cost.</t>
+    <t id="ultimateScale.description" type="p">In the end you get an application that scales to any level — tens, hundreds, a thousand pages, bound together by shared logic and functionality, with near-zero token spend on coding agents. The MCP infrastructure drives the function calls that update one page, several, or sometimes every page at once.</t>
+    <t id="ultimateScale.columns[0].title" type="h3">A Pre-Built Project Skeleton</t>
+    <t id="ultimateScale.columns[0].text" type="card-text">You get a complete project skeleton that already contains almost every idea you could need later. Instead of building and wiring them up, the project simply switches them on when required. Like a Rubik's Cube — a strictly limited set of faces, a near-infinite set of combinations.</t>
+    <t id="ultimateScale.columns[0].linkLabel" type="link-label">How the economics works →</t>
+    <t id="ultimateScale.columns[1].title" type="h3">Generation by Hermes, Not Code Writing</t>
+    <t id="ultimateScale.columns[1].text" type="card-text">Instead of calling a coding agent like Claude Code or Codex for every feature, the platform generates through Hermes — which doesn't really write code, it picks the right combination. Like strict standards that combine every possible Rubik's Cube state with one mechanical move from A to B.</t>
+    <t id="ultimateScale.columns[1].linkLabel" type="link-label">See parallel routing →</t>
+    <t id="ultimateScale.columns[2].title" type="h3">The Fractera Design System</t>
+    <t id="ultimateScale.columns[2].text" type="card-text">Design is one of the most expensive stages of development — Fractera removes it. A new font, a video background, a reused section? No code generation: apply a rule and the change goes live on one page, several, or all at once. Like a sequence of moves that builds all six sides of the cube at the same time.</t>
+    <t id="ultimateScale.columns[2].linkLabel" type="link-label">See the design system →</t>
+    <t id="ultimateScale.footnote" type="note">In the app settings you can always switch to the standard code-generation mode — exactly one click — if you need a small, fully custom application.</t>
+  </section>
+
+  <section name="connectFramework">
+    <t id="connectFramework.badge" type="eyebrow">Any framework · Any repository</t>
+    <t id="connectFramework.h2" type="h2">Connect your framework — deploy an AI-workspace starter on your VPS</t>
+    <t id="connectFramework.description" type="p">Any framework you bring is automatically optimized for the built-in local database and local file storage, ships with authentication out of the box, and integrates with the on-server AI agents — all in one click on your own server.</t>
+    <t id="connectFramework.frameworks" type="proper-nouns">Fractera Pro, Next.js, React, Vue, Angular, SvelteKit, Nuxt, Astro, Remix, Gatsby, SolidStart, Qwik, React Router, TanStack Start, Hugo, Jekyll, Eleventy, Vite, Ember, Redwood, Express, NestJS, Fastify, Hono, Django, Flask, FastAPI, Reflex, Laravel, Symfony, Rails, Phoenix, Spring, .NET</t>
+    <t id="connectFramework.showAll" type="button">Show all frameworks</t>
+    <t id="connectFramework.hide" type="button">Hide</t>
+    <t id="connectFramework.hint" type="note">Pick your framework to learn more.</t>
+  </section>
+
+  <section name="loopShowcase">
+    <t id="loopShowcase.label" type="eyebrow">Step by step, how it works</t>
+    <t id="loopShowcase.h2" type="h2">Full Stack Ownership: Your Server, Your Domain, Your Product</t>
+    <t id="loopShowcase.description" type="p">Modern AI coding is easy — the hard part is owning the infrastructure. Fractera makes ownership effortless: a dedicated Ubuntu VPS, an automatic custom domain with SSL, and a production-ready product stack — all yours, forever.</t>
+    <t id="loopShowcase.slides[0].label" type="card-eyebrow">Your Own Server</t>
+    <t id="loopShowcase.slides[0].sublabel" type="card-meta">Credentials in, server out</t>
+    <t id="loopShowcase.slides[0].title" type="h3">Private AI infrastructure on your VPS</t>
+    <t id="loopShowcase.slides[0].description" type="card-text">Buy once, and minutes later your own web infrastructure is live. You only add your VPS credentials a single time. The site, the admin panel, AI agents, memory, database, and storage all deploy and sync automatically. Everything belongs to you alone — not a single byte in someone else's cloud.</t>
+    <t id="loopShowcase.slides[1].label" type="card-eyebrow">Your Own Domain</t>
+    <t id="loopShowcase.slides[1].sublabel" type="card-meta">Optional, attaches in a minute</t>
+    <t id="loopShowcase.slides[1].title" type="h3">Custom domain and SSL in a minute</t>
+    <t id="loopShowcase.slides[1].description" type="card-text">The moment it deploys, your project is reachable and ready — over plain HTTP, which is plenty for early experiments. For everything else, connect your own domain: buy it from any registrar and attach it in under a minute. SSL certificate, DNS, and Nginx routing configure themselves.</t>
+    <t id="loopShowcase.slides[2].label" type="card-eyebrow">Secure Mode</t>
+    <t id="loopShowcase.slides[2].sublabel" type="card-meta">You are the sole admin</t>
+    <t id="loopShowcase.slides[2].title" type="h3">Your domain triggers secure mode</t>
+    <t id="loopShowcase.slides[2].description" type="card-text">Activating your own domain flips the server into secure HTTPS mode automatically. You sign in as administrator inside your own authentication platform. Later you can add more admins — but by default you're the only one with access to the AI agents. No shared SSO, no third-party access console.</t>
+    <t id="loopShowcase.slides[3].label" type="card-eyebrow">Server Map</t>
+    <t id="loopShowcase.slides[3].sublabel" type="card-meta">Every address, emailed to you</t>
+    <t id="loopShowcase.slides[3].title" type="h3">A full map of your server</t>
+    <t id="loopShowcase.slides[3].description" type="card-text">Every important server event is mirrored to your email. So domain activation hands you a full map of what was built for you: the admin panel with agents, your public site, your Hermes orchestrator agent, a LightRAG knowledge base, your own auth platform governing every service, plus a database server and object storage.</t>
+    <t id="loopShowcase.slides[4].label" type="card-eyebrow">Admin Panel</t>
+    <t id="loopShowcase.slides[4].sublabel" type="card-meta">Five orchestration tools</t>
+    <t id="loopShowcase.slides[4].title" type="h3">Admin panel: five core tools</t>
+    <t id="loopShowcase.slides[4].description" type="card-text">After signing in you land straight in the admin panel — mission control for your agents and web space. Five tools: a live preview of your main app; an agent selector carousel (Grok Builder lands soon); project settings; GitHub integration for local IDE work; and the Fractera skills marketplace.</t>
+    <t id="loopShowcase.slides[5].label" type="card-eyebrow">Hermes Agent</t>
+    <t id="loopShowcase.slides[5].sublabel" type="card-meta">Orchestrator of all agents</t>
+    <t id="loopShowcase.slides[5].title" type="h3">Hermes orchestrator — your project core</t>
+    <t id="loopShowcase.slides[5].description" type="card-text">Activate Hermes — the orchestrator agent you actually talk to. It routes tasks across AI agents, developers, and the memory agent. It can run on the OpenAI key you added earlier, but a Codex subscription is far more efficient: authorize in the browser and slash token spend on a powerful model. On a truly beefy server or home machine (AI company brain mode) you can skip subscriptions and use your own compute.</t>
+    <t id="loopShowcase.slides[6].label" type="card-eyebrow">Project Memory</t>
+    <t id="loopShowcase.slides[6].sublabel" type="card-meta">LightRAG vector memory</t>
+    <t id="loopShowcase.slides[6].title" type="h3">LightRAG — your project's memory</t>
+    <t id="loopShowcase.slides[6].description" type="card-text">Switch on your project's global memory — it stores everything happening across your work and business. All it needs is an OpenAI key: the service is extremely frugal with tokens, just keep the balance positive. This vector memory is a future-defining edge: the more it knows, the fewer tokens your main AI agents burn.</t>
+    <t id="loopShowcase.slides[7].label" type="card-eyebrow">Claude Code</t>
+    <t id="loopShowcase.slides[7].sublabel" type="card-meta">Subscription via /login</t>
+    <t id="loopShowcase.slides[7].title" type="h3">Claude Code on your own server</t>
+    <t id="loopShowcase.slides[7].description" type="card-text">Want to code with the Anthropic agent? Run /login and activate your subscription by following the prompts. From there you can write code right inside this terminal. But the priority, recommended path is working through the Hermes agent from Telegram — one entry point to every platform.</t>
+    <t id="loopShowcase.slides[8].label" type="card-eyebrow">Codex</t>
+    <t id="loopShowcase.slides[8].sublabel" type="card-meta">Your key or subscription</t>
+    <t id="loopShowcase.slides[8].title" type="h3">Codex: your key or subscription</t>
+    <t id="loopShowcase.slides[8].description" type="card-text">Codex is available automatically the moment you activate your key in the previous step. To switch to a subscription, first leave registration mode with /logout, close the tab, and reopen it. Then repeat authorization, choose the subscription, and finish signing in by following the prompts.</t>
+    <t id="loopShowcase.slides[9].label" type="card-eyebrow">Gemini CLI</t>
+    <t id="loopShowcase.slides[9].sublabel" type="card-meta">Free start, every day</t>
+    <t id="loopShowcase.slides[9].title" type="h3">Gemini — free production coding</t>
+    <t id="loopShowcase.slides[9].description" type="card-text">No AI keys yet? Start with Gemini — it hands you a free trial and refreshes session limits every single day. The simplest way into production coding at zero cost. No command needed: just follow the authorization steps in order.</t>
+    <t id="loopShowcase.slides[10].label" type="card-eyebrow">Qwen Code</t>
+    <t id="loopShowcase.slides[10].sublabel" type="card-meta">Subscription, bolder UI</t>
+    <t id="loopShowcase.slides[10].title" type="h3">Qwen Code — an alternative engine</t>
+    <t id="loopShowcase.slides[10].description" type="card-text">Qwen Code also runs on a subscription right in the terminal and is driven through Hermes. Every platform tackles broadly similar tasks, but each styles app interfaces differently by default. The design Qwen generates often comes out noticeably bolder.</t>
+    <t id="loopShowcase.slides[11].label" type="card-eyebrow">Kimi Code</t>
+    <t id="loopShowcase.slides[11].sublabel" type="card-meta">Generous subscription credits</t>
+    <t id="loopShowcase.slides[11].title" type="h3">Kimi Code — generous credits</t>
+    <t id="loopShowcase.slides[11].description" type="card-text">Kimi Code runs on a subscription and serves as an alternative to the standard models. In certain scenarios it grants more generous credits for the same spend — a handy backup engine when you need more volume at the same price.</t>
+    <t id="loopShowcase.slides[12].label" type="card-eyebrow">Your Database</t>
+    <t id="loopShowcase.slides[12].sublabel" type="card-meta">Lightweight Postgres, web UI</t>
+    <t id="loopShowcase.slides[12].title" type="h3">Your own database, zero cloud</t>
+    <t id="loopShowcase.slides[12].description" type="card-text">The database is already installed on your server and wired into the project. For convenience the admin panel gives it a dedicated tab — a clear web UI to watch database health and make changes when needed. Under the hood it's lightweight Postgres, and your AI agent already knows how to create and update data models with zero dependency on someone else's paid cloud.</t>
+    <t id="loopShowcase.slides[13].label" type="card-eyebrow">Object Storage</t>
+    <t id="loopShowcase.slides[13].sublabel" type="card-meta">Images, out of the box</t>
+    <t id="loopShowcase.slides[13].title" type="h3">Your object storage, out of the box</t>
+    <t id="loopShowcase.slides[13].description" type="card-text">The image processing and storage service is part of your server too, deployed automatically. Nothing to configure: start adding images to your project right away. Files live on your own disk, not in someone else's S3.</t>
+    <t id="loopShowcase.slides[14].label" type="card-eyebrow">Built-in Starter</t>
+    <t id="loopShowcase.slides[14].sublabel" type="card-meta">Public/private routing inside</t>
+    <t id="loopShowcase.slides[14].title" type="h3">A production starter from minute one</t>
+    <t id="loopShowcase.slides[14].description" type="card-text">Your server ships with an app already built in: public and private routing, a clean structure built to grow, modern patterns, and solid scaling. Best of all, the starter saves you tokens and time — almost everything you'd normally build and integrate before the real work is already done. A preview is always in your admin panel, and the same version lives at your main address.</t>
+  </section>
+
+  <section name="doublePresentation">
+    <t id="dpHeader.label" type="eyebrow">Production AI Development</t>
+    <t id="dpHeader.h2" type="h2">Production AI Coding: Hermes + LightRAG + 5 Platforms</t>
+    <t id="dpHeader.description" type="p">Production AI development happens entirely in your browser, from the first second. No VS Code. No local environment to configure. No database to spin up. No domain to wire. No deployment pipeline to debug. You open a tab — your server is already live, your domain is already registered, your database is already running, and five coding platforms wait for your first voice command. This is not just a tool for developers — this is the moment anyone with an idea can build, ship, and scale a real product without leaving the browser.</t>
+    <t id="dpLeft.title" type="h3">AI Coding in Browser</t>
+    <t id="dpLeft.description" type="card-text">Open a tab, speak your intent, watch code appear. No IDE, no local setup. Five coding platforms run directly in your browser — terminals included.</t>
+    <t id="dpRight.title" type="h3">Live in Production. Instantly.</t>
+    <t id="dpRight.description" type="card-text">Your server launches in seconds. One click deploys your changes live. No CI pipeline, no hosting configuration — just ship.</t>
+    <t id="featureItems[0].title" type="card-title">Zero to Production</t>
+    <t id="featureItems[0].text" type="card-text">Your VPS, domain, auth, database, and five AI platforms — live in 10 minutes. No cloud accounts to set up. No infrastructure decisions to make.</t>
+    <t id="featureItems[1].title" type="card-title">Exit the Cloud</t>
+    <t id="featureItems[1].text" type="card-text">No Clerk. No Supabase. No Vercel. Auth, storage, and database run on your own server — one bill, one place, full ownership.</t>
+    <t id="featureItems[2].title" type="card-title">Any Device, Full Speed</t>
+    <t id="featureItems[2].text" type="card-text">All computation runs on your VPS. Build from a laptop, tablet, or phone without hitting hardware limits.</t>
+    <t id="featureItems[3].title" type="card-title">Ship 10× Faster</t>
+    <t id="featureItems[3].text" type="card-text">AI skips months of scaffolding. Production-grade starters mean your first feature ships in hours, not weeks.</t>
+  </section>
+
+  <section name="platforms">
+    <t id="platformsHeader.label" type="eyebrow">AI Platforms</t>
+    <t id="platformsHeader.h2" type="h2">Core AI Generation Engine: Five Platforms, One Environment</t>
+    <t id="platformsHeader.description" type="p">No API keys. No local setup. All five coding platforms run on your server with full terminal access and persistent LightRAG memory.</t>
+    <t id="platformsHeader.disclaimer" type="note">* The project runs on your own subscriptions to the AI platforms — Fractera does not charge any additional fees or commissions for their use. You are free to connect one, several, or all five platforms — at your own discretion.</t>
+    <t id="platformCards[0].title" type="card-title">Claude Code</t>
+    <t id="platformCards[0].subtitle" type="card-text">Writes, runs, and fixes code in your terminal. The gold standard for AI-assisted development workflows.</t>
+    <t id="platformCards[0].company" type="card-meta">Anthropic</t>
+    <t id="platformCards[1].title" type="card-title">Codex</t>
+    <t id="platformCards[1].subtitle" type="card-text">Browser-native coding agent. Full project context, no terminal required.</t>
+    <t id="platformCards[1].company" type="card-meta">OpenAI</t>
+    <t id="platformCards[2].title" type="card-title">Gemini CLI</t>
+    <t id="platformCards[2].subtitle" type="card-text">Long-context coding agent. Understands your entire project structure in one prompt.</t>
+    <t id="platformCards[2].company" type="card-meta">Google</t>
+    <t id="platformCards[3].title" type="card-title">Qwen Code</t>
+    <t id="platformCards[3].subtitle" type="card-text">Open-source coding agent. No subscription lock-in — powerful and free.</t>
+    <t id="platformCards[3].company" type="card-meta">Alibaba</t>
+    <t id="platformCards[4].title" type="card-title">Kimi Code</t>
+    <t id="platformCards[4].subtitle" type="card-text">Context-first model for large codebases. Excellent for refactoring and architecture work.</t>
+    <t id="platformCards[4].company" type="card-meta">Moonshot</t>
+    <t id="platformCards[5].title" type="card-title">LightRAG</t>
+    <t id="platformCards[5].subtitle" type="card-text">Your company brain. Persistent vector memory shared across all five coding platforms.</t>
+    <t id="platformCards[5].company" type="card-meta">Fractera</t>
+  </section>
+
+  <section name="problem">
+    <t id="problemHeader.label" type="eyebrow">Why it matters</t>
+    <t id="problemHeader.h2" type="h2">The Hidden Costs of Fragmented AI Development Stacks</t>
+    <t id="problemHeader.description" type="p">Modern AI development stacks are fragile, expensive, and forgetful. Here is what that costs you in practice.</t>
+    <t id="problemLabel" type="label">The problem</t>
+    <t id="solutionLabel" type="label">How Fractera solves it</t>
+    <t id="problemItems[0].title" type="h3">Unpredictable Cloud Costs</t>
+    <t id="problemItems[0].problem" type="card-text">Auth, storage, database, email — each service bills separately and scales with traffic. Free becomes paid, paid scales with load. Miss one payment and your live product goes dark.</t>
+    <t id="problemItems[0].solution" type="card-text">Fractera runs auth, databases, and storage on one server. One subscription, one bill. Cost does not scale with your users. Pause the business — your data stays safe.</t>
+    <t id="problemItems[1].title" type="h3">AI Loses Context Every Session</t>
+    <t id="problemItems[1].problem" type="card-text">Without persistent memory, every session starts from scratch. Tokens spent on "where is the navbar?" are tokens not spent on your feature. Two messages become fifteen.</t>
+    <t id="problemItems[1].solution" type="card-text">Fractera includes LightRAG — a persistent vector store that remembers your codebase and every architectural decision. Switch between Claude Code, Gemini CLI, or Codex without losing the thread.</t>
+    <t id="problemItems[2].title" type="h3">Too Many Single Points of Failure</t>
+    <t id="problemItems[2].problem" type="card-text">Ten services mean ten billing cycles, ten dashboards, ten places something can break. One service quietly expires — you do not know which one caused the white screen.</t>
+    <t id="problemItems[2].solution" type="card-text">Everything your application needs lives on one server. Code stays on GitHub — recovery is always possible. Built-in AI assistants can rebuild the project even with outdated packages.</t>
+    <t id="problemItems[3].title" type="h3">Your Hardware Limits Your Output</t>
+    <t id="problemItems[3].problem" type="card-text">Persistent memory, autonomous agents, five platforms in parallel — it pushes your machine hard. Performance drops the moment you open another tab. Not everyone has a dedicated GPU workstation.</t>
+    <t id="problemItems[3].solution" type="card-text">With Fractera your device carries zero load. All computation runs on your VPS. Scale cores and RAM when needed. Works on a laptop, tablet, or phone.</t>
+    <t id="problemItems[4].title" type="h3">Your Data on Their Servers</t>
+    <t id="problemItems[4].problem" type="card-text">Host on Vercel, store in Supabase, authenticate via Clerk — your business data sits on their infrastructure. One pricing change or one outage and your product goes down.</t>
+    <t id="problemItems[4].solution" type="card-text">Fractera moves auth, database, storage, and AI memory to a server you own. No third-party access to your data. No dependency on their uptime, their pricing, or their terms.</t>
+  </section>
+
+  <section name="features">
+    <t id="featuresHeader.label" type="eyebrow">What's included</t>
+    <t id="featuresHeader.h2" type="h2">Production-Ready Full-Stack Engineering Features</t>
+    <t id="featuresHeader.description" type="p">Fractera Light covers 90% of what a professional application needs. Fractera Pro unlocks the remaining 10%.</t>
+    <t id="featureList[0].title" type="h3">Hermes AI Agents</t>
+    <t id="featureList[0].description" type="card-text">Fully configured agents with self-learning memory. The most powerful AI technology available in seconds — not hours of setup.</t>
+    <t id="featureList[0].badge" type="tag">For all users</t>
+    <t id="featureList[1].title" type="h3">Voice AI Commands</t>
+    <t id="featureList[1].description" type="card-text">Issue coding commands and navigate content hands-free via microphone. Agents respond to natural voice input in real time.</t>
+    <t id="featureList[1].badge" type="tag">For all users</t>
+    <t id="featureList[2].title" type="h3">Auth Stack Built-in</t>
+    <t id="featureList[2].description" type="card-text">Google OAuth, magic-link via Resend, and Credentials — all pre-configured with role management and enterprise sessions.</t>
+    <t id="featureList[2].badge" type="tag">For all users</t>
+    <t id="featureList[3].title" type="h3">Database &amp; Storage</t>
+    <t id="featureList[3].description" type="card-text">SQLite with WAL mode, object file storage, and media service included. Scales with your project without extra subscriptions.</t>
+    <t id="featureList[3].badge" type="tag">For all users</t>
+    <t id="featureList[4].title" type="h3">Backups &amp; Restore</t>
+    <t id="featureList[4].description" type="card-text">Snapshot your database and object storage at any moment, then upload the archive to restore your project or clone it into a new one.</t>
+    <t id="featureList[4].badge" type="tag">For all users</t>
+    <t id="featureList[5].title" type="h3">GitHub &amp; Dev Workflow</t>
+    <t id="featureList[5].description" type="card-text">GitHub sync, production coding and local development unified. Push, pull, and deploy directly from the admin panel in one click.</t>
+    <t id="featureList[5].badge" type="tag">For all users</t>
+    <t id="featureList[6].title" type="h3">Platforms in 50ms</t>
+    <t id="featureList[6].description" type="card-text">All five coding platforms preconfigured and ready to use. LightRAG global memory initialized on first start. Zero setup time.</t>
+    <t id="featureList[6].badge" type="tag">For all users</t>
+    <t id="featureList[7].title" type="h3">Skills Marketplace</t>
+    <t id="featureList[7].description" type="card-text">Discover, buy, and sell automation workflows in the community library. Share free skills or monetise your own recipes.</t>
+    <t id="featureList[7].badge" type="tag">For all users</t>
+    <t id="featureList[8].title" type="h3">SEO, PWA &amp; i18n</t>
+    <t id="featureList[8].description" type="card-text">Production-grade SEO, Progressive Web App support, and multi-language routing — all configured before your first user arrives.</t>
+    <t id="featureList[8].badge" type="tag">For VIP sponsors</t>
+    <t id="featureList[9].title" type="h3">Element Highlighting</t>
+    <t id="featureList[9].description" type="card-text">Click any UI element to capture its exact identifier. Communicate precise changes to the AI — fewer tokens, faster iterations.</t>
+    <t id="featureList[9].badge" type="tag">For VIP sponsors</t>
+    <t id="featureList[10].title" type="h3">Parallel Routing</t>
+    <t id="featureList[10].description" type="card-text">Up to 11 parallel routing slots with static SEO: tabs within one window update each other's state with no page reload at all.</t>
+    <t id="featureList[10].badge" type="tag">For VIP sponsors</t>
+    <t id="featureList[11].title" type="h3">Ready-made Sections</t>
+    <t id="featureList[11].description" type="card-text">Prebuilt page blocks cut token spend many times over: header, footer, AI, tools, advanced SEO architecture and a design platform.</t>
+    <t id="featureList[11].badge" type="tag">For VIP sponsors</t>
+  </section>
+
+  <section name="promo">
+    <t id="promoSection.h2" type="h2">Fork and Build a Custom White-Label AI Platform</t>
+    <t id="promoSection.description" type="p">Fractera is fully open source. Anyone can fork the GitHub repository, self-host their own instance, and build products with AI development tools — at minimum for themselves, at maximum to launch a business: deploy servers for clients and provide consulting services.</t>
+    <t id="promoSection.githubButton" type="button">View on GitHub</t>
+  </section>
+
+  <section name="sponsorship">
+    <t id="sponsorship.label" type="eyebrow">Support the project</t>
+    <t id="sponsorship.h2" type="h2">Become a sponsor — keep Fractera free and open</t>
+    <t id="sponsorship.body[0]" type="p">This project is built by one person. Many exciting features are still ahead — and your support keeps the lights on.</t>
+    <t id="sponsorship.body[1]" type="p">If you have the means to help, your name will appear on the «Sponsors» tab of our project here and on GitHub.</t>
+    <t id="sponsorship.tiers[0].sublabel" type="card-text">Coffee tier — every dollar counts</t>
+    <t id="sponsorship.tiers[0].perks[0]" type="li">Your email listed on the Sponsors page (here and on GitHub)</t>
+    <t id="sponsorship.tiers[0].perks[1]" type="li">A direct line to submit feature requests</t>
+    <t id="sponsorship.tiers[1].sublabel" type="card-text">Supporter — fuel the roadmap</t>
+    <t id="sponsorship.tiers[1].badge" type="tag">POPULAR</t>
+    <t id="sponsorship.tiers[1].perks[0]" type="li">Access to the private sponsors-only Telegram group</t>
+    <t id="sponsorship.tiers[1].perks[1]" type="li">Instructions to remove the "Powered by Fractera" white-label badge</t>
+    <t id="sponsorship.tiers[2].sublabel" type="card-text">Champion — featured on Sponsors page</t>
+    <t id="sponsorship.tiers[2].perks[0]" type="li">Personal one-on-one access to the founder</t>
+    <t id="sponsorship.tiers[2].perks[1]" type="li">Access to all VIP features and skills — Fractera Pro</t>
+    <t id="sponsorship.ourSponsorsLabel" type="label">Our sponsors</t>
+    <t id="sponsorship.ourSponsorsLink" type="link-label">See everyone who supports Fractera →</t>
+  </section>
+
+  <section name="faq">
+    <t id="faqHeader.label" type="eyebrow">FAQ</t>
+    <t id="faqHeader.h2" type="h2">Fractera Technical Architecture FAQ</t>
+    <t id="faqHeader.description" type="p">Everything you need to know before getting started.</t>
+
+    <t id="faqItems[0].q" type="faq-question">Why does Hermes reduce development costs rather than increase them?</t>
+    <t id="faqItems[0].a[0]" type="faq-answer">There is a widespread belief that an orchestration layer like Hermes is wasteful — that it is better to talk directly to a coding model and skip the middleman. We disagree completely, and here is exactly why.</t>
+    <t id="faqItems[0].a[1]" type="faq-answer">The real cost driver in AI-assisted development is not the number of requests — it is context window inflation. Every message in a direct coding session appends to the running context. After two or three hours on a typical project, the context is carrying the full transcript of the session. Most providers charge for both input and output tokens, and because every new message pays for everything before it, costs grow faster than linearly. Real-world data shows a Claude Code session on a mid-size project in hour three costs five to ten times what it cost in the first fifteen minutes. When you forget to manage the context window yourself — and everyone forgets eventually — that cost compounds.</t>
+    <t id="faqItems[0].a[2]" type="faq-answer">Hermes is the external observer that prevents this from happening. It runs on inexpensive models (gpt-5-mini, qwen-turbo, and similar) that cost twenty to fifty times less than frontier coding models. These models do not need sophisticated reasoning — they read a spec, extract what matters, route a task, and immediately clear the context before the next call. That is exactly the work they are suited for.</t>
+    <t id="faqItems[0].bullets[0]" type="li">LightRAG eliminates session amnesia — without persistent memory, every new session spends the first 10–30% of its tokens re-explaining the project from scratch. LightRAG stores architecture, patterns, anti-patterns, and decisions, so the actual coding prompt can be laser-focused from the first word.</t>
+    <t id="faqItems[0].bullets[1]" type="li">Precise task specs from context — instead of a vague "build a dashboard", Hermes reads LightRAG and generates: "In app/dashboard/page.tsx, add a component using the Card pattern from components/ui/card.tsx, following the auth pattern from lib/auth.ts." This alone eliminates several back-and-forth exchanges per task.</t>
+    <t id="faqItems[0].bullets[2]" type="li">Immediate context clearing — after each task completes, Hermes clears the coding model's context. The next task starts with a clean slate, not carrying the entire previous conversation.</t>
+    <t id="faqItems[0].bullets[3]" type="li">Intelligent routing between models — simple tasks (documentation, refactoring, file renaming) go to cheap or free models. Complex architectural decisions go to frontier models. You pay frontier prices only for frontier work.</t>
+    <t id="faqItems[0].bullets[4]" type="li">Pattern and anti-pattern tracking — Hermes knows what approaches have worked in your project and which ones caused problems. It does not let the coding model re-discover the same dead ends.</t>
+    <t id="faqItems[0].trail[0]" type="faq-answer">This is only the surface. The deeper value is in what Hermes prevents: redundant searches for components that already exist, re-solving problems that were solved last week, sending the same context to five models in parallel when one focused call would do. Every one of those is a token cost that never appears on your invoice because it never happened.</t>
+    <t id="faqItems[0].trail[1]" type="faq-answer">We believe the future of efficient AI-assisted development is not about squeezing more out of a single model — it is about a system that knows your project well enough to ask the right model the right question at the right moment, and stop before it becomes expensive. That system is Hermes, and it is at the core of what Fractera is building.</t>
+
+    <t id="faqItems[1].q" type="faq-question">The same AI platforms — yet Fractera ships faster with fewer tokens. Why?</t>
+    <t id="faqItems[1].a[0]" type="faq-answer">Regular vibe coding puts all the heavy lifting on the AI: design the architecture, write boilerplate, locate the right component, recall what was decided last session. Every token spent on that overhead is a token not spent on your actual feature.</t>
+    <t id="faqItems[1].a[1]" type="faq-answer">Fractera eliminates that overhead at every layer:</t>
+    <t id="faqItems[1].bullets[0]" type="li">Production-ready starters — Auth, database, file storage, and advanced routing ship fully pre-configured. The AI skips months of scaffolding and goes straight to your feature from day one.</t>
+    <t id="faqItems[1].bullets[1]" type="li">Component highlighting — Click any element on your live site to jump directly to its source. No tokens wasted asking "where is the navbar?".</t>
+    <t id="faqItems[1].bullets[2]" type="li">LightRAG, your company brain — A persistent vector store that remembers your entire codebase, every architectural decision, and domain knowledge. Every AI message arrives with full context.</t>
+    <t id="faqItems[1].bullets[3]" type="li">AI-optimized skills &amp; instructions — Pre-built prompts and workflows designed for non-professional developers. The right approach on the first try.</t>
+    <t id="faqItems[1].bullets[4]" type="li">Cross-platform orchestration — LightRAG coordinates all five coding platforms so they share context. Switching from Claude Code to Gemini CLI doesn't mean losing the thread.</t>
+    <t id="faqItems[1].trail[0]" type="faq-answer">The result: tasks that take 10–20 back-and-forth messages in a vanilla AI chat typically resolve in 2–3 focused exchanges inside Fractera.</t>
+    <t id="faqItems[1].trail[1]" type="faq-answer">This is Fractera Pro. And once you've tried it, there's no going back to plain vibe coding.</t>
+
+    <t id="faqItems[2].q" type="faq-question">How does Fractera keep your business stable?</t>
+    <t id="faqItems[2].a[0]" type="faq-answer">Modern web development has a tempting formula: combine a handful of "free" services — Clerk for auth, Supabase for your database, a dozen other cloud APIs. It looks great on day one.</t>
+    <t id="faqItems[2].a[1]" type="faq-answer">The problems surface when your prototype becomes a real business. Each service quietly updates its pricing. What starts as free becomes a paid tier that scales with traffic.</t>
+    <t id="faqItems[2].a[2]" type="faq-answer">Worse: ten billing cycles to track. Miss one and your project goes dark. No warning, no grace period. Partners who switched to Fractera often share this story: a live project lost because one service expired. By the time they figured it out, the reputation damage was done.</t>
+    <t id="faqItems[2].a[3]" type="faq-answer">Fractera is built around a different principle: everything your business needs — authentication, databases, media storage — lives on your server, not spread across a dozen cloud dashboards.</t>
+    <t id="faqItems[2].bullets[0]" type="li">One subscription, one server — cost does not scale with your users.</t>
+    <t id="faqItems[2].bullets[1]" type="li">If you pause your business, your data does not disappear. Back it up and restore when you're ready.</t>
+    <t id="faqItems[2].bullets[2]" type="li">Your application code lives on GitHub — recovery is always possible, even if dependencies have aged.</t>
+    <t id="faqItems[2].bullets[3]" type="li">Built-in AI systems can help rebuild the project even when some packages are outdated.</t>
+    <t id="faqItems[2].trail[0]" type="faq-answer">One server. One bill. Maximum resilience — whether you are running one project or ten.</t>
+
+    <t id="faqItems[3].q" type="faq-question">Do I pay per token for the AI, or use my own subscription?</t>
+    <t id="faqItems[3].a[0]" type="faq-answer">You use your own subscriptions — that is the whole point. The five coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code) run on the subscriptions you already have: you sign in once with your normal account, like a local CLI. No API keys to manage, no per-token billing surprises. This is where the heavy AI work happens, and it costs you nothing beyond the subscription you already pay the AI vendor.</t>
+    <t id="faqItems[3].a[1]" type="faq-answer">The only per-token piece is small and auxiliary: Brain (Hermes) and Memory (LightRAG) use one inexpensive OpenAI API key — the cheap gpt-5-mini runs at roughly a cent per hour and is plenty to get going. If your Brain usage grows heavy, you can switch it to a Codex subscription instead.</t>
+    <t id="faqItems[3].bullets[0]" type="li">Coding platforms (Claude Code, Codex, Gemini, Qwen, Kimi) — your existing subscriptions, no per-token billing.</t>
+    <t id="faqItems[3].bullets[1]" type="li">Brain + Memory — one small OpenAI key (gpt-5-mini, ~1¢/hour), or a Codex subscription if heavy.</t>
+    <t id="faqItems[3].bullets[2]" type="li">So a Claude Code user pays through their subscription, not per token.</t>
+
+    <t id="faqItems[4].q" type="faq-question">What server specs do I need?</t>
+    <t id="faqItems[4].a[0]" type="faq-answer">For full AI-coding workloads, the recommended minimum is 6 cores and 8 GB RAM. Storage depends on your project — 75 GB is a solid baseline.</t>
+    <t id="faqItems[4].a[1]" type="faq-answer">Once active AI development wraps up, you can downgrade to 2 cores / 4 GB RAM — typically €1–2 per month.</t>
+
+    <t id="faqItems[5].q" type="faq-question">Step by step — what does the full path from buying a server to monetizing my product look like?</t>
+    <t id="faqItems[5].a[0]" type="faq-answer">The complete cycle: from an empty VPS to a live product on the marketplace. Under 30 minutes to launch, everything after that runs at your development pace.</t>
+    <t id="faqItems[5].steps[0]" type="li">Buy a VPS from Contabo (our recommended provider). Receive your IP address, login, and password.</t>
+    <t id="faqItems[5].steps[1]" type="li">On the "Your Server" tab, enter those credentials and launch the deployment. Watch real-time events for a few minutes. Two emails arrive: one when installation starts, another when it completes.</t>
+    <t id="faqItems[5].steps[2]" type="li">Your dashboard sits in the top-right corner — click your name after signing in. Inside you will find direct links to your live site and admin panel. The same links arrive in your completion email.</t>
+    <t id="faqItems[5].steps[3]" type="li">Sign up in the admin panel with a real email and password (save them carefully). The first user becomes the administrator — only admins can change settings. You can promote more admins later.</t>
+    <t id="faqItems[5].steps[4]" type="li">Have your own domain? Open "Settings", enter the domain name, copy the A-record. Set it at your DNS provider — and it works immediately.</t>
+    <t id="faqItems[5].steps[5]" type="li">Authorize one or more coding platforms (Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code). Codex is recommended as the channel for working through Hermes. Authorization is standard browser-based, just like in a local CLI. One-time setup.</t>
+    <t id="faqItems[5].steps[6]" type="li">Open Hermes and configure it your way. Add a messenger channel, or use the chat directly in the admin panel.</t>
+    <t id="faqItems[5].steps[7]" type="li">Tell Hermes what to change or what to generate. For example: "Let Claude do this and Codex do that" — both run in parallel through Hermes orchestration.</t>
+    <t id="faqItems[5].steps[8]" type="li">Upload documents (requirements, business description, any reference material) to your Company Brain — powered by LightRAG — manually, or ask Hermes to automate your data ingestion.</t>
+    <t id="faqItems[5].steps[9]" type="li">Want to accelerate? Ask Hermes to find a ready-made solution from the Fractera skills marketplace.</t>
+    <t id="faqItems[5].steps[10]" type="li">Your domain is live from minute one. After every development cycle, the site updates automatically — no manual deploy step.</t>
+    <t id="faqItems[5].steps[11]" type="li">Finished a project? Ask Hermes to turn it into a skill and publish it on the marketplace. Set a price, sell it, earn.</t>
+    <t id="faqItems[5].trail[0]" type="faq-answer">This loop repeats as many times as you want. Every product stays yours — on your server, under your domain, your code, your data, your subscriptions.</t>
+
+    <t id="faqItems[6].q" type="faq-question">Roadmap &amp; vision: where is Fractera headed?</t>
+    <t id="faqItems[6].a[0]" type="faq-answer">When you start a business for the first time, almost everything around you is unfamiliar. Registering the company, opening a bank account, standing up a website and social profiles, streamlining production, finding traffic, balancing the unit economics, and finally scaling. An AI agent helps at every step — but it is not a single "do it all" button: it is a road you cannot walk in a day, or even a month.</t>
+    <t id="faqItems[6].a[1]" type="faq-answer">Along that road the AI keeps proposing solutions. Some turn out right, some wrong; some save you money, some waste it, and once in a while income appears out of nowhere. Until now, this priceless zero-to-product experience lived only in your head. Now it can be digitized.</t>
+    <t id="faqItems[6].a[2]" type="faq-answer">And this is nothing like reading a book or running through a checklist. The AI that solved every task alongside you, listened to your conversations, prepared your presentations — can assemble not a step-by-step manual but a living knowledge base. Not yes/no, but the complex conditional logic of decisions that modern AI can analyze and carry over — even to a different region, with different inputs and a different outcome.</t>
+    <t id="faqItems[6].a[3]" type="faq-answer">So whoever is lucky enough to buy your digitized experience walks the same road faster and with far fewer mistakes. Admit it — you would want to be in their place too: to save years of your life and not pay for someone else's mistakes with your own money.</t>
+    <t id="faqItems[6].bullets[0]" type="li">More than a book — a book gives one route; the loop remembers the forks.</t>
+    <t id="faqItems[6].bullets[1]" type="li">More than a checklist — a checklist answers yes/no; the loop reasons in context.</t>
+    <t id="faqItems[6].bullets[2]" type="li">More than a course — a course teaches in general; the loop knows your exact path.</t>
+    <t id="faqItems[6].trail[0]" type="faq-answer">This is what we call the product loop — and it is the product we want to build in the near future.</t>
+    <t id="faqItems[6].trail[1]" type="faq-answer">Already have experience, or a company of your own? Want to digitize your current business — or your next one? Become a project sponsor: you join a private Telegram group where you can talk to the founder directly and be first to shape what our core service becomes — the product loop and its skill marketplace.</t>
+    <t id="faqItems[6].trail[2]" type="faq-answer">Stay with us — we will build it together.</t>
+    <t id="faqItems[6].cta.label" type="button">Become a project sponsor</t>
+
+    <t id="faqItems[7].q" type="faq-question">Can I bring my existing project into Fractera and continue AI-assisted development?</t>
+    <t id="faqItems[7].a[0]" type="faq-answer">Yes. Connect your existing GitHub repository to your Fractera workspace and start coding with AI immediately. Depending on your project's complexity, some initial migration steps may be needed — Fractera's built-in AI assistants can guide you through.</t>
+
+    <t id="faqItems[8].q" type="faq-question">Can I deploy a finished project to Vercel instead of keeping it on my own server?</t>
+    <t id="faqItems[8].a[0]" type="faq-answer">Yes — once a project is complete and no longer needs active AI-assisted development, you can export it to Vercel.</t>
+    <t id="faqItems[8].a[1]" type="faq-answer">Important: moving to Vercel means leaving the Fractera environment behind. The AI coding workspace, terminal access, LightRAG memory, and all five development platforms only run on your own server.</t>
+    <t id="faqItems[8].a[2]" type="faq-answer">Also keep in mind that Vercel and cloud storage pricing can escalate quickly under real-world traffic. Migrating back to a self-hosted Fractera server is straightforward — your code is already on GitHub.</t>
+
+    <t id="faqItems[9].q" type="faq-question">Can I deploy a regular project without AI?</t>
+    <t id="faqItems[9].a[0]" type="faq-answer">Yes — you can deploy a plain server with no AI at all. It is a common, deliberate choice, especially among experienced developers who want to offload the work of managing cloud resources and avoid DevOps overhead.</t>
+    <t id="faqItems[9].a[1]" type="faq-answer">A server like this can be used at any time, synced with your home or work IDE (for example, Visual Studio Code), or simply to host and run your existing projects on infrastructure you control.</t>
+    <t id="faqItems[9].bullets[0]" type="li">Optional authentication — turn it on whenever you need it.</t>
+    <t id="faqItems[9].bullets[1]" type="li">Local database and object storage (for example, media) — included, with no cloud subscriptions.</t>
+    <t id="faqItems[9].bullets[2]" type="li">Freedom from cloud lock-in — meet regulatory or internal-policy requirements and avoid surprise bills.</t>
+    <t id="faqItems[9].trail[0]" type="faq-answer">A plain server like this needs only a lighter, more economical VPS. During deployment, switch to custom mode and tell us which services you want.</t>
+    <t id="faqItems[9].trail[1]" type="faq-answer">Don't worry if you turn off something you might need later — you can always add any recommended or custom AI tool through the terminal built into your admin panel.</t>
+
+    <t id="faqItems[10].q" type="faq-question">Do I need a Claude Code subscription to deploy via the MCP connector?</t>
+    <t id="faqItems[10].a[0]" type="faq-answer">Not necessarily. If the Fractera connector is your only custom MCP, you can use it on the free tier and get the full deployment service — no subscription required.</t>
+    <t id="faqItems[10].a[1]" type="faq-answer">The condition is that you have not added another primary or custom MCP. If you already use a different custom MCP, you have two options: remove it before adding the Fractera connector, or move to a paid Claude plan (for example, Claude Pro, around €20/month), which lets you keep several custom connectors at once. Note this is Anthropic's own plan for the connector — it is unrelated to Fractera, which is always free.</t>
+
+    <t id="faqItems[11].q" type="faq-question">Can I combine local development with the Fractera production platform?</t>
+    <t id="faqItems[11].a[0]" type="faq-answer">Yes — and for developers with an existing local setup, this is often the most natural workflow.</t>
+    <t id="faqItems[11].a[1]" type="faq-answer">If you prefer working with hot reload in your IDE, you don't have to change your habits:</t>
+    <t id="faqItems[11].steps[0]" type="li">After setting up your Fractera project, connect it to a GitHub repository and push the initial codebase.</t>
+    <t id="faqItems[11].steps[1]" type="li">Pull the code to your local machine. Develop the way you always have — your IDE, hot reload.</t>
+    <t id="faqItems[11].steps[2]" type="li">When ready to ship, push your changes to GitHub.</t>
+    <t id="faqItems[11].steps[3]" type="li">Return to your Fractera workspace, pull from GitHub, and hit Deploy.</t>
+    <t id="faqItems[11].trail[0]" type="faq-answer">Your changes go live in production in minutes. In effect, your own server becomes a self-hosted alternative to Vercel: GitHub is the bridge between your local environment and production.</t>
+    <t id="faqItems[11].trail[1]" type="faq-answer">Your local environment will continue to use the database and file storage that live on your server — no cloud subscriptions required.</t>
+
+    <t id="faqItems[12].q" type="faq-question">Do you have a referral program?</t>
+    <t id="faqItems[12].a[0]" type="faq-answer">Yes — the Fractera Partner Program. The model is simple and provider-agnostic: you recommend Fractera deployment, your readers buy a VPS from any host with an affiliate program, the host pays you directly.</t>
+    <t id="faqItems[12].a[1]" type="faq-answer">Fractera doesn't pick the provider for you and doesn't restrict your choice. You decide who to work with: Hetzner, DigitalOcean, Vultr, Hostinger, RuVDS, Timeweb, Contabo — dozens of hosts run affiliate programs. Direct programs (RuVDS, Timeweb, Hostinger) approve in a day and pay up to 30–40% of the customer's first payment. Affiliate-network programs (Contabo via CJ.com, others via Admitad) pay a fixed amount per new customer but take a few days to approve.</t>
+    <t id="faqItems[12].a[2]" type="faq-answer">The Fractera cabinet works with any affiliate link — we provide the infrastructure (mirror page, embed widget, MCP, cabinet), the host pays the commission.</t>
+    <t id="faqItems[12].trail[0]" type="faq-answer">For questions: admin@fractera.ai</t>
+    <t id="faqItems[12].cta.label" type="button">Open the Partners page</t>
+
+    <t id="faqItems[13].q" type="faq-question">How do I earn with Fractera?</t>
+    <t id="faqItems[13].a[0]" type="faq-answer">Your income from partnership is closer and simpler than you might imagine. One approval at any hosting provider, then passive payouts for as long as your content keeps bringing readers.</t>
+    <t id="faqItems[13].steps[0]" type="li">Pick a host with an affiliate program. Direct programs are faster: apply on the provider's own site (Hetzner, RuVDS, Timeweb, Hostinger and others each have their own affiliate cabinet). Affiliate networks (CJ.com for Contabo, Admitad for several providers) are slower but unlock a catalogue of 3000+ brands through a single registration.</t>
+    <t id="faqItems[13].steps[1]" type="li">Get your affiliate link once approved by the provider.</t>
+    <t id="faqItems[13].steps[2]" type="li">Open the Fractera partners page, create your partner cabinet, add your affiliate link (or multiple links from different providers — the cabinet supports several at once).</t>
+    <t id="faqItems[13].steps[3]" type="li">Receive your personal Fractera landing mirror, an embed widget for your blog, and a single MCP link for AI agents. Your links replace the defaults in the "Where to buy a VPS" block.</t>
+    <t id="faqItems[13].steps[4]" type="li">Recommend Fractera in your blog, YouTube channel, social posts — wherever developers and entrepreneurs gather.</t>
+    <t id="faqItems[13].steps[5]" type="li">Any visitor who follows your link and buys a server from a partner host triggers a payout. Amount depends on the provider: direct programs pay up to 30-40% of the first payment, networks pay a fixed amount (Contabo: 20-55 € depending on configuration). The host pays you directly — Fractera is never in the middle.</t>
+    <t id="faqItems[13].trail[0]" type="faq-answer">The math is simple: one approval at one provider, then passive payouts for as long as your article, post, or video keeps bringing traffic. Hosts compete hard for new customers — and you get rewarded for every one you bring in.</t>
+    <t id="faqItems[13].cta.label" type="button">Open the Partners page</t>
+
+    <t id="faqItems[14].q" type="faq-question">Are you looking for regional partners?</t>
+    <t id="faqItems[14].a[0]" type="faq-answer">Yes — and this is a different kind of opportunity. We are looking for official regional partners to build localized versions of Fractera together: adapted for local regulations, delivered in the native language of the region, backed by people who understand the local market from the inside.</t>
+    <t id="faqItems[14].a[1]" type="faq-answer">This is not a reseller arrangement. A regional partnership means your own branded product, your own customer base, your own revenue stream — on an open-source foundation that is already production-ready. The infrastructure is built. What a regional partner brings is market knowledge, local trust, and the ability to serve customers in ways a remote team cannot.</t>
+    <t id="faqItems[14].bullets[0]" type="li">Regulatory alignment — help your region meet local data residency and compliance requirements.</t>
+    <t id="faqItems[14].bullets[1]" type="li">Native-language support — technical support and documentation in the language of your customers.</t>
+    <t id="faqItems[14].bullets[2]" type="li">Your own business — not a franchise, a co-venture with full transparency into the product.</t>
+    <t id="faqItems[14].cta.label" type="button">Regional Partners</t>
+  </section>
+
+  <section name="testimonial">
+    <t id="testimonial.blogButton" type="button">Blog</t>
+    <t id="testimonial.docsButton" type="button">Documentation</t>
+    <t id="testimonial.casesButton" type="button">Student Cases</t>
+    <t id="testimonial.marketplaceButton" type="button">Fractera Marketplace</t>
+  </section>
+
+</homepage>

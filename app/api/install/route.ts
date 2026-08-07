@@ -7,7 +7,7 @@ import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
-import { isFrameworkId, resolveSlotRepoUrl, DEFAULT_FRAMEWORK } from '@/lib/frameworks-catalog'
+import { resolveSlotRepoUrl, SLOT_FRAMEWORK_ID } from '@/lib/frameworks-catalog'
 
 export const maxDuration = 300
 
@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
   // into the slot: own-repo → the user's URL; a preset (e.g. next) → its catalog repo;
   // fractera-pro → '' (no clone → keep the cloned reference app). Threaded into
   // deployToServer, which sanitizes + env-passes to bootstrap. Default stays byte-identical.
-  const slotFramework = isFrameworkId(framework) ? framework : DEFAULT_FRAMEWORK
-  const slotRepoUrl = resolveSlotRepoUrl(slotFramework, typeof repoUrl === 'string' ? repoUrl : undefined)
+  const slotFramework = SLOT_FRAMEWORK_ID
+  const slotRepoUrl = resolveSlotRepoUrl()
 
   // Selective install (S2). The form sends `components` ONLY in custom mode:
   //   - absent/undefined → full install (componentsArg stays undefined → bootstrap installs all)

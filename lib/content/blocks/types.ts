@@ -21,7 +21,6 @@ export type LeafBlock =
   | { kind: 'code'; text: string }
   | { kind: 'cta'; text: string; href: string; label: string }
   | { kind: 'note'; text: string }
-  | { kind: 'frameworks' }
   // Founder pull-quote in the homepage testimonial design (gradient-violet text +
   // author photo/name/role + social links). Author defaults to the site founder.
   | { kind: 'founder'; text: string }

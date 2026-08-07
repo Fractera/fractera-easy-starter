@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import type { Block } from './types'
 import type { PostBodyUi } from '@/lib/content/post-body-ui'
 import { inline, headingId } from './inline'
-import { InlineFrameworkGrid } from '@/components/inline-framework-grid'
 import { CompanyBrainInquiryCta } from '@/components/company-brain-inquiry-cta'
 import { AUTHOR, AUTHOR_SOCIAL_LINKS } from '@/lib/author'
 
@@ -111,7 +110,6 @@ export const BLOCK_RENDERERS: BlockRenderers = {
       {inline(b.text, k)}
     </p>
   ),
-  frameworks: (_b, { key: k, lang }) => <InlineFrameworkGrid key={k} lang={lang} />,
   inquiry: (b, { key: k, lang }) => (
     <CompanyBrainInquiryCta key={k} lang={lang} title={b.title} text={b.text} label={b.label} />
   ),

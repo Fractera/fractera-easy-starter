@@ -9,7 +9,6 @@ import { LoopShowcase } from '@/components/sections/loop-showcase'
 import { DoublePresentation } from '@/components/sections/double-presentation'
 import { PlatformsGrid } from '@/components/sections/platforms-grid'
 import { ProblemSection } from '@/components/sections/problem-section'
-import { ConnectFramework } from '@/components/sections/connect-framework'
 import { FeaturesGrid } from '@/components/sections/features-grid'
 import { FractеraPromo } from '@/components/sections/fractera-promo'
 import { FaqSection } from '@/components/sections/faq-section'
@@ -83,8 +82,6 @@ export default async function HomePage({
               <div id="ai-coding" className="w-full scroll-mt-16"><DoublePresentation /></div>
               <div id="platforms" className="w-full scroll-mt-16"><PlatformsGrid /></div>
               <div id="features" className="w-full scroll-mt-16"><FeaturesGrid /></div>
-              {/* "Connect your framework" — the framework catalog grid. */}
-              <div id="connect-framework" className="w-full scroll-mt-16"><ConnectFramework /></div>
               {/* Narrative slot — RU import-substitution (sovereignty differentiation);
                   EN 'none' renders nothing. */}
               {HeroNarrative && <HeroNarrative />}

@@ -5,7 +5,7 @@ import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
 import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
-import { isFrameworkId, resolveSlotRepoUrl, DEFAULT_FRAMEWORK } from '@/lib/frameworks-catalog'
+import { resolveSlotRepoUrl, SLOT_FRAMEWORK_ID } from '@/lib/frameworks-catalog'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
   // Resolve the effective repo URL (preset → catalog repo; own-repo → user URL;
   // fractera-pro → '') and thread it into deployToServer below (sanitized +
   // env-passed to bootstrap). Default (fractera-pro/absent) stays byte-identical.
-  const slotFramework = isFrameworkId(body.framework) ? body.framework : DEFAULT_FRAMEWORK
-  const slotRepoUrl = resolveSlotRepoUrl(slotFramework, typeof body.repoUrl === 'string' ? body.repoUrl : undefined)
+  const slotFramework = SLOT_FRAMEWORK_ID
+  const slotRepoUrl = resolveSlotRepoUrl()
 
   // Selective install (S7) — additive parity with /api/install. The partner
   // surfaces send `components` ONLY in custom mode:

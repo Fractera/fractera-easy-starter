@@ -96,16 +96,6 @@ export type SiteContent = {
   // is the curated ordered list of card labels; `collapsedCount` is how many show
   // before "Show all". `showAll`/`hide` are the toggle button labels; `hint` is the
   // orange line below the grid.
-  connectFramework: {
-    badge: string
-    h2: string
-    description: string
-    frameworks: string[]
-    collapsedCount: number
-    showAll: string
-    hide: string
-    hint: string
-  }
   problemHeader: { label: string; h2: string; description: string }
   problemLabel: string
   solutionLabel: string
@@ -178,13 +168,6 @@ export type SiteContent = {
     updatesTo: string
     emailConfirmCheck: string
     emailConfirmNote: string
-    frameworkSelect: {
-      chooseLabel: string
-      soon: string
-      repoUrlLabel: string
-      repoUrlPlaceholder: string
-      repoUrlHint: string
-    }
     launchButton: string
     credentials: string
     installFailed: string
@@ -267,30 +250,6 @@ export type SiteContent = {
   // with the page's framework name (e.g. "Next.js"), so one string set serves all
   // framework pages. Lives in the i18n shell (no hardcoded lang ternary in the
   // components — they consume this resolved object).
-  frameworkFeedback: {
-    card: { eyebrow: string; title: string; text: string; label: string }
-    drawer: {
-      eyebrow: string
-      title: string
-      subtitle: string
-      nameLabel: string
-      githubLabel: string
-      githubPlaceholder: string
-      aboutLabel: string
-      aboutPlaceholder: string
-      wishLabel: string
-      wishPlaceholder: string
-      emailLabel: string
-      emailHint: string
-      spamLabel: string
-      submit: string
-      submitting: string
-      sendFailed: string
-      successTitle: string
-      successBody: string
-      successClose: string
-    }
-  }
   // Подпись под каждой из 9 кнопок «Запустить в 1 клик». Своя на секцию, но все
   // несут идею «волшебно легко и супер эффективно». Опционально: языки, где не
   // задано, рендерят кнопку без подписи. EN+RU заданы.
@@ -321,7 +280,6 @@ export type SiteContent = {
     deploy: string
     vpsDeploy: string
     mcpDeploy: string
-    frameworks: string
     companyBrain: string
     docs: string
     blog: string

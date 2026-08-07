@@ -10,23 +10,17 @@ import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
 import { buildUrls } from '@/lib/subdomain-helpers'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ChevronDown } from 'lucide-react'
-import { FRAMEWORKS, DEFAULT_FRAMEWORK, getFramework, resolveFrameworkParam, type FrameworkId } from '@/lib/frameworks-catalog'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 
 
-export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel, domainUrl, defaultFramework }: {
+export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel, domainUrl }: {
   onSubdomainReady?: (subdomain: string) => void
   onInstallingChange?: (installing: boolean) => void
   onWhiteLabel?: (serverTokenId: string) => void
   // Referral domain link surfaced in the progress toast (from pricing-flow's
   // domainProviderSection — the same link as the left deploy-options container).
   domainUrl?: string
-  // Pre-selected framework for the dropdown — passed by a framework catalog page
-  // (e.g. /framework/next-js → 'next') so the form opens on that framework. Falls
-  // back to DEFAULT_FRAMEWORK (Fractera-Pro) on the homepage / VPS page.
-  defaultFramework?: FrameworkId
 } = {}) {
   const lang = useLang()
   const [ip, setIp] = useState('')
@@ -62,11 +56,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [passwordAck, setPasswordAck] = useState(false)
   // Selective install (S3) removed in step 500: the catalog is empty, every
   // deploy installs the same set, so `components` is never sent.
-  // Which project lands in the app slot (:3000). Default = the page-provided
-  // framework (framework catalog page) or Fractera-Pro otherwise. 'own-repo' reveals
-  // the repo-URL field. → frameworks-catalog.
-  const [framework, setFramework] = useState<FrameworkId>(defaultFramework ?? DEFAULT_FRAMEWORK)
-  const [repoUrl, setRepoUrl] = useState('')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: session, status: sessionStatus } = useSession()
 
@@ -75,17 +64,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     if (serverStatus !== 'fresh') setEmailConfirmed(false)
   }, [serverStatus])
 
-  // Pre-select the framework from `?framework=` so a partner/marketing link can
-  // override the page default. When absent, the page-provided default (or
-  // Fractera-Pro) stays. Every framework is selectable now (no "coming soon"
-  // gating) — temporarily all of them deploy the Next.js starter.
-  useEffect(() => {
-    const raw = new URLSearchParams(window.location.search).get('framework')
-    if (raw) {
-      const fw = resolveFrameworkParam(raw)
-      setFramework(fw)
-    }
-  }, [])
 
   // Tick every second while installing — for elapsed time and silence detection
   useEffect(() => {
@@ -190,15 +168,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
     fetch('/api/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // In custom mode send the explicit subset (even if empty → server-only);
-      // in full mode omit `components` so bootstrap installs everything.
-      // framework/repoUrl are additive optional fields (default = fractera-pro;
-      // temporarily handled as the empty-Next path server-side until Fractera-Pro
-      // becomes a real pluggable repo).
       body: JSON.stringify({
         ip, login, password, session_id,
-        ...(framework !== DEFAULT_FRAMEWORK ? { framework } : {}),
-        ...(framework === 'own-repo' && repoUrl.trim() ? { repoUrl: repoUrl.trim() } : {}),
       }),
     }).catch(() => {})
 
@@ -286,47 +257,6 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             {t.title}
           </div>
 
-          {/* Framework / project selector (pivot 2026-06-16): one dropdown that
-              shows the CURRENT selection (default Fractera-Pro), a small hint below,
-              and an optional public-repo URL field. Source: lib/frameworks-catalog. */}
-          <div className="flex flex-col gap-2">
-            <div className="relative w-full">
-              <select
-                value={framework}
-                onChange={(e) => setFramework(e.target.value as FrameworkId)}
-                className="w-full appearance-none bg-white/5 border border-white/40 rounded-xl pl-5 pr-12 py-3 text-sm text-white outline-none focus:border-white/70 transition-colors"
-              >
-                {/* Every framework is selectable — no "coming soon" gating. They all
-                    temporarily deploy the Next.js starter (resolveSlotRepoUrl → FNS). */}
-                {FRAMEWORKS.map((f) => (
-                  <option key={f.id} value={f.id} className="bg-black">
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-              {/* Custom down-arrow, offset 32px from the right edge. */}
-              <ChevronDown
-                size={16}
-                className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-white/60"
-                style={{ right: 32 }}
-              />
-            </div>
-            <p className="text-xs text-white/45 pl-1">{t.frameworkSelect.chooseLabel}</p>
-
-            {getFramework(framework).needsRepoUrl && (
-              <div className="flex flex-col gap-1.5">
-                <input
-                  type="text"
-                  placeholder={t.frameworkSelect.repoUrlPlaceholder}
-                  value={repoUrl}
-                  onChange={(e) => setRepoUrl(e.target.value)}
-                  aria-label={t.frameworkSelect.repoUrlLabel}
-                  className="bg-white/5 border border-white/40 rounded-xl px-5 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/70 transition-colors"
-                />
-                <p className="text-xs text-white/45 leading-relaxed pl-1">{t.frameworkSelect.repoUrlHint}</p>
-              </div>
-            )}
-          </div>
 
           <div className="flex flex-col gap-3">
             <input

@@ -10,7 +10,6 @@ import { InstallForm } from '@/components/install-form'
 import { DeployProgress } from '@/components/deploy-progress'
 import { useAuthModal, useDashboard, useCheckout } from '@/components/providers'
 import { useHeroContent } from '@/lib/i18n/context'
-import type { FrameworkId } from '@/lib/frameworks-catalog'
 
 type MyServer = {
   id: string
@@ -30,12 +29,8 @@ type Plan = {
   comingSoon?: boolean
 }
 
-// `framework` makes the form page-aware: on a framework catalog page (e.g.
-// /framework/next-js) the page passes its framework so the form (a) weaves the
-// framework name into the H2, (b) lists the framework name as the first feature
-// item, and (c) pre-selects that framework in the install dropdown. When omitted
 // (homepage / VPS page) the form renders exactly as before — the base is unchanged.
-export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name: string } } = {}) {
+export function PricingFlow() {
   const content = useHeroContent()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
@@ -51,12 +46,8 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
     { id: 'annual',  name: 'Fractera Pro + Server', sublabel: content.planLabels.annualSubLabel,  price: '$190', period: '/yr', badge: content.planLabels.bestValueBadge },
   ]
 
-  // Free-card feature list. On a framework page the framework name is the first
-  // item (bold); otherwise the base list is rendered unchanged. The last item
   // ("Open Code — self-hosted forever") keeps its ◈ marker regardless.
-  const freeFeatures = framework
-    ? [framework.name, ...content.planLabels.freeFeatures]
-    : content.planLabels.freeFeatures
+  const freeFeatures = content.planLabels.freeFeatures
   const freeChecks = freeFeatures.slice(0, -1)
   const freeLast = freeFeatures[freeFeatures.length - 1]
 
@@ -199,7 +190,7 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-mono font-bold text-violet-400 uppercase tracking-widest">{content.pricingHeader.label}</p>
                 <h2 className="font-serif font-bold leading-tight text-white text-2xl md:text-3xl lg:text-4xl">
-                  {framework ? `${framework.name} — ${content.pricingHeader.h2}` : content.pricingHeader.h2}
+                  {content.pricingHeader.h2}
                 </h2>
                 <p className="text-base text-white/60">{content.pricingHeader.description}</p>
               </div>
@@ -327,7 +318,7 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
                 {freeChecks.map((f, i) => (
                   <li key={i} className="flex items-center gap-2">
                     <span className="text-emerald-400">✓</span>
-                    <span className={framework && i === 0 ? 'font-bold' : ''}>{f}</span>
+                    <span>{f}</span>
                   </li>
                 ))}
                 <li className="flex items-start gap-2">
@@ -341,7 +332,6 @@ export function PricingFlow({ framework }: { framework?: { id: FrameworkId; name
                   onSubdomainReady={sub => { setLiveSubdomain(sub); setDomainReady(true) }}
                   onInstallingChange={v => { setInstalling(v); if (v) setInstallStarted(true) }}
                   domainUrl={content.domainProviderSection.providers[0]?.url}
-                  defaultFramework={framework?.id}
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}
