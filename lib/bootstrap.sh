@@ -272,6 +272,23 @@ if [ -n "$APP_SLOT_REPO_URL" ]; then
     || fail "Slot repo has no package.json - not a supported Node project yet"
   grep -q '"start"' /opt/fractera/app/package.json \
     || fail "Slot repo has no start script - only Next-like Node projects (contract B) are supported in this release; static projects (React/Vue/etc.) are coming soon"
+  # The clone above is shallow (--depth 1) for speed, and a shallow repository CANNOT be
+  # pushed: git sends a thin pack based on the truncated parent and the remote answers
+  # "did not receive expected object ... index-pack failed". The slot pushes and pulls
+  # against the USER's own repository, never against the starter, so the starter history
+  # is dead weight here. Replace it with a fresh repository holding the cloned tree -
+  # done now, before npm install, so node_modules cannot land in the baseline commit.
+  if [ ! -f /opt/fractera/app/.gitignore ]; then
+    printf '%s\n' 'node_modules/' '.next/' 'out/' '.env.local' '.env*.local' 'storage/' \
+      'data/*.sqlite' 'data/*.sqlite-shm' 'data/*.sqlite-wal' > /opt/fractera/app/.gitignore
+  fi
+  rm -rf /opt/fractera/app/.git
+  git -C /opt/fractera/app init -q >> "$LOG_FILE" 2>&1
+  git -C /opt/fractera/app symbolic-ref HEAD refs/heads/main >> "$LOG_FILE" 2>&1
+  git -C /opt/fractera/app add -A >> "$LOG_FILE" 2>&1
+  git -C /opt/fractera/app -c user.email="admin@fractera.ai" -c user.name="Fractera Admin" \
+    commit -q -m "Fractera slot: $APP_SLOT_FRAMEWORK baseline" >> "$LOG_FILE" 2>&1
+  echo "=== App slot: detached from starter history, own repository initialised ===" >> "$LOG_FILE"
   # TODO (Ф3.2, developer E2E): some Node frameworks need PORT=3000 explicitly, and the
   # native-modules install below (lightningcss/tailwind-oxide) is tuned for our Next app.
 else
