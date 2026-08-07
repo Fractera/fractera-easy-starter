@@ -86,10 +86,10 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
 
 // Shared destination block for the welcome / domain-activated / cert-expiry
 // emails. Top buttons + descriptive cards, in the SAME order:
-//   1. Your App  2. Main Control Panel  3. Your Projects
-// (step 205) The "Remote Command Post" (built-in Hermes Web Chat, :9120) was removed — only the
-// Hermes Agent remains inside the Control Panel, and you chat with the brain via Telegram.
-function destinationButtons(appUrl: string, adminUrl: string, projectsUrl: string): string {
+//   1. Your App  2. Main Control Panel
+// (step 500) "Your Projects" is gone with the projects layer (:3003), and the
+// Control Panel no longer ships coding agents — the copy must not promise either.
+function destinationButtons(appUrl: string, adminUrl: string): string {
   return `
         <!-- Top destination buttons (orange / purple) -->
         <div style="margin:26px 0 0">
@@ -97,14 +97,11 @@ function destinationButtons(appUrl: string, adminUrl: string, projectsUrl: strin
           <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Your starter Next.js app template includes authentication, a database, object storage, and tools.</p>
 
           <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
-          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">The full professional project-management flow, including analytics — best on a wide screen.</p>
-
-          <a href="${projectsUrl}/projects/personal" style="display:block;text-align:center;background:#0d9488;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px;margin-top:14px">Your Projects →</a>
-          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Your automations and project workspaces — open one to continue development or add the keys it needs.</p>
+          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Users, database, file and media storage, vector memory, map settings and your own domain — best on a wide screen.</p>
         </div>`
 }
 
-function destinationCards(appUrl: string, adminUrl: string, projectsUrl: string): string {
+function destinationCards(appUrl: string, adminUrl: string): string {
   return `
         <!-- Destination cards (same order as the buttons) -->
         <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
@@ -115,13 +112,8 @@ function destinationCards(appUrl: string, adminUrl: string, projectsUrl: string)
           </td></tr>
           <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
             <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Main Control Panel</div>
-            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">The full professional workspace — coding agents, database, file storage, analytics and everything you installed. Best on a wide screen.</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Where you run the server: users, database, file and media storage, vector memory, map settings, login methods and your own domain. Best on a wide screen.</div>
             <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:13px;text-decoration:underline">Open Main Control Panel →</a>
-          </td></tr>
-          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
-            <div style="font-size:11px;color:#0d9488;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">Your Projects</div>
-            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Your automations and project workspaces. Open one to continue development or add the keys it needs.</div>
-            <a href="${projectsUrl}/projects/personal" style="color:#0d9488;font-weight:600;font-size:13px;text-decoration:underline">Open your Projects →</a>
           </td></tr>
         </table>`
 }
@@ -136,8 +128,6 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
-  // Projects service (step 197): its own process :3003 / projects.<domain> — no longer inside the app.
-  const projectsUrl = isIpMode ? `http://${ip}:3003` : `https://projects.${subdomain}`
   // Remote Command Post = the built-in Hermes Web Chat (the super-agent surface).
   // Dedicated subdomain in secure mode; direct port in IP mode.
 
@@ -167,9 +157,9 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
-        ${destinationCards(appUrl, adminUrl, projectsUrl)}
+        ${destinationCards(appUrl, adminUrl)}
 
         <!-- Next steps — getting the most out of the workspace -->
         <div style="margin:32px 0 8px">
@@ -288,7 +278,6 @@ export async function sendWelcomeEmail(
 export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
-  const projectsUrl = `https://projects.${domain}`
   const authUrl   = `https://auth.${domain}`
   // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
 
@@ -306,9 +295,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
-        ${destinationCards(appUrl, adminUrl, projectsUrl)}
+        ${destinationCards(appUrl, adminUrl)}
 
         <!-- Sign-in note (secure mode) -->
         <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
@@ -403,7 +392,6 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
 export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
   const appUrl   = `https://${domain}`
   const adminUrl = `https://admin.${domain}`
-  const projectsUrl = `https://projects.${domain}`
   const urgent = daysLeft <= 3
   const accent = urgent ? '#dc2626' : '#d97706'
   const dayWord = daysLeft === 1 ? 'day' : 'days'
@@ -422,7 +410,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl, projectsUrl)}
+        ${destinationButtons(appUrl, adminUrl)}
 
         <!-- Renew CTA -->
         <div style="text-align:center;margin:24px 0 0">
