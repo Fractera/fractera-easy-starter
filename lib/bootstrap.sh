@@ -603,17 +603,28 @@ soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/li
 # ── GEO SUBSYSTEM — "the map brain" for map automations (courier routing, min-fuel TSP,
 #    address geocoding). Self-hosted, free, no third-party keys — OpenStreetMap data behind
 #    Docker: OSRM (routing/matrix) + Nominatim (geocoding), fronted by the fractera-geo facade
-#    (:3400, loopback). (step 500) ALWAYS installed — the map is a permanent part of the
-#    product, not an optional component. Region extract defaults to Île-de-France (small, fast
-#    import); the Admin map panel re-provisions any other region later. Steps are SOFT: a map
-#    failure never blocks the rest of the boot. The Nominatim import runs in the container for
-#    several minutes — the facade starts immediately, geocoding reports "down" until it finishes.
-GEO_PBF_URL="https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf"
-GEO_PBF="ile-de-france-latest.osm.pbf"
-GEO_OSRM="${GEO_PBF%.osm.pbf}.osrm"
+#    (:3400, loopback). The map is a permanent part of the product, so the ENGINES are always
+#    installed — but WITHOUT a region (step 501, owner's decision 2026-08-08).
+#
+#    WHY NO REGION IS PRE-INSTALLED. This used to hardcode Île-de-France and prepare it for every
+#    server. Measured on a live install: 892 MB of OSRM extract + 7.2 GB of Nominatim address
+#    database + minutes of import — roughly 10 GB spent on a map of Paris that a customer in
+#    Brazil does not need and will replace anyway, paying the cost twice. The whole planet cannot
+#    be pre-installed either (Nominatim needs on the order of a terabyte), so ANY pre-chosen
+#    region is guessing somebody else's geography.
+#
+#    So the install pulls the two images and stops there. The owner picks their region in
+#    Admin → Map settings, where the region assistant checks the choice against the live
+#    Geofabrik catalogue and states size and time honestly; provision-region.sh then creates both
+#    containers from scratch (it already does `docker rm -f` + `docker run -d`), so nothing here
+#    has to pre-create them. Until then the facade answers honestly: routing and geocoding
+#    "down", region empty.
+#
+#    Pulling the images at install (1.8 GB) is deliberate: it is the part that is identical for
+#    every region, so paying for it once here makes the owner's first provision shorter.
+#    Steps are SOFT: a map failure never blocks the rest of the boot.
 soft_step "geo_docker"    "Docker (geo engines)" "command -v docker >/dev/null 2>&1 || (curl -fsSL https://get.docker.com | sh); systemctl enable --now docker"
-soft_step "geo_osrm"      "Geo routing (OSRM)" "mkdir -p /opt/fractera-geo/osrm && cd /opt/fractera-geo/osrm && { [ -f $GEO_PBF ] || curl -fsSL -o $GEO_PBF $GEO_PBF_URL; } && docker pull osrm/osrm-backend && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/$GEO_PBF && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-partition /data/$GEO_OSRM && docker run --rm -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-customize /data/$GEO_OSRM && docker rm -f fractera-osrm 2>/dev/null; docker run -d --name fractera-osrm --restart unless-stopped -p 127.0.0.1:5000:5000 -v /opt/fractera-geo/osrm:/data osrm/osrm-backend osrm-routed --algorithm mld /data/$GEO_OSRM; cd /opt/fractera"
-soft_step "geo_nominatim" "Geo geocoding (Nominatim import, several min)" "docker rm -f fractera-nominatim 2>/dev/null; docker pull mediagis/nominatim:4.4 && docker run -d --name fractera-nominatim --restart unless-stopped -e PBF_URL=$GEO_PBF_URL -e IMPORT_STYLE=address -e NOMINATIM_PASSWORD=fractera_geo_pw -p 127.0.0.1:8080:8080 mediagis/nominatim:4.4"
+soft_step "geo_images"    "Geo engines (images only, region chosen later)" "mkdir -p /opt/fractera-geo/osrm && docker pull osrm/osrm-backend && docker pull mediagis/nominatim:4.4"
 soft_step "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
 soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
 log_email "start_data" "All services started" 65
