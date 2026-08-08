@@ -580,7 +580,10 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" true
 log_email "build_start" "Building services (this takes 5-10 min)" 40
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
-step "build_bridges_app" "Building admin (production)"   "npm run build --prefix bridges/app"
+# The admin panel bakes the platform commit it was built from. Without it the panel used to call itself
+# "dev" on every deployed server - a word claiming it ran in a developer environment it can never be in.
+# DEPLOYED_COMMIT is resolved above, right after the clone.
+step "build_bridges_app" "Building admin (production)"   "NEXT_PUBLIC_GIT_COMMIT=$DEPLOYED_COMMIT npm run build --prefix bridges/app"
 
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
