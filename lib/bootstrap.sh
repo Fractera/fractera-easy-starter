@@ -585,6 +585,11 @@ step "build_auth"        "Building auth (production)"    "npm run build --prefix
 # DEPLOYED_COMMIT is resolved above, right after the clone.
 step "build_bridges_app" "Building admin (production)"   "NEXT_PUBLIC_GIT_COMMIT=$DEPLOYED_COMMIT npm run build --prefix bridges/app"
 
+# The fallback the deploy route restores when a build fails. Seeded here so the very FIRST failed
+# deploy already has something to fall back to - a failing `next build` deletes .next/BUILD_ID, and
+# without a stored copy the app cannot be started again until some build succeeds. 33 MB, measured.
+step "seed_last_good" "Storing the first good build" "rm -rf /opt/fractera/app/.next.last-good && cp -a /opt/fractera/app/.next /opt/fractera/app/.next.last-good && printf '%s\n' '/.next.last-good/' >> /opt/fractera/app/.git/info/exclude"
+
 # Remove any previous services before starting fresh
 pm2 delete all >> "$LOG_FILE" 2>&1 || true
 
