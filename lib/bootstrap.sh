@@ -418,6 +418,14 @@ SUPPORTED_LANGS="${EXISTING_LANGS:-en,es,fr,it,ru,de,pt,pl,tr,nl}"
 DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-en}"
 APP_SHELL_AUTH_VAL="${EXISTING_AUTH:-right}"
 
+# 🔒 chmod 600 после КАЖДОГО файла с секретами (шаг 501, дефект найден замером 2026-08-09).
+#    Здесь файлы СОЗДАЮТСЯ, и создаются они с обычной маской — то есть 644, читаемые
+#    любым пользователем системы. Замер на живом сервере: так лежали ключ OpenAI, ключ
+#    Resend, секрет Google, DATA_SECRET и DEPLOY_SECRET. Маршруты панели передавали
+#    mode: 0o600 при записи и выглядели правильными, но этот параметр действует только
+#    при создании файла — то есть никогда, потому что создавал их установщик.
+#    Правильные права ставятся здесь, при рождении, и подтверждаются панелью при каждой
+#    записи (hardenSecretFile).
 cat > /opt/fractera/app/.env.local <<ENVEOF
 AUTH_TRUST_HOST=true
 NEXT_PUBLIC_AUTH_URL=
@@ -459,6 +467,7 @@ NEXT_PUBLIC_DEFAULT_LOCALE=$DEFAULT_LOCALE_VAL
 # it ON from the right. Owner flips it via Admin → App authorization (writes this key + rebuilds).
 NEXT_PUBLIC_APP_SHELL_AUTH=$APP_SHELL_AUTH_VAL
 ENVEOF
+chmod 600 /opt/fractera/app/.env.local
 
 cat > /opt/fractera/services/auth/.env.local <<ENVEOF
 AUTH_SECRET=$AUTH_SECRET
@@ -482,6 +491,7 @@ GOOGLE_CLIENT_SECRET=
 RESEND_API_KEY=
 AUTH_RESEND_FROM=
 ENVEOF
+chmod 600 /opt/fractera/services/auth/.env.local
 
 cat > /opt/fractera/bridges/app/.env.local <<ENVEOF
 # Server-side only — admin proxy.ts calls auth on localhost.
@@ -505,6 +515,7 @@ RAG_ENV_PATH=/opt/fractera/services/rag/.env
 DATA_SECRET=$DATA_SECRET
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
+chmod 600 /opt/fractera/bridges/app/.env.local
 
 # (step 500) These two services read their configuration from a file at start,
 # so the file has to exist BEFORE anything starts them. Writing it down here,
@@ -517,6 +528,7 @@ LIGHTRAG_URL=http://localhost:9621
 LIGHTRAG_API_KEY=$LIGHTRAG_API_KEY
 CHANNELS_CONFIG=/opt/fractera/services/channels/config.json
 ENVEOF
+chmod 600 /opt/fractera/services/channels/.env
 
 cat > /opt/fractera/services/rag/.env <<ENVEOF
 # IP-mode: bind to 0.0.0.0 so the Admin iframe (browser → http://IP:9621)
@@ -547,6 +559,7 @@ EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIM=1536
 CORS_ORIGINS=http://localhost:3002
 ENVEOF
+chmod 600 /opt/fractera/services/rag/.env
 
 # (step 500) The data service now holds the THIRD warehouse — vectors — next to
 # rows and objects, in the same SQLite file. It embeds text itself, so it needs an
@@ -563,6 +576,7 @@ EMBED_MODEL=text-embedding-3-small
 EMBED_DIMS=1536
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
+chmod 600 /opt/fractera/services/data/.env
 
 # (step 500) Appended AFTER the file is written: the data service is the one
 # published door, so it needs to know where the loopback services live in
