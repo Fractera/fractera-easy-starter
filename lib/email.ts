@@ -966,3 +966,54 @@ export async function sendDeployFailedEmail(to: string, errorMessage?: string, s
     `,
   })
 }
+
+// ── Consultation request from a user's own control panel (owner, 2026-08-14) ──
+//
+// WHY THIS EXISTS. The panel runs on the USER'S VPS, and that machine has no
+// mail sender at all — no Resend, no SMTP. The first version opened the user's
+// mail client with a prepared letter; the owner tried it and reported the
+// obvious: the mail app does not open for everyone. A door that works for some
+// people is worse than no door, because it promises.
+//
+// So the panel posts the request here, server-to-server, and this side sends the
+// mail with the key that already lives on Vercel. `replyTo` is the user's own
+// address, so answering the alert answers the person.
+type DevToolsConsult = {
+  email: string
+  page?: string
+  server?: string
+  topic?: string
+}
+
+export async function sendDevToolsConsultEmail(req: DevToolsConsult) {
+  const rows: [string, string | undefined][] = [
+    ['Email', req.email],
+    ['Topic', req.topic ?? 'dev-tools'],
+    ['Panel page', req.page],
+    ['Server', req.server],
+  ]
+  const rowsHtml = rows
+    .filter(([, v]) => v && v.trim())
+    .map(([label, v]) => `
+      <tr>
+        <td style="padding:8px 12px;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #eee;vertical-align:top;white-space:nowrap">${escapeHtml(label)}</td>
+        <td style="padding:8px 12px;font-size:14px;color:#111;border-bottom:1px solid #eee;white-space:pre-wrap;line-height:1.5">${escapeHtml((v ?? '').trim())}</td>
+      </tr>
+    `).join('\n')
+
+  await sendEmail({
+    from: FROM,
+    to: 'admin@fractera.ai',
+    replyTo: req.email,
+    subject: `Consultation request — development tools (${req.email})`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#111">
+        <h2 style="margin:0 0 6px">Fractera — consultation requested from a user's control panel</h2>
+        <p style="margin:0 0 16px;color:#666;font-size:13px">The user requested a consultation on activating and using the development tools in their project. Reply directly to this email — it goes to them (${escapeHtml(req.email)}).</p>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee">
+          ${rowsHtml}
+        </table>
+      </div>
+    `,
+  })
+}
