@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail, sendDeployFailedEmail } from '@/lib/email'
+import { sendDeployFailedEmail } from '@/lib/email'
+import { sendWelcomeEmailOnce } from '@/lib/welcome-email'
 
 export async function GET(req: NextRequest) {
   const session_id = req.nextUrl.searchParams.get('session_id')
@@ -90,34 +91,34 @@ export async function POST(req: NextRequest) {
     if (subdomain) {
       await completeProgress(session_id, subdomain)
 
-      // Email pipeline: only for own-server deployments (sess-*).
-      // Pool provisioning sessions (pool-*) are handled by the admin flow — do not touch.
-      // Read status BEFORE updateMany so we know if ping already fired (status='active') or not ('pending').
-      if (!session_id.startsWith('pool-')) {
-        const token = await db.serverToken.findFirst({
-          where: { deploySessionId: session_id },
-          include: { user: { select: { email: true } } },
-        })
-        if (token?.user?.email) {
-          await appendStep(session_id, { id: 'email_complete', label: 'Welcome email sent', done: true, ts: Date.now() })
-          // If ping hasn't arrived yet (status still 'pending'), send welcome email as fallback.
-          // If status is already 'active', ping route already sent it — skip to avoid duplicate.
-          if (token.status === 'pending') {
-            sendWelcomeEmail(
-              token.user.email,
-              subdomain,
-              token.serverIp && token.serverPassword
-                ? { ip: token.serverIp, password: token.serverPassword }
-                : undefined
-            ).catch(console.error)
-          }
-        }
-      }
-
+      // The address this callback carries is the freshest one, and the email helper
+      // reads the row to build its links — so the row is written FIRST, once, and
+      // both the email path and the plain completion path share that single write.
       await db.serverToken.updateMany({
         where: { deploySessionId: session_id, status: { not: 'offline' } },
         data: { subdomain, status: 'active' },
       })
+
+      // Email pipeline: only for own-server deployments (sess-*).
+      // Pool provisioning sessions (pool-*) are handled by the admin flow — do not touch.
+      if (!session_id.startsWith('pool-')) {
+        const token = await db.serverToken.findFirst({
+          where: { deploySessionId: session_id },
+          select: { id: true, user: { select: { email: true } } },
+        })
+        if (token?.user?.email) {
+          // Deduplication is the claim inside the helper (ServerToken.welcomeSentAt),
+          // NOT a status comparison. The old `if (token.status === 'pending')` test
+          // was the defect: ping/route.ts flips status to 'active' before evaluating
+          // its own send condition, so when that condition failed this fallback saw
+          // 'active', concluded "ping already sent it", and skipped — leaving nobody
+          // to send the email at all. Awaited, so Vercel cannot freeze it mid-send.
+          const result = await sendWelcomeEmailOnce(token.id)
+          if (result === 'sent') {
+            await appendStep(session_id, { id: 'email_complete', label: 'Welcome email sent', done: true, ts: Date.now() })
+          }
+        }
+      }
     } else {
       const errMsg = 'Domain registration failed'
       await failProgress(session_id, errMsg)

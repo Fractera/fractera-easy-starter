@@ -2,8 +2,8 @@ import { after } from 'next/server'
 import { getProgress, initProgress, appendStep, failProgress } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { wipeServer } from '@/lib/wipe-script'
-import { deployToServer } from '@/lib/deploy'
-import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { deployToServer, SLOT_LANGUAGES } from '@/lib/deploy'
+import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { getSectionList, getSection, type InfoLang } from '@/lib/project-info/content'
@@ -76,6 +76,12 @@ export const MCP_TOOLS = [
           type: 'boolean',
           description:
             'REQUIRED, must be true. Set this ONLY after the user has explicitly confirmed in the chat that they (1) have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and (2) understand they MUST change their server root password immediately after installation — Fractera never stores it and has no way to access the server afterwards. If the user has not given this explicit agreement, do NOT call this tool: ask for it first (and offer to explain the documents right in the chat).',
+        },
+        lang: {
+          type: 'string',
+          enum: SLOT_LANGUAGES,
+          description:
+            'Optional — the two-letter code of the language the user is talking to you in (e.g. "ru" if the conversation is in Russian). Their new app is built in English PLUS this language, and this language becomes its default; pass "en" or omit for an English-only app. Adding more languages later is a switch in the Admin panel, so this is not a permanent choice — it just means their site opens in their own language from the first minute.',
         },
       },
       required: ['email', 'email_confirmed', 'ip', 'password', 'components_selected', 'terms_accepted'],
@@ -372,6 +378,10 @@ export async function handleToolCall(
     const password = String(args.password ?? '')
     const login = (typeof args.login === 'string' && args.login.trim()) ? args.login.trim() : 'root'
     const components = resolveMcpComponents(args.components) // undefined => install all
+    // The language of the conversation the agent is having with the user. The guest
+    // app ships English + this one. deployToServer validates it against the slot's
+    // real translation set, so a wrong guess here degrades to English, never breaks.
+    const slotLang = typeof args.lang === 'string' ? args.lang.trim().toLowerCase() : ''
     const TAG = `[mcp:reg ${ip}]`
     console.log(`${TAG} called email=${email} login=${login} components=${components ?? 'all'}`)
 
@@ -495,9 +505,11 @@ export async function handleToolCall(
     // Mark wipe_start now (done:false) so the very next check_status reports
     // "wipe in progress" rather than "no work scheduled".
     await appendStep(session_id, { id: 'wipe_start', label: 'Cleaning previous installation', done: false, ts: Date.now() })
-    console.log(`${TAG} progress initialised — sending start + recovery-token emails`)
-    try { await sendInstallStartedEmail(email) } catch (err) { console.error(`${TAG} install-started email failed`, err) }
-    try { await sendRecoveryTokenEmail(email, serverToken.token) } catch (err) { console.error(`${TAG} recovery-token email failed`, err) }
+    console.log(`${TAG} progress initialised — sending the start email`)
+    // Carries the server's addresses (see lib/email.ts). Two emails per deploy:
+    // this one and the result. The recovery token is no longer mailed up front —
+    // sendDeployFailedEmail carries it, and only when a deploy actually fails.
+    try { await sendInstallStartedEmail(email, ip) } catch (err) { console.error(`${TAG} install-started email failed`, err) }
 
     // 5. Schedule wipe + deploy AFTER the HTTP response is sent.
     //
@@ -549,6 +561,7 @@ export async function handleToolCall(
             serverToken: serverToken.token,
             serverId: serverToken.id,
             components, // undefined => install all (default)
+            lang: slotLang || undefined,
           })
           console.log(`${bgTag} deployToServer done — bootstrap uploaded and launched`)
         } catch (err) {

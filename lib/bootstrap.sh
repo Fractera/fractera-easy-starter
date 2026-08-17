@@ -412,10 +412,36 @@ EXISTING_LOCALE="$(grep -E '^NEXT_PUBLIC_DEFAULT_LOCALE=' /opt/fractera/app/.env
 # Public app-shell auth (header login → cockpit) — preserved across re-bootstrap; a fresh slot
 # ships it ON (account drawer from the right), matching the platform's showcase-with-login default.
 EXISTING_AUTH="$(grep -E '^NEXT_PUBLIC_APP_SHELL_AUTH=' /opt/fractera/app/.env.local 2>/dev/null | head -1 | cut -d= -f2-)"
-# Fresh slot ships the platform's ten admin-layer languages (en + the nine others) so the showcase
-# is multilingual out of the box; an owner's edited set is preserved on re-bootstrap.
-SUPPORTED_LANGS="${EXISTING_LANGS:-en,es,fr,it,ru,de,pt,pl,tr,nl}"
-DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-en}"
+# 🔒 A FRESH SLOT SHIPS TWO LANGUAGES, NOT TEN (2026-08-17, owner's decision).
+# English always, plus the customer's own language — the one they were reading the site in when
+# they deployed, passed here as FRACTERA_APP_LANG by lib/deploy.ts (validated there against the
+# languages the slot actually has translations for). When their language IS English, the set is
+# English alone and there is no /<lang> prefix to explain.
+# Why not ten: every language multiplies the prerendered page count and the build minutes of every
+# later rebuild the owner triggers from the panel, and nine of the ten were pages nobody on that
+# server would ever open. The owner adds languages deliberately in Admin → Languages.
+# An owner's edited set is still preserved on re-bootstrap (see EXISTING_LANGS above) — this only
+# decides what a FRESH slot starts with.
+USER_LANG="${FRACTERA_APP_LANG:-en}"
+case "$USER_LANG" in
+  en|es|fr|it|ru|de|pt|pl|tr|nl) : ;;
+  *) USER_LANG="en" ;;   # unknown code → English only; never bake a language we cannot translate
+esac
+if [ "$USER_LANG" = "en" ]; then
+  FRESH_LANGS="en"
+else
+  FRESH_LANGS="en,$USER_LANG"
+fi
+SUPPORTED_LANGS="${EXISTING_LANGS:-$FRESH_LANGS}"
+# The customer's language is also the DEFAULT locale on a FRESH slot — their own language is what
+# they should land on. On a re-bootstrap the fallback is `en`, NOT their language: the owner may have
+# narrowed the set in the panel since, and a default locale outside the supported set is a broken
+# site. `en` is the one language present in every possible set.
+if [ -n "$EXISTING_LANGS" ]; then
+  DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-en}"
+else
+  DEFAULT_LOCALE_VAL="${EXISTING_LOCALE:-$USER_LANG}"
+fi
 APP_SHELL_AUTH_VAL="${EXISTING_AUTH:-right}"
 
 # 🔒 chmod 600 после КАЖДОГО файла с секретами (шаг 501, дефект найден замером 2026-08-09).

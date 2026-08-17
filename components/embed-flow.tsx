@@ -346,7 +346,9 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
     fetch('/api/embed/install', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: embedToken, ip: ip.trim(), password, sessionId}),
+      // `lang` — the language of the partner page this widget is embedded in. The
+      // customer's new app ships in English + that one, not all ten.
+      body: JSON.stringify({ token: embedToken, ip: ip.trim(), password, sessionId, lang }),
     }).catch(() => {})
   }
 

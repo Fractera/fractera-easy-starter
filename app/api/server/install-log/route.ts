@@ -1,40 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { appendStep, getProgress } from '@/lib/kv'
-import { sendInstallProgressEmail } from '@/lib/email'
+import { NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '').trim()
-  if (!token) return NextResponse.json({ ok: false }, { status: 401 })
-
-  const body = await req.json().catch(() => ({}))
-  const { percent } = body
-
-  const serverToken = await db.serverToken.findUnique({
-    where: { token },
-    include: { user: { select: { email: true } } },
-  })
-  if (!serverToken) return NextResponse.json({ ok: false })
-
-  // Send progress email ONCE per session at the ~30% milestone (deps installed, building services)
-  // Only for own-server sessions (sess-*), not pool provisioning (pool-*)
-  const isOwnServer = serverToken.deploySessionId && !serverToken.deploySessionId.startsWith('pool-')
-  if (percent >= 30 && isOwnServer && serverToken.user?.email && serverToken.deploySessionId) {
-    // Idempotent: skip if email_deps step already recorded — prevents 6× duplicates
-    // (bootstrap sends log_email at 30/40/65/75/85/100%, this endpoint would fire on each)
-    const progress = await getProgress(serverToken.deploySessionId)
-    const alreadySent = progress?.steps?.some(s => s.id === 'email_deps' && s.done)
-    if (!alreadySent) {
-      sendInstallProgressEmail(serverToken.user.email).catch(console.error)
-      await appendStep(serverToken.deploySessionId, {
-        id: 'email_deps',
-        label: 'Progress update email sent',
-        done: true,
-        ts: Date.now(),
-      })
-    }
-  }
-
+// Milestone relay from bootstrap.sh (`log_email` at 30/40/65/75/85/100%).
+//
+// 🪦 IT NO LONGER SENDS AN EMAIL (2026-08-17, owner's decision). It used to fire
+// sendInstallProgressEmail at ~30% ("5–10 more minutes"), which was the third of
+// four emails per deploy. The flow is deliberately TWO emails now — start and
+// result — because each extra send eats the Resend allowance while telling the
+// customer nothing they cannot already see live on the page they started from.
+//
+// The endpoint is KEPT as a no-op on purpose: bootstrap.sh on every server
+// already deployed still calls it, and those servers are not redeployed when we
+// change this repo. Deleting the route would turn each milestone into a 404 in
+// the customer's ping log for the rest of that server's life.
+export async function POST() {
   return NextResponse.json({ ok: true })
 }

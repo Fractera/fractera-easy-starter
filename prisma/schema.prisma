@@ -88,6 +88,13 @@ model ServerToken {
   statusData        Json?
   deployError       String?       // текст ошибки SSH/bootstrap
   warningSentAt     DateTime?
+  // Welcome ("your server is ready") email idempotency. NOT derived from `status`:
+  // ping/route.ts sets status='active' BEFORE its email condition, so when that
+  // condition failed the fallback in progress/route.ts saw 'active' and skipped too —
+  // and nobody sent the email at all. The claim is atomic (updateMany where
+  // welcomeSentAt: null); on a send failure it is reset to null and the */15 ping
+  // cron re-sends on its own. Same shape as warningSentAt / certWarnedAt above.
+  welcomeSentAt     DateTime?
   createdAt         DateTime      @default(now())
   stripeCheckoutSessionId String?
   contaboInstanceId String?

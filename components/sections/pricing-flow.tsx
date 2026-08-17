@@ -135,6 +135,7 @@ export function PricingFlow() {
           {myServer && myServer!.status !== 'active' && myServer!.deploySessionId && (
             <DeployProgress
               sessionId={myServer!.deploySessionId!}
+              serverIp={myServer!.subdomain ?? undefined}
               onComplete={sub => {
                 setStripeSubdomain(sub)
                 setMyServer(prev => prev ? { ...prev, status: 'active', subdomain: sub } : prev)

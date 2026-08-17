@@ -23,7 +23,17 @@ interface DeployOptions {
   // repoUrl = public git URL (own-repo only). See lib/frameworks-catalog.ts.
   framework?: string
   repoUrl?: string
+  // The customer's own language, taken from the page they deployed from. Passed
+  // as FRACTERA_APP_LANG so bootstrap ships the guest app in English + this one
+  // instead of all ten platform languages. See SLOT_LANGUAGES below.
+  lang?: string
 }
+
+// The languages the app slot actually ships translations for. A code outside this
+// set is dropped rather than passed through: the language set is baked at build
+// time, so an unsupported code would become a permanently half-translated locale
+// in the customer's own app — visible only to them, and only in their language.
+export const SLOT_LANGUAGES = ['en', 'es', 'fr', 'it', 'ru', 'de', 'pt', 'pl', 'tr', 'nl'] as const
 
 export async function testSSHConnection(ip: string, password: string, timeoutMs = 15000): Promise<void> {
   await new Promise<void>((resolve, reject) => {
@@ -52,6 +62,7 @@ export async function deployToServer({
   components = '',
   framework = '',
   repoUrl = '',
+  lang = '',
 }: DeployOptions) {
   const safePlatform = /^[a-z0-9-]+$/.test(platform) ? platform : 'claude-code'
   const safeToken = serverToken.replace(/['"\\`$]/g, '')
@@ -70,6 +81,10 @@ export async function deployToServer({
   const safeRepoUrl = /^https?:\/\/[a-zA-Z0-9._~:/?#@!$&'()*+,;=%-]+$/.test(repoUrl) && !repoUrl.includes('@')
     ? repoUrl
     : ''
+  // Two gates, both needed: the shape check keeps shell metacharacters out, the
+  // whitelist keeps a language the slot has no translations for out of a
+  // customer's build. Anything rejected collapses to '' → bootstrap ships English.
+  const safeLang = /^[a-z]{2}$/.test(lang) && (SLOT_LANGUAGES as readonly string[]).includes(lang) ? lang : ''
   const secret = process.env.INSTALL_SCRIPT_SECRET!
 
   const bootstrapPath = join(process.cwd(), 'lib', 'bootstrap.sh')
@@ -98,6 +113,7 @@ export async function deployToServer({
           const appSlotEnv = [
             safeFramework ? `FRACTERA_APP_FRAMEWORK="${safeFramework}"` : '',
             safeRepoUrl ? `FRACTERA_APP_REPO_URL="${safeRepoUrl}"` : '',
+            safeLang ? `FRACTERA_APP_LANG="${safeLang}"` : '',
           ].filter(Boolean).join(' ')
           const cmd = [
             `chmod +x ${remoteScript}`,

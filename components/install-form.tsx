@@ -8,6 +8,7 @@ import { useHeroContent } from '@/lib/i18n/context'
 import { useLang } from '@/lib/i18n/use-lang'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
+import { ServerAddresses } from './server-addresses'
 import { buildUrls } from '@/lib/subdomain-helpers'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -170,6 +171,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ip, login, password, session_id,
+        // The language the customer is reading the site in. Their new app ships in
+        // English + this one, instead of all ten platform languages.
+        lang,
       }),
     }).catch(() => {})
 
@@ -227,7 +231,11 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         // Network error — retry next cycle
       }
     }
-    const pollInterval = setInterval(tick, 30000)
+    // 5s, not 30s. The completion signal drives the on-page reveal (the addresses
+    // block turning live, and the success toast), so a 30s poll meant the customer
+    // could sit in front of a finished server for half a minute being told it was
+    // still installing. The dashboard already polls pending servers at this rate.
+    const pollInterval = setInterval(tick, 5000)
     tick()
 
     eventSourceRef.current = () => clearInterval(pollInterval)
@@ -490,6 +498,13 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             />
           </div>
 
+          {/* The addresses, from the first second of the deploy — they are derived
+              from the IP above, so there is nothing to wait for. They turn from
+              amber "not answering yet" to emerald "live" when the install lands. */}
+          {!installError && (
+            <ServerAddresses target={ip} live={false} strings={t.addresses} />
+          )}
+
           {/* Silence warning */}
           {!installError && installing && now - lastUpdateAt > 180000 && (
             <p className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/30 rounded-lg px-3 py-2">
@@ -561,6 +576,15 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
             ))}
           </div>
         </div>
+      )}
+
+      {/* Deploy finished. Both blocks above are hidden in this state (the form
+          because `subdomain` is set, the progress card because `installing` is
+          false), so without this the card went empty the moment the server went
+          live and the address survived only inside a dismissible toast. It has to
+          stay ON THE PAGE — that is the whole point of not depending on email. */}
+      {subdomain && !installing && (
+        <ServerAddresses target={subdomain} live strings={t.addresses} />
       )}
 
     </div>

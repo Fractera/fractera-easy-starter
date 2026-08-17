@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { sendWelcomeEmail, sendExpiryWarningEmail } from '@/lib/email'
+import { sendExpiryWarningEmail } from '@/lib/email'
+import { sendWelcomeEmailOnce } from '@/lib/welcome-email'
 import { classifySubdomain } from '@/lib/subdomain-helpers'
 
 export async function POST(req: NextRequest) {
@@ -73,15 +74,28 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Welcome email on first successful ping (only for real user tokens)
-  if (wasFirstPing && serverToken.user.email && subdomain) {
-    sendWelcomeEmail(
-      serverToken.user.email,
-      subdomain,
-      serverToken.serverIp && serverToken.serverPassword
-        ? { ip: serverToken.serverIp, password: serverToken.serverPassword }
-        : undefined
-    ).catch(console.error)
+  // Welcome email — attempted on EVERY ping, not just the first one, because the
+  // ping cron (*/15) is what makes a failed send recoverable: the send is claimed
+  // through ServerToken.welcomeSentAt, so an already-mailed server costs one
+  // indexed no-op write here, while a server whose send failed gets another
+  // attempt a quarter of an hour later. Gating on `wasFirstPing` would throw that
+  // retry away — the first ping would be the only chance, which is the behaviour
+  // being fixed.
+  //
+  // AWAITED on purpose. It used to be fire-and-forget (`.catch(console.error)`),
+  // and on Vercel a serverless function is frozen the moment its response is
+  // returned — an unawaited send can be killed mid-flight. This repo already
+  // learned that lesson once in lib/mcp-tools.ts (commit 57fcc48 → fab8928); the
+  // welcome email was still paying for it.
+  //
+  // 🔒 POOL TOKENS ARE EXCLUDED, and this guard is load-bearing precisely BECAUSE
+  // the call above is no longer gated on `wasFirstPing`. The pool branch a few
+  // lines up only returns early on the FIRST ping; a reserve server keeps pinging
+  // every 15 minutes for its whole life, so without this it would walk into the
+  // send path on ping #2. Same marker the other routes use (a `pool-` session id).
+  const isPoolToken = serverToken.deploySessionId?.startsWith('pool-') ?? false
+  if (!isPoolToken) {
+    await sendWelcomeEmailOnce(serverToken.id)
   }
 
   const sub = serverToken.subscription

@@ -84,5 +84,13 @@ export const install: InstallPart = {
       checkboxLabel: 'Я понимаю',
       closeButton: 'Закрыть',
     },
+    addresses: {
+      pendingTitle: 'Ваши адреса',
+      pendingNote: 'Они уже ваши и не изменятся — сохраните их сейчас. Отвечать начнут в момент завершения установки.',
+      liveTitle: 'Ваши адреса — работают',
+      siteLabel: 'Ваш сайт',
+      authLabel: 'Вход и регистрация',
+      adminLabel: 'Панель управления',
+    },
   },
 }

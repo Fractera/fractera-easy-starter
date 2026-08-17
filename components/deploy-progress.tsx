@@ -2,14 +2,31 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
+import { ServerAddresses } from './server-addresses'
 
 interface Props {
   sessionId: string
+  /** The server being deployed to. Lets the addresses show before completion. */
+  serverIp?: string
   onComplete?: (subdomain: string) => void
   onError?: (message: string) => void
 }
 
-export function DeployProgress({ sessionId, onComplete, onError }: Props) {
+// Hardcoded English, like every other string in this file. This surface is the
+// dashboard/payment-success path, which is not routed through lib/i18n — the
+// i18n'd deploy surface is install-form.tsx (t.addresses). Localising this file
+// is a separate job; inventing a half-localised component would be worse.
+const ADDRESS_STRINGS = {
+  pendingTitle: 'Your addresses',
+  pendingNote: 'These are already yours and will not change — save them now. They start answering the moment the installation finishes.',
+  liveTitle: 'Your addresses — live',
+  siteLabel: 'Your site',
+  authLabel: 'Login / register',
+  adminLabel: 'Control panel',
+}
+
+export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Props) {
+  const [liveSubdomain, setLiveSubdomain] = useState<string | null>(null)
   const [steps, setSteps] = useState<Step[]>(ALL_STEPS)
   const [activeStep, setActiveStep] = useState<string | null>(null)
   const [installError, setInstallError] = useState<string | null>(null)
@@ -73,6 +90,7 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
 
         if (progress.status === 'done' && progress.subdomain) {
           clearInterval(pollRef.current!)
+          setLiveSubdomain(progress.subdomain)
           onComplete?.(progress.subdomain)
         }
 
@@ -86,7 +104,9 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
         // retry next cycle
       }
     }
-    pollRef.current = setInterval(tick, 30000)
+    // 5s — same reason as install-form.tsx: this poll is what flips the addresses
+    // to live, so a 30s cadence left a finished server looking unfinished.
+    pollRef.current = setInterval(tick, 5000)
     tick()
 
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
@@ -152,14 +172,17 @@ export function DeployProgress({ sessionId, onComplete, onError }: Props) {
         </div>
       )}
 
-      {/* Pulsing placeholder — URL will appear here after completion */}
-      {!installError && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-orange-500/30 bg-orange-500/5">
-          <span className="inline-block w-2 h-2 rounded-full bg-orange-400 animate-pulse shrink-0" />
-          <span className="text-sm text-orange-400 animate-pulse">
-            Your site URL will appear here when ready
-          </span>
-        </div>
+      {/* The addresses themselves, not a promise of them. A pulsing "Your site URL
+          will appear here when ready" used to stand in this exact spot — while the
+          URL was already derivable from the server IP. `serverIp` is optional here
+          because this component is also mounted from the payment-success path,
+          which knows the session before it knows the server. */}
+      {!installError && (serverIp || liveSubdomain) && (
+        <ServerAddresses
+          target={liveSubdomain || serverIp || ''}
+          live={!!liveSubdomain}
+          strings={ADDRESS_STRINGS}
+        />
       )}
 
       <div className="flex flex-col gap-1.5 mt-2">

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { deployToServer } from '@/lib/deploy'
 import { wipeServer } from '@/lib/wipe-script'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail, sendDeployFailedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
 import { resolveSlotRepoUrl, SLOT_FRAMEWORK_ID } from '@/lib/frameworks-catalog'
 
@@ -15,7 +15,7 @@ export const maxDuration = 300
 // (iframe third-party cookies are not reliable, so we use a localStorage
 // token issued at signup time).
 export async function POST(req: NextRequest) {
-  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown; components?: unknown; framework?: unknown; repoUrl?: unknown }
+  let body: { token?: unknown; ip?: unknown; password?: unknown; login?: unknown; sessionId?: unknown; components?: unknown; framework?: unknown; repoUrl?: unknown; lang?: unknown }
   try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
 
   // App-slot project (pivot 2026-06-16) — additive parity with /api/install.
@@ -83,6 +83,13 @@ export async function POST(req: NextRequest) {
       serverIp: ip,
       // Privacy: never persist the real SSH password (see install/route.ts).
       serverPassword: '*****',
+      // IP-mode identifier — MUST mirror install/route.ts and mcp-tools.ts. This
+      // path used to create the row WITHOUT it, and that omission was load-bearing:
+      // ping/route.ts only keeps the DB value when it is already "meaningful"
+      // (a real domain or this `ip-` form), so the first ping adopted the bare IP
+      // from its payload — and when that payload was missing, the welcome email was
+      // skipped while the row still went 'active', so no trigger ever sent it.
+      subdomain: `ip-${ip}`,
     },
   })
 
@@ -95,11 +102,9 @@ export async function POST(req: NextRequest) {
   await initProgress(sessionId)
   if (session.email) {
     await appendStep(sessionId, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    try { await sendInstallStartedEmail(session.email) } catch (err) { console.error('[embed/install] start email failed', err) }
-    // Best-effort follow-up with the recovery token for MCP retry path.
-    try { await sendRecoveryTokenEmail(session.email, serverToken.token) } catch (err) {
-      console.error('[embed/install] recovery-token email failed', err)
-    }
+    // Carries the server's addresses so the customer holds them from minute one
+    // (see lib/email.ts). Two emails per deploy: this one and the result.
+    try { await sendInstallStartedEmail(session.email, ip) } catch (err) { console.error('[embed/install] start email failed', err) }
   }
 
   // Wipe any previous installation BEFORE bootstrap runs. Required because
@@ -151,6 +156,9 @@ export async function POST(req: NextRequest) {
       components: componentsArg,
       framework: slotFramework,
       repoUrl: slotRepoUrl || undefined,
+      // The language of the partner page the widget was embedded in → the guest
+      // app ships English + that one. Validated inside deployToServer.
+      lang: typeof body.lang === 'string' ? body.lang : undefined,
     })
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err)

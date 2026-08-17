@@ -4,9 +4,7 @@ import {
   sendWelcomeEmail,
   sendDomainActivatedEmail,
   sendInstallStartedEmail,
-  sendInstallProgressEmail,
   sendDeployFailedEmail,
-  sendRecoveryTokenEmail,
   sendQueuedEmail,
   sendExpiryWarningEmail,
   sendCertExpiryWarningEmail,
@@ -26,8 +24,6 @@ type TemplateKey =
   | 'welcome_ip'
   | 'domain_activated'
   | 'install_started'
-  | 'install_progress'
-  | 'recovery_token'
   | 'deploy_failed'
   | 'queued'
   | 'expiry_warning'
@@ -48,11 +44,7 @@ async function dispatch(template: TemplateKey, to: string) {
       // welcome_ip but URLs are https://<host>.<domain>.
       return sendDomainActivatedEmail(to, SAMPLE_DOMAIN)
     case 'install_started':
-      return sendInstallStartedEmail(to)
-    case 'install_progress':
-      return sendInstallProgressEmail(to)
-    case 'recovery_token':
-      return sendRecoveryTokenEmail(to, SAMPLE_TOKEN)
+      return sendInstallStartedEmail(to, SAMPLE_IP)
     case 'deploy_failed':
       return sendDeployFailedEmail(to, 'SSH connect failed: timeout connecting to 109.199.105.213:22', SAMPLE_TOKEN)
     case 'queued':

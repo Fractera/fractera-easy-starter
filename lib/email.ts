@@ -527,36 +527,65 @@ export async function sendAdminAlertEmail(userEmail: string, subscriptionId: str
 }
 
 
-export async function sendInstallStartedEmail(to: string) {
+// The FIRST of the deploy flow's two emails (the second is sendWelcomeEmail).
+//
+// 🔒 IT CARRIES THE ADDRESSES, and that is the point of the `ip` argument. This
+// email used to promise "the final email will contain your workspace URLs" and
+// give none — so a lost success email left the customer with no way at all to
+// reach the server they had just paid for a VPS to run. The addresses are known
+// the moment the deploy starts (they are derived from the IP the user typed),
+// so withholding them until the end was a choice, not a constraint. Now both
+// emails carry them and neither one is a single point of failure.
+export async function sendInstallStartedEmail(to: string, ip: string) {
+  const appUrl   = `http://${ip}:3000`
+  const adminUrl = `http://${ip}:3002`
+
   await sendEmail({
     from: FROM,
     to,
     subject: 'Your Fractera installation has started',
     html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">
         <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Installation started</h2>
-        <p style="margin:0 0 20px;color:#444;line-height:1.6">
+        <p style="margin:0 0 4px;color:#444;line-height:1.6">
           We're setting up Fractera on your server right now.
           This usually takes <strong>15–20 minutes</strong>.
         </p>
 
-        <p style="margin:0 0 6px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px">What happens next</p>
-        <ol style="margin:0 0 20px;padding-left:20px;color:#444;line-height:2">
-          <li>You'll receive a short update when dependencies are installed</li>
-          <li>The final email will contain your workspace URLs and SSH credentials</li>
-        </ol>
+        <p style="margin:0 0 6px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px">Your server</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:4px">
+          <tr><td style="padding:6px 0;color:#666;width:110px">IP address</td><td style="padding:6px 8px;font-weight:600;font-family:monospace">${ip}</td></tr>
+        </table>
 
-        <div style="background:#f7f7f7;border-radius:8px;padding:16px;margin-bottom:20px">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#333">You can also check status anytime</p>
+        <p style="margin:0 0 0;font-size:13px;color:#555;line-height:1.6">
+          These are your addresses — <strong>save this email</strong>. They will not change, and they
+          start working as soon as the installation below finishes.
+        </p>
+
+        ${destinationButtons(appUrl, adminUrl)}
+
+        <div style="margin:22px 0 0;padding:14px 16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px">
+          <p style="margin:0;font-size:13px;color:#92400e;line-height:1.6">
+            <strong>Not live yet.</strong> Until the install completes these links will not answer. They
+            also use plain HTTP, so your browser will say "Not secure" — that is expected until you attach
+            your own domain, which switches on a free HTTPS certificate automatically.
+          </p>
+        </div>
+
+        <div style="background:#f7f7f7;border-radius:8px;padding:16px;margin:20px 0">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#333">Watch it finish, live</p>
           <p style="margin:0;font-size:13px;color:#555;line-height:1.6">
-            Visit <a href="https://fractera.ai" style="color:#6c47ff">fractera.ai</a>, sign in, and open the
-            <strong>Servers</strong> tab — your domain will appear there once installation is complete.
+            The page you started the install from shows every step in real time, and your addresses turn
+            live there the moment the server is ready. You can also sign in at
+            <a href="https://fractera.ai" style="color:#6c47ff">fractera.ai</a> and open the
+            <strong>Servers</strong> tab.
           </p>
         </div>
 
         <p style="margin:0;font-size:12px;color:#888;line-height:1.6">
-          If you re-enter your server IP and password on fractera.ai, the dashboard will detect the current state
-          and offer options like removing Fractera branding or deleting the server.
+          You'll get one more email when the server is ready. If you re-enter your server IP and password
+          on fractera.ai, the dashboard will detect the current state and offer options like removing
+          Fractera branding or deleting the server.
         </p>
       </div>
     `,
@@ -565,28 +594,12 @@ export async function sendInstallStartedEmail(to: string) {
 
 
 
-export async function sendInstallProgressEmail(to: string) {
-  await sendEmail({
-    from: FROM,
-    to,
-    subject: 'Fractera: dependencies installed — building services',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
-        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Good progress</h2>
-        <p style="margin:0 0 20px;color:#444;line-height:1.6">
-          All dependencies have been installed on your server.
-          We're now building the Fractera services and configuring your domain.
-        </p>
-        <p style="margin:0 0 20px;color:#444;line-height:1.6">
-          You'll receive the final email with your workspace URLs in <strong>5–10 more minutes</strong>.
-        </p>
-        <p style="margin:0;font-size:12px;color:#888">
-          Check status anytime at <a href="https://fractera.ai" style="color:#6c47ff">fractera.ai</a> → Servers tab.
-        </p>
-      </div>
-    `,
-  })
-}
+// 🪦 sendInstallProgressEmail — REMOVED 2026-08-17 (owner's decision).
+// It said "5–10 more minutes" at the ~30% bootstrap milestone and carried nothing
+// actionable. The deploy flow is deliberately TWO emails now — start and result —
+// because every extra send counts against the Resend allowance for no benefit, and
+// the site itself reports progress live. Do not reintroduce it: an interim "still
+// working" email is what a progress bar is for.
 
 export async function sendSponsorThankYouEmail(to: string, tier: 's1' | 's5' | 's20') {
   const tierLabel = tier === 's1' ? '$1/month' : tier === 's5' ? '$5/month' : '$20/month'
@@ -724,83 +737,13 @@ export async function sendPartnerWelcomeEmail(to: string, slug: string) {
   })
 }
 
-// Sent right after a ServerToken is created — by ANY deploy path (main /api/install,
-// embed /api/embed/install, or MCP register_and_deploy). The install-started email
-// is sent BEFORE the ServerToken row exists, so it cannot carry the recovery token —
-// this follow-up closes that gap. The token unlocks MCP retry_deploy if anything
-// breaks later. Best-effort: callers wrap in try/catch and never fail the deploy
-// because of an email send error.
-export async function sendRecoveryTokenEmail(to: string, serverToken: string) {
-  await sendEmail({
-    from: FROM,
-    to,
-    replyTo: 'admin@fractera.ai',
-    subject: 'Save your Fractera recovery token (backup — only if needed)',
-    html: `
-      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">
-        <h2 style="margin:0 0 12px">Save this in case anything goes wrong</h2>
-
-        <p style="margin:0 0 16px;color:#333;line-height:1.6">
-          We just launched the deployment of your Fractera server. The next
-          email you receive will either contain your live URL (most likely) or
-          a failure report. <strong>You do not need to do anything right now.</strong>
-        </p>
-
-        <p style="margin:0 0 16px;color:#333;line-height:1.6">
-          This message is a backup. If the deploy ever gets stuck, fails, or
-          you want to re-run it later, the token below lets any AI agent
-          (Claude, ChatGPT/Codex, Gemini) recover the same server for you.
-        </p>
-
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Your recovery token</p>
-        <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">${escapeHtml(serverToken)}</p>
-
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">Fractera MCP server URL</p>
-        <p style="margin:0 0 20px;font-size:13px;color:#1f2937;font-family:monospace;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;line-height:1.5;word-break:break-all;user-select:all">https://www.fractera.ai/api/mcp</p>
-
-        <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px">How to use it (only if you need to)</p>
-        <ol style="margin:0 0 20px;padding-left:20px;line-height:1.7;color:#1f2937;font-size:14px">
-          <li style="margin-bottom:8px">
-            Open the AI agent you use day-to-day — Claude, ChatGPT/Codex, or
-            Gemini. Some agents call this an &ldquo;MCP server&rdquo;, others
-            call it a &ldquo;connector&rdquo; — same thing.
-          </li>
-          <li style="margin-bottom:8px">
-            Tell the agent in plain language: <em>&ldquo;Please connect the
-            MCP server at https://www.fractera.ai/api/mcp. Once connected, retry
-            my Fractera deploy with this recovery token: ${escapeHtml(serverToken.slice(0, 12))}&hellip;&rdquo;</em>
-            The agent will walk you through the 15-second connector
-            setup inside its own interface, then call our <code>retry_deploy</code>
-            tool with your token.
-          </li>
-          <li style="margin-bottom:8px">
-            That&rsquo;s it. The agent will wipe the partial install and run a
-            fresh deploy on the same server. You&rsquo;ll receive a new welcome
-            email when it&rsquo;s done.
-          </li>
-        </ol>
-
-        <p style="margin:0 0 16px;color:#555;font-size:13px;line-height:1.6;background:#fffbeb;border:1px solid #fef3c7;border-radius:8px;padding:12px">
-          <strong style="color:#92400e">If everything goes well — you can safely
-          ignore this email.</strong> Most deploys complete on the first try.
-          We send this as a one-time safety net because the recovery token is
-          generated by the deploy itself and is not available in the
-          install-started email.
-        </p>
-
-        <p style="margin:0 0 16px;color:#777;font-size:12px;line-height:1.6">
-          Treat the recovery token like a password — anyone who has it can
-          re-run a deploy on this same server using your stored IP and
-          credentials. Do not share it publicly.
-        </p>
-
-        <p style="margin:0;color:#666;font-size:13px;line-height:1.6">
-          Questions? Reply directly to this email — it goes to admin@fractera.ai.
-        </p>
-      </div>
-    `,
-  })
-}
+// 🪦 sendRecoveryTokenEmail — REMOVED 2026-08-17 (owner decision).
+// It mailed the server_token up front, «in case anything goes wrong», on EVERY deploy —
+// so the overwhelming majority of recipients got a scary backup email they never needed.
+// Nothing is lost by deleting it: sendDeployFailedEmail already carries the same
+// server_token AND the same MCP retry_deploy instructions, and it arrives exactly when a
+// deploy actually fails. The token is also returned on every GET /api/progress poll, so
+// the UI holds it live. Do not reintroduce it.
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c))

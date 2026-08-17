@@ -3,19 +3,23 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
-// Only the 4 transactional emails that fire during a real IP-mode deploy.
+// A REAL DEPLOY SENDS EXACTLY TWO EMAILS (owner's decision, 2026-08-17): the
+// start confirmation and the result. The two that used to sit between them —
+// 'recovery_token' and 'install_progress' — were deleted from lib/email.ts, not
+// merely hidden here; see the tombstones there. Both are unlisted for the same
+// reason they were removed: every extra send eats the Resend allowance while the
+// customer can already watch the deploy live on the page they started from.
+//
 // Other functions in lib/email.ts (deploy_failed, queued, expiry_warning,
-// company_brain_inquiry, welcome-with-domain) still exist and are called from
-// failure handlers / Stripe webhooks / B2B form — they're just not surfaced
-// here because we audit them separately from the install flow.
+// company_brain_inquiry) still exist and are called from failure handlers /
+// Stripe webhooks / the B2B form — they're just audited separately from the
+// install flow.
 const TEMPLATES = [
-  { key: 'install_started',  label: '1 · Install started — confirmation',      desc: 'First email. Sent right after the user clicks Deploy — bootstrap is starting on the VPS.' },
-  { key: 'recovery_token',   label: '2 · Recovery token — safety net',         desc: 'Sent in parallel with install-started. Carries SESSION_ID + SERVER_TOKEN + Fractera MCP URL so the user can re-engage the deploy from any AI agent if anything breaks.' },
-  { key: 'install_progress', label: '3 · Install progress — middle of deploy', desc: 'Sent once mid-bootstrap when all 6 dependency steps finished (~30% through). Reassures the user the deploy is still running.' },
-  { key: 'welcome_ip',       label: '4 · Welcome — server is live (IP-only)',  desc: 'Final email after deploy. IP-mode rendering: HTTP IP:port links to Live app, Brain, Memory. Recommended next steps (OpenAI key, Codex, Telegram, domain), Sponsor CTA, GitHub star CTA.' },
-  { key: 'domain_activated', label: '5 · Domain activated — switched to HTTPS', desc: 'Sent after the user completes the Personal Domain wizard step 4. Same look as welcome_ip but URLs are https://<host>.<domain>, and the "buy a domain" step is replaced with a congratulations card.' },
-  { key: 'cert_expiry',      label: '6 · TLS certificate expiring (Secure mode)', desc: 'Sent by the customer server\'s daily cert-relay when the HTTPS certificate drops to ≤14 days left (one per cert lifecycle, re-armed after renewal). Same look as domain_activated + Sponsor / GitHub star CTAs. Sample renders 7 days left.' },
-  { key: 'partner_welcome',  label: '7 · Partner welcome — cabinet activated',   desc: 'Sent when a user registers as a partner. Carries the partner ID/slug, the partner page URL (www.fractera.ai/partner/<slug>), the widget iframe snippet, and the "choosing an affiliate program" guidance (Hostinger easiest; Contabo/GoDaddy via cj.com).' },
+  { key: 'install_started',  label: '1 · Install started — confirmation',      desc: 'First of two. Sent right after the user clicks Deploy. Carries the server IP and both addresses (:3000 app, :3002 panel), so the customer holds them from minute one and does not depend on the success email arriving.' },
+  { key: 'welcome_ip',       label: '2 · Welcome — server is live (IP-only)',  desc: 'Second of two, after the deploy finishes. IP-mode rendering: HTTP IP:port links. Sent exactly once via the ServerToken.welcomeSentAt claim, and re-attempted by the */15 ping cron if a send fails.' },
+  { key: 'domain_activated', label: '3 · Domain activated — switched to HTTPS', desc: 'Sent after the user completes the Personal Domain wizard step 4. Same look as welcome_ip but URLs are https://<host>.<domain>, and the "buy a domain" step is replaced with a congratulations card.' },
+  { key: 'cert_expiry',      label: '4 · TLS certificate expiring (Secure mode)', desc: 'Sent by the customer server\'s daily cert-relay when the HTTPS certificate drops to ≤14 days left (one per cert lifecycle, re-armed after renewal). Same look as domain_activated + Sponsor / GitHub star CTAs. Sample renders 7 days left.' },
+  { key: 'partner_welcome',  label: '5 · Partner welcome — cabinet activated',   desc: 'Sent when a user registers as a partner. Carries the partner ID/slug, the partner page URL (www.fractera.ai/partner/<slug>), the widget iframe snippet, and the "choosing an affiliate program" guidance (Hostinger easiest; Contabo/GoDaddy via cj.com).' },
 ] as const
 
 type TemplateKey = typeof TEMPLATES[number]['key']

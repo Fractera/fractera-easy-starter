@@ -4,7 +4,7 @@ import { wipeServer } from '@/lib/wipe-script'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { initProgress, appendStep, failProgress } from '@/lib/kv'
-import { sendInstallStartedEmail, sendRecoveryTokenEmail } from '@/lib/email'
+import { sendInstallStartedEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
 import { serializeComponents, isComponentId, type ComponentId } from '@/lib/components-catalog'
 import { resolveSlotRepoUrl, SLOT_FRAMEWORK_ID } from '@/lib/frameworks-catalog'
@@ -12,7 +12,7 @@ import { resolveSlotRepoUrl, SLOT_FRAMEWORK_ID } from '@/lib/frameworks-catalog'
 export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
-  const { ip, login, password, session_id, platform, serverToken: existingToken, components, framework, repoUrl } = await req.json()
+  const { ip, login, password, session_id, platform, serverToken: existingToken, components, framework, repoUrl, lang } = await req.json()
 
   if (!ip || !login || !password || !session_id) {
     return NextResponse.json({ error: 'Missing ip, login, password or session_id' }, { status: 400 })
@@ -80,20 +80,14 @@ export async function POST(req: NextRequest) {
     serverIdForBootstrap = newToken.id
   }
 
-  // Step 1: init progress + send confirmation email BEFORE SSH so it always fires
+  // Step 1: init progress + send confirmation email BEFORE SSH so it always fires.
+  // It carries the server's addresses (http://<ip>:3000 / :3002) so the customer
+  // has them from the first minute and does not depend on the success email that
+  // arrives ~15 min later. Exactly two emails per deploy — this one and the result.
   await initProgress(session_id)
   if (userEmail) {
     await appendStep(session_id, { id: 'email_start', label: 'Confirmation email sent', done: true, ts: Date.now() })
-    await sendInstallStartedEmail(userEmail)
-    // Best-effort recovery-token follow-up. The install-started email above
-    // does not carry the token because the ServerToken row may not exist for
-    // existing-token paths; but if we DO have a token now, send the recovery
-    // email so the user can re-engage via MCP later if anything breaks.
-    if (tokenForBootstrap) {
-      try { await sendRecoveryTokenEmail(userEmail, tokenForBootstrap) } catch (err) {
-        console.error('[install] recovery-token email failed', err)
-      }
-    }
+    await sendInstallStartedEmail(userEmail, ip)
   }
 
   // Step 2: wipe any previous installation BEFORE bootstrap runs. See
@@ -133,6 +127,9 @@ export async function POST(req: NextRequest) {
     // keeps the deploy byte-identical. deploy.ts sanitizes + env-passes to bootstrap.
     framework: slotFramework,
     repoUrl: slotRepoUrl || undefined,
+    // The customer's UI language → the guest app ships English + that one.
+    // deployToServer validates it; anything unexpected means English only.
+    lang: typeof lang === 'string' ? lang : undefined,
   })
 
   return NextResponse.json({ session_id, status: 'installing' })
