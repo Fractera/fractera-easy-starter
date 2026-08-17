@@ -5,18 +5,16 @@ import { wipeServer } from '@/lib/wipe-script'
 import { deployToServer, SLOT_LANGUAGES } from '@/lib/deploy'
 import { sendInstallStartedEmail, sendDeployFailedEmail } from '@/lib/email'
 import { releaseServersOnIp } from '@/lib/server-takeover'
-import { serializeComponents, isComponentId, ALL_COMPONENT_IDS, type ComponentId } from '@/lib/components-catalog'
 import { getSectionList, getSection, type InfoLang } from '@/lib/project-info/content'
-import { getArchitectSectionList, getArchitectSection, IMAGE_WIDE, ARCHITECT_URL } from '@/lib/architect-page/content'
-import { getLoopSectionList, getLoopSection, IMAGE as LOOP_IMAGE, LOOP_URL } from '@/lib/development-loop/content'
 
-// Turn the agent-supplied components value into the bootstrap arg string.
-//   undefined / not an array  → undefined  → deploy installs everything (default)
-//   array (possibly empty)    → 'all' | 'none' | csv  (empty = CORE only, no AI)
-function resolveMcpComponents(raw: unknown): string | undefined {
-  if (!Array.isArray(raw)) return undefined
-  return serializeComponents(raw.filter(isComponentId) as ComponentId[])
-}
+// 🪦 ЗДЕСЬ СТОЯЛ `resolveMcpComponents()` — он превращал выбор ассистента в
+// аргумент установщика. Выбирать больше нечего: каталог компонентов пуст по
+// построению (`ComponentId = never`), а установщик ставит один и тот же набор.
+//
+// Оставить функцию значило бы держать живой путь для значения, которого ни один
+// вызывающий не может произвести, — и первый же читатель решил бы, что выбор
+// существует, раз под него написан код.
+const components = undefined // каждый сервер получает один и тот же набор
 
 // Default partner-VPS recommendation surfaced when the user says they don't
 // have a server yet. Static for now; future MCP-per-partner URLs (e.g.
@@ -59,18 +57,9 @@ export const MCP_TOOLS = [
           type: 'string',
           description: 'Optional — defaults to "root". Override only if the VPS provider gave a non-root username.',
         },
-        components: {
-          type: 'array',
-          items: {
-            type: 'string',
-            enum: ALL_COMPONENT_IDS,
-          },
-          description:
-            'Optional — which optional services to install. The only id is "memory" (LightRAG vector knowledge base). OMIT this to install it; pass an empty array [] for a plain server with NO AI at all. The server, database, storage, sign-in and Admin panel are always installed regardless.',
-        },
         components_selected: {
           type: 'boolean',
-          description: 'REQUIRED, must be true. Set this ONLY after you have actually asked the component question (Q5) — told the user the full set is the default and asked, in three short steps, whether to keep all five coding assistants, Memory, and Brain. Pass it together with `components` (omit `components` or pass the full array = everything, [] = none, a subset = those). Do not set it if you skipped Q5.',
+          description: 'REQUIRED, must be true. Nothing is selectable any more — every server gets the same set — so this only records that you TOLD the user what gets installed (Q5): the app, the database and file storage with vector memory, sign-in, and the control panel.',
         },
         terms_accepted: {
           type: 'boolean',
@@ -140,15 +129,6 @@ export const MCP_TOOLS = [
           type: 'string',
           description: 'Optional — only pass if the user discovered the original password was wrong. Otherwise the stored password is used.',
         },
-        components: {
-          type: 'array',
-          items: {
-            type: 'string',
-            enum: ALL_COMPONENT_IDS,
-          },
-          description:
-            'Optional — same meaning as in register_and_deploy. OMIT to reinstall the full recommended toolset. Pass a subset (or [] for none) only if the user wants to change which AI tools are installed on this retry.',
-        },
       },
       required: ['server_token'],
     },
@@ -182,40 +162,6 @@ export const MCP_TOOLS = [
           type: 'string',
           enum: ['en', 'ru'],
           description: 'Language of the returned content. Defaults to "en". Use "ru" for Russian-speaking users.',
-        },
-      },
-      required: [],
-    },
-  },
-  {
-    name: 'get_ai_workspace_architect_info',
-    title: 'Get AI Workspace Architecture',
-    annotations: { readOnlyHint: true, destructiveHint: false },
-    description:
-      'Architecture reference for Fractera AI Workspace: what it is made of and how it works (the admin drives it through Hermes — chat Web UI or Telegram — or directly through the five coding agents; a modal subscription sign-in layer + MCP keep work resilient when a subscription is limited; LightRAG is the central memory that slashes token use; Hermes is a light orchestrator while the coding agents do the heavy lifting; the result ships over HTTPS on a custom domain or plain HTTP on an IP). RETURNS A DIAGRAM IMAGE URL you can show the user when they ask what Fractera is or how it works. Call with NO arguments to get the wide illustration URL + the core "how it works" scenario + the section list; call again with a single `section` id to read one entity in depth.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        section: {
-          type: 'string',
-          description: 'A section id from the list (e.g. "hermes", "lightrag", "coding-agents", "claude-code"). Omit to get the illustration, the overview scenario and the section list.',
-        },
-      },
-      required: [],
-    },
-  },
-  {
-    name: 'get_ai_development_loop_info',
-    title: 'Get Fractera Development Loop',
-    annotations: { readOnlyHint: true, destructiveHint: false },
-    description:
-      'Explains the Fractera development loop: how one admin request becomes tested, deployed, recorded code with no human writing it — Hermes orchestrates and loads its identity + project context, picks a ready coding agent (Claude Code, Codex, Gemini, Qwen, Kimi), the agent is enriched (SOUL.md / AGENTS.md / GLOSSARY.md / completed steps), generates a task then code, it is built and deployed, and the result branches (error feeds back; success updates the completed steps and the deployments tab) — all grounded by LightRAG memory at every step. RETURNS A DIAGRAM IMAGE URL you can show the user when they ask how Fractera builds software or how its agents work. Call with NO arguments to get the diagram URL + the "how the loop works" overview + the section list; call again with a single `section` id to read one stage in depth.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        section: {
-          type: 'string',
-          description: 'A section id from the list (e.g. "hermes", "lightrag", "test-deploy", "the-record"). Omit to get the diagram, the overview and the section list.',
         },
       },
       required: [],
@@ -257,56 +203,6 @@ export async function handleToolCall(
       }
     }
     return { id: found.id, title: found.title, body: found.body }
-  }
-
-  if (name === 'get_ai_workspace_architect_info') {
-    const section = typeof args.section === 'string' ? args.section.trim() : ''
-    if (!section) {
-      const how = getArchitectSection('how-it-works')
-      return {
-        page_url: ARCHITECT_URL,
-        illustration: IMAGE_WIDE,
-        illustration_note:
-          'Wide architecture diagram of Fractera AI Workspace. Show this image when the user asks what Fractera is, what it is made of, or how it works.',
-        overview: how?.body ?? '',
-        sections: getArchitectSectionList().map(({ id, title }) => ({ id, title })),
-        note:
-          'This is the architecture reference for Fractera AI Workspace. The overview above ("How Fractera works") is the key scenario. For one entity in depth, call get_ai_workspace_architect_info again with a single `section` id from the list.',
-      }
-    }
-    const found = getArchitectSection(section)
-    if (!found) {
-      return {
-        status: 'not_found',
-        message: `No section "${section}". Call get_ai_workspace_architect_info with no section to get the valid list.`,
-      }
-    }
-    return { id: found.id, title: found.title, body: found.body, illustration: IMAGE_WIDE }
-  }
-
-  if (name === 'get_ai_development_loop_info') {
-    const section = typeof args.section === 'string' ? args.section.trim() : ''
-    if (!section) {
-      const how = getLoopSection('how-it-works')
-      return {
-        page_url: LOOP_URL,
-        illustration: LOOP_IMAGE,
-        illustration_note:
-          'The Fractera Development Loop diagram. Show this image when the user asks how Fractera builds software, how its agents work, or what the development loop is.',
-        overview: how?.body ?? '',
-        sections: getLoopSectionList().map(({ id, title }) => ({ id, title })),
-        note:
-          'This explains the Fractera development loop. The overview above ("How the Fractera development loop works") is the key scenario. For one stage in depth, call get_ai_development_loop_info again with a single `section` id from the list.',
-      }
-    }
-    const found = getLoopSection(section)
-    if (!found) {
-      return {
-        status: 'not_found',
-        message: `No section "${section}". Call get_ai_development_loop_info with no section to get the valid list.`,
-      }
-    }
-    return { id: found.id, title: found.title, body: found.body, illustration: LOOP_IMAGE }
   }
 
   if (name === 'get_subdomain') {
@@ -377,7 +273,6 @@ export async function handleToolCall(
     const ip = String(args.ip ?? '').trim()
     const password = String(args.password ?? '')
     const login = (typeof args.login === 'string' && args.login.trim()) ? args.login.trim() : 'root'
-    const components = resolveMcpComponents(args.components) // undefined => install all
     // The language of the conversation the agent is having with the user. The guest
     // app ships English + this one. deployToServer validates it against the slot's
     // real translation set, so a wrong guess here degrades to English, never breaks.
@@ -402,7 +297,7 @@ export async function handleToolCall(
     }
     if (!password) return { status: 'error', message: 'Missing password. Ask the user for the root password of their server (Q4).' }
     if (args.components_selected !== true) {
-      return { status: 'error', message: 'Components not chosen yet (Q5 skipped). Run Q5 first: tell the user the full recommended set is installed by default, then ask in three short steps whether to keep all five coding assistants, Memory, and Brain (or drop any to run a smaller, cheaper server). Then call again with components_selected: true plus the components array (omit it or full array = everything, [] = none, a subset = those).' }
+      return { status: 'error', message: 'Q5 skipped. Tell the user in one line what they get — the app, the database and file storage with vector memory, sign-in, and the control panel, all on their own server — then call again with components_selected: true. There is nothing for them to choose: every server gets the same set.' }
     }
     if (args.terms_accepted !== true) {
       return { status: 'error', message: 'Terms not accepted (Q6 skipped). The user must explicitly confirm in the chat that they have read and agree to Fractera\'s Terms of Service (https://www.fractera.ai/en/terms) and Privacy Policy (https://www.fractera.ai/en/privacy), and that they understand they must change their server root password immediately after installation (Fractera never stores it). Ask for that confirmation now — offer to explain the documents here in the chat — then call again with terms_accepted: true.' }
@@ -643,7 +538,6 @@ export async function handleToolCall(
     const ipOverride = typeof args.ip === 'string' && args.ip.trim() ? args.ip.trim() : null
     const passwordOverride = typeof args.password === 'string' && args.password.trim() ? args.password.trim() : null
     const loginOverride = typeof args.login === 'string' && args.login.trim() ? args.login.trim() : 'root'
-    const components = resolveMcpComponents(args.components) // undefined => reinstall full set
 
     const ip = ipOverride ?? record.serverIp
     const password = passwordOverride ?? record.serverPassword
