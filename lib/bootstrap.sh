@@ -618,6 +618,28 @@ ENVEOF
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 log_email "build_start" "Building services (this takes 5-10 min)" 40
+
+# ── THE DATA LAYER STARTS BEFORE THE BUILDS, NOT AFTER (found by a failed deploy 2026-08-18) ──
+#
+# A production build of the shell READS THE DATABASE: static pages are the whole point, and the
+# storefront, the product sitemap and robots.txt all ask what products exist. Since 2026-08-17 the
+# app reaches the database the correct way - through the data layer on :3300 - so that read is now
+# an HTTP call. It used to be a local file, which is why this ordering never hurt before.
+#
+# With the data service still down, the very first question got ECONNREFUSED and `next build` died:
+# "Failed to collect page data for /products/sitemap/[__metadata_id__]". The deployment stopped
+# there and the customer got a failure email.
+#
+# The data service is the ONLY service that needs no build of its own - it is `node server.js` -
+# so it can stand up first at zero cost. Starting it here also means the app CREATES ITS TABLES
+# during the build (schema preparation runs when the db module loads), instead of at first request.
+#
+# `pm2 delete all` moved up with it: it wipes services from a previous install, and running it
+# after this line would kill the service the builds depend on.
+pm2 delete all >> "$LOG_FILE" 2>&1 || true
+mkdir -p /opt/fractera/app/data
+step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera && for i in \$(seq 1 15); do curl -sf http://127.0.0.1:3300/health >/dev/null 2>&1 && break || sleep 2; done"
+
 step "build_app"         "Building shell (production)"   "npm run build --prefix app"
 step "build_auth"        "Building auth (production)"    "npm run build --prefix services/auth"
 # The admin panel bakes the platform commit it was built from. Without it the panel used to call itself
@@ -630,13 +652,12 @@ step "build_bridges_app" "Building admin (production)"   "NEXT_PUBLIC_GIT_COMMIT
 # without a stored copy the app cannot be started again until some build succeeds. 33 MB, measured.
 step "seed_last_good" "Storing the first good build" "rm -rf /opt/fractera/app/.next.last-good && cp -a /opt/fractera/app/.next /opt/fractera/app/.next.last-good && printf '%s\n' '/.next.last-good/' >> /opt/fractera/app/.git/info/exclude"
 
-# Remove any previous services before starting fresh
-pm2 delete all >> "$LOG_FILE" 2>&1 || true
+# The previous install was cleared before the builds, together with the early start of the data
+# service - see the block above `build_app`. Nothing to delete here any more.
 
 step "start_app"    "Starting shell service"   "cd /opt/fractera/app && pm2 start npm --name fractera-app -- run start && cd /opt/fractera"
 step "start_auth"   "Starting auth service"    "cd /opt/fractera/services/auth && pm2 start npm --name fractera-auth -- run start && cd /opt/fractera"
 step "start_admin"  "Starting admin service"   "cd /opt/fractera/bridges/app && pm2 start npm --name fractera-admin -- run start && cd /opt/fractera"
-step "start_data"   "Starting data service"    "cd /opt/fractera/services/data && pm2 start node --name fractera-data -- server.js && cd /opt/fractera"
 step "start_channels" "Starting channels service" "cd /opt/fractera/services/channels && pm2 start node --name fractera-channels -- server.js && cd /opt/fractera"
 soft_step "start_rag" "LightRAG service" "RAG_PY=\$HOME/.local/share/uv/tools/lightrag-hku/bin/python && RAG_BIN=\$HOME/.local/share/uv/tools/lightrag-hku/bin/lightrag-server && cd /opt/fractera/services/rag && pm2 start \$RAG_BIN --name fractera-rag --interpreter \$RAG_PY --cwd /opt/fractera/services/rag && cd /opt/fractera && for i in \$(seq 1 10); do curl -sf http://127.0.0.1:9621/health >> \"$LOG_FILE\" 2>&1 && break || sleep 3; done"
 
