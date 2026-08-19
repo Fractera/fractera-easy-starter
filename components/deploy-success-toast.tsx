@@ -9,6 +9,7 @@ type SuccessToastStrings = {
   siteLabel: string
   adminLabel: string
   dashboardNote: string
+  envNote: string
   checkboxLabel: string
   closeButton: string
 }
@@ -88,6 +89,17 @@ export function DeploySuccessToast({
         {/* Dashboard note */}
         <p className="text-sm text-emerald-200/70 leading-relaxed">
           {strings.dashboardNote}
+        </p>
+
+        {/* Первый шаг после развёртывания (владелец 2026-08-19).
+
+            Человек подключает GitHub, забирает проект на свою машину — и не
+            запускает ничего: файл окружения через git не едет никогда, он в
+            игноре намеренно. Сказать об этом надо здесь, в единственном экране,
+            который читают все и сразу; дальше об этом же красным напоминает
+            панель. */}
+        <p className="text-sm text-amber-200 leading-relaxed font-medium">
+          {strings.envNote}
         </p>
 
         {/* Divider */}

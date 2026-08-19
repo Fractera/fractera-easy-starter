@@ -182,7 +182,7 @@ export type SiteContent = {
     errorMcpLink: string
     errorMcpSuffix: string
     progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string; domainTipTitle: string; domainTipBody: string; domainButton: string; dnsButton: string; dnsIntro: string; dnsCovers: string }
-    successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; checkboxLabel: string; closeButton: string }
+    successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; envNote: string; checkboxLabel: string; closeButton: string }
     // The addresses block shown from the FIRST second of a deploy: in IP mode the
     // URLs are derived from the IP the user just typed, so there is nothing to wait
     // for. `pending*` renders while the install runs, `live*` once it finishes.

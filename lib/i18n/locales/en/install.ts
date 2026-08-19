@@ -81,6 +81,7 @@ export const install: InstallPart = {
       siteLabel: 'Your site',
       adminLabel: 'Admin panel',
       dashboardNote: 'All your servers are available in your Dashboard — accessible from the top-right corner of the page after signing in.',
+      envNote: 'First step after this: open the Control panel → Environment variables and move .env.local to your machine. Git never carries that file, and without it your local copy will not start.',
       checkboxLabel: 'I understand',
       closeButton: 'Close',
     },
