@@ -10,6 +10,7 @@ import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
 import { ServerAddresses } from './server-addresses'
 import { buildUrls } from '@/lib/subdomain-helpers'
+import { startAdaptivePoll } from '@/lib/adaptive-poll'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
@@ -208,7 +209,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         setActiveStep(newActive)
 
         if (progress.status === 'done' && progress.subdomain) {
-          clearInterval(pollInterval)
+          stopPoll()
           setSubdomain(progress.subdomain)
           localStorage.setItem('fractera_domain', JSON.stringify({
             domain: progress.subdomain,
@@ -222,7 +223,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         }
 
         if (progress.status === 'error') {
-          clearInterval(pollInterval)
+          stopPoll()
           setInstallError(progress.error ?? 'Installation failed')
           setShowProgressToast(false)
           toast.error(progress.error ?? 'Installation failed', { duration: 10000 })
@@ -231,14 +232,12 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         // Network error — retry next cycle
       }
     }
-    // 5s, not 30s. The completion signal drives the on-page reveal (the addresses
-    // block turning live, and the success toast), so a 30s poll meant the customer
-    // could sit in front of a finished server for half a minute being told it was
-    // still installing. The dashboard already polls pending servers at this rate.
-    const pollInterval = setInterval(tick, 5000)
+    // Скорость опроса — в `lib/adaptive-poll.ts`: 5 с первую минуту (там появляются
+    // IP и адреса), дальше 30 с. Первый запрос идёт сразу, не дожидаясь шага.
+    const stopPoll = startAdaptivePoll(tick)
     tick()
 
-    eventSourceRef.current = () => clearInterval(pollInterval)
+    eventSourceRef.current = stopPoll
   }
 
   function reset() {

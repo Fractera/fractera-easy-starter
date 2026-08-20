@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 import { ServerAddresses } from './server-addresses'
+import { startAdaptivePoll } from '@/lib/adaptive-poll'
 
 interface Props {
   sessionId: string
@@ -34,7 +35,8 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
   const [now, setNow] = useState(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState(Date.now())
   const [cancelling, setCancelling] = useState(false)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Держим не идентификатор таймера, а функцию остановки адаптивного опроса.
+  const pollRef = useRef<(() => void) | null>(null)
 
   async function handleCancel() {
     const msg = installError
@@ -89,13 +91,13 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
         setActiveStep(newActive)
 
         if (progress.status === 'done' && progress.subdomain) {
-          clearInterval(pollRef.current!)
+          pollRef.current?.()
           setLiveSubdomain(progress.subdomain)
           onComplete?.(progress.subdomain)
         }
 
         if (progress.status === 'error') {
-          clearInterval(pollRef.current!)
+          pollRef.current?.()
           const msg = progress.error ?? 'Installation failed'
           setInstallError(msg)
           onError?.(msg)
@@ -104,12 +106,11 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
         // retry next cycle
       }
     }
-    // 5s — same reason as install-form.tsx: this poll is what flips the addresses
-    // to live, so a 30s cadence left a finished server looking unfinished.
-    pollRef.current = setInterval(tick, 5000)
+    // Скорость — в `lib/adaptive-poll.ts`, та же, что у формы установки.
+    pollRef.current = startAdaptivePoll(tick)
     tick()
 
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+    return () => { pollRef.current?.() }
   }, [sessionId])
 
   const doneCount = steps.filter(s => s.done).length
