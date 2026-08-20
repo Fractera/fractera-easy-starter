@@ -168,15 +168,50 @@ maybe_step() {
 
 echo "=== Fractera bootstrap started: $(date) ===" > "$LOG_FILE"
 
-step "apt_update"   "Updating system"         "rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
-step "apt_install"  "Installing base tools"   "apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx ffmpeg"
+# 🔒 АВТООБНОВЛЕНИЕ UBUNTU ДЕРЖИТ ЗАМОК APT — И УБИВАЕТ УСТАНОВКУ ЦЕЛИКОМ
+# (введено 2026-08-20 по разбору падения на живом сервере).
+#
+# `unattended-upgrades` просыпается по таймеру и берёт `/var/lib/dpkg/lock-frontend`.
+# Наш `apt-get` в этот момент получает «Could not get lock», шаг возвращает ненулевой
+# код — а `step()` ФАТАЛЕН: он зовёт `fail` и весь bootstrap заканчивается. На сервере
+# владельца это случилось через 92 секунды после старта: полоса застыла на 14%,
+# `/opt/fractera` так и не появился, а в браузере это выглядело как «долго думает» —
+# полоса показывает последнее значение и о падении не знает.
+#
+# Ждать замок дешевле, чем падать: автообновление длится минуты, а падение стоит часов.
+# Мер две, потому что apt зовём не только мы — скрипт NodeSource внутри себя делает
+# собственный `apt-get`, и наши флаги туда не попадают. Файл настройки действует на
+# ЛЮБОЙ вызов apt на этой машине; функция страхует на случай, если версия apt настройку
+# не знает. Нет `fuser` (пакет psmisc) — условие цикла ложно, ожидания просто не будет,
+# и это безопасный отказ: настройка выше всё равно работает.
+mkdir -p /etc/apt/apt.conf.d
+printf 'DPkg::Lock::Timeout "600";\n' > /etc/apt/apt.conf.d/99fractera-lock-timeout
+
+wait_for_apt() {
+  local _waited=0
+  while fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/lib/apt/lists/lock >/dev/null 2>&1; do
+    if [ "$_waited" -ge 600 ]; then
+      echo "  ⚠ замок apt не освободился за 600 с — идём дальше" >> "$LOG_FILE"
+      return 0
+    fi
+    if [ "$((_waited % 30))" -eq 0 ]; then
+      echo "  … ждём освобождения замка apt (${_waited}с)" >> "$LOG_FILE"
+    fi
+    sleep 5
+    _waited=$((_waited + 5))
+  done
+  return 0
+}
+
+step "apt_update"   "Updating system"         "wait_for_apt; rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
+step "apt_install"  "Installing base tools"   "wait_for_apt; apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx ffmpeg"
 # Node 22 LTS (was 20 until 2026-08-02). Hermes' own monorepo lock carries
 # @electron/rebuild@4.2.0 — a DESKTOP-app dependency requiring node>=22.12.0 — and its
 # Node 22 is LTS; all our services are built and verified on it. (The original
 # reason for pinning 22 — an engine-strict build loop in the removed Hermes
 # dashboard — is gone, but 22 stays: it is what everything is tested against.)
-step "node_repo"    "Adding Node.js repository" "curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"
-step "node_install" "Installing Node.js 22"   "apt-get install -y nodejs"
+step "node_repo"    "Adding Node.js repository" "wait_for_apt; curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"
+step "node_install" "Installing Node.js 22"   "wait_for_apt; apt-get install -y nodejs"
 step "pm2"             "Installing PM2 process manager" "npm install -g pm2"
 log_email "pm2" "Node.js + PM2 installed" 10
 

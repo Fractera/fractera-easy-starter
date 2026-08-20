@@ -42,12 +42,20 @@ export async function completeProgress(session_id: string, subdomain: string): P
   await kv.set(`progress:${session_id}`, progress, { ex: 86400 })
 }
 
+// 🔒 УПАВШЕЕ РАЗВЁРТЫВАНИЕ ПОМНИТСЯ СТОЛЬКО ЖЕ, СКОЛЬКО УДАЧНОЕ — СУТКИ
+// (было 3600 с, исправлено 2026-08-20 по разбору реального случая).
+//
+// Асимметрия стояла ровно наоборот: успех жил сутки, а ошибка час. Владелец
+// открыл страницу через два часа после падения и получил «Session not found» —
+// то есть ничего: ни причины, ни даже факта, что установка вообще падала.
+// Запись об ошибке — единственное, ради чего сюда возвращаются позже; она и
+// обязана жить дольше всех, а не меньше всех.
 export async function failProgress(session_id: string, error: string): Promise<void> {
   const progress = await kv.get<InstallProgress>(`progress:${session_id}`)
   if (!progress) return
   progress.status = 'error'
   progress.error = error
-  await kv.set(`progress:${session_id}`, progress, { ex: 3600 })
+  await kv.set(`progress:${session_id}`, progress, { ex: 86400 })
 }
 
 export async function getProgress(session_id: string): Promise<InstallProgress | null> {
