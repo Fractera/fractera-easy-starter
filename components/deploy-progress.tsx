@@ -205,7 +205,9 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
       {/* 🔒 ОДНО МЕСТО, ДВЕ ВЕЩИ ПО ОЧЕРЕДИ. Карточка железа стоит НА МЕСТЕ
           адресов, а не рядом: внимание в эту минуту одно, а до адресов ещё
           минуты установки. Закрыл — под ней адреса, которые никуда не делись. */}
-      {!installError && hardware && !hardwareDismissed && (
+      {/* Место держится за карточкой, пока замер не пришёл: опрос быстрее его,
+          и адреса иначе занимают место раньше правды о сервере. */}
+      {!installError && !hardwareDismissed && hardware && (
         <ServerHardwareCard
           hardware={hardware}
           strings={HARDWARE_STRINGS}
@@ -213,7 +215,7 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
         />
       )}
 
-      {!installError && (!hardware || hardwareDismissed) && (serverIp || liveSubdomain) && (
+      {!installError && hardwareDismissed && (serverIp || liveSubdomain) && (
         <ServerAddresses
           target={liveSubdomain || serverIp || ''}
           live={!!liveSubdomain}

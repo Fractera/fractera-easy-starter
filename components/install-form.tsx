@@ -507,19 +507,31 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           {/* The addresses, from the first second of the deploy — they are derived
               from the IP above, so there is nothing to wait for. They turn from
               amber "not answering yet" to emerald "live" when the install lands. */}
-          {/* 🔒 ОДНО МЕСТО, ДВЕ ВЕЩИ ПО ОЧЕРЕДИ. Замер железа приходит первым
-              шагом установки и встаёт НА МЕСТО адресов: до них ещё минуты, а
-              правду про сервер человек должен узнать сейчас, пока может решить.
-              Закрыл — под карточкой адреса, которые никуда не делись. */}
-          {!installError && hardware && !hardwareDismissed && (
-            <ServerHardwareCard
-              hardware={hardware}
-              strings={t.hardware}
-              onDismiss={() => setHardwareDismissed(true)}
-            />
+          {/* 🔒 МЕСТО ДЕРЖИТСЯ ЗА КАРТОЧКОЙ, ПОКА ЗАМЕР НЕ ПРИШЁЛ.
+              ✗ здесь стояло «нет замера — показываем адреса»: опрос идёт раз в
+              пять секунд, а замер приходит за десять-двенадцать, поэтому первые
+              круги место занимали адреса — человек их читал, и карточка уже не
+              появлялась. Правда о сервере проигрывала гонку у собственного окна.
+              Пока установка идёт и замера ещё нет — держим место скелетоном. */}
+          {!installError && !hardwareDismissed && (installing || hardware) && (
+            hardware ? (
+              <ServerHardwareCard
+                hardware={hardware}
+                strings={t.hardware}
+                onDismiss={() => setHardwareDismissed(true)}
+              />
+            ) : (
+              <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] p-4">
+                <span className="inline-block w-2 h-2 rounded-full bg-white/40 animate-pulse shrink-0" />
+                <p className="text-xs font-bold uppercase tracking-widest text-white/45">
+                  {t.hardware.okTitle}
+                </p>
+              </div>
+            )
           )}
 
-          {!installError && (!hardware || hardwareDismissed) && (
+          {/* Адреса ждут под карточкой: они не меняются и никуда не денутся. */}
+          {!installError && (hardwareDismissed || (!installing && !hardware)) && (
             <ServerAddresses target={ip} live={false} strings={t.addresses} />
           )}
 
