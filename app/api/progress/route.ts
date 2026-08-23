@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProgress, appendStep, completeProgress, failProgress } from '@/lib/kv'
+import { getProgress, appendStep, completeProgress, failProgress, setHardware } from '@/lib/kv'
 import { db } from '@/lib/db'
 import { sendDeployFailedEmail } from '@/lib/email'
 import { sendWelcomeEmailOnce } from '@/lib/welcome-email'
@@ -45,10 +45,25 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { session_id, step, done, response, error } = body
+  const { session_id, step, done, response, error, hardware } = body
 
   if (!session_id) {
     return NextResponse.json({ error: 'Missing session_id' }, { status: 400 })
+  }
+
+  // Замер железа приходит отдельным сообщением, до первого шага: установщик
+  // смотрит, куда ставится, и говорит это человеку ДО того, как тот прождёт
+  // минуты ради обрыва. Числа берутся только те, что прислали, — здесь ничего
+  // не вычисляется заново, иначе появился бы второй источник правды.
+  if (hardware && typeof hardware === 'object') {
+    await setHardware(session_id, {
+      cores: Number(hardware.cores) || 0,
+      ramMb: Number(hardware.ramMb) || 0,
+      diskGb: Number(hardware.diskGb) || 0,
+      os: String(hardware.os ?? '').slice(0, 80),
+      warn: hardware.warn === true,
+    })
+    return NextResponse.json({ ok: true })
   }
 
   if (error) {

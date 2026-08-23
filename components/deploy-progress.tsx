@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { ALL_STEPS, type Step } from './deploy-progress.steps'
 import { ServerAddresses } from './server-addresses'
+import { ServerHardwareCard } from './server-hardware'
+import type { ServerHardware } from '@/lib/kv'
 import { startAdaptivePoll } from '@/lib/adaptive-poll'
 
 interface Props {
@@ -26,6 +28,22 @@ const ADDRESS_STRINGS = {
   adminLabel: 'Control panel',
 }
 
+// Слова карточки железа. Тон выбран намеренно: мы НЕ отказываемся ставить и не
+// пугаем — мы называем цифры и говорим, чем рискуем, пока человек ещё может
+// принять решение. «Придётся купить сервер побогаче» после часа ожидания и
+// обрыва звучит как оправдание; та же фраза в первую минуту — как честность.
+const HARDWARE_STRINGS = {
+  warnTitle: 'This server is smaller than we recommend',
+  okTitle: 'Your server',
+  cores: 'CPU cores',
+  ram: 'Memory',
+  disk: 'Disk',
+  warnBody:
+    'We recommend at least 4 cores and 6 GB of memory. We will install anyway and do our best — but the build may run slow, and if it fails for lack of memory, a larger server is the only fix.',
+  okBody: 'Comfortably above what we recommend — 4 cores and 6 GB.',
+  close: 'Got it',
+}
+
 export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Props) {
   const [liveSubdomain, setLiveSubdomain] = useState<string | null>(null)
   const [steps, setSteps] = useState<Step[]>(ALL_STEPS)
@@ -35,6 +53,10 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
   const [now, setNow] = useState(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState(Date.now())
   const [cancelling, setCancelling] = useState(false)
+  const [hardware, setHardware] = useState<ServerHardware | null>(null)
+  // Закрыл — больше не показываем: под карточкой те самые адреса, ради которых
+  // человек и смотрит в это окно.
+  const [hardwareDismissed, setHardwareDismissed] = useState(false)
   // Держим не идентификатор таймера, а функцию остановки адаптивного опроса.
   const pollRef = useRef<(() => void) | null>(null)
 
@@ -70,6 +92,8 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
         const res = await fetch(`/api/progress?session_id=${sessionId}`)
         if (!res.ok) return
         const progress = await res.json()
+
+        if (progress.hardware) setHardware(progress.hardware as ServerHardware)
 
         const newSteps = ALL_STEPS.map(s => {
           const reported = progress.steps?.find((p: Step) => p.id === s.id)
@@ -178,7 +202,18 @@ export function DeployProgress({ sessionId, serverIp, onComplete, onError }: Pro
           URL was already derivable from the server IP. `serverIp` is optional here
           because this component is also mounted from the payment-success path,
           which knows the session before it knows the server. */}
-      {!installError && (serverIp || liveSubdomain) && (
+      {/* 🔒 ОДНО МЕСТО, ДВЕ ВЕЩИ ПО ОЧЕРЕДИ. Карточка железа стоит НА МЕСТЕ
+          адресов, а не рядом: внимание в эту минуту одно, а до адресов ещё
+          минуты установки. Закрыл — под ней адреса, которые никуда не делись. */}
+      {!installError && hardware && !hardwareDismissed && (
+        <ServerHardwareCard
+          hardware={hardware}
+          strings={HARDWARE_STRINGS}
+          onDismiss={() => setHardwareDismissed(true)}
+        />
+      )}
+
+      {!installError && (!hardware || hardwareDismissed) && (serverIp || liveSubdomain) && (
         <ServerAddresses
           target={liveSubdomain || serverIp || ''}
           live={!!liveSubdomain}

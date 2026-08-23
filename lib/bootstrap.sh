@@ -218,6 +218,30 @@ wait_for_apt() {
 #
 # Порог в 2 ГБ, а не «если совсем мало»: на двух гигабайтах установка проходит,
 # но впритык, и первая же тяжёлая сборка упрётся в то же самое.
+# === Первое, что делает установщик: смотрит, КУДА он ставится ================
+#
+# 🔒 ЖЕЛЕЗО НАЗЫВАЕТСЯ ДО РАБОТЫ, А НЕ ПОСЛЕ ОТКАЗА. ✗ 2026-08-23 установка
+# умерла на 33% с кодом 137: человек прождал минуты и получил обрыв, из которого
+# невозможно понять, что ему просто не хватило памяти. Замер стоит секунды и
+# превращает будущий отказ в предупреждение, сделанное заранее.
+#
+# Порог — четыре ядра и шесть гигабайт: на меньшем установка проходит, но сборка
+# идёт у предела, и первая же тяжёлая страница это покажет. Мы не отказываемся
+# ставить — мы ГОВОРИМ ПРАВДУ и продолжаем.
+CURRENT_STEP="server_probe"
+CURRENT_LABEL="Checking the server"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+_cores=$(nproc 2>/dev/null || echo 1)
+_ram_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+_disk_gb=$(df -BG / 2>/dev/null | awk 'NR==2 {gsub("G","",$2); print $2}' || echo 0)
+_os=$(. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME" || echo "Linux")
+# Тревога — не отказ: значение говорит окну, каким тоном показать карточку.
+_warn="false"
+[ "$_cores" -lt 4 ] && _warn="true"
+[ "$_ram_mb" -lt 6000 ] && _warn="true"
+curl -s --max-time 10 -X POST "$PROGRESS_URL" -H "Content-Type: application/json" -H "x-install-secret: $INSTALL_SECRET" -d "{\"session_id\":\"$SESSION_ID\",\"hardware\":{\"cores\":$_cores,\"ramMb\":$_ram_mb,\"diskGb\":$_disk_gb,\"os\":\"$_os\",\"warn\":$_warn}}" >/dev/null 2>&1 || true
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
 CURRENT_STEP="swapfile"
 CURRENT_LABEL="Preparing memory"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false

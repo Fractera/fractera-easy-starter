@@ -9,12 +9,24 @@ export type ProgressStep = {
   ts: number
 }
 
+// Замер железа, сделанный установщиком первым шагом. Живёт рядом с прогрессом:
+// это факт ОБ ЭТОЙ установке, и отдельного хранилища ему заводить незачем.
+export type ServerHardware = {
+  cores: number
+  ramMb: number
+  diskGb: number
+  os: string
+  /** Меньше четырёх ядер или шести гигабайт — окно показывает предупреждение. */
+  warn: boolean
+}
+
 export type InstallProgress = {
   session_id: string
   status: 'installing' | 'done' | 'error'
   steps: ProgressStep[]
   subdomain?: string
   error?: string
+  hardware?: ServerHardware
 }
 
 export async function initProgress(session_id: string): Promise<void> {
@@ -23,6 +35,13 @@ export async function initProgress(session_id: string): Promise<void> {
   if (existing) return
   const initial: InstallProgress = { session_id, status: 'installing', steps: [] }
   await kv.set(`progress:${session_id}`, initial, { ex: 3600 })
+}
+
+/** Записать замер железа. Приходит один раз, в начале установки. */
+export async function setHardware(session_id: string, hardware: ServerHardware): Promise<void> {
+  const current = await kv.get<InstallProgress>(`progress:${session_id}`)
+  if (!current) return
+  await kv.set(`progress:${session_id}`, { ...current, hardware }, { ex: 3600 })
 }
 
 export async function appendStep(session_id: string, step: ProgressStep): Promise<void> {
