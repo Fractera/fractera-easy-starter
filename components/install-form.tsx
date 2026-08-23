@@ -9,6 +9,8 @@ import { useLang } from '@/lib/i18n/use-lang'
 import { DeploySuccessToast } from './deploy-success-toast'
 import { DeployProgressToast } from './deploy-progress-toast'
 import { ServerAddresses } from './server-addresses'
+import { ServerHardwareCard } from './server-hardware'
+import type { ServerHardware } from '@/lib/kv'
 import { buildUrls } from '@/lib/subdomain-helpers'
 import { startAdaptivePoll } from '@/lib/adaptive-poll'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -36,6 +38,9 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
   const [stepStartedAt, setStepStartedAt] = useState<number>(Date.now())
   const [now, setNow] = useState<number>(Date.now())
   const [lastUpdateAt, setLastUpdateAt] = useState<number>(Date.now())
+  const [hardware, setHardware] = useState<ServerHardware | null>(null)
+  // Закрыл — под карточкой те самые адреса, ради которых человек и смотрит сюда.
+  const [hardwareDismissed, setHardwareDismissed] = useState(false)
   const eventSourceRef = useRef<(() => void) | null>(null)
   const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'fresh' | 'installed'>('idle')
   const [successSubdomain, setSuccessSubdomain] = useState<string | null>(null)
@@ -187,6 +192,8 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
         if (!pollRes.ok) return
 
         const progress = await pollRes.json()
+
+        if (progress.hardware) setHardware(progress.hardware as ServerHardware)
 
         const newSteps = ALL_STEPS.map(s => {
           const reported = progress.steps.find((p: Step) => p.id === s.id)
@@ -500,7 +507,19 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
           {/* The addresses, from the first second of the deploy — they are derived
               from the IP above, so there is nothing to wait for. They turn from
               amber "not answering yet" to emerald "live" when the install lands. */}
-          {!installError && (
+          {/* 🔒 ОДНО МЕСТО, ДВЕ ВЕЩИ ПО ОЧЕРЕДИ. Замер железа приходит первым
+              шагом установки и встаёт НА МЕСТО адресов: до них ещё минуты, а
+              правду про сервер человек должен узнать сейчас, пока может решить.
+              Закрыл — под карточкой адреса, которые никуда не делись. */}
+          {!installError && hardware && !hardwareDismissed && (
+            <ServerHardwareCard
+              hardware={hardware}
+              strings={t.hardware}
+              onDismiss={() => setHardwareDismissed(true)}
+            />
+          )}
+
+          {!installError && (!hardware || hardwareDismissed) && (
             <ServerAddresses target={ip} live={false} strings={t.addresses} />
           )}
 

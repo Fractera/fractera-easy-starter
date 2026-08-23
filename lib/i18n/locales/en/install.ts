@@ -85,6 +85,17 @@ export const install: InstallPart = {
       checkboxLabel: 'I understand',
       closeButton: 'Close',
     },
+    hardware: {
+      warnTitle: 'This server is smaller than we recommend',
+      okTitle: 'Your server',
+      cores: 'CPU cores',
+      ram: 'Memory',
+      disk: 'Disk',
+      warnBody:
+        'We recommend at least 4 cores and 6 GB of memory. We will install anyway and do our best — but the build may run slow, and if it fails for lack of memory, a larger server is the only fix.',
+      okBody: 'Comfortably above what we recommend — 4 cores and 6 GB.',
+      close: 'Got it',
+    },
     addresses: {
       pendingTitle: 'Your addresses',
       pendingNote: 'These are already yours and will not change — save them now. They start answering the moment the installation finishes.',

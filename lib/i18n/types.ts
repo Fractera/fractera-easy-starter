@@ -183,6 +183,19 @@ export type SiteContent = {
     errorMcpSuffix: string
     progressToast: { title: string; dashboardNote: string; checkboxLabel: string; hideButton: string; domainTipTitle: string; domainTipBody: string; domainButton: string; dnsButton: string; dnsIntro: string; dnsCovers: string }
     successToast: { title: string; siteLabel: string; adminLabel: string; dashboardNote: string; envNote: string; checkboxLabel: string; closeButton: string }
+    // Замер железа, сделанный установщиком ПЕРВЫМ шагом. Стоит на месте адресов,
+    // пока человек его не закроет: внимание в эту минуту одно, а до адресов ещё
+    // минуты установки.
+    hardware: {
+      warnTitle: string
+      okTitle: string
+      cores: string
+      ram: string
+      disk: string
+      warnBody: string
+      okBody: string
+      close: string
+    }
     // The addresses block shown from the FIRST second of a deploy: in IP mode the
     // URLs are derived from the IP the user just typed, so there is nothing to wait
     // for. `pending*` renders while the install runs, `live*` once it finishes.
