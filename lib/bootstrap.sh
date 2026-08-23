@@ -203,6 +203,49 @@ wait_for_apt() {
   return 0
 }
 
+# === Подкачка: без неё установка падает на машине с гигабайтом памяти =========
+#
+# ✗ 2026-08-23, сервер 186.246.7.210 (956 МБ, одно ядро, подкачки нет):
+#   [Out of memory: Killed process 1814656 (npm install)]
+# Установка умерла на 33% — `npm install --prefix app` вернул 137, то есть
+# 128 + 9 = SIGKILL. К этому моменту LightRAG уже поднял свой питоновский хвост,
+# и свободных оставалось 46 МБ.
+#
+# 🔒 ЭТО НАША ПРОБЛЕМА, А НЕ «МАЛЕНЬКИЙ VPS». Гигабайт без подкачки — обычная
+# начальная конфигурация у любого хостера; продукт, который на ней не ставится,
+# продавать нельзя. `npm install` просит много и НЕНАДОЛГО — ровно тот случай,
+# ради которого подкачка и существует: пик уходит на диск, а не убивает процесс.
+#
+# Порог в 2 ГБ, а не «если совсем мало»: на двух гигабайтах установка проходит,
+# но впритык, и первая же тяжёлая сборка упрётся в то же самое.
+CURRENT_STEP="swapfile"
+CURRENT_LABEL="Preparing memory"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+_mem_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 4096)
+_swap_kb=$(awk '/SwapTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+if [ "$_mem_mb" -lt 2048 ] && [ "$_swap_kb" -lt 262144 ]; then
+  # 2 ГБ хватает с запасом: пик `npm install` держится секунды. Больше брать
+  # незачем — файл занимает место на диске постоянно.
+  if fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 2>/dev/null; then
+    chmod 600 /swapfile
+    mkswap /swapfile >/dev/null 2>&1 && swapon /swapfile 2>/dev/null || true
+    # Переживает перезагрузку: без записи в fstab следующий рестарт вернёт
+    # сервер в то же состояние, и сломается уже сборка, а не установка.
+    grep -q "^/swapfile" /etc/fstab 2>/dev/null || echo "/swapfile none swap sw 0 0" >> /etc/fstab
+    # На своп-файле имеет смысл тянуть страницы неохотно: диск медленнее памяти,
+    # и подкачка нужна как страховка на пик, а не как повседневный режим.
+    sysctl -w vm.swappiness=10 >/dev/null 2>&1 || true
+  fi
+fi
+
+# 🔒 ПОТОЛОК ПАМЯТИ ДЛЯ NODE — на слабой машине это не оптимизация, а условие
+# работы: без него сборщик мусора узнаёт о нехватке слишком поздно, когда ядро
+# уже выбрало жертву. Число берётся от объёма памяти, а не константой.
+if [ "$_mem_mb" -lt 2048 ]; then
+  export NODE_OPTIONS="--max-old-space-size=768"
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
 step "apt_update"   "Updating system"         "wait_for_apt; rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg /etc/apt/keyrings/nodesource.gpg 2>/dev/null; apt-get update -qq"
 step "apt_install"  "Installing base tools"   "wait_for_apt; apt-get install -y -qq git curl nginx build-essential dnsutils zsh bubblewrap certbot python3-certbot-nginx ffmpeg"
 # Node 22 LTS (was 20 until 2026-08-02). Hermes' own monorepo lock carries
