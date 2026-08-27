@@ -493,6 +493,40 @@ if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
 fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
+
+# === Agent access key — born with the server, not asked for later ===
+#
+# WHY THIS BLOCK EXISTS (owner's decision, 2026-08-27). The key that lets the
+# project agent reach this server used to be issued by a separate wizard step:
+# the human pressed a button that told the server to do something the server can
+# do entirely on its own. That is not a decision — it is waiting. The owner put
+# it plainly: "он генерируется на сервере в процессе установки проекта… почему
+# такой же точный метод нам не применить для этой задачи".
+#
+# The four secrets above are exactly that method, and this block is the same
+# method applied once more. Additive by construction: nothing above changes, and
+# a server that already has a key keeps it.
+#
+# The key pair lives where the panel already looks for it (`lib/ssh-access.ts`,
+# KEY_DIR): the panel is not taught anything new — on a server born after this
+# change it simply always finds the key.
+if [ ! -f /opt/fractera/.agent-access/id_ed25519 ]; then
+  mkdir -p /opt/fractera/.agent-access
+  ssh-keygen -t ed25519 -N "" -C "fractera-project-agent" \
+    -f /opt/fractera/.agent-access/id_ed25519 >/dev/null 2>&1 || true
+  mkdir -p /root/.ssh
+  # The public half authorises the key; the marker in its comment is how the
+  # panel finds this entry later for re-issue or revocation — the key body
+  # changes, the marker does not.
+  if [ -f /opt/fractera/.agent-access/id_ed25519.pub ]; then
+    cat /opt/fractera/.agent-access/id_ed25519.pub >> /root/.ssh/authorized_keys
+    chmod 700 /root/.ssh
+    chmod 600 /root/.ssh/authorized_keys
+  fi
+fi
+chmod 700 /opt/fractera/.agent-access 2>/dev/null || true
+chmod 600 /opt/fractera/.agent-access/id_ed25519 2>/dev/null || true
+
 mkdir -p /opt/fractera/services/rag/storage
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
