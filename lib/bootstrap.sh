@@ -325,6 +325,19 @@ if [ -n "$GITHUB_TOKEN" ]; then
 else
   CLONE_URL="https://github.com/Fractera/Agent-Engineering-Infrastructure.git"
 fi
+# 🛑 GIT ГОВОРИТ С GITHUB ПО HTTP/1.1, И ЭТО ИЗМЕРЕНО НА ЖИВОЙ МАШИНЕ 2026-09-02.
+# На сервере 213.199.61.7 клон ЛЮБОГО репозитория по умолчанию падал с
+#   fatal: expected flush after ref listing
+# при том, что curl тем же адресом получал 200 и правильный git-поток. Тот же клон с
+# `-c http.version=HTTP/1.1` проходил сразу. Проверено негативным контролем: заведомо публичный
+# fractera-next-starter падал так же — значит дело не в правах и не в репозитории, а в разговоре
+# по HTTP/2 через сеть провайдера.
+#
+# ✗ ЧЕМ ЭТО ГРОЗИЛО: шаг ниже — `step`, а не `soft_step`. Установка на такой машине падала бы на
+# СКАЧИВАНИИ САМОЙ ПЛАТФОРМЫ, и сообщение об ошибке ничего не говорило бы о причине.
+# HTTP/1.1 медленнее на доли секунды и работает везде; HTTP/2 быстрее и иногда не работает.
+git config --global http.version HTTP/1.1 >> "$LOG_FILE" 2>&1 || true
+
 step "clone" "Downloading Fractera" \
   "rm -rf /opt/fractera && git clone $CLONE_URL /opt/fractera"
 
