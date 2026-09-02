@@ -873,17 +873,16 @@ soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo 
 # 🔒 THE OPENAI KEY IS NOT WRITTEN HERE. The chat reads it from the slot's .env.local on every
 # request (`lib/ai/providers.ts`), the same file the bot screen writes. One key, one path: a
 # second copy planted at birth would go stale the first time the owner changed it.
-# 🛑 РЕПОЗИТОРИЙ ЧАТА ПРИВАТНЫЙ — ИЗМЕРЕНО С САМОГО СЕРВЕРА 2026-09-02, А НЕ ПРЕДПОЛОЖЕНО:
-# `git ls-remote` по нему отвечает "could not read Username for 'https://github.com'", тогда как
-# по стартеру отдаёт ветки. Анонимный клон здесь молча дал бы пустое дерево, сборка упала бы
-# мягко — и сервер поднялся бы без чата, сказав об этом одной строкой в логе установки.
-# Поэтому адрес собирается ТЕМ ЖЕ СПОСОБОМ, что и основной репозиторий выше: с токеном, если он
-# передан. Токен обязан иметь доступ к репозиторию чата — иначе шаг `chat_clone` пропустится.
-if [ -n "$GITHUB_TOKEN" ]; then
-  CHAT_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/fractera-ai-chat-starter.git"
-else
-  CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
-fi
+# 🛑 КЛОН ЧАТА ИДЁТ БЕЗ ТОКЕНА, И ЭТО ИЗМЕРЕНО НА ЖИВОМ РАЗВЁРТЫВАНИИ 2026-09-03.
+#
+# 🪦 Здесь стоял адрес с `x-access-token:$GITHUB_TOKEN@`, собранный по образцу основного
+# репозитория, — и вместе с ним запись «репозиторий чата приватный». Она была неверной:
+# приватным выглядел не репозиторий, а разговор git по HTTP/2 на этой сети (см. лечение выше).
+#
+# ✗ Цена: токен развёртывания видит `Agent-Engineering-Infrastructure` и НЕ видит репозиторий
+# чата. Клон провалился молча, и три следующих шага упали на `cd: No such file or directory` —
+# сервер поднялся без чата. Репозиторий публичный; анонимный клон с сервера проверен и проходит.
+CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
 
 if ! grep -q "CHAT_DB_PASSWORD=" "$SECRETS_FILE" 2>/dev/null; then
   echo "CHAT_DB_PASSWORD=$(openssl rand -hex 24)" >> "$SECRETS_FILE"
@@ -931,8 +930,12 @@ soft_step "chat_deps"  "Installing dependencies (chat)"   "cd /opt/fractera/chat
 
 # Migrations run inside this build — see the note above. A failure here leaves the server whole.
 soft_step "chat_build" "Building chat (schema + production)"   "cd /opt/fractera/chat && pnpm build && cd /opt/fractera"
+# 🛑 ПОРТ ЗАДАЁТСЯ ОКРУЖЕНИЕМ ПРОЦЕССА, А НЕ ФАЙЛОМ — ОПЛАЧЕНО РАЗВЁРТЫВАНИЕМ 2026-09-03.
+# `PORT=3600` в `.env.local` НЕ действует: `next start` читает порт из окружения, а .env-файл
+# попадает в приложение, а не в процесс. Чат поднимался на 3000, натыкался на гостевой сайт
+# и уходил в вечный рестарт с EADDRINUSE — то есть служба «запущена» и мертва одновременно.
 
-soft_step "start_chat" "Starting chat service"   "cd /opt/fractera/chat && pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
+  "cd /opt/fractera/chat && PORT=3600 pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"
