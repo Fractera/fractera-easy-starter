@@ -338,8 +338,17 @@ fi
 # HTTP/1.1 медленнее на доли секунды и работает везде; HTTP/2 быстрее и иногда не работает.
 git config --global http.version HTTP/1.1 >> "$LOG_FILE" 2>&1 || true
 
+# 🛑 СЕТЬ РВЁТСЯ РАЗОВО, И ОДНА ПОПЫТКА ЭТОГО НЕ ПЕРЕЖИВАЕТ — ОПЛАЧЕНО ЖИВЫМ РАЗВЁРТЫВАНИЕМ
+# 2026-09-03. Установка умерла ровно здесь, на «Downloading Fractera»:
+#   fatal: unable to access '…/Agent-Engineering-Infrastructure.git/': Empty reply from server
+# Сервер остался БЕЗ ВСЕГО: wipe уже отработал, а платформа не приехала. Через двадцать минут
+# тот же клон с той же машины прошёл за 3 секунды — то есть обрыв был разовым.
+#
+# HTTP/1.1 выше от этого не защищает: он лечит РАЗГОВОР по HTTP/2, а не оборванное соединение.
+# Три попытки с паузой — то, что должен делать любой установщик на чужой сети. `</dev/null`
+# обязателен: git, унаследовавший stdin скрипта, съедает его остаток.
 step "clone" "Downloading Fractera" \
-  "rm -rf /opt/fractera && git clone $CLONE_URL /opt/fractera"
+  "rm -rf /opt/fractera; for a in 1 2 3; do git clone $CLONE_URL /opt/fractera </dev/null && break; echo \"clone attempt $a failed, retrying\"; rm -rf /opt/fractera; sleep 8; done; [ -d /opt/fractera/.git ]"
 
 cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 
@@ -895,7 +904,7 @@ soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 ||
 
 # SECURITY: как и у основного репозитория, чистый remote — токен не хранится в .git/config,
 # иначе любой с доступом к серверу прочитал бы его и получил право писать в наши репозитории.
-soft_step "chat_clone" "Downloading chat"   "rm -rf /opt/fractera/chat && git clone --depth 1 $CHAT_REPO /opt/fractera/chat && git -C /opt/fractera/chat remote set-url origin https://github.com/Fractera/fractera-ai-chat-starter.git"
+  "rm -rf /opt/fractera/chat; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/chat </dev/null && break; rm -rf /opt/fractera/chat; sleep 8; done; [ -d /opt/fractera/chat/.git ] && git -C /opt/fractera/chat remote set-url origin https://github.com/Fractera/fractera-ai-chat-starter.git"
 
 # 🔒 THE CHAT DOES NOT KEEP ITS OWN COPY OF THE DATA-LAYER SECRET: it reads the slot's file,
 # named here once. Attachments go to the project's media library — the same warehouse the
