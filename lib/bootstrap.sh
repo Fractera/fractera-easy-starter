@@ -537,7 +537,7 @@ report "$CURRENT_STEP" "$CURRENT_LABEL" false
 source /etc/fractera/secrets.env
 
 # IP-mode CORS: include cross-port origins so http://IP:3000 can call auth on :3001.
-IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3003,http://$SERVER_IP:3004,http://$SERVER_IP:3300"
+IP_ORIGINS=",http://$SERVER_IP:3000,http://$SERVER_IP:3001,http://$SERVER_IP:3002,http://$SERVER_IP:3003,http://$SERVER_IP:3004,http://$SERVER_IP:3300,http://$SERVER_IP:3600"
 
 # Languages are owner-editable AFTER deploy (Admin → languages and the app-settings MCP write
 # NEXT_PUBLIC_SUPPORTED_LANGUAGES into THIS file, then trigger a rebuild — step 138). Preserve an
@@ -824,6 +824,81 @@ soft_step "geo_docker"    "Docker (geo engines)" "command -v docker >/dev/null 2
 soft_step "geo_images"    "Geo engines (images only, region chosen later)" "mkdir -p /opt/fractera-geo/osrm && docker pull osrm/osrm-backend && docker pull mediagis/nominatim:4.4"
 soft_step "deps_geo"      "Installing dependencies (geo)" "npm install --prefix services/geo"
 soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo && pm2 start node --name fractera-geo -- server.js && cd /opt/fractera"
+
+# === CHAT SERVICE — the eighth service, born with the server (step 96, 2026-09-02) ===========
+#
+# WHY THIS BLOCK EXISTS. The chat was installed on the test server BY HAND — clone, Postgres,
+# migrations, pm2, nginx. Everything done by hand exists on exactly one machine: the next server
+# would have come up without a chat at all, and nothing would have said so. The owner asked for
+# the guarantee in plain words: "хочу быть уверенным в том что все изменения будут применены на
+# нашем новом сервере".
+#
+# ADDITIVE BY CONSTRUCTION, as the frozen deployment layer requires: every step below is SOFT.
+# A server whose chat fails to install is a server with seven working services and a line in the
+# log — never a failed boot. Nothing above this block changes its behaviour.
+#
+# 🔒 THE CHAT KEEPS ITS OWN POSTGRES, and that is the owner's decision (2026-09-02), not an
+# oversight: our data layer :3300 is better-sqlite3 behind an HTTP door, and the Vercel engine
+# speaks Postgres through drizzle. Rewriting its storage would mean rewriting the engine we
+# vendored precisely so we would not have to maintain it.
+#
+# 🔒 NO SEEDING, AND NO MIGRATION STEP EITHER — MEASURED, NOT ASSUMED. The engine's own
+# `build` script is `tsx lib/db/migrate && next build`: the seven tables (Chat, Message_v2,
+# Vote_v2, Document, Suggestion, Stream, User) are created by the build itself. A fresh server
+# comes up with an empty, correct schema and no rows — which is exactly what a new owner should
+# get.
+#
+# 🔒 THE OPENAI KEY IS NOT WRITTEN HERE. The chat reads it from the slot's .env.local on every
+# request (`lib/ai/providers.ts`), the same file the bot screen writes. One key, one path: a
+# second copy planted at birth would go stale the first time the owner changed it.
+CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
+
+if ! grep -q "CHAT_DB_PASSWORD=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "CHAT_DB_PASSWORD=$(openssl rand -hex 24)" >> "$SECRETS_FILE"
+fi
+source "$SECRETS_FILE"
+
+soft_step "chat_postgres" "PostgreSQL (chat store)"   "wait_for_apt; apt-get install -y -qq postgresql postgresql-contrib && systemctl enable --now postgresql"
+
+# Role and database are created only if absent: a re-bootstrap must not destroy the owner's
+# conversations, and CREATE would fail on the second run anyway.
+# 🛑 THE PASSWORD IS SET, NOT ONLY CREATED. A role that survived an older wipe would keep its
+# OLD password while /etc/fractera holds a new one — CREATE would be skipped and the chat could
+# not log in, with nothing in the boot log to say why. ALTER makes the two agree every time.
+soft_step "chat_db" "Chat database"   "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='fractera_chat'\" | grep -q 1 && sudo -u postgres psql -c \"ALTER ROLE fractera_chat LOGIN PASSWORD '$CHAT_DB_PASSWORD'\" || sudo -u postgres psql -c \"CREATE ROLE fractera_chat LOGIN PASSWORD '$CHAT_DB_PASSWORD'\"; sudo -u postgres psql -tAc \"SELECT 1 FROM pg_database WHERE datname='fractera_chat'\" | grep -q 1 || sudo -u postgres createdb -O fractera_chat fractera_chat"
+
+# The engine ships a pnpm lockfile; npm would resolve a different tree from the one we tested.
+soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 || npm install -g pnpm"
+
+soft_step "chat_clone" "Downloading chat"   "rm -rf /opt/fractera/chat && git clone --depth 1 $CHAT_REPO /opt/fractera/chat"
+
+# 🔒 THE CHAT DOES NOT KEEP ITS OWN COPY OF THE DATA-LAYER SECRET: it reads the slot's file,
+# named here once. Attachments go to the project's media library — the same warehouse the
+# Telegram bot fills — so "all the files of this project" stays one answer.
+CURRENT_STEP="chat_env"
+CURRENT_LABEL="Writing chat configuration"
+report "$CURRENT_STEP" "$CURRENT_LABEL" false
+if [ -d /opt/fractera/chat ]; then
+  cat > /opt/fractera/chat/.env.local <<CHATENVEOF
+POSTGRES_URL=postgres://fractera_chat:$CHAT_DB_PASSWORD@127.0.0.1:5432/fractera_chat
+AUTH_SECRET=$AUTH_SECRET
+PORT=3600
+AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_AUTH_URL=http://$SERVER_IP:3001
+FRACTERA_SLOT_ENV=/opt/fractera/app/.env.local
+NEXT_PUBLIC_APP_NAME=Fractera
+NEXT_PUBLIC_COMPANY_NAME=Fractera
+CHATENVEOF
+  chmod 600 /opt/fractera/chat/.env.local
+fi
+report "$CURRENT_STEP" "$CURRENT_LABEL" true
+
+soft_step "chat_deps"  "Installing dependencies (chat)"   "cd /opt/fractera/chat && pnpm install --frozen-lockfile && cd /opt/fractera"
+
+# Migrations run inside this build — see the note above. A failure here leaves the server whole.
+soft_step "chat_build" "Building chat (schema + production)"   "cd /opt/fractera/chat && pnpm build && cd /opt/fractera"
+
+soft_step "start_chat" "Starting chat service"   "cd /opt/fractera/chat && pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"

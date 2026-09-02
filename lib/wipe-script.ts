@@ -28,6 +28,11 @@ import { Client } from 'ssh2'
 //   - /var/log — keep audit trail
 export const WIPE_SCRIPT = `
 pm2 kill 2>/dev/null || true
+# Chat store (step 96): the chat keeps its own Postgres, so a full wipe has to reach it.
+# Left alone, the role survives with the OLD password while /etc/fractera (and the new one)
+# is deleted below — the next bootstrap would skip CREATE ROLE and the chat could not log in.
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS fractera_chat" 2>/dev/null || true
+sudo -u postgres psql -c "DROP ROLE IF EXISTS fractera_chat" 2>/dev/null || true
 rm -rf /opt/fractera /opt/hermes-webui
 rm -rf /etc/fractera
 rm -rf /usr/local/lib/hermes-agent
@@ -48,7 +53,7 @@ rm -f /usr/local/bin/claude /usr/local/bin/kimi 2>/dev/null || true
 # leaks into the next IP-mode redeploy (same class of bug as the ufw lockdown).
 # Does NOT touch /etc/letsencrypt — certs should survive wipe (LE rate limits).
 rm -rf /etc/nginx/sites-enabled/fractera* /etc/nginx/sites-available/fractera*
-for prefix in auth admin data hermes lightrag; do
+for prefix in auth admin data chat hermes lightrag; do
   rm -f /etc/nginx/sites-enabled/\${prefix}.* /etc/nginx/sites-available/\${prefix}.* 2>/dev/null || true
 done
 nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
