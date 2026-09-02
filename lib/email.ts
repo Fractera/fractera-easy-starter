@@ -86,10 +86,15 @@ export async function sendServerProvisionedEmail(to: string, ip: string, passwor
 
 // Shared destination block for the welcome / domain-activated / cert-expiry
 // emails. Top buttons + descriptive cards, in the SAME order:
-//   1. Your App  2. Main Control Panel
+//   1. Your App  2. Main Control Panel  3. AI Chat
+//
+// 🔒 THE CHAT IS THE THIRD LINE, NOT A FOOTNOTE (step 96, 2026-09-02). It is a second front door
+// into the same architecture — the same sign-in, the same person, the same files — so it belongs
+// where the other two doors are. `chatUrl` is OPTIONAL: a caller that does not pass it renders
+// exactly the letter it rendered before, which is what keeps this change additive.
 // (step 500) "Your Projects" is gone with the projects layer (:3003), and the
 // Control Panel no longer ships coding agents — the copy must not promise either.
-function destinationButtons(appUrl: string, adminUrl: string): string {
+function destinationButtons(appUrl: string, adminUrl: string, chatUrl?: string): string {
   return `
         <!-- Top destination buttons (orange / purple) -->
         <div style="margin:26px 0 0">
@@ -97,11 +102,14 @@ function destinationButtons(appUrl: string, adminUrl: string): string {
           <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Your starter Next.js app template includes authentication, a database, object storage, and tools.</p>
 
           <a href="${adminUrl}" style="display:block;text-align:center;background:#6c47ff;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">Main Control Panel →</a>
-          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Users, database, file and media storage, vector memory, map settings and your own domain — best on a wide screen.</p>
+          <p style="margin:5px 0 14px;text-align:center;font-size:12px;color:#888;line-height:1.5">Users, database, file and media storage, vector memory, map settings and your own domain — best on a wide screen.</p>
+${chatUrl ? `
+          <a href="${chatUrl}" style="display:block;text-align:center;background:#0f766e;color:#fff;font-weight:600;font-size:14px;text-decoration:none;padding:13px 18px;border-radius:10px">AI Chat →</a>
+          <p style="margin:5px 0 0;text-align:center;font-size:12px;color:#888;line-height:1.5">Talk to your project in plain words — same sign-in, same files. Ask it what the server is doing, or what to change.</p>` : ''}
         </div>`
 }
 
-function destinationCards(appUrl: string, adminUrl: string): string {
+function destinationCards(appUrl: string, adminUrl: string, chatUrl?: string): string {
   return `
         <!-- Destination cards (same order as the buttons) -->
         <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 10px;margin:28px 0 0">
@@ -115,6 +123,12 @@ function destinationCards(appUrl: string, adminUrl: string): string {
             <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">Where you run the server: users, database, file and media storage, vector memory, map settings, login methods and your own domain. Best on a wide screen.</div>
             <a href="${adminUrl}" style="color:#6c47ff;font-weight:600;font-size:13px;text-decoration:underline">Open Main Control Panel →</a>
           </td></tr>
+${chatUrl ? `
+          <tr><td style="background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 18px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">AI Chat</div>
+            <div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:10px">A conversation with your project. The same account as the panel and the site — sign in once, and every service knows who you are. Files you send there land in the project's own media library.</div>
+            <a href="${chatUrl}" style="color:#0f766e;font-weight:600;font-size:13px;text-decoration:underline">Open AI Chat →</a>
+          </td></tr>` : ''}
         </table>`
 }
 
@@ -128,6 +142,7 @@ export async function sendWelcomeEmail(
   const ip = isIpMode ? subdomain.slice(3) : null
   const appUrl    = isIpMode ? `http://${ip}:3000` : `https://${subdomain}`
   const adminUrl  = isIpMode ? `http://${ip}:3002` : `https://admin.${subdomain}`
+  const chatUrl   = isIpMode ? `http://${ip}:3600` : `https://chat.${subdomain}`
   // Remote Command Post = the built-in Hermes Web Chat (the super-agent surface).
   // Dedicated subdomain in secure mode; direct port in IP mode.
 
@@ -157,9 +172,9 @@ export async function sendWelcomeEmail(
         </div>
         ` : ''}
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, chatUrl)}
 
-        ${destinationCards(appUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl, chatUrl)}
 
         <!-- Next steps — getting the most out of the workspace -->
         <div style="margin:32px 0 8px">
@@ -278,6 +293,7 @@ export async function sendWelcomeEmail(
 export async function sendDomainActivatedEmail(to: string, domain: string) {
   const appUrl    = `https://${domain}`
   const adminUrl  = `https://admin.${domain}`
+  const chatUrl   = `https://chat.${domain}`
   const authUrl   = `https://auth.${domain}`
   // Remote Command Post = the built-in Hermes Web Chat on its own subdomain (auth-gated).
 
@@ -295,9 +311,9 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">All Fractera services now run on your own domain over HTTPS.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, chatUrl)}
 
-        ${destinationCards(appUrl, adminUrl)}
+        ${destinationCards(appUrl, adminUrl, chatUrl)}
 
         <!-- Sign-in note (secure mode) -->
         <div style="margin:14px 0 0;padding:12px 14px;background:#fafafa;border:1px solid #eee;border-radius:10px">
@@ -392,6 +408,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
 export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, domain: string) {
   const appUrl   = `https://${domain}`
   const adminUrl = `https://admin.${domain}`
+  const chatUrl  = `https://chat.${domain}`
   const urgent = daysLeft <= 3
   const accent = urgent ? '#dc2626' : '#d97706'
   const dayWord = daysLeft === 1 ? 'day' : 'days'
@@ -410,7 +427,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0;color:#666;font-size:15px;line-height:1.5">The HTTPS certificate for <strong>${domain}</strong> and its service subdomains is about to lapse. If it expires, browsers will show a security warning and your services may become unreachable.</p>
         </div>
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, chatUrl)}
 
         <!-- Renew CTA -->
         <div style="text-align:center;margin:24px 0 0">
@@ -539,6 +556,7 @@ export async function sendAdminAlertEmail(userEmail: string, subscriptionId: str
 export async function sendInstallStartedEmail(to: string, ip: string) {
   const appUrl   = `http://${ip}:3000`
   const adminUrl = `http://${ip}:3002`
+  const chatUrl  = `http://${ip}:3600`
 
   await sendEmail({
     from: FROM,
@@ -562,7 +580,7 @@ export async function sendInstallStartedEmail(to: string, ip: string) {
           start working as soon as the installation below finishes.
         </p>
 
-        ${destinationButtons(appUrl, adminUrl)}
+        ${destinationButtons(appUrl, adminUrl, chatUrl)}
 
         <div style="margin:22px 0 0;padding:14px 16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px">
           <p style="margin:0;font-size:13px;color:#92400e;line-height:1.6">
