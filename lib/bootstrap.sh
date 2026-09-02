@@ -901,6 +901,14 @@ soft_step "chat_db" "Chat database"   "sudo -u postgres psql -tAc \"SELECT 1 FRO
 # The engine ships a pnpm lockfile; npm would resolve a different tree from the one we tested.
 soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 || npm install -g pnpm"
 
+# 🛑 ЭТОТ ШАГ ОДНАЖДЫ ИСЧЕЗ ИЗ СКРИПТА ЦЕЛИКОМ, И ЭТО НЕ ФИГУРА РЕЧИ (2026-09-03).
+# Правка соседнего блока вырезала `chat_clone` и `start_chat` вместе с куском файла: база
+# создавалась, а клонировать и запускать было нечем. Установка при этом отчиталась успехом —
+# оба соседних шага мягкие. Отсюда правило: после правки этого раздела считать шаги чата,
+# их восемь: postgres · db · pnpm · clone · env · deps · build · start.
+soft_step "chat_clone" "Downloading chat" \
+  "rm -rf /opt/fractera/chat; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/chat </dev/null && break; rm -rf /opt/fractera/chat; sleep 8; done; [ -d /opt/fractera/chat/.git ]"
+
 # SECURITY: как и у основного репозитория, чистый remote — токен не хранится в .git/config,
 # иначе любой с доступом к серверу прочитал бы его и получил право писать в наши репозитории.
   "rm -rf /opt/fractera/chat; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/chat </dev/null && break; rm -rf /opt/fractera/chat; sleep 8; done; [ -d /opt/fractera/chat/.git ] && git -C /opt/fractera/chat remote set-url origin https://github.com/Fractera/fractera-ai-chat-starter.git"
@@ -930,6 +938,13 @@ soft_step "chat_deps"  "Installing dependencies (chat)"   "cd /opt/fractera/chat
 
 # Migrations run inside this build — see the note above. A failure here leaves the server whole.
 soft_step "chat_build" "Building chat (schema + production)"   "cd /opt/fractera/chat && pnpm build && cd /opt/fractera"
+
+# 🛑 ПОРТ ЗАДАЁТСЯ ОКРУЖЕНИЕМ ПРОЦЕССА, А НЕ ФАЙЛОМ — ОПЛАЧЕНО РАЗВЁРТЫВАНИЕМ 2026-09-03.
+# `PORT=3600` в `.env.local` НЕ действует: `next start` читает порт из окружения, а .env-файл
+# попадает в приложение, а не в процесс. Чат поднимался на 3000, натыкался на гостевой сайт и
+# уходил в вечный рестарт с EADDRINUSE — служба «запущена» и мертва одновременно.
+soft_step "start_chat" "Starting chat service" \
+  "cd /opt/fractera/chat && PORT=3600 pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
 # 🛑 ПОРТ ЗАДАЁТСЯ ОКРУЖЕНИЕМ ПРОЦЕССА, А НЕ ФАЙЛОМ — ОПЛАЧЕНО РАЗВЁРТЫВАНИЕМ 2026-09-03.
 # `PORT=3600` в `.env.local` НЕ действует: `next start` читает порт из окружения, а .env-файл
 # попадает в приложение, а не в процесс. Чат поднимался на 3000, натыкался на гостевой сайт
