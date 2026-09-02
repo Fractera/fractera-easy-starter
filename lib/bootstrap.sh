@@ -851,7 +851,17 @@ soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo 
 # 🔒 THE OPENAI KEY IS NOT WRITTEN HERE. The chat reads it from the slot's .env.local on every
 # request (`lib/ai/providers.ts`), the same file the bot screen writes. One key, one path: a
 # second copy planted at birth would go stale the first time the owner changed it.
-CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
+# 🛑 РЕПОЗИТОРИЙ ЧАТА ПРИВАТНЫЙ — ИЗМЕРЕНО С САМОГО СЕРВЕРА 2026-09-02, А НЕ ПРЕДПОЛОЖЕНО:
+# `git ls-remote` по нему отвечает "could not read Username for 'https://github.com'", тогда как
+# по стартеру отдаёт ветки. Анонимный клон здесь молча дал бы пустое дерево, сборка упала бы
+# мягко — и сервер поднялся бы без чата, сказав об этом одной строкой в логе установки.
+# Поэтому адрес собирается ТЕМ ЖЕ СПОСОБОМ, что и основной репозиторий выше: с токеном, если он
+# передан. Токен обязан иметь доступ к репозиторию чата — иначе шаг `chat_clone` пропустится.
+if [ -n "$GITHUB_TOKEN" ]; then
+  CHAT_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/fractera-ai-chat-starter.git"
+else
+  CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
+fi
 
 if ! grep -q "CHAT_DB_PASSWORD=" "$SECRETS_FILE" 2>/dev/null; then
   echo "CHAT_DB_PASSWORD=$(openssl rand -hex 24)" >> "$SECRETS_FILE"
@@ -870,7 +880,9 @@ soft_step "chat_db" "Chat database"   "sudo -u postgres psql -tAc \"SELECT 1 FRO
 # The engine ships a pnpm lockfile; npm would resolve a different tree from the one we tested.
 soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 || npm install -g pnpm"
 
-soft_step "chat_clone" "Downloading chat"   "rm -rf /opt/fractera/chat && git clone --depth 1 $CHAT_REPO /opt/fractera/chat"
+# SECURITY: как и у основного репозитория, чистый remote — токен не хранится в .git/config,
+# иначе любой с доступом к серверу прочитал бы его и получил право писать в наши репозитории.
+soft_step "chat_clone" "Downloading chat"   "rm -rf /opt/fractera/chat && git clone --depth 1 $CHAT_REPO /opt/fractera/chat && git -C /opt/fractera/chat remote set-url origin https://github.com/Fractera/fractera-ai-chat-starter.git"
 
 # 🔒 THE CHAT DOES NOT KEEP ITS OWN COPY OF THE DATA-LAYER SECRET: it reads the slot's file,
 # named here once. Attachments go to the project's media library — the same warehouse the
