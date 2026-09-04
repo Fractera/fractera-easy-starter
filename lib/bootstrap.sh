@@ -1005,15 +1005,32 @@ fs.writeFileSync(p, JSON.stringify(j, null, 2));
 ' "$CFG" "$HOOK" "$SECRET" || exit 1
 chmod 600 "$CFG"
 
-# Тот же секрет — в окружение СЛОТА, построчно, под именем, которое читает чат.
-if grep -q '^CHANNELS_HOOK_SECRET=' "$SLOT"; then
-  sed -i "s|^CHANNELS_HOOK_SECRET=.*|CHANNELS_HOOK_SECRET=$SECRET|" "$SLOT"
-else
-  printf 'CHANNELS_HOOK_SECRET=%s\n' "$SECRET" >> "$SLOT"
-fi
+# ── ТРИ СТРОКИ В ОКРУЖЕНИЕ СЛОТА, И У КАЖДОЙ СВОЙ ЧИТАТЕЛЬ ────────────────────
+#
+# ✗ ОПЛАЧЕНО В ТОТ ЖЕ ДЕНЬ, ЧЕРЕЗ ЧАС ПОСЛЕ ПЕРВОЙ ВЕРСИИ ЭТОГО ШАГА: писалась
+# ОДНА строка, `CHANNELS_HOOK_SECRET`, и бот всё равно отвечал из пустого графа.
+# Причина: служба каналов и чат ждут секрет под РАЗНЫМИ именами, а адрес доставки
+# служба берёт ещё и из третьего места.
+#
+# 🔒 КТО ЧТО ЧИТАЕТ — ИЗМЕРЕНО ПО ИСХОДНИКАМ, А НЕ УГАДАНО:
+#   CHANNELS_HOOK_SECRET → чат, `lib/fractera/channels.ts`, `hookSecret()`
+#   TELEGRAM_HOOK_SECRET → служба каналов, `appSecret()`
+#   CHANNELS_HOOK_URL    → служба каналов, `appHookUrl()`
+# Два имени у одного секрета — не красиво, но это ДЕЙСТВУЮЩИЙ контракт двух служб;
+# выравнивать имена значило бы менять обе разом, и это отдельная работа.
+set_slot() {
+  if grep -q "^$1=" "$SLOT"; then
+    sed -i "s|^$1=.*|$1=$2|" "$SLOT"
+  else
+    printf '%s=%s\n' "$1" "$2" >> "$SLOT"
+  fi
+}
+set_slot CHANNELS_HOOK_SECRET "$SECRET"
+set_slot TELEGRAM_HOOK_SECRET "$SECRET"
+set_slot CHANNELS_HOOK_URL    "$HOOK"
 
 # Приёмка внутри шага: секрет обязан совпасть в ОБОИХ местах, иначе шаг провален.
-A=$(node -e 'try{console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).telegram.hookSecret||"")}catch(e){console.log("")}' "$CFG")
+A=$(grep -m1 "^TELEGRAM_HOOK_SECRET=" "$SLOT" | cut -d= -f2-)
 B=$(grep -m1 '^CHANNELS_HOOK_SECRET=' "$SLOT" | cut -d= -f2-)
 [ -n "$A" ] && [ "$A" = "$B" ]
 LINKEOF
