@@ -905,7 +905,9 @@ soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 ||
 # Правка соседнего блока вырезала `chat_clone` и `start_chat` вместе с куском файла: база
 # создавалась, а клонировать и запускать было нечем. Установка при этом отчиталась успехом —
 # оба соседних шага мягкие. Отсюда правило: после правки этого раздела считать шаги чата,
-# их восемь: postgres · db · pnpm · clone · env · deps · build · start.
+# их ДЕВЯТЬ: postgres · db · pnpm · clone · env · deps · build · start · channels_link.
+# 🔒 Девятый добавлен шагом 110 (2026-09-04), и число исправлено ЭТОЙ ЖЕ правкой — закон,
+# оплаченный в корпусе пять раз: рукописное число не двигается само никогда.
 soft_step "chat_clone" "Downloading chat" \
   "rm -rf /opt/fractera/chat; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/chat </dev/null && break; rm -rf /opt/fractera/chat; sleep 8; done; [ -d /opt/fractera/chat/.git ]"
 
@@ -951,6 +953,75 @@ soft_step "start_chat" "Starting chat service" \
 # и уходил в вечный рестарт с EADDRINUSE — то есть служба «запущена» и мертва одновременно.
 
   "cd /opt/fractera/chat && PORT=3600 pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
+# ── СВЯЗКА СЛУЖБЫ КАНАЛОВ С ЧАТОМ (шаг 110, 2026-09-04) ─────────────────────────
+#
+# ✗ ЧЕМ ОПЛАЧЕНО, ЖИВЬЁМ. Сервер родился чисто — восемь служб, ноль пропущенных
+# шагов, — а бот в Telegram отвечал «в базе знаний пока ничего нет». Это СТАРАЯ
+# логика ответа через граф знаний: служба каналов не знала адреса чата
+# (`hookUrl` пуст) и отдавала входящее старому хуку в слоте. Граф на новом
+# сервере пуст, отсюда и текст. В базе чата при этом 0 сообщений, а в логах — НИ
+# ОДНОЙ ошибки: отказ молчаливый по устройству.
+#
+# 🔒 ПРИЧИНА БЫЛА НЕ В КОДЕ: связку настроили РУКАМИ на прежней машине, и она не
+# уехала сюда. Тот же закон, которым оплачено отсутствие самого чата в этом
+# файле: сделанное руками существует на одной машине.
+#
+# 🔒 ИМЯ ПЕРЕМЕННОЙ ПРИНАДЛЕЖИТ ПОТРЕБИТЕЛЮ. Чат читает `CHANNELS_HOOK_SECRET` и
+# читает её ИЗ ОКРУЖЕНИЯ СЛОТА (`lib/fractera/channels.ts`, `hookSecret()`).
+# Любое другое имя или другой файл дают тихий `401` — проверено ошибкой в тот же
+# день, уже после того, как этот закон был записан.
+#
+# 🔒 ПЕТЛЯ, А НЕ ДОМЕН. Обе службы на одной машине; loopback не зависит ни от
+# домена, ни от сертификата, ни от режима сервера — работает и в IP-режиме, и
+# после подключения домена. Домен здесь был бы лишней точкой отказа.
+#
+# 🛑 ШАГ МЯГКИЙ, КАК И ВЕСЬ БЛОК ЧАТА: сервер без чата — это семь работающих служб
+# и строка в логе, а не упавшая установка.
+cat > /opt/fractera/link-channels-chat.sh <<'LINKEOF'
+#!/bin/bash
+# Связать службу каналов с чатом: общий секрет в двух местах и адрес на петлю.
+CFG=/opt/fractera/services/channels/config.json
+SLOT=/opt/fractera/app/.env.local
+HOOK=http://127.0.0.1:3600/api/channels/inbound
+
+# Нет чата или нет слота — связывать нечего, и это НЕ отказ.
+[ -d /opt/fractera/chat ] || exit 0
+[ -f "$SLOT" ] || exit 0
+
+SECRET=$(openssl rand -hex 24)
+mkdir -p "$(dirname "$CFG")"
+[ -f "$CFG" ] || echo '{}' > "$CFG"
+
+# Заплата, а не снимок: рядом в конфиге живут токен бота и расписание.
+node -e '
+const fs = require("fs");
+const p = process.argv[1], hook = process.argv[2], secret = process.argv[3];
+let j = {};
+try { j = JSON.parse(fs.readFileSync(p, "utf8")) || {}; } catch (e) { j = {}; }
+j.telegram = j.telegram || {};
+j.telegram.hookUrl = hook;
+j.telegram.hookSecret = secret;
+fs.writeFileSync(p, JSON.stringify(j, null, 2));
+' "$CFG" "$HOOK" "$SECRET" || exit 1
+chmod 600 "$CFG"
+
+# Тот же секрет — в окружение СЛОТА, построчно, под именем, которое читает чат.
+if grep -q '^CHANNELS_HOOK_SECRET=' "$SLOT"; then
+  sed -i "s|^CHANNELS_HOOK_SECRET=.*|CHANNELS_HOOK_SECRET=$SECRET|" "$SLOT"
+else
+  printf 'CHANNELS_HOOK_SECRET=%s\n' "$SECRET" >> "$SLOT"
+fi
+
+# Приёмка внутри шага: секрет обязан совпасть в ОБОИХ местах, иначе шаг провален.
+A=$(node -e 'try{console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).telegram.hookSecret||"")}catch(e){console.log("")}' "$CFG")
+B=$(grep -m1 '^CHANNELS_HOOK_SECRET=' "$SLOT" | cut -d= -f2-)
+[ -n "$A" ] && [ "$A" = "$B" ]
+LINKEOF
+chmod +x /opt/fractera/link-channels-chat.sh
+
+soft_step "chat_channels_link" "Linking channels service to chat" \
+  "/opt/fractera/link-channels-chat.sh"
+
 log_email "start_data" "All services started" 65
 
 CURRENT_STEP="pm2_save"
