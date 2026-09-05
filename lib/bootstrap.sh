@@ -882,7 +882,7 @@ soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo 
 # ✗ Цена: токен развёртывания видит `Agent-Engineering-Infrastructure` и НЕ видит репозиторий
 # чата. Клон провалился молча, и три следующих шага упали на `cd: No such file or directory` —
 # сервер поднялся без чата. Репозиторий публичный; анонимный клон с сервера проверен и проходит.
-CHAT_REPO="https://github.com/Fractera/fractera-ai-chat-starter.git"
+CHAT_REPO="https://github.com/Fractera/fractera-telegrambot-starter.git"
 
 if ! grep -q "CHAT_DB_PASSWORD=" "$SECRETS_FILE" 2>/dev/null; then
   echo "CHAT_DB_PASSWORD=$(openssl rand -hex 24)" >> "$SECRETS_FILE"
@@ -919,8 +919,8 @@ soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 ||
 # ✅ Измерено на живом сервере 2026-09-04, прежде чем править: токена в `.git/config` чата
 # нет — `CHAT_REPO` публичный и токена не несёт, чистить было нечего. То есть дефект был
 # настоящим, а ущерб нулевым, и обе половины названы, чтобы следующая сессия не искала утечку.
-soft_step "chat_clone" "Downloading chat" \
-  "rm -rf /opt/fractera/chat; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/chat </dev/null && break; rm -rf /opt/fractera/chat; sleep 8; done; [ -d /opt/fractera/chat/.git ]"
+soft_step "chat_clone" "Downloading Telegram automation" \
+  "rm -rf /opt/fractera/telegrambot; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/telegrambot </dev/null && break; rm -rf /opt/fractera/telegrambot; sleep 8; done; [ -d /opt/fractera/telegrambot/.git ]"
 
 # 🔒 THE CHAT DOES NOT KEEP ITS OWN COPY OF THE DATA-LAYER SECRET: it reads the slot's file,
 # named here once. Attachments go to the project's media library — the same warehouse the
@@ -928,8 +928,8 @@ soft_step "chat_clone" "Downloading chat" \
 CURRENT_STEP="chat_env"
 CURRENT_LABEL="Writing chat configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
-if [ -d /opt/fractera/chat ]; then
-  cat > /opt/fractera/chat/.env.local <<CHATENVEOF
+if [ -d /opt/fractera/telegrambot ]; then
+  cat > /opt/fractera/telegrambot/.env.local <<CHATENVEOF
 POSTGRES_URL=postgres://fractera_chat:$CHAT_DB_PASSWORD@127.0.0.1:5432/fractera_chat
 AUTH_SECRET=$AUTH_SECRET
 PORT=3600
@@ -939,21 +939,27 @@ FRACTERA_SLOT_ENV=/opt/fractera/app/.env.local
 NEXT_PUBLIC_APP_NAME=Fractera
 NEXT_PUBLIC_COMPANY_NAME=Fractera
 CHATENVEOF
-  chmod 600 /opt/fractera/chat/.env.local
+  chmod 600 /opt/fractera/telegrambot/.env.local
 fi
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
-soft_step "chat_deps"  "Installing dependencies (chat)"   "cd /opt/fractera/chat && pnpm install --frozen-lockfile && cd /opt/fractera"
-
-# Migrations run inside this build — see the note above. A failure here leaves the server whole.
-soft_step "chat_build" "Building chat (schema + production)"   "cd /opt/fractera/chat && pnpm build && cd /opt/fractera"
-
-# 🛑 ПОРТ ЗАДАЁТСЯ ОКРУЖЕНИЕМ ПРОЦЕССА, А НЕ ФАЙЛОМ — ОПЛАЧЕНО РАЗВЁРТЫВАНИЕМ 2026-09-03.
-# `PORT=3600` в `.env.local` НЕ действует: `next start` читает порт из окружения, а .env-файл
-# попадает в приложение, а не в процесс. Чат поднимался на 3000, натыкался на гостевой сайт и
-# уходил в вечный рестарт с EADDRINUSE — служба «запущена» и мертва одновременно.
-soft_step "start_chat" "Starting chat service" \
-  "cd /opt/fractera/chat && PORT=3600 pm2 start pnpm --name fractera-chat -- start && cd /opt/fractera"
+# ── УСТАНОВКА ЖИВЁТ В САМОМ ЗЕРКАЛЕ (шаг 135, 2026-09-05) ──────────────────────
+#
+# 🔒 ТРЕБОВАНИЕ ВЛАДЕЛЬЦА, ДОСЛОВНО: «один локальный репозиторий, который является
+# зеркалом одной папки сервера. Всё один к одному». Здесь стояли ПЯТЬ шагов —
+# `chat_deps`, `chat_build`, `start_chat`, `chat_agent_cli` и заведение рабочей
+# папки агента, — и любая правка порта, процесса или запуска агента означала поход
+# в ЭТОТ репозиторий за той способностью, которая живёт в другом.
+#
+# 🔒 ЧТО ОСТАЛОСЬ ЗДЕСЬ И ПОЧЕМУ ИМЕННО ЭТО. Рождение сервера живёт в этом файле, и
+# он один знает адрес репозитория, пароль базы и `AUTH_SECRET`. Поэтому остались
+# клон, запись `.env.local` — и одна строка ниже. Всё прочее переехало в
+# `scripts/install.sh` рядом с кодом, который он ставит.
+#
+# 🛑 ШАГ МЯГКИЙ ПО ТОЙ ЖЕ ПРИЧИНЕ, ЧТО И ПРЕЖНИЕ ПЯТЬ: сервер без Telegram-канала —
+# это работающий сервер и строка в журнале, а не упавшая установка.
+soft_step "telegrambot_install" "Installing Telegram automation" \
+  "bash /opt/fractera/telegrambot/scripts/install.sh"
 # ✗ ВТОРАЯ СТРОКА-СИРОТА УБРАНА ШАГОМ 114 (2026-09-04). Здесь стоял дубль команды запуска
 # без `soft_step` перед ним — та же половина обвала 2026-09-03, что и у `chat_clone` выше.
 # Вреда не было: `command not found`, код 127, установка идёт дальше. Но выглядела строка
@@ -971,11 +977,19 @@ soft_step "start_chat" "Starting chat service" \
 # сервер и строка в журнале, а не упавшая установка. Терминал в чате при этом откроется и
 # честно скажет, чего не хватает.
 #
-# 🔒 РАБОЧАЯ ПАПКА ЗАВОДИТСЯ ЗДЕСЬ ЖЕ. `server.mjs` чата открывает оболочку в
-# `/opt/fractera/agent-workspace` и откатывается в свою папку, если её нет. Откат тихий —
-# человек оказался бы в исходниках чата, не понимая почему. Пусть папка существует с рождения.
-soft_step "chat_agent_cli" "Coding agent CLI (Claude Code)" \
-  "mkdir -p /opt/fractera/agent-workspace && npm install -g @anthropic-ai/claude-code && command -v claude >/dev/null 2>&1"
+# 🪦 ШАГ `chat_agent_cli` СНЯТ ШАГОМ 135 (2026-09-05) — И ЭТО НЕ ПОТЕРЯ СПОСОБНОСТИ.
+# Он делал две вещи: ставил `@anthropic-ai/claude-code` глобально и заводил
+# `/opt/fractera/agent-workspace`. Обе переехали в `scripts/install.sh` зеркала,
+# который вызывается шагом `telegrambot_install` выше.
+#
+# ✗ И ВТОРАЯ ИЗ НИХ БЫЛА ДЕФЕКТОМ, А НЕ ОСОБЕННОСТЬЮ. `mkdir -p` создавал папку
+# ПУСТОЙ, а `CLAUDE.md`, `.mcp.json` и MCP-сервер приёма клались туда РУКАМИ и не
+# рождались ни из одного установщика. На чистом сервере агент поднимался без
+# инструкции и без инструментов — молча. Теперь его рабочая папка есть сам
+# репозиторий, всё это лежит в его корне и приезжает клоном.
+#
+# 🔒 РЕШЕНИЕ ВЛАДЕЛЬЦА, ПО КОТОРОМУ ЭТО СДЕЛАНО: агент живёт внутри исходника своей
+# автоматизации и ЧИТАЕТ себя — запрет остался на правку, а не на чтение.
 
 # ── СВЯЗКА СЛУЖБЫ КАНАЛОВ С ЧАТОМ (шаг 110, 2026-09-04) ─────────────────────────
 #
@@ -1008,8 +1022,8 @@ CFG=/opt/fractera/services/channels/config.json
 SLOT=/opt/fractera/app/.env.local
 HOOK=http://127.0.0.1:3600/api/channels/inbound
 
-# Нет чата или нет слота — связывать нечего, и это НЕ отказ.
-[ -d /opt/fractera/chat ] || exit 0
+# Нет автоматизации или нет слота — связывать нечего, и это НЕ отказ.
+[ -d /opt/fractera/telegrambot ] || exit 0
 [ -f "$SLOT" ] || exit 0
 
 SECRET=$(openssl rand -hex 24)
