@@ -957,6 +957,8 @@ PORT=3600
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://$SERVER_IP:3001
 FRACTERA_SLOT_ENV=/opt/fractera/app/.env.local
+APP_CONFIG_PATH=/opt/fractera/app/APP-CONFIG/app-config.json
+PLATFORM_CONFIG_PATH=/opt/fractera/app/PLATFORM-CONFIG/platform-config.json
 NEXT_PUBLIC_APP_NAME=Fractera
 NEXT_PUBLIC_COMPANY_NAME=Fractera
 CHATENVEOF
