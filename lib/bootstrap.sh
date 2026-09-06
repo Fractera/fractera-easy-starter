@@ -947,6 +947,14 @@ soft_step "chat_clone" "Downloading Telegram automation" \
 # named here once. Attachments go to the project's media library — the same warehouse the
 # Telegram bot fills — so "all the files of this project" stays one answer.
 CURRENT_STEP="chat_env"
+# 🪦 ЗДЕСЬ ПИСАЛИСЬ APP_CONFIG_PATH / PLATFORM_CONFIG_PATH / DESIGN_CONFIG_PATH
+# В ФАЙЛ СЛОТА 3000 — УБРАНЫ 2026-09-06 по слову владельца: «никакие другие
+# импорты из слоя 3000 нам не нужны». У службы теперь СВОИ конфиги в своём
+# дереве (DESIGN-CONFIG, APP-CONFIG, REGISTRY-CONFIG, TOOLS-CONFIG), и пути к
+# ним — умолчания process.cwd(). Оставленный путь один: FRACTERA_SLOT_ENV, и
+# это СЕКРЕТЫ (ключ слоя данных, ключ OpenAI), а не оформление.
+# 🛑 Вернув сюда любую из трёх строк, вы вернёте и дефект: читатель часового
+# пояса уйдёт в файл 3000, а писатель останется в своём дереве.
 CURRENT_LABEL="Writing chat configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 if [ -d /opt/fractera/telegrambot ]; then
@@ -957,9 +965,6 @@ PORT=3600
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://$SERVER_IP:3001
 FRACTERA_SLOT_ENV=/opt/fractera/app/.env.local
-APP_CONFIG_PATH=/opt/fractera/app/APP-CONFIG/app-config.json
-PLATFORM_CONFIG_PATH=/opt/fractera/app/PLATFORM-CONFIG/platform-config.json
-DESIGN_CONFIG_PATH=/opt/fractera/app/DESIGN-CONFIG/design-config.json
 NEXT_PUBLIC_APP_NAME=Fractera
 NEXT_PUBLIC_COMPANY_NAME=Fractera
 CHATENVEOF
