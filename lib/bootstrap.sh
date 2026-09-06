@@ -973,6 +973,12 @@ CURRENT_STEP="chat_env"
 # это СЕКРЕТЫ (ключ слоя данных, ключ OpenAI), а не оформление.
 # 🛑 Вернув сюда любую из трёх строк, вы вернёте и дефект: читатель часового
 # пояса уйдёт в файл 3000, а писатель останется в своём дереве.
+#
+# 🪦 И ЧЕТВЁРТАЯ СТРОКА, FRACTERA_SLOT_ENV, УБРАНА ТОГДА ЖЕ, В ТОТ ЖЕ ДЕНЬ.
+# Через неё служба брала шесть ключей из .env.local соседа: DATA_SECRET,
+# REMOTE_DATA_URL, CHANNELS_*, OPENAI_*. Теперь их источник — склад машины
+# /etc/fractera/secrets.env (см. блок prepare_secrets выше), и порт 3000 службе
+# не нужен ни для чего. Её .env.local держит только СВОЁ: базу, порт, вход.
 CURRENT_LABEL="Writing chat configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 if [ -d /opt/fractera/telegrambot ]; then
@@ -982,7 +988,6 @@ AUTH_SECRET=$AUTH_SECRET
 PORT=3600
 AUTH_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_AUTH_URL=http://$SERVER_IP:3001
-FRACTERA_SLOT_ENV=/opt/fractera/app/.env.local
 NEXT_PUBLIC_APP_NAME=Fractera
 NEXT_PUBLIC_COMPANY_NAME=Fractera
 CHATENVEOF
