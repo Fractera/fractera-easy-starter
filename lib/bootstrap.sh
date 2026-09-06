@@ -902,9 +902,10 @@ soft_step "start_geo"     "Starting geo service" "cd /opt/fractera/services/geo 
 # сервер поднялся без чата. Репозиторий публичный; анонимный клон с сервера проверен и проходит.
 CHAT_REPO="https://github.com/Fractera/fractera-telegrambot-starter.git"
 
-if ! grep -q "CHAT_DB_PASSWORD=" "$SECRETS_FILE" 2>/dev/null; then
-  echo "CHAT_DB_PASSWORD=$(openssl rand -hex 24)" >> "$SECRETS_FILE"
-fi
+# 🪦 CHAT_DB_PASSWORD БОЛЬШЕ НЕ РОЖДАЕТСЯ (2026-09-06): у службы 3600 нет своей
+# базы. Хранилище шаблона ai-chatbot снесено целиком вместе с семью пустыми
+# таблицами — путь к ИИ идёт Telegram → Claude Code, и наш конвейер ответа не
+# существует. На уже поднятых серверах ключ остаётся в складе и никому не мешает.
 source "$SECRETS_FILE"
 
 soft_step "chat_postgres" "PostgreSQL (chat store)"   "wait_for_apt; apt-get install -y -qq postgresql postgresql-contrib && systemctl enable --now postgresql"
@@ -914,7 +915,7 @@ soft_step "chat_postgres" "PostgreSQL (chat store)"   "wait_for_apt; apt-get ins
 # 🛑 THE PASSWORD IS SET, NOT ONLY CREATED. A role that survived an older wipe would keep its
 # OLD password while /etc/fractera holds a new one — CREATE would be skipped and the chat could
 # not log in, with nothing in the boot log to say why. ALTER makes the two agree every time.
-soft_step "chat_db" "Chat database"   "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='fractera_chat'\" | grep -q 1 && sudo -u postgres psql -c \"ALTER ROLE fractera_chat LOGIN PASSWORD '$CHAT_DB_PASSWORD'\" || sudo -u postgres psql -c \"CREATE ROLE fractera_chat LOGIN PASSWORD '$CHAT_DB_PASSWORD'\"; sudo -u postgres psql -tAc \"SELECT 1 FROM pg_database WHERE datname='fractera_chat'\" | grep -q 1 || sudo -u postgres createdb -O fractera_chat fractera_chat"
+# 🪦 ШАГ chat_db УДАЛЁН 2026-09-06: роль и база fractera_chat больше не заводятся.
 
 # The engine ships a pnpm lockfile; npm would resolve a different tree from the one we tested.
 soft_step "chat_pnpm" "pnpm (chat engine)"   "command -v pnpm >/dev/null 2>&1 || npm install -g pnpm"
@@ -983,7 +984,6 @@ CURRENT_LABEL="Writing chat configuration"
 report "$CURRENT_STEP" "$CURRENT_LABEL" false
 if [ -d /opt/fractera/telegrambot ]; then
   cat > /opt/fractera/telegrambot/.env.local <<CHATENVEOF
-POSTGRES_URL=postgres://fractera_chat:$CHAT_DB_PASSWORD@127.0.0.1:5432/fractera_chat
 AUTH_SECRET=$AUTH_SECRET
 PORT=3600
 AUTH_SERVICE_URL=http://localhost:3001
@@ -1124,7 +1124,7 @@ set_slot CHANNELS_HOOK_URL    "$HOOK"
 # контракт нечего. Служба Telegram с этого дня читает секрет из
 # /etc/fractera/secrets.env, а не из .env.local соседа.
 # 🛑 ЗАПИСЬ ИДЁТ ПОСТРОЧНО, А НЕ ПЕРЕЗАПИСЬЮ ФАЙЛА: рядом лежат AUTH_SECRET и
-# CHAT_DB_PASSWORD, потеря которых означает мёртвый сервер.
+# DEPLOY_SECRET, потеря которых означает мёртвый сервер.
 if grep -q "^CHANNELS_HOOK_SECRET=" /etc/fractera/secrets.env 2>/dev/null; then
   sed -i "s|^CHANNELS_HOOK_SECRET=.*|CHANNELS_HOOK_SECRET=$SECRET|" /etc/fractera/secrets.env
 else
