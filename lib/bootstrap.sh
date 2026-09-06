@@ -513,6 +513,24 @@ fi
 if ! grep -q "LIGHTRAG_API_KEY=" "$SECRETS_FILE" 2>/dev/null; then
   echo "LIGHTRAG_API_KEY=$(openssl rand -hex 32)" >> "$SECRETS_FILE"
 fi
+# 🔒 ЗНАЧЕНИЯ МАШИНЫ ДЛЯ СЛУЖБЫ 3600 — ДОБАВЛЕНЫ 2026-09-06, АДДИТИВНО.
+#
+# Служба Telegram читает их через lib/fractera/machine-env.ts. До этого дня она
+# брала их из .env.local СЛОТА 3000, и это была последняя нитка к соседу: сотри
+# владелец порт 3000 — служба осталась бы без адреса слоя данных и без ключа.
+#
+# 🛑 ПОЧЕМУ НЕ У ПАНЕЛИ 3002, ХОТЯ ВЛАДЕЛЕЦ СПРАШИВАЛ ИМЕННО ПРО НЕЁ. Измерено:
+# в её .env.local лежит ОДИН DATA_SECRET из шести нужных ключей. Переключение
+# туда поменяло бы одну зависимость на другую и потеряло бы пять.
+#
+# 🔒 НИ ОДНА СУЩЕСТВУЮЩАЯ СТРОКА НЕ ТРОГАЕТСЯ: каждый ключ дописывается только
+# если его нет, как и все ключи выше. Поведение прежних серверов не меняется.
+if ! grep -q "REMOTE_DATA_URL=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "REMOTE_DATA_URL=http://localhost:3300" >> "$SECRETS_FILE"
+fi
+if ! grep -q "OPENAI_TEXT_MODEL=" "$SECRETS_FILE" 2>/dev/null; then
+  echo "OPENAI_TEXT_MODEL=gpt-4o-mini" >> "$SECRETS_FILE"
+fi
 chmod 600 "$SECRETS_FILE"
 source "$SECRETS_FILE"
 
@@ -1095,6 +1113,20 @@ set_slot() {
 set_slot CHANNELS_HOOK_SECRET "$SECRET"
 set_slot TELEGRAM_HOOK_SECRET "$SECRET"
 set_slot CHANNELS_HOOK_URL    "$HOOK"
+
+# 🔒 ЧЕТВЁРТЫЙ АДРЕС — СКЛАД МАШИНЫ, ДЛЯ СЛУЖБЫ 3600 (2026-09-06). Три строки
+# выше остаются как были: их читают слот 3000 и служба каналов, и трогать чужой
+# контракт нечего. Служба Telegram с этого дня читает секрет из
+# /etc/fractera/secrets.env, а не из .env.local соседа.
+# 🛑 ЗАПИСЬ ИДЁТ ПОСТРОЧНО, А НЕ ПЕРЕЗАПИСЬЮ ФАЙЛА: рядом лежат AUTH_SECRET и
+# CHAT_DB_PASSWORD, потеря которых означает мёртвый сервер.
+if grep -q "^CHANNELS_HOOK_SECRET=" /etc/fractera/secrets.env 2>/dev/null; then
+  sed -i "s|^CHANNELS_HOOK_SECRET=.*|CHANNELS_HOOK_SECRET=$SECRET|" /etc/fractera/secrets.env
+else
+  printf 'CHANNELS_HOOK_SECRET=%s
+' "$SECRET" >> /etc/fractera/secrets.env
+fi
+chmod 600 /etc/fractera/secrets.env
 
 # Приёмка внутри шага: секрет обязан совпасть в ОБОИХ местах, иначе шаг провален.
 A=$(grep -m1 "^TELEGRAM_HOOK_SECRET=" "$SLOT" | cut -d= -f2-)
