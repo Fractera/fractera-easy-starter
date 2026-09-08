@@ -759,6 +759,14 @@ EMBEDDING_BINDING_API_KEY=
 # for -large. Mismatched dim crashes LightRAG indexing.
 EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIM=1536
+# Language of entity descriptions and summaries built during indexing.
+# The engine defaults to English (DEFAULT_SUMMARY_LANGUAGE in constants.py),
+# so a Russian story was indexed with English descriptions and answered in
+# English no matter the language of the question. Measured 2026-09-08: with
+# this line set, the same story indexes in Russian.
+# NOTE: this affects INDEXING, not answering — documents indexed before the
+# change keep their English descriptions until re-indexed.
+SUMMARY_LANGUAGE=Russian
 CORS_ORIGINS=http://localhost:3002
 ENVEOF
 chmod 600 /opt/fractera/services/rag/.env
