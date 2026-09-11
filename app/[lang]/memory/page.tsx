@@ -48,6 +48,18 @@ function Section({
   )
 }
 
+// Карточка ряда — один вид на все четыре раздела, где она встречается.
+// 🔒 Четыре копии этой разметки разошлись бы на первой правке: та, которой
+// пользуются реже, осталась бы с прежним видом.
+function Card({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 p-4 transition-colors hover:border-violet-500/30">
+      <div className="text-base font-medium">{title}</div>
+      <p className="mt-2 text-sm leading-relaxed text-white/50">{body}</p>
+    </div>
+  )
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -169,6 +181,78 @@ export default async function MemoryPage({ params }: { params: Promise<{ lang: s
           </table>
         </div>
         <p className="mt-5 max-w-3xl text-sm italic leading-relaxed text-white/50">{m.ladder.example}</p>
+      </Section>
+
+      {/* ПРОСТРАНСТВЕННО-ВРЕМЕННОЙ ОХВАТ */}
+      <Section id="scope" title={m.scope.title} lead={m.scope.lead}>
+        <div className="grid gap-3 md:grid-cols-3">
+          {m.scope.items.map(item => (
+            <Card key={item.title} title={item.title} body={item.body} />
+          ))}
+        </div>
+      </Section>
+
+      {/* АРТЕФАКТ ВМЕСТО АБЗАЦА */}
+      <Section id="artifacts" title={m.artifacts.title} lead={m.artifacts.lead}>
+        <ol className="ml-5 list-decimal space-y-2 text-sm leading-relaxed text-white/80">
+          {m.artifacts.steps.map(step => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </Section>
+
+      {/* ПЕТЛЯ ЗАПОМИНАНИЯ */}
+      <Section id="memoization" title={m.memoization.title} lead={m.memoization.lead}>
+        <ol className="space-y-3">
+          {m.memoization.chain.map((step, i) => (
+            <li key={step} className="flex items-start gap-3">
+              <span
+                aria-hidden
+                className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-violet-500/40 text-xs text-violet-200"
+              >
+                {i + 1}
+              </span>
+              <span className="text-sm leading-relaxed text-white/80">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      {/* ЭВОЛЮЦИЯ НАВЫКОВ */}
+      <Section id="evolution" title={m.evolution.title} lead={m.evolution.lead}>
+        <div className="grid gap-3 md:grid-cols-3">
+          {m.evolution.items.map(item => (
+            <Card key={item.title} title={item.title} body={item.body} />
+          ))}
+        </div>
+      </Section>
+
+      {/* ЧЕТЫРЕ ХРАНИЛИЩА */}
+      <Section id="stores" title={m.stores.title} lead={m.stores.lead}>
+        <div className="grid gap-3 md:grid-cols-2">
+          {m.stores.items.map(item => (
+            <Card key={item.title} title={item.title} body={item.body} />
+          ))}
+        </div>
+      </Section>
+
+      {/* МУЛЬТИМОДАЛЬНОСТЬ */}
+      <Section id="media" title={m.media.title} lead={m.media.lead}>
+        <div className="grid gap-3 md:grid-cols-2">
+          {m.media.items.map(item => (
+            <Card key={item.title} title={item.title} body={item.body} />
+          ))}
+        </div>
+      </Section>
+
+      {/* ВСТРОЕННЫЙ СТЕНД */}
+      <Section id="bench" title={m.bench.title} lead={m.bench.lead}>
+        <ul className="ml-5 list-disc space-y-2 text-sm leading-relaxed text-white/80">
+          {m.bench.items.map(item => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p className="mt-5 font-mono text-sm text-white/40">{m.bench.where}</p>
       </Section>
     </main>
   )

@@ -361,11 +361,26 @@ export type MemoryPageContent = {
     rows: { level: string; how: string; cost: string; by: string }[]
     example: string
   }
+  // Пространственно-временной охват, четыре хранилища, мультимодальность и
+  // эволюция навыков — карточками. Один вид карточки на все четыре раздела:
+  // четыре копии разметки разошлись бы на первой правке.
+  scope: { title: string; lead: string; items: MemoryCard[] }
+  evolution: { title: string; lead: string; items: MemoryCard[] }
+  stores: { title: string; lead: string; items: MemoryCard[] }
+  media: { title: string; lead: string; items: MemoryCard[] }
+  // Артефакт вместо абзаца — нумерованный список шагов.
+  artifacts: { title: string; lead: string; steps: string[] }
+  // Петля запоминания — цепочка с номерами.
+  memoization: { title: string; lead: string; chain: string[] }
+  // Встроенный стенд: маркированный список плюс адрес, где он живёт.
+  bench: { title: string; lead: string; items: string[]; where: string }
   seo: {
     title: string
     description: string
   }
 }
+
+export type MemoryCard = { title: string; body: string }
 
 export type SiteMeta = {
   title: string
