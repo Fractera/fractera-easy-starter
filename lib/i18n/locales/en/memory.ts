@@ -308,6 +308,54 @@ export const memory: MemoryPageContent = {
       },
     ],
   },
+  faq: {
+    title: 'Questions and answers',
+    lead: 'Short answers to what people ask before they integrate.',
+    items: [
+      {
+        q: 'Does every request cost tokens?',
+        a: 'No. The engine answers levels 1 to 3 without a model at all: a direct lookup, a graph traversal, a conclusion already folded back into the stores. A model turn is spent only when the cheap deterministic paths return nothing, and the answer reports depth_used so you can see what you paid for.',
+      },
+      {
+        q: 'Can it answer questions about a place by coordinates, not by a word?',
+        a: 'Yes. A scope entry carries lat, lon and an optional radius_m, and the coordinates are spatially indexed. You can ask what you know within 500 metres of a point, and knowledge recorded in Madrid never merges with knowledge recorded in London.',
+      },
+      {
+        q: 'What can I send besides text?',
+        a: 'Voice notes, images, video, PDF and HTML. The pipeline lives inside the engine: audio is transcribed, images are captioned and read by OCR, video has its track transcribed and its key frames captioned, PDFs are parsed with an OCR fallback. The original binary stays in the built-in object store and is referenced from answers by id.',
+      },
+      {
+        q: 'What schema do I have to design first?',
+        a: 'None. You send a sentence. The engine adds columns as new kinds of fact appear and generates typed relational tables when a kind grows into an entity. There are no migrations to write.',
+      },
+      {
+        q: 'What happens after an expensive research run?',
+        a: 'It folds the result back. The artifact goes to the object store, its summary into text, into the vector store and into the knowledge graph, and the relation tables are updated. The same question is then answered from the cheap levels, in fractions of a second.',
+      },
+      {
+        q: 'How does it improve itself without breaking what works?',
+        a: 'It writes a second version of the skill and runs it as a challenger in the shadow, on real traffic, while people keep being answered by the champion. Promotion needs an external verdict and no regression in cost: the engine is never allowed to grade its own work.',
+      },
+      {
+        q: 'What can I connect to it?',
+        a: 'Any HTTP client: a Telegram bot, a web chat, a mobile app, a scheduled job. The engine also ships with its own console, already connected, and that console is optional: nothing in the API path depends on it.',
+      },
+      {
+        q: 'Where does my data live?',
+        a: 'On your server, in your database, in your object store, behind a key you can revoke in one click. There is no metered API in the middle and no telemetry leaving the machine.',
+      },
+    ],
+  },
+  project: {
+    label: 'The Fractera project on GitHub',
+    body:
+      'Fractera Memory is one microservice of the Fractera platform, the engineering infrastructure for autonomous agents. The whole project, this engine included, is open source.',
+  },
+  cta: {
+    title: 'See how it is built',
+    body:
+      'Read the full design in the passport — the document written before the code and kept in step with it ever since.',
+  },
   seo: {
     title: 'Fractera Memory — self-hosted memory engine for AI agents',
     description:

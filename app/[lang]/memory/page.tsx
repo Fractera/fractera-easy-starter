@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getContent } from '@/lib/i18n/locales'
 import { buildAlternates } from '@/lib/seo/alternates'
+import { BRAND } from '@/lib/brand'
 
 // СТРАНИЦА «ПАМЯТЬ» НА ВИТРИНЕ (шаг 187).
 //
@@ -84,8 +85,38 @@ export default async function MemoryPage({ params }: { params: Promise<{ lang: s
   const { lang } = await params
   const m = getContent(lang).memory
 
+  const pageUrl = `${BRAND.siteUrl}/${lang}/memory`
+
+  // 🔒 РАЗМЕТКА СТРОИТСЯ ИЗ ТЕХ ЖЕ СТРОК, ЧТО ВИДИТ ЧЕЛОВЕК. Вторая копия
+  // вопросов «для поисковика» разошлась бы с видимой на первой правке, а
+  // разметка, не совпадающая с текстом страницы, — это ровно то, за что
+  // поисковик наказывает.
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: BRAND.name, item: `${BRAND.siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: m.seo.title, item: pageUrl },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: m.faq.items.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    },
+  ]
+
   return (
     <main className="min-h-screen bg-black text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
+      />
       {/* ПЕРВЫЙ ЭКРАН: надзаголовок → H1 → лид → тело → метки.
           H1 на странице ровно один, и он здесь.
           🛑 Кнопок действия нет — решение владельца 2026-09-11 «Убрать кнопки
@@ -327,6 +358,54 @@ export default async function MemoryPage({ params }: { params: Promise<{ lang: s
             <Card key={item.title} title={item.title} body={item.body} />
           ))}
         </div>
+      </Section>
+
+      {/* ВОПРОСЫ И ОТВЕТЫ.
+          🔒 Раскрывающиеся элементы — нативные <details>, а не своя реализация
+          на состоянии: содержимое ответа лежит в разметке ВСЕГДА и читается
+          машиной даже закрытым. Аккордеон на JavaScript прячет текст и от
+          поисковика тоже. */}
+      <Section id="faq" title={m.faq.title} lead={m.faq.lead}>
+        <div className="divide-y divide-white/10 border-y border-white/10">
+          {m.faq.items.map(item => (
+            <details key={item.q} className="group py-3">
+              <summary className="cursor-pointer list-none text-base font-medium marker:content-none">
+                <span
+                  aria-hidden
+                  className="mr-2 inline-block text-violet-300 transition-transform group-open:rotate-90"
+                >
+                  ›
+                </span>
+                {item.q}
+              </summary>
+              <p className="mt-2 max-w-3xl pl-5 text-sm leading-relaxed text-white/60">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </Section>
+
+      {/* ПРОЕКТ — ЕДИНСТВЕННАЯ ВНЕШНЯЯ ССЫЛКА И ЕДИНСТВЕННАЯ КНОПКА СТРАНИЦЫ.
+          Решение владельца 2026-09-11: «Оставить как ссылку на репозиторий».
+          Адрес берётся из BRAND.repoUrl — одного источника, а не вписан руками
+          в двадцать второй раз. */}
+      <Section id="project" title={m.project.label}>
+        <p className="max-w-3xl text-base leading-relaxed text-white/80">{m.project.body}</p>
+        <a
+          href={BRAND.repoUrl}
+          target="_blank"
+          rel="noopener"
+          className="mt-5 inline-block rounded-lg border border-violet-500/40 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-100 transition-colors hover:bg-violet-500/20"
+        >
+          {m.project.label}
+        </a>
+      </Section>
+
+      {/* ЗАВЕРШАЮЩИЙ ПРИЗЫВ.
+          🛑 Кнопок здесь нет — решение владельца «Убрать кнопки совсем»:
+          в оригинале они вели на /passport и /settings самой службы, а на
+          витрине таких адресов не существует. Остаётся текст. */}
+      <Section id="cta" title={m.cta.title}>
+        <p className="max-w-3xl text-base leading-relaxed text-white/80">{m.cta.body}</p>
       </Section>
     </main>
   )
