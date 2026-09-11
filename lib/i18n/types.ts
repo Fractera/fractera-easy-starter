@@ -336,6 +336,31 @@ export type MemoryPageContent = {
     body: string
     badges: string[]
   }
+  // Задача, которую решает память, и она же — объяснение «чёрного ящика».
+  problem: { title: string; lead: string; body: string }
+  // Путь запроса: один вход, один роутер, две очень разные цены за ним.
+  // 🔒 Псевдографика оригинала сюда не переносится: она ломается на телефоне и
+  // не читается экранным диктором. Переезжает схема, а не символы.
+  router: {
+    title: string
+    lead: string
+    inbox: string
+    routerBox: string
+    cheapBranch: string
+    cheapCost: string
+    deepBranch: string
+    deepCost: string
+  }
+  schema: { title: string; body: string }
+  // Лестница цены: пять уровней, от бесплатного точного чтения до глубокого
+  // рассуждения. Строки — данные: шестой уровень приедет правкой словаря.
+  ladder: {
+    title: string
+    lead: string
+    head: { level: string; how: string; cost: string; by: string }
+    rows: { level: string; how: string; cost: string; by: string }[]
+    example: string
+  }
   seo: {
     title: string
     description: string

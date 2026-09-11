@@ -22,6 +22,32 @@ import { buildAlternates } from '@/lib/seo/alternates'
 // канон статики витрины (STATIC-FIRST.md). Языки пререндерит
 // `generateStaticParams` общего layout.
 
+// Секция страницы: разделитель сверху, заголовок, необязательный лид, тело.
+// 🔒 Порядок задан здесь один раз и снаружи не переставляется, а любую часть
+// можно не дать. Две секции, свёрстанные по отдельности, разъезжаются — это
+// замер, оплаченный в панели дважды (шаг 28).
+function Section({
+  id,
+  title,
+  lead,
+  children,
+}: {
+  id: string
+  title: string
+  lead?: string
+  children?: React.ReactNode
+}) {
+  return (
+    <section id={id} className="border-t border-white/10">
+      <div className="max-w-5xl mx-auto px-6 py-14">
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
+        {lead ? <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/60">{lead}</p> : null}
+        {children ? <div className="mt-6">{children}</div> : null}
+      </div>
+    </section>
+  )
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -77,6 +103,73 @@ export default async function MemoryPage({ params }: { params: Promise<{ lang: s
           ))}
         </ul>
       </section>
+
+      {/* ЗАДАЧА И ЧЁРНЫЙ ЯЩИК */}
+      <Section id="concept" title={m.problem.title} lead={m.problem.lead}>
+        <p className="max-w-3xl text-base leading-relaxed text-white/80">{m.problem.body}</p>
+      </Section>
+
+      {/* ПУТЬ ЗАПРОСА.
+          🔒 Схема собрана блоками, а не псевдографикой: ASCII-рисунок оригинала
+          ломается на телефоне и не читается экранным диктором. Переезжает
+          смысл — один вход, один роутер, две ветки с разной ценой. */}
+      <Section id="router" title={m.router.title} lead={m.router.lead}>
+        <div className="flex flex-col gap-3">
+          <div className="rounded-lg border border-white/10 px-4 py-3 text-center text-sm text-white/70">
+            {m.router.inbox}
+          </div>
+          <div aria-hidden className="text-center text-white/30">
+            ↓
+          </div>
+          <div className="rounded-lg border border-violet-500/40 bg-violet-500/10 px-4 py-3 text-center text-sm font-medium text-violet-100">
+            {m.router.routerBox}
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-lg border border-white/10 p-4">
+              <div className="text-sm font-medium">{m.router.cheapBranch}</div>
+              <p className="mt-2 text-sm text-white/50">{m.router.cheapCost}</p>
+            </div>
+            <div className="rounded-lg border border-white/10 p-4">
+              <div className="text-sm font-medium">{m.router.deepBranch}</div>
+              <p className="mt-2 text-sm text-white/50">{m.router.deepCost}</p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* СХЕМА, РАСТУЩАЯ САМА */}
+      <Section id="schema" title={m.schema.title}>
+        <p className="max-w-3xl text-base leading-relaxed text-white/80">{m.schema.body}</p>
+      </Section>
+
+      {/* ЛЕСТНИЦА ЦЕНЫ.
+          🔒 Таблица прокручивается ВНУТРИ своего контейнера: широкое содержимое,
+          растягивающее body, даёт горизонтальную прокрутку всей страницы. */}
+      <Section id="ladder" title={m.ladder.title} lead={m.ladder.lead}>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[40rem] text-left text-sm">
+            <thead className="text-white/50">
+              <tr>
+                <th className="py-2 pr-4 font-medium">{m.ladder.head.level}</th>
+                <th className="py-2 pr-4 font-medium">{m.ladder.head.how}</th>
+                <th className="py-2 pr-4 font-medium">{m.ladder.head.cost}</th>
+                <th className="py-2 font-medium">{m.ladder.head.by}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {m.ladder.rows.map(row => (
+                <tr key={row.level} className="border-t border-white/10 align-top">
+                  <td className="py-3 pr-4 font-medium whitespace-nowrap text-violet-200">{row.level}</td>
+                  <td className="py-3 pr-4 text-white/80">{row.how}</td>
+                  <td className="py-3 pr-4 text-white/80">{row.cost}</td>
+                  <td className="py-3 text-white/50">{row.by}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-5 max-w-3xl text-sm italic leading-relaxed text-white/50">{m.ladder.example}</p>
+      </Section>
     </main>
   )
 }
