@@ -314,6 +314,32 @@ export type SiteContent = {
     partnerCabinet: string
     signOut: string
   }
+  // Страница «Память» (/[lang]/memory) — контент главной страницы службы памяти,
+  // перенесённый на витрину. Своя ветка словаря, потому что это отдельная
+  // страница, а не секция главной.
+  memory: MemoryPageContent
+}
+
+// Содержимое страницы «Память». Форма снята с корневой страницы службы памяти
+// (fractera-memory-starter), но собирается средствами витрины: en — полная
+// база, ru — накладка, недостающий ключ деградирует в английский.
+//
+// 🛑 КНОПОК ДЕЙСТВИЯ У ПЕРВОГО ЭКРАНА НЕТ, И ЭТО РЕШЕНИЕ ВЛАДЕЛЬЦА 2026-09-11
+// («Убрать кнопки совсем»). В оригинале они ведут внутрь самой службы —
+// /settings и /passport, — а на витрине таких страниц не существует: кнопка,
+// ведущая в никуда, хуже её отсутствия.
+export type MemoryPageContent = {
+  hero: {
+    eyebrow: string
+    title: string
+    lead: string
+    body: string
+    badges: string[]
+  }
+  seo: {
+    title: string
+    description: string
+  }
 }
 
 export type SiteMeta = {
