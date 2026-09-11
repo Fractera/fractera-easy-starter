@@ -5,6 +5,7 @@ export const siteHeader: SiteContent['siteHeader'] = {
   vpsDeploy: 'VPS Deploy',
   mcpDeploy: 'MCP Deploy',
   companyBrain: 'Company Brain',
+  memory: 'Memory',
   docs: 'Docs',
   blog: 'Blog',
   news: 'News',

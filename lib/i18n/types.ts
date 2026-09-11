@@ -305,6 +305,7 @@ export type SiteContent = {
     vpsDeploy: string
     mcpDeploy: string
     companyBrain: string
+    memory: string
     docs: string
     blog: string
     news: string
