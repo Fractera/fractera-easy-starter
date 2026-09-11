@@ -15,21 +15,6 @@ export const en: DeploymentBase = {
   listTitle: 'Production VPS Substrate',
   listDescription:
     'Deploy the full framework to an Ubuntu VPS in ten minutes — industrial agent hosting environments running on isolated cloud hardware for a flat fee.',
-  founderQuote:
-    'Building something new and uncharted is very hard. Every obvious thing has already been tried by thousands of other founders. And here we come back again to the thought that it is better for an idea to be “idiotic” than obvious.',
   blocks: [],
-  faq: [
-    {
-      q: 'How long does the automated VPS setup take, and what is the access URL?',
-      a: 'The full installation loop finishes in roughly ten minutes on a vanilla Ubuntu 24.04 host. Once complete, your master cockpit is live on plain HTTP at http://<your-ip>:3002. The initialization is IP-first by design, enabling instant workspace entry without waiting for DNS records or certificate handshakes.',
-    },
-    {
-      q: 'Is a domain name or a pre-configured SSL certificate required to deploy?',
-      a: 'No. The default deployment targeted by the installer operates purely over an IP address on standard HTTP port 3002. Binding custom subdomains, setting up Nginx reverse proxy routes, and activating HTTPS are optional administrative tasks handled by the developer from inside the live workspace (Admin → Personal Domain) whenever needed.',
-    },
-    {
-      q: 'Which cloud VPS providers and operating system builds are officially supported?',
-      a: 'Any virtual private host running a clean image of Ubuntu 24.04 LTS with root access is fully supported. Providers like Contabo, Hetzner, and similar unmanaged infrastructure services supply excellent high-spec machines for flat monthly fees. You supply the raw server access; Fractera automated scripts configure the entire agent engineering infrastructure.',
-    },
-  ],
+  faq: [],
 }
