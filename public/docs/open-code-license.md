@@ -46,6 +46,6 @@ A license protects the **code** (copyright), not the **idea** — only a patent 
 
 ---
 
-Full license text: `LICENSE` in the core repository — https://github.com/Fractera/Agent-Engineering-Infrastructure/blob/main/LICENSE
+Full license text: `LICENSE` in the core repository — https://github.com/Fractera/Agentic-Engineering-Infrastructure/blob/main/LICENSE
 PolyForm Small Business 1.0.0: https://polyformproject.org/licenses/small-business/1.0.0/
 Commercial license enquiries: admin@fractera.ai

@@ -232,7 +232,7 @@ export async function sendWelcomeEmail(
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
           </p>
-          <a href="https://github.com/Fractera/Agent-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
+          <a href="https://github.com/Fractera/Agentic-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
         </div>
 
         ${credentials ? `
@@ -387,7 +387,7 @@ export async function sendDomainActivatedEmail(to: string, domain: string) {
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
           </p>
-          <a href="https://github.com/Fractera/Agent-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
+          <a href="https://github.com/Fractera/Agentic-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
         </div>
 
         <!-- AI platforms footer -->
@@ -471,7 +471,7 @@ export async function sendCertExpiryWarningEmail(to: string, daysLeft: number, d
           <p style="margin:0 0 12px;font-size:13px;color:#444;line-height:1.6">
             A star takes one click and helps Fractera enormously — every star raises the project on search, makes it visible to other developers, and brings more contributors who improve the platform for everyone.
           </p>
-          <a href="https://github.com/Fractera/Agent-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
+          <a href="https://github.com/Fractera/Agentic-Engineering-Infrastructure" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:600;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px">⭐ Star Fractera on GitHub</a>
         </div>
 
         <!-- AI platforms footer -->

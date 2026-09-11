@@ -321,9 +321,9 @@ CURRENT_LABEL="Detecting server IP"
 report "$CURRENT_STEP" "$CURRENT_LABEL" true
 
 if [ -n "$GITHUB_TOKEN" ]; then
-  CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/Agent-Engineering-Infrastructure.git"
+  CLONE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/Fractera/Agentic-Engineering-Infrastructure.git"
 else
-  CLONE_URL="https://github.com/Fractera/Agent-Engineering-Infrastructure.git"
+  CLONE_URL="https://github.com/Fractera/Agentic-Engineering-Infrastructure.git"
 fi
 # 🛑 GIT ГОВОРИТ С GITHUB ПО HTTP/1.1, И ЭТО ИЗМЕРЕНО НА ЖИВОЙ МАШИНЕ 2026-09-02.
 # На сервере 213.199.61.7 клон ЛЮБОГО репозитория по умолчанию падал с
@@ -355,7 +355,7 @@ cd /opt/fractera || fail "Cannot cd to /opt/fractera"
 # SECURITY: clean remote URL — do NOT store the GitHub token in .git/config
 # (any user with SSH access could read it and push to our repo).
 # Auto-updates that need to pull must provide credentials at command time.
-git remote set-url origin "https://github.com/Fractera/Agent-Engineering-Infrastructure.git"
+git remote set-url origin "https://github.com/Fractera/Agentic-Engineering-Infrastructure.git"
 
 # Record deployed commit and branch for verification
 DEPLOYED_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -1230,7 +1230,7 @@ server {
         proxy_read_timeout 86400;
         proxy_set_header Accept-Encoding "";
         sub_filter_once on;
-        sub_filter '</body>' '<div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;z-index:200;line-height:1"><a href="https://github.com/Fractera/Agent-Engineering-Infrastructure" style="font-size:8px;color:#888;text-decoration:none">Powered by Fractera</a></div></body>';
+        sub_filter '</body>' '<div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;z-index:200;line-height:1"><a href="https://github.com/Fractera/Agentic-Engineering-Infrastructure" style="font-size:8px;color:#888;text-decoration:none">Powered by Fractera</a></div></body>';
     }
 }
 

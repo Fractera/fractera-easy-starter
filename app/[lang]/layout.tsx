@@ -114,7 +114,7 @@ function buildOrganizationSchema(lang: string) {
     founder: { '@id': 'https://www.fractera.ai/#roma-armstrong' },
     sameAs: [
       'https://www.fractera.ai',
-      'https://github.com/Fractera/Agent-Engineering-Infrastructure',
+      'https://github.com/Fractera/Agentic-Engineering-Infrastructure',
     ],
   }
 }
