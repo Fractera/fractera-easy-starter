@@ -8,6 +8,5 @@ export const meta: DeploymentMeta = {
   order: 1,
   tags: ['Production VPS', 'Self-Hosted AI', 'Ubuntu', 'IP-First Deploy', 'Agentic Engineering'],
   author: { name: AUTHOR.name, role: AUTHOR.role, url: AUTHOR.url },
-  heroImage: '/Fractera-ai-workspace-screenshot.png',
   ogImage: '/Fractera-ai-workspace-screenshot.png',
 }
