@@ -374,6 +374,22 @@ export type MemoryPageContent = {
   memoization: { title: string; lead: string; chain: string[] }
   // Встроенный стенд: маркированный список плюс адрес, где он живёт.
   bench: { title: string; lead: string; items: string[]; where: string }
+  // Сравнение с конкурентами. 🔒 Таблицы приходят ДАННЫМИ: третья приедет
+  // правкой словаря и вёрстку не тронет. Число соперников у таблиц разное —
+  // у первой три, у второй один, — поэтому колонки считаются, а не задаются.
+  comparison: {
+    title: string
+    lead: string
+    feature: string
+    ours: string
+    tables: MemoryComparisonTable[]
+  }
+  api: { title: string; lead: string; samples: { title: string; code: string }[] }
+  // 🛑 В разделе установки НЕТ НИ ОДНОЙ КОМАНДЫ, и это требование владельца,
+  // взятое из оригинала: команда на витрине устаревает молча, человек скопирует
+  // её через полгода и получит отказ. Установку делает робот — об этом словами.
+  install: { title: string; lead: string; body: string }
+  principles: { title: string; items: MemoryCard[] }
   seo: {
     title: string
     description: string
@@ -381,6 +397,12 @@ export type MemoryPageContent = {
 }
 
 export type MemoryCard = { title: string; body: string }
+
+export type MemoryComparisonTable = {
+  title: string
+  rivals: string[]
+  rows: { feature: string; ours: string; rivals: string[] }[]
+}
 
 export type SiteMeta = {
   title: string

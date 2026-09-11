@@ -254,6 +254,80 @@ export default async function MemoryPage({ params }: { params: Promise<{ lang: s
         </ul>
         <p className="mt-5 font-mono text-sm text-white/40">{m.bench.where}</p>
       </Section>
+
+      {/* СРАВНЕНИЕ.
+          🔒 Таблиц столько, сколько их в словаре, и колонок столько, сколько
+          соперников у каждой: у первой три, у второй один. Перечисли я их в
+          разметке — третья таблица потребовала бы правки вёрстки. */}
+      <Section id="comparison" title={m.comparison.title} lead={m.comparison.lead}>
+        <div className="flex flex-col gap-10">
+          {m.comparison.tables.map(table => (
+            <div key={table.title}>
+              <div className="mb-3 text-base font-medium text-violet-200">{table.title}</div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[44rem] text-left text-sm">
+                  <thead className="text-white/50">
+                    <tr>
+                      <th className="py-2 pr-4 font-medium">{m.comparison.feature}</th>
+                      <th className="py-2 pr-4 font-medium text-white">{m.comparison.ours}</th>
+                      {table.rivals.map(rival => (
+                        <th key={rival} className="py-2 pr-4 font-medium">
+                          {rival}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map(row => (
+                      <tr key={row.feature} className="border-t border-white/10 align-top">
+                        <td className="py-3 pr-4 font-medium">{row.feature}</td>
+                        <td className="py-3 pr-4 text-white/90">{row.ours}</td>
+                        {row.rivals.map((cell, i) => (
+                          <td key={`${row.feature}-${table.rivals[i] ?? i}`} className="py-3 pr-4 text-white/45">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ПРИМЕРЫ API */}
+      <Section id="api" title={m.api.title} lead={m.api.lead}>
+        <div className="flex flex-col gap-6">
+          {m.api.samples.map(sample => (
+            <div key={sample.title}>
+              <div className="mb-2 text-sm font-medium text-white/80">{sample.title}</div>
+              <pre className="overflow-x-auto whitespace-pre rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-xs leading-relaxed text-white/70">
+                {sample.code}
+              </pre>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* УСТАНОВКА: одна мысль, ни одной команды.
+          🛑 Команда на витрине устаревает молча — человек скопирует её через
+          полгода и получит отказ. Установку делает робот, и об этом словами. */}
+      <Section id="install" title={m.install.title} lead={m.install.lead}>
+        <div className="rounded-lg border border-violet-500/40 bg-violet-500/10 p-5">
+          <p className="max-w-3xl text-base leading-relaxed text-white/85">{m.install.body}</p>
+        </div>
+      </Section>
+
+      {/* ПРИНЦИПЫ */}
+      <Section id="principles" title={m.principles.title}>
+        <div className="grid gap-3 md:grid-cols-3">
+          {m.principles.items.map(item => (
+            <Card key={item.title} title={item.title} body={item.body} />
+          ))}
+        </div>
+      </Section>
     </main>
   )
 }

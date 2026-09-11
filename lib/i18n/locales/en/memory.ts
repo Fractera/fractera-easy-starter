@@ -1,5 +1,33 @@
 import type { MemoryPageContent } from '../../types'
 
+// Примеры запросов вынесены в константы, как в источнике: внутри них кавычки,
+// переводы строк и обратные слэши, и в таком тексте легче всего потерять символ.
+const CURL_REMEMBER = `curl -X POST https://memory.your-domain.com/v1/remember \\
+  -H "Content-Type: application/json" -H "x-memory-key: YOUR_MEMORY_KEY" \\
+  -d '{
+    "who": "roman",
+    "text": "Office lease note",
+    "media": [{ "kind": "audio", "url": "https://.../note.oga" }],
+    "scope": [{ "at": "2026-09-11", "lat": 40.4168, "lon": -3.7038, "radius_m": 500 }]
+  }'`
+
+const CURL_RADIUS = `curl -X POST https://memory.your-domain.com/v1/recall \\
+  -H "Content-Type: application/json" -H "x-memory-key: YOUR_MEMORY_KEY" \\
+  -d '{
+    "who": "roman",
+    "text": "What notes or files did I save within 500 meters of here?",
+    "scope": [{ "lat": 40.4168, "lon": -3.7038, "radius_m": 500 }]
+  }'`
+
+const CURL_DEEP = `curl -X POST https://memory.your-domain.com/v1/recall \\
+  -H "Content-Type: application/json" -H "x-memory-key: YOUR_MEMORY_KEY" \\
+  -d '{
+    "who": "roman",
+    "text": "Summarize all my taxi expenses from last month into a table",
+    "depth": "deep",
+    "want_chain": true
+  }'`
+
 // Страница «Память» — английская ветка словаря, полная база.
 //
 // Контент перенесён с корневой страницы службы памяти (memory.aifa.dev) по
@@ -169,6 +197,116 @@ export const memory: MemoryPageContent = {
       'Verify the request body before committing a line of client code.',
     ],
     where: '/{lang}/settings?section=memory-test',
+  },
+  comparison: {
+    title: 'How it compares',
+    lead:
+      'Two comparisons: one against the categories of memory tooling, one against a ready-made assistant of a different philosophy.',
+    feature: 'Capability',
+    ours: 'Fractera Memory',
+    tables: [
+      {
+        title: 'Against the categories',
+        rivals: ['Standard RAG frameworks', 'MemGPT / Letta', 'Mem0 / Zep'],
+        rows: [
+          {
+            feature: 'Storage architecture',
+            ours: 'Hybrid: graph + vector + relational + object store',
+            rivals: ['Vector DB only', 'Relational / text files', 'Vector plus a basic graph'],
+          },
+          {
+            feature: 'Zero-token reads',
+            ours: 'Yes — deterministic paths at levels 1–3',
+            rivals: ['No', 'No', 'Partial'],
+          },
+          {
+            feature: 'Native multimodality',
+            ours: 'Built in: audio, video, PDF, images',
+            rivals: ['Requires external parsers', 'Requires external parsers', 'Text focused'],
+          },
+          {
+            feature: 'Spatial proximity indexing',
+            ours: 'Native lat/lon radius search',
+            rivals: ['Text matching only', 'Function calling only', 'Basic metadata'],
+          },
+          {
+            feature: 'Skill evolution',
+            ours: 'Champion / challenger A/B testing',
+            rivals: ['None', 'Manual prompt edits', 'None'],
+          },
+          {
+            feature: 'Self-hosted / open source',
+            ours: '100% on-premise, single node',
+            rivals: ['Varies', 'Yes', 'Freemium / cloud'],
+          },
+        ],
+      },
+      {
+        title: 'Against a ready-made assistant',
+        rivals: ['IVA Agent (smixs/iva-agent)'],
+        rows: [
+          {
+            feature: 'System classification',
+            ours: 'An autonomous memory engine behind an API, for any front-end',
+            rivals: ['An end-to-end Telegram assistant tied to an Obsidian vault'],
+          },
+          {
+            feature: 'Architecture',
+            ours: 'A decoupled microservice; the Telegram bot is an optional client',
+            rivals: ['A monolith: Telegram, userbot and vault manager in one codebase'],
+          },
+          {
+            feature: 'Cost optimisation',
+            ours: 'A five-tier deterministic router; instant zero-token reads',
+            rivals: ['Every operation leans on model passes, BM25 and vector lookups'],
+          },
+          {
+            feature: 'Data processing',
+            ours: 'Dynamic SQL tables, structured artifacts, a knowledge graph',
+            rivals: ['Markdown cards written to a folder for Obsidian to sync'],
+          },
+          {
+            feature: 'Integrations',
+            ours: 'Many front-ends at once over one REST API',
+            rivals: ['Bound to one Telegram account and an Obsidian setup'],
+          },
+        ],
+      },
+    ],
+  },
+  api: {
+    title: 'API quickstart',
+    lead: 'One REST API, one key. Every example below runs against a live instance as it stands.',
+    samples: [
+      { title: 'Store a voice note with spatial coordinates', code: CURL_REMEMBER },
+      { title: 'Recall everything within a radius', code: CURL_RADIUS },
+      { title: 'Deep reasoning with the chain returned', code: CURL_DEEP },
+    ],
+  },
+  install: {
+    title: 'Installation',
+    lead: 'There is exactly one thing to know about installing this.',
+    body:
+      'One run of the Fractera installer robot on your own server brings up every microservice of the platform, memory included — nginx, certificates and the access key are arranged for you. There is nothing to assemble by hand.',
+  },
+  principles: {
+    title: 'Design principles',
+    items: [
+      {
+        title: 'Complete data ownership',
+        body: 'All data, graphs and media stay strictly on your machine. No telemetry, no hidden cloud dependency.',
+      },
+      {
+        title: 'Fact attribution',
+        body:
+          'What a person stated is logged as fact (said); what the engine inferred is flagged as hypothesis (guess) and stored only with its evidence (basis).',
+      },
+      {
+        title: 'Headless engine architecture',
+        body:
+          'Connect the official Telegram starter, or attach your own web chat, mobile app and automation pipelines over HTTP. The bundled console is a microservice of its own, and it is optional.',
+      },
+    ],
   },
   seo: {
     title: 'Fractera Memory — self-hosted memory engine for AI agents',
