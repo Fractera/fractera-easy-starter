@@ -16,7 +16,7 @@ export function FractеraPromo() {
           </p>
           <div className="flex flex-col w-full gap-4 mt-8">
             <a
-              href="https://github.com/Fractera/Agent-Engineering-Infrastructure"
+              href="https://github.com/Fractera/Agentic-Engineering-Infrastructure"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full inline-flex items-center gap-2 justify-center rounded-full border border-violet-500/50 bg-violet-500/[0.06] hover:bg-violet-500/20 text-white font-semibold px-6 py-3 transition-colors"

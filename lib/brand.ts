@@ -18,6 +18,18 @@ export const BRAND = {
   siteUrl: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.fractera.ai').replace(/\/+$/, ''),
   /** Logo path relative to the site origin. */
   logoPath: process.env.NEXT_PUBLIC_BRAND_LOGO_PATH?.trim() || '/fractera-logo.jpg',
+  /**
+   * The project's source repository.
+   *
+   * 🔒 ЗАВЕДЕНО ШАГОМ 187 (2026-09-11) КАК ЕДИНСТВЕННЫЙ ИСТОЧНИК. Адрес был
+   * вписан руками в 13 файлов (21 вхождение), и когда репозиторий
+   * переименовали — `Agent-…` → `Agentic-…` — ни одно из них не двинулось само.
+   * Сегодня старое имя ещё отвечает `301`, то есть НИЧЕГО НЕ СЛОМАНО; но
+   * переадресация живёт ровно до того дня, когда кто-нибудь заведёт репозиторий
+   * со старым именем — и тогда `bootstrap.sh` клонирует чужой код молча.
+   * Новый код берёт адрес отсюда; перевод старых мест — подшаг 187-8.
+   */
+  repoUrl: 'https://github.com/Fractera/Agentic-Engineering-Infrastructure',
 } as const
 
 /** Absolute logo URL (origin + path) for structured data / OpenGraph. */

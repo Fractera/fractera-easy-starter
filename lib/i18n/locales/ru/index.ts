@@ -13,12 +13,14 @@ import { marketplace } from './marketplace'
 import { ultimateScale } from './ultimate-scale'
 import { aircraftCarrier } from './aircraft-carrier'
 import { siteHeader } from './site-header'
+import { memory } from './memory'
 
 export const ru: SiteContent = {
   ...hero,
   ultimateScale,
   aircraftCarrier,
   siteHeader,
+  memory,
   ...loopShowcase,
   ...presentation,
   ...problem,

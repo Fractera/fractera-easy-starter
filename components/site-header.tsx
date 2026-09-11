@@ -92,6 +92,23 @@ export function SiteHeader() {
             >
               {t.companyBrain}
             </Link>
+            {/* «Память» — страница службы памяти на витрине (шаг 187).
+                🔒 Пункт обязан стоять И здесь, И в мобильном меню ниже, и
+                причина сильнее, чем кажется. Этот ряд объявлен
+                `hidden min-[780px]:flex` — ниже 780 px его не существует вовсе.
+                А мобильное меню отрисовывается ТОЛЬКО при `mobileOpen`, то есть
+                до нажатия гамбургера его нет и в разметке. Две половины, и ни
+                одна не подстраховывает другую: пункт, добавленный лишь в одну,
+                на половине устройств просто отсутствует.
+                ✗ Измерено в 187-6: на отданном HTML ссылка ровно ОДНА — это не
+                дефект, а следствие условной отрисовки; вторая появляется после
+                нажатия. */}
+            <Link
+              href={`/${lang}/memory`}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              {t.memory}
+            </Link>
             <Link
               href={`/${lang}/documentation`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
@@ -268,6 +285,9 @@ export function SiteHeader() {
             </Link>
             <Link href={`/${lang}/deployments/local`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.companyBrain}
+            </Link>
+            <Link href={`/${lang}/memory`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+              {t.memory}
             </Link>
             <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.docs}

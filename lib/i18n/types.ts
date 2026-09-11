@@ -305,6 +305,7 @@ export type SiteContent = {
     vpsDeploy: string
     mcpDeploy: string
     companyBrain: string
+    memory: string
     docs: string
     blog: string
     news: string
@@ -314,6 +315,105 @@ export type SiteContent = {
     partnerCabinet: string
     signOut: string
   }
+  // Страница «Память» (/[lang]/memory) — контент главной страницы службы памяти,
+  // перенесённый на витрину. Своя ветка словаря, потому что это отдельная
+  // страница, а не секция главной.
+  memory: MemoryPageContent
+}
+
+// Содержимое страницы «Память». Форма снята с корневой страницы службы памяти
+// (fractera-memory-starter), но собирается средствами витрины: en — полная
+// база, ru — накладка, недостающий ключ деградирует в английский.
+//
+// 🛑 КНОПОК ДЕЙСТВИЯ У ПЕРВОГО ЭКРАНА НЕТ, И ЭТО РЕШЕНИЕ ВЛАДЕЛЬЦА 2026-09-11
+// («Убрать кнопки совсем»). В оригинале они ведут внутрь самой службы —
+// /settings и /passport, — а на витрине таких страниц не существует: кнопка,
+// ведущая в никуда, хуже её отсутствия.
+export type MemoryPageContent = {
+  hero: {
+    eyebrow: string
+    title: string
+    lead: string
+    body: string
+    badges: string[]
+  }
+  // Задача, которую решает память, и она же — объяснение «чёрного ящика».
+  problem: { title: string; lead: string; body: string }
+  // Путь запроса: один вход, один роутер, две очень разные цены за ним.
+  // 🔒 Псевдографика оригинала сюда не переносится: она ломается на телефоне и
+  // не читается экранным диктором. Переезжает схема, а не символы.
+  router: {
+    title: string
+    lead: string
+    inbox: string
+    routerBox: string
+    cheapBranch: string
+    cheapCost: string
+    deepBranch: string
+    deepCost: string
+  }
+  schema: { title: string; body: string }
+  // Лестница цены: пять уровней, от бесплатного точного чтения до глубокого
+  // рассуждения. Строки — данные: шестой уровень приедет правкой словаря.
+  ladder: {
+    title: string
+    lead: string
+    head: { level: string; how: string; cost: string; by: string }
+    rows: { level: string; how: string; cost: string; by: string }[]
+    example: string
+  }
+  // Пространственно-временной охват, четыре хранилища, мультимодальность и
+  // эволюция навыков — карточками. Один вид карточки на все четыре раздела:
+  // четыре копии разметки разошлись бы на первой правке.
+  scope: { title: string; lead: string; items: MemoryCard[] }
+  evolution: { title: string; lead: string; items: MemoryCard[] }
+  stores: { title: string; lead: string; items: MemoryCard[] }
+  media: { title: string; lead: string; items: MemoryCard[] }
+  // Артефакт вместо абзаца — нумерованный список шагов.
+  artifacts: { title: string; lead: string; steps: string[] }
+  // Петля запоминания — цепочка с номерами.
+  memoization: { title: string; lead: string; chain: string[] }
+  // Встроенный стенд: маркированный список плюс адрес, где он живёт.
+  bench: { title: string; lead: string; items: string[]; where: string }
+  // Сравнение с конкурентами. 🔒 Таблицы приходят ДАННЫМИ: третья приедет
+  // правкой словаря и вёрстку не тронет. Число соперников у таблиц разное —
+  // у первой три, у второй один, — поэтому колонки считаются, а не задаются.
+  comparison: {
+    title: string
+    lead: string
+    feature: string
+    ours: string
+    tables: MemoryComparisonTable[]
+  }
+  api: { title: string; lead: string; samples: { title: string; code: string }[] }
+  // 🛑 В разделе установки НЕТ НИ ОДНОЙ КОМАНДЫ, и это требование владельца,
+  // взятое из оригинала: команда на витрине устаревает молча, человек скопирует
+  // её через полгода и получит отказ. Установку делает робот — об этом словами.
+  install: { title: string; lead: string; body: string }
+  principles: { title: string; items: MemoryCard[] }
+  // 🔒 Вопросы и ответы — ОДИН источник строк: та же пара идёт и в видимый
+  // <details>, и в разметку FAQPage. Вторая копия «для поисковика» разошлась бы
+  // с видимой на первой правке, а расходящаяся разметка наказуема.
+  faq: { title: string; lead: string; items: { q: string; a: string }[] }
+  // Единственная внешняя ссылка страницы и единственная её кнопка.
+  // Решение владельца 2026-09-11: «Оставить как ссылку на репозиторий».
+  project: { label: string; body: string }
+  // 🛑 Кнопок у завершающего призыва НЕТ — то же решение владельца «Убрать
+  // кнопки совсем»: в оригинале они ведут внутрь службы, а на витрине таких
+  // адресов нет. Остаётся текст.
+  cta: { title: string; body: string }
+  seo: {
+    title: string
+    description: string
+  }
+}
+
+export type MemoryCard = { title: string; body: string }
+
+export type MemoryComparisonTable = {
+  title: string
+  rivals: string[]
+  rows: { feature: string; ours: string; rivals: string[] }[]
 }
 
 export type SiteMeta = {

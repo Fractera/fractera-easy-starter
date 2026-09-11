@@ -71,7 +71,7 @@ export default async function LicensePage({ params }: { params: Promise<{ lang: 
           </section>
           <p className="text-sm text-white/45">{t.note}</p>
           <a
-            href="https://github.com/Fractera/Agent-Engineering-Infrastructure/blob/main/LICENSE"
+            href="https://github.com/Fractera/Agentic-Engineering-Infrastructure/blob/main/LICENSE"
             target="_blank"
             rel="noopener noreferrer"
             className="w-fit text-sm font-medium text-violet-400 hover:text-violet-300 transition-colors"
