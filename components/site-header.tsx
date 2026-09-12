@@ -86,12 +86,13 @@ export function SiteHeader() {
             </div>
 
 
-            <Link
-              href={`/${lang}/deployments/local`}
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              {t.companyBrain}
-            </Link>
+            {/* 🪦 Шаг 191 (2026-09-12): пункт «Мозг компании» УДАЛЁН из верхнего меню по
+                слову владельца («Из верхнего меню убирай кнопки Мос компании документация
+                и новости»). Он вёл на страницу локального развёртывания.
+                🛑 НАЗВАНО ВСЛУХ, А НЕ ПРОМОЛЧАНО: эта страница была достижима ТОЛЬКО
+                отсюда — измерено, ссылок вне шапки ноль, в выпадающем «Развернуть» её нет,
+                в подвале нет. Она жива и отвечает 200, но входа у неё больше не осталось:
+                только прямой адрес и sitemap. Это решение владельца, а не последствие. */}
             {/* «Память» — страница службы памяти на витрине (шаг 187).
                 🔒 Пункт обязан стоять И здесь, И в мобильном меню ниже, и
                 причина сильнее, чем кажется. Этот ряд объявлен
@@ -109,23 +110,14 @@ export function SiteHeader() {
             >
               {t.memory}
             </Link>
-            <Link
-              href={`/${lang}/documentation`}
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              {t.docs}
-            </Link>
+            {/* 🪦 Шаг 191: пункты «Документация» и «Новости» УДАЛЕНЫ из верхнего меню тем
+                же словом владельца. Обе страницы живы и достижимы из ПОДВАЛА — там их
+                ссылки намеренно оставлены: речь шла о верхнем меню. */}
             <Link
               href={`/${lang}/blog`}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
               {t.blog}
-            </Link>
-            <Link
-              href={`/${lang}/news`}
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              {t.news}
             </Link>
           </div>
         </div>
@@ -272,8 +264,11 @@ export function SiteHeader() {
 
       {/* Mobile nav menu (<780px): the collapsed nav as a vertical list. The two
           Deploy actions are shown flat here (no dropdown) — VPS Deploy · MCP Deploy
-          · Frameworks · Company Brain · Docs · News. The Deploy targets are
-          placeholders for now (final links pending). */}
+          · Memory · Blog. The Deploy targets are placeholders for now (final links
+          pending).
+          🔒 Шаг 191: перечисление в этом комментарии исправлено ВМЕСТЕ с самими
+          пунктами — список, написанный руками, расходится с кодом молча. Здесь он
+          пережил бы правку и назвал бы удалённые пункты живыми. */}
       {mobileOpen && (
         <nav className="min-[780px]:hidden border-t border-white/15 bg-black/95 backdrop-blur-sm">
           <div className="flex flex-col px-6 py-2">
@@ -283,20 +278,16 @@ export function SiteHeader() {
             <Link href={`/${lang}/deployments/mcp`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.mcpDeploy}
             </Link>
-            <Link href={`/${lang}/deployments/local`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              {t.companyBrain}
-            </Link>
+            {/* 🪦 Шаг 191: «Мозг компании», «Документация» и «Новости» удалены и здесь.
+                🔒 Удалить их только в десктопном ряду было бы НЕДОСТАТОЧНО: он объявлен
+                `hidden min-[780px]:flex` и ниже 780 px не существует вовсе, а это меню —
+                единственная навигация на телефоне. Две половины не подстраховывают друг
+                друга (закон 187-6). */}
             <Link href={`/${lang}/memory`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.memory}
             </Link>
-            <Link href={`/${lang}/documentation`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              {t.docs}
-            </Link>
             <Link href={`/${lang}/blog`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
               {t.blog}
-            </Link>
-            <Link href={`/${lang}/news`} onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
-              {t.news}
             </Link>
           </div>
         </nav>
