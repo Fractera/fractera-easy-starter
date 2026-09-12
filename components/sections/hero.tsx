@@ -46,23 +46,26 @@ export function Hero() {
           </h1>
         </div>
 
-        {/* Agentic-engineering illustration video — background-style playback (autoplay,
-            muted, looped, inline; no controls). Capped at 1152px and flush against the
-            H1 above and the button below: the PNG/video carries its own whitespace
-            ledge, so touching the edges is intentional (the short subheading paragraph
-            was removed — it only added clutter under such a short title). */}
-        <video
-          className="w-full max-w-[1152px] h-auto pointer-events-none"
-          src="/fractera-agentic-engineering.mp4"
-          autoPlay loop muted playsInline
-        />
+        {/* 🪦 Шаг 191 (2026-09-12): иллюстрация первого экрана УДАЛЕНА по слову владельца
+            («fes remove gif illustration from first screen»). Здесь стоял видео-тег с
+            автозапуском, зацикленный и немой, шириной до 1152px — то, что на слух
+            называют «гифкой»; источником был файл agentic-engineering из public/.
+            🔒 НАДГРОБИЕ НАПИСАНО ПЕРЕСКАЗОМ, А НЕ ЦИТАТОЙ РАЗМЕТКИ — намеренно: точная
+            цитата тега считается приборами как живой тег. Проверено здесь же: счётчик
+            видео-тегов в файле показал 3 вместо 2 и «нашёл» удалённый источник в этом
+            самом комментарии. Тот же закон оплачен шагом 78-5 на гейте i18n.
+            🔒 Файл в public/ НЕ удалён: убрать с экрана и стереть с диска — разные
+            работы, и он может служить og:video. Видео-тег ниже по файлу — фон
+            СЛЕДУЮЩЕЙ секции, к первому экрану не относится и не тронут. */}
 
-        {/* Single button directly under the illustration → the architecture doc page.
-            No top gap: it touches the natural bottom ledge of the image by design. */}
+        {/* Кнопка на страницу документа об архитектуре.
+            🔒 Верхний отступ mt-10 появился вместе с удалением иллюстрации. Прежде его
+            не было НАМЕРЕННО: кнопка прижималась к нижнему полю картинки, которое та
+            несла в себе. Поля не стало — без отступа кнопка слиплась бы с заголовком. */}
         {content.architectureCta && (
           <Link
             href={`/${lang}/documentation/multi-agent-workspace-architecture`}
-            className="inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
+            className="mt-10 inline-flex items-center gap-2 rounded-xl border border-violet-500/50 bg-violet-500/[0.06] px-6 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-500/[0.12] transition-colors"
           >
             {content.architectureCta}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
