@@ -464,7 +464,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
                     if (state === 'presentation') setState('signup')
                   }}
                   disabled={state !== 'presentation'}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/40 text-on-accent font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30"
                 >
                   {t.deployButton} →
                 </button>
@@ -506,7 +506,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
               <button
                 type="submit"
                 disabled={busy || !email.trim()}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl text-base transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-on-accent font-bold px-6 py-3 rounded-xl text-base transition-colors"
               >
                 {busy ? <><span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t.submitting}</> : <>{t.submit} →</>}
               </button>
@@ -560,7 +560,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
               href={partnerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
+              className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
             >
               {buyButtonLabel} ↗
             </a>
@@ -604,7 +604,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
                 <button
                   type="submit"
                   disabled={busy || !ip.trim() || !password.trim() || !passwordAck}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-on-accent font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
                 >
                   {busy ? <><span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t.deployStarting}</> : <>{t.deployStart} →</>}
                 </button>
@@ -673,7 +673,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
                   href={`https://${progress.subdomain}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
                 >
                   {t.yourApp} ↗
                 </a>
@@ -700,7 +700,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
             <button
               type="button"
               onClick={dismissDeploymentModal}
-              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
             >
               {t.deployAnother} →
             </button>
@@ -726,7 +726,7 @@ export function EmbedFlow({ lang, partnerSlug, providerName, affiliateUrl, domai
             <button
               type="button"
               onClick={retryFromError}
-              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+              className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
             >
               {t.errorRetry} →
             </button>
@@ -774,7 +774,7 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose?: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto bg-neutral-950 border border-white/15 rounded-2xl shadow-2xl p-6">
+      <div className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto bg-popover border border-white/15 rounded-2xl shadow-2xl p-6">
         {onClose && (
           <button
             type="button"

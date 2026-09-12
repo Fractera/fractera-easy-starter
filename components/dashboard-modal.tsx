@@ -216,7 +216,7 @@ function DeleteConfirm({ serverId, onDeleted, onCancel }: { serverId: string; on
         <button
           onClick={handleDelete}
           disabled={confirm !== 'DELETE' || loading}
-          className="flex-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 text-sm text-on-accent bg-red-600 hover:bg-red-700 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? 'Deleting…' : 'Confirm delete'}
         </button>
@@ -277,7 +277,7 @@ function CancelSubscriptionConfirm({ subscriptionId, onDone, onCancel }: { subsc
         <button
           onClick={handleCancel}
           disabled={confirm !== 'CANCEL' || loading}
-          className="flex-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 text-sm text-on-accent bg-red-600 hover:bg-red-700 rounded-lg py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? 'Cancelling…' : 'Confirm cancel'}
         </button>
@@ -684,7 +684,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative z-10 w-full max-w-lg bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
+      <div className="relative z-10 w-full max-w-lg bg-popover border border-white/40 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/30">
           <div className="flex flex-col gap-1">
@@ -871,7 +871,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                             <button
                               onClick={handleReassign}
                               disabled={reassigning}
-                              className="mt-1 w-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg py-2 transition-colors"
+                              className="mt-1 w-full text-sm font-semibold text-on-accent bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg py-2 transition-colors"
                             >
                               {reassigning ? 'Getting server…' : 'Get a new server →'}
                             </button>
@@ -879,7 +879,7 @@ export function DashboardModal({ open, view, onClose, onWhiteLabel }: Props) {
                           {isFree && isActive && (
                             <button
                               onClick={() => { onClose(); }}
-                              className="mt-1 w-full text-sm font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-lg py-2 transition-colors"
+                              className="mt-1 w-full text-sm font-semibold text-on-accent bg-violet-600 hover:bg-violet-500 rounded-lg py-2 transition-colors"
                             >
                               Upgrade to Fractera Pro →
                             </button>

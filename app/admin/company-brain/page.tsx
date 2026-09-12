@@ -104,7 +104,7 @@ export default function CompanyBrainPage() {
           <option value="">All statuses</option>
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm">
           Apply
         </button>
       </form>
@@ -166,7 +166,7 @@ export default function CompanyBrainPage() {
                         type="button"
                         onClick={() => commit(r.id)}
                         disabled={saving === r.id}
-                        className="self-end bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm whitespace-nowrap"
+                        className="self-end bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm whitespace-nowrap"
                       >
                         {saving === r.id ? 'Saving…' : 'Save'}
                       </button>

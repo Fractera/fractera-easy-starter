@@ -137,10 +137,10 @@ export function StandardContentPage({
           <h1
             className="text-3xl font-bold font-serif leading-tight tracking-tight md:text-4xl lg:text-5xl"
             style={{
-              color: 'white',
-              WebkitTextStroke: '1px rgba(139,92,246,0.8)',
+              color: '#0f172a',
+              WebkitTextStroke: '1px rgba(22,163,74,0.8)',
               paintOrder: 'stroke fill',
-              textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)',
+              textShadow: '0 0 18px rgba(22,163,74,0.35), 0 0 36px rgba(22,163,74,0.18)',
             } as React.CSSProperties}
           >
             {title}

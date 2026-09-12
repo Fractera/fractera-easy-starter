@@ -20,7 +20,7 @@ function Lightbox({ step, onClose }: { step: Step; onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="relative bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden"
+        className="relative bg-muted border border-white/10 rounded-2xl overflow-hidden"
         style={{ width: 'min(400px, 100vw - 32px)', maxHeight: 'min(600px, 90vh)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -51,8 +51,8 @@ const btnBase: React.CSSProperties = {
   width: 40,
   height: 40,
   background: 'transparent',
-  border: '1px solid rgba(255,255,255,0.2)',
-  color: 'white',
+  border: '1px solid rgba(15,23,42,0.2)',
+  color: '#0f172a',
   transition: 'background 0.15s, color 0.15s, transform 0.1s',
   transform: 'translateY(-50%)',
 }

@@ -73,7 +73,7 @@ const JSON_LD = [
 
 export default function AiWorkspaceArchitectPage() {
   return (
-    <main className="flex min-h-screen flex-col bg-white text-zinc-900">
+    <main className="flex min-h-screen flex-col bg-background text-zinc-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
 
       <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
@@ -169,7 +169,7 @@ export default function AiWorkspaceArchitectPage() {
                   <div className="mt-3 flex flex-wrap gap-3">
                     <a
                       href="/en/deployments/vps#pricing"
-                      className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white hover:bg-violet-500"
+                      className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-on-accent hover:bg-violet-500"
                     >
                       Deploy your instance
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -178,7 +178,7 @@ export default function AiWorkspaceArchitectPage() {
                       href={GITHUB_REPO}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-bold text-zinc-800 hover:bg-zinc-100"
+                      className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-card px-4 py-2 text-sm font-bold text-zinc-800 hover:bg-zinc-100"
                     >
                       Get started on GitHub
                     </a>

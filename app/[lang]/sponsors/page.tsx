@@ -157,7 +157,7 @@ export default async function SponsorsPage({
                     {list.map((s, i) => (
                       <div
                         key={i}
-                        className={`flex items-center gap-4 rounded-2xl border ${accent.ring} ${accent.glow} bg-gradient-to-br from-neutral-900/60 to-black/60 px-4 py-3.5`}
+                        className={`flex items-center gap-4 rounded-2xl border ${accent.ring} ${accent.glow} bg-muted px-4 py-3.5`}
                       >
                         <span className="text-2xl shrink-0" aria-hidden="true">{s.flag}</span>
                         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
@@ -193,7 +193,7 @@ export default async function SponsorsPage({
             <p className="text-base text-white/60 max-w-md leading-relaxed">{t.ctaBody}</p>
             <a
               href={`/${lang}#sponsorship`}
-              className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-yellow-500/20"
+              className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-yellow-500/20"
             >
               {t.ctaButton} →
             </a>

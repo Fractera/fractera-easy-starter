@@ -65,7 +65,7 @@ export function SiteHeader() {
               {deployOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDeployOpen(false)} />
-                  <div className="absolute left-0 top-full mt-1 z-50 w-52 bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
+                  <div className="absolute left-0 top-full mt-1 z-50 w-52 bg-popover border border-white/40 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5">
                     <Link
                       href={`/${lang}/deployments/vps`}
                       onClick={() => setDeployOpen(false)}
@@ -165,7 +165,7 @@ export function SiteHeader() {
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-50 w-52 bg-neutral-900 border border-white/40 rounded-xl shadow-2xl p-1 flex flex-col">
+                    <div className="absolute right-0 top-full mt-1 z-50 w-52 bg-popover border border-white/40 rounded-xl shadow-2xl p-1 flex flex-col">
                       <div className="px-3 py-2 border-b border-white/30 mb-1">
                         <p className="text-xs font-bold text-white truncate">{session.user.name}</p>
                         <p className="text-xs font-medium text-white truncate">{session.user.email}</p>

@@ -104,7 +104,7 @@ export function CompanyBrainInquiryDrawer({ open, onClose, lang, email }: Props)
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[500px] bg-neutral-950 border-l border-white/15 shadow-2xl overflow-y-auto">
+      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[500px] bg-popover border-l border-white/15 shadow-2xl overflow-y-auto">
         <button
           type="button"
           onClick={onClose}
@@ -126,7 +126,7 @@ export function CompanyBrainInquiryDrawer({ open, onClose, lang, email }: Props)
               <button
                 type="button"
                 onClick={onClose}
-                className="self-start mt-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                className="self-start mt-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-5 py-2.5 rounded-xl text-sm transition-colors"
               >
                 {t.successClose}
               </button>
@@ -173,7 +173,7 @@ export function CompanyBrainInquiryDrawer({ open, onClose, lang, email }: Props)
               <button
                 type="submit"
                 disabled={submitting || !spamUnderstood}
-                className="mt-2 w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-5 py-3 rounded-xl text-sm md:text-base transition-colors shadow-lg shadow-violet-500/30"
+                className="mt-2 w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-on-accent font-bold px-5 py-3 rounded-xl text-sm md:text-base transition-colors shadow-lg shadow-violet-500/30"
               >
                 {submitting ? (
                   <>

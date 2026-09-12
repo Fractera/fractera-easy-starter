@@ -66,7 +66,7 @@ export function AuthModal({ open, onClose, pendingPlan }: AuthModalProps) {
       aria-modal="true"
     >
       <div
-        className="relative w-full max-w-sm bg-neutral-900 border border-white/40 rounded-2xl p-6 shadow-2xl flex flex-col gap-5"
+        className="relative w-full max-w-sm bg-popover border border-white/40 rounded-2xl p-6 shadow-2xl flex flex-col gap-5"
         onClick={e => e.stopPropagation()}
       >
         <button

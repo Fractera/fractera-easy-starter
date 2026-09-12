@@ -78,7 +78,7 @@ function DocModal({ title, paragraphs, onClose }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg max-h-[80vh] overflow-y-auto bg-neutral-950 border border-white/15 rounded-2xl shadow-2xl p-6">
+      <div className="relative z-10 w-full max-w-lg max-h-[80vh] overflow-y-auto bg-popover border border-white/15 rounded-2xl shadow-2xl p-6">
         <button
           type="button"
           onClick={onClose}

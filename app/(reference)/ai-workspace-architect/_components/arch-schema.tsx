@@ -141,8 +141,8 @@ export function ArchSchema() {
             onClick={() => jump(node)}
             className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
               selected.id === node.id
-                ? 'border-zinc-900 bg-zinc-900 text-white'
-                : 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-100'
+                ? 'border-violet-600 bg-violet-600 text-on-accent'
+                : 'border-zinc-200 bg-card text-zinc-600 hover:bg-zinc-100'
             }`}
           >
             {node.label}

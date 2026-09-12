@@ -106,7 +106,7 @@ export default function HostingsPage() {
           placeholder="search name / domain…"
           className="flex-1 min-w-[200px] bg-white/[0.04] border border-white/15 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70"
         />
-        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm">
           Search
         </button>
         {isFiltered && (
@@ -154,7 +154,7 @@ export default function HostingsPage() {
         <button
           type="submit"
           disabled={adding || !domain.trim() || !name.trim()}
-          className="self-start bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm"
+          className="self-start bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm"
         >
           {adding ? 'Adding…' : 'Add'}
         </button>

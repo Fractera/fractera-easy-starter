@@ -29,9 +29,9 @@ function Block({
   style?: React.CSSProperties
 }) {
   const color = hovered
-    ? 'bg-violet-500/70 text-white'
+    ? 'bg-violet-500/70 text-on-accent'
     : active
-      ? 'bg-violet-600 text-white'
+      ? 'bg-violet-600 text-on-accent'
       : 'bg-white/[0.06] text-white/40'
   return (
     <div

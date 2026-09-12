@@ -25,7 +25,7 @@ export function CookieBanner() {
   const [beforeLink, afterLink] = t.message.split('{policy}')
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/20 bg-neutral-950/98 backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/20 bg-popover/98 backdrop-blur-sm">
       <div className="max-w-5xl mx-auto px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <p className="text-sm text-white/70 leading-relaxed">
           {beforeLink}

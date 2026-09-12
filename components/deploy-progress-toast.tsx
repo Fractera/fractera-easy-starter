@@ -109,7 +109,7 @@ export function DeployProgressToast({
                 href={domainUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-violet-600 px-3 py-2 text-center text-sm font-bold text-white transition-colors hover:bg-violet-500"
+                className="rounded-lg bg-violet-600 px-3 py-2 text-center text-sm font-bold text-on-accent transition-colors hover:bg-violet-500"
               >
                 {strings.domainButton}
               </a>
@@ -150,7 +150,7 @@ export function DeployProgressToast({
           type="button"
           onClick={onHide}
           disabled={!confirmed}
-          className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-violet-900/50 disabled:text-violet-700 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors disabled:cursor-not-allowed"
+          className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-violet-900/50 disabled:text-violet-700 text-on-accent font-bold px-6 py-3 rounded-xl text-base transition-colors disabled:cursor-not-allowed"
         >
           {strings.hideButton}
         </button>

@@ -81,8 +81,8 @@ export function SponsorshipSection() {
               onMouseLeave={() => setHovered(null)}
               className={`relative flex flex-col gap-4 rounded-2xl p-6 transition-all duration-200 ${
                 isPopular
-                  ? 'bg-gradient-to-br from-yellow-950/50 via-amber-900/20 to-black/60 border-yellow-500/50'
-                  : 'bg-gradient-to-br from-neutral-900/60 to-black/60 border-white/15 hover:border-yellow-500/40'
+                  ? 'bg-amber-50 border-yellow-500/50'
+                  : 'bg-muted border-white/15 hover:border-yellow-500/40'
               } border ${isHovered && !isPopular ? 'transform -translate-y-0.5' : ''}`}
               style={isPopular ? { boxShadow: '0 0 24px -8px rgba(250, 204, 21, 0.25)' } : {}}
             >
@@ -113,7 +113,7 @@ export function SponsorshipSection() {
                 onClick={() => handleClick(tier.id)}
                 className={`w-full font-bold px-5 py-3 rounded-xl text-sm transition-colors mt-auto ${
                   isPopular
-                    ? 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg shadow-yellow-500/20'
+                    ? 'bg-yellow-500 hover:bg-yellow-600 text-slate-900 shadow-lg shadow-yellow-500/20'
                     : 'bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/30 hover:border-white/50'
                 }`}
               >

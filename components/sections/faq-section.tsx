@@ -67,7 +67,7 @@ export function FaqSection() {
                 {item.cta && (
                   <a
                     href={item.cta.href}
-                    className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors"
+                    className="self-start mt-2 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors"
                   >
                     {item.cta.label} →
                   </a>

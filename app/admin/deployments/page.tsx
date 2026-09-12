@@ -522,7 +522,7 @@ export default function AdminPage() {
                                   type="button"
                                   onClick={() => handleConfirmReady(s.id)}
                                   disabled={confirming.has(s.id)}
-                                  className="text-xs text-white bg-green-700 hover:bg-green-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                                  className="text-xs text-on-accent bg-green-700 hover:bg-green-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
                                 >
                                   {confirming.has(s.id) ? 'Подтверждаю…' : '✓ Подтвердить готовность'}
                                 </button>
@@ -531,7 +531,7 @@ export default function AdminPage() {
                                 type="button"
                                 onClick={() => handleBootstrap(s.id)}
                                 disabled={bootstrapping.has(s.id)}
-                                className="text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                                className="text-xs text-on-accent bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
                               >
                                 {bootstrapping.has(s.id) ? 'Запускаю…' : s.subdomain ? 'Bootstrap (повтор)' : 'Bootstrap'}
                               </button>
@@ -659,7 +659,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() => handleAssign(q.id)}
                           disabled={assigning.has(q.id)}
-                          className="flex items-center gap-1.5 text-xs text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 text-xs text-on-accent bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
                         >
                           {assigning.has(q.id) && (
                             <span className="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />

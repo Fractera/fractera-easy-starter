@@ -55,7 +55,7 @@ export default function UsersPage() {
           placeholder="search by email…"
           className="flex-1 bg-white/[0.04] border border-white/15 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/70"
         />
-        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm">
           Search
         </button>
       </form>

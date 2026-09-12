@@ -94,7 +94,7 @@ export default function ToolsPage() {
                 type="button"
                 onClick={() => send(t.key)}
                 disabled={!email.trim() || pending !== null}
-                className="shrink-0 text-xs font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                className="shrink-0 text-xs font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 text-on-accent px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
               >
                 {pending === t.key ? 'Sending…' : 'Send preview'}
               </button>

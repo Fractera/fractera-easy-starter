@@ -92,7 +92,7 @@ function LanguageSwitcherInner() {
       </button>
 
       {open && (
-        <div className="absolute bottom-full mb-2 right-0 w-64 rounded-lg border border-white/10 bg-[#111] shadow-xl z-50 overflow-hidden">
+        <div className="absolute bottom-full mb-2 right-0 w-64 rounded-lg border border-white/10 bg-popover shadow-xl z-50 overflow-hidden">
           {/* Search */}
           <div className="relative p-2 border-b border-white/10">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
@@ -141,7 +141,7 @@ function LanguageSwitcherInner() {
                   <div key={region}>
                     {regionIdx > 0 && <div className="h-px bg-white/10 my-1" />}
                     <p
-                      className="sticky top-0 z-[1] bg-[#111] px-3 py-1.5 text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest"
+                      className="sticky top-0 z-[1] bg-popover px-3 py-1.5 text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest"
                     >
                       {region}
                     </p>
