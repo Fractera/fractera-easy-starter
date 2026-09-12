@@ -20,8 +20,8 @@ html {
 }
 
 @keyframes shimmerBorder {
-  0%, 100% { border-color: rgba(139, 92, 246, 0.7); box-shadow: 0 0 24px rgba(139,92,246,0.35), 0 0 48px rgba(139,92,246,0.15); }
-  50%       { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 24px rgba(139,92,246,0.2), 0 0 48px rgba(148,163,184,0.1); }
+  0%, 100% { border-color: rgba(22, 163, 74, 0.7); box-shadow: 0 0 24px rgba(22,163,74,0.35), 0 0 48px rgba(22,163,74,0.15); }
+  50%       { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 24px rgba(22,163,74,0.2), 0 0 48px rgba(148,163,184,0.1); }
 }
 
 @keyframes shimmerBorderGreen {
@@ -29,8 +29,10 @@ html {
   50%       { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 24px rgba(52,211,153,0.2), 0 0 48px rgba(148,163,184,0.1); }
 }
 
-/* Главный CTA «Запустить в 1 клик»: контрастный к фиолетовому фону янтарно-золотой
-   шиммер-свайп + мягкая пульсация свечения. Контраст намеренный — янтарь поверх violet. */
+/* Главный CTA «Запустить в 1 клик»: янтарно-золотой шиммер-свайп + мягкая пульсация
+   свечения. Шаг 190 (2026-09-12): фон витрины стал БЕЛЫМ, акцент — зелёным, и янтарь
+   теперь контрастирует с зелёной кнопкой, а не с фиолетовым полотном. Цвет свечения
+   оставлен прежним намеренно: янтарь читается и на светлом. */
 @keyframes ctaGlow {
   0%, 100% { box-shadow: 0 0 18px rgba(251,191,36,0.30), 0 0 40px rgba(245,158,11,0.16); }
   50%       { box-shadow: 0 0 28px rgba(251,191,36,0.55), 0 0 60px rgba(245,158,11,0.30); }
@@ -50,6 +52,69 @@ html {
 }
 
 @custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ШАГ 190 (2026-09-12) — ТЕМА ВИТРИНЫ: БЕЛО-ЗЕЛЁНАЯ, КАК У СЛУЖБЫ ПАМЯТИ
+
+   🛑 ЧИТАТЬ ПРЕЖДЕ ЧЕМ ПРАВИТЬ ЛЮБОЙ ЦВЕТ В ЭТОМ ПРОЕКТЕ. Здесь переопределены
+   переменные палитры самого Tailwind (он объявляет их в node_modules/tailwindcss/
+   theme.css). Следствие обязано быть названо вслух:
+
+     ИМЯ КЛАССА БОЛЬШЕ НЕ ОЗНАЧАЕТ СВОЙ ЦВЕТ.
+       text-white  рисует ТЁМНЫЙ  (#0f172a)
+       bg-black    рисует БЕЛЫЙ   (#ffffff)
+       violet-*    рисует ЗЕЛЁНЫЙ (шкала green)
+
+   Это не дефект и не описка — это решение владельца 2026-09-12 («да, A»),
+   принятое с названной ценой: тема переворачивается одним файлом вместо правки
+   ~1900 мест в 103 файлах. Открыв компонент и увидев bg-black на белом фоне,
+   НЕ «чини» его — посмотри сюда.
+
+   ПОЧЕМУ ИНВЕРСИЯ РАБОТАЕТ. Цвета в этом проекте ходят парами: bg-black+text-white
+   и bg-white+text-black. Перевернув оба токена, переворачиваешь пару целиком, и
+   контраст сохраняется сам. Прозрачности едут вместе с ними: bg-white/[0.03]
+   (подсветка карточки на тёмном) становится тёмной подсветкой 3% на белом.
+
+   ГДЕ ПАРА РАЗОРВАНА — и что с этим сделано (подшаг 190-2):
+     • белый текст на ЦВЕТНОЙ заливке (зелёная кнопка) — инверсия сделала бы его
+       тёмным. Такие места переведены на text-on-accent (см. --color-on-accent);
+     • тёмные фоны нейтральных шкал (bg-neutral-950 и родня) инверсией не задеты
+       и перекрашены точечно. Токеном их чинить НЕЛЬЗЯ: zinc-900 служит и фоном,
+       и тёмным текстом — переопределение стёрло бы текст с белой страницы.
+
+   ЭТАЛОН — fractera-memory-starter/DESIGN-CONFIG/design-config.json. Его палитра
+   совпадает со шкалой Tailwind green буква в букву (#16a34a = green-600,
+   #4ade80 = green-400, #f0fdf4 = green-50, #dcfce7 = green-100), поэтому ни одной
+   произвольной величины здесь нет.
+   ───────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Фиолетовая шкала → зелёная, ступень в ступень. 627 вхождений violet-* в 68
+     файлах меняют цвет, не будучи тронутыми. */
+  --color-violet-50: #f0fdf4;
+  --color-violet-100: #dcfce7;
+  --color-violet-200: #bbf7d0;
+  --color-violet-300: #86efac;
+  --color-violet-400: #4ade80;
+  --color-violet-500: #22c55e;
+  --color-violet-600: #16a34a;
+  --color-violet-700: #15803d;
+  --color-violet-800: #166534;
+  --color-violet-900: #14532d;
+  --color-violet-950: #052e16;
+
+  /* Единственное вхождение purple — градиент в components/sections/loop-showcase.tsx */
+  --color-purple-950: #052e16;
+
+  /* Инверсия. --color-white = foreground эталона (#0f172a): это ЕДИНСТВЕННЫЙ
+     подстроечный параметр темы. Он же задаёт тон границам border-white/NN —
+     покажутся тяжёлыми, правится одной строкой. */
+  --color-white: #0f172a;
+  --color-black: #ffffff;
+
+  /* Настоящий белый — для текста поверх цветной заливки. Имя говорит ЗАЧЕМ здесь
+     белый, и переживёт следующую смену палитры; text-[#fff] спрятал бы смысл. */
+  --color-on-accent: #ffffff;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -95,73 +160,80 @@ html {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Токены shadcn — светлая ветка палитры эталона (служба памяти, DESIGN-CONFIG).
+   Читаются на каждом запросе: правка видна на следующей загрузке. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+  --secondary: #f0fdf4;
+  --secondary-foreground: #14532d;
+  --muted: #f0fdf4;
+  --muted-foreground: #4b6358;
+  --accent: #dcfce7;
+  --accent-foreground: #14532d;
+  --destructive: #ef4444;
+  --border: #dcfce7;
+  --input: #dcfce7;
+  --ring: #16a34a;
+  --chart-1: #86efac;
+  --chart-2: #4ade80;
+  --chart-3: #22c55e;
+  --chart-4: #16a34a;
+  --chart-5: #166534;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #f0fdf4;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #16a34a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dcfce7;
+  --sidebar-accent-foreground: #14532d;
+  --sidebar-border: #dcfce7;
+  --sidebar-ring: #16a34a;
 }
 
+/* Тёмная ветка палитры эталона. 🛑 ЗАВЕДЕНА МЁРТВОЙ И ЭТО СКАЗАНО ВСЛУХ: класс
+   `dark` в FES не ставится НИГДЕ (измерено 2026-09-12 — есть только <Toaster
+   theme="dark"> в пяти layout-ах, а он рисует свои тосты сам). Значения стоят
+   здесь, чтобы переключатель темы, если он однажды появится, нашёл готовую
+   палитру, а не серую лестницу от shadcn. Проверять её сегодня нечем. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.92 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 40%);
-  --input: oklch(1 0 0 / 40%);
-  --ring: oklch(0.85 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 40%);
-  --sidebar-ring: oklch(0.85 0 0);
+  --background: #0a1410;
+  --foreground: #dcfce7;
+  --card: #14532d;
+  --card-foreground: #dcfce7;
+  --popover: #14532d;
+  --popover-foreground: #dcfce7;
+  --primary: #4ade80;
+  --primary-foreground: #052e16;
+  --secondary: #14532d;
+  --secondary-foreground: #dcfce7;
+  --muted: #14532d;
+  --muted-foreground: #86efac;
+  --accent: #15803d;
+  --accent-foreground: #dcfce7;
+  --destructive: #f87171;
+  --border: #166534;
+  --input: #166534;
+  --ring: #4ade80;
+  --chart-1: #86efac;
+  --chart-2: #4ade80;
+  --chart-3: #22c55e;
+  --chart-4: #16a34a;
+  --chart-5: #166534;
+  --sidebar: #14532d;
+  --sidebar-foreground: #dcfce7;
+  --sidebar-primary: #4ade80;
+  --sidebar-primary-foreground: #052e16;
+  --sidebar-accent: #15803d;
+  --sidebar-accent-foreground: #dcfce7;
+  --sidebar-border: #166534;
+  --sidebar-ring: #4ade80;
 }
 
 @layer base {
@@ -177,11 +249,11 @@ html {
 }
 
 /* Thin, elegant scrollbar for in-app scroll areas (e.g. the header Frameworks
-   dropdown). Replaces the chunky native bar: a slim 6px track, rounded violet-
+   dropdown). Replaces the chunky native bar: a slim 6px track, rounded green-
    tinted thumb that brightens on hover, no arrows. Firefox uses scrollbar-width. */
 .thin-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+  scrollbar-color: rgba(22, 163, 74, 0.35) transparent;
 }
 .thin-scroll::-webkit-scrollbar {
   width: 6px;
@@ -191,9 +263,9 @@ html {
   background: transparent;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(139, 92, 246, 0.35);
+  background-color: rgba(22, 163, 74, 0.35);
   border-radius: 9999px;
 }
 .thin-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(139, 92, 246, 0.6);
+  background-color: rgba(22, 163, 74, 0.6);
 }
