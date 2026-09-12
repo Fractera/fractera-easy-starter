@@ -47,7 +47,7 @@ export function PartnersCta({ lang, label }: { lang: string; label: string }) {
       <button
         type="button"
         onClick={handleClick}
-        className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
+        className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30"
       >
         {label} →
       </button>
@@ -67,7 +67,7 @@ export function OpenCabinetButton({ label }: { label: string }) {
     <button
       type="button"
       onClick={openPartnerCabinet}
-      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/20"
+      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-on-accent font-bold px-6 py-3 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/20"
     >
       {label} →
     </button>

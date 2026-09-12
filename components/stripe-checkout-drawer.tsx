@@ -69,7 +69,7 @@ export function CheckoutDrawer({ open, planId, serverTokenId, sponsorTier, onClo
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[45vw] bg-white shadow-2xl overflow-y-auto">
+      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[45vw] bg-popover shadow-2xl overflow-y-auto">
         <button
           type="button"
           onClick={onClose}
@@ -83,7 +83,7 @@ export function CheckoutDrawer({ open, planId, serverTokenId, sponsorTier, onClo
           <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
             <p className="text-gray-600 text-sm">Failed to load checkout. Please try again.</p>
             <button type="button" onClick={fetchClientSecret}
-              className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800">
+              className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-muted">
               Retry
             </button>
           </div>

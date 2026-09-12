@@ -123,7 +123,7 @@ export function DeploySuccessToast({
           type="button"
           onClick={onClose}
           disabled={!confirmed}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-900/50 disabled:text-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors disabled:cursor-not-allowed"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-900/50 disabled:text-emerald-700 text-on-accent font-bold px-6 py-3 rounded-xl text-base transition-colors disabled:cursor-not-allowed"
         >
           {strings.closeButton}
         </button>

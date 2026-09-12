@@ -51,7 +51,7 @@ export function docPost(data: DocData, lang: string): ContentPost {
             src={meta.image.mobile}
             alt={meta.image.alt}
             loading="eager"
-            className="w-full rounded-2xl border border-white/10 bg-white"
+            className="w-full rounded-2xl border border-white/10 bg-card"
           />
         </picture>
       </figure>

@@ -81,7 +81,7 @@ export function PlatformSelector({ showSlider = true }: { showSlider?: boolean }
           <button
             type="button"
             onClick={copyUrl}
-            className="shrink-0 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
+            className="shrink-0 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
           >
             {copied ? mcp.copied : mcp.copy}
           </button>

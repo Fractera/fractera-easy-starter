@@ -354,7 +354,7 @@ export function InstallForm({ onSubdomainReady, onInstallingChange, onWhiteLabel
                 {wipePhase === 'idle' && (
                   <button
                     onClick={handleWipe}
-                    className="w-full text-sm font-semibold text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 hover:border-red-400/70 transition-colors px-6 py-3 rounded-xl"
+                    className="w-full text-sm font-semibold text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-700/20 border border-red-500/40 hover:border-red-400/70 transition-colors px-6 py-3 rounded-xl"
                   >
                     {t.wipe.clearButton}
                   </button>

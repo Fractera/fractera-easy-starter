@@ -90,7 +90,7 @@ export const BLOCK_RENDERERS: BlockRenderers = {
       <p className="text-base font-medium text-white">{inline(b.text, k)}</p>
       <a
         href={b.href}
-        className="inline-flex w-fit items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
+        className="inline-flex w-fit items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-on-accent hover:bg-violet-500"
       >
         {b.label}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -219,7 +219,7 @@ export const BLOCK_RENDERERS: BlockRenderers = {
       <a
         href={b.href}
         download
-        className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
+        className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-on-accent hover:bg-violet-500"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /></svg>
         {b.label ?? ui.downloadMd}

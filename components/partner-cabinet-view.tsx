@@ -347,7 +347,7 @@ function PartnerInfoForm({ t }: { t: Texts }) {
         type="button"
         onClick={handleSave}
         disabled={loading || submitting}
-        className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 text-white px-4 py-2 rounded-lg transition-colors"
+        className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 text-on-accent px-4 py-2 rounded-lg transition-colors"
       >
         {submitting ? t.saving : t.infoSave}
       </button>
@@ -421,7 +421,7 @@ function LinksManager({ surface, kind, t, title, intro }: {
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg transition-colors"
+            className="text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-on-accent px-4 py-2 rounded-lg transition-colors"
           >
             {t.addLink}
           </button>
@@ -507,7 +507,7 @@ function LinksManager({ surface, kind, t, title, intro }: {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg transition-colors"
+              className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-on-accent px-4 py-2 rounded-lg transition-colors"
             >
               {t.addLink}
             </button>
@@ -620,7 +620,7 @@ function LinkForm({ surface, kind, t, initial, onCancel, onSaved, onNotTrusted }
           type="button"
           onClick={handleSubmit}
           disabled={!valid || submitting}
-          className="text-sm font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors"
+          className="text-sm font-semibold bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-on-accent px-4 py-2 rounded-lg transition-colors"
         >
           {submitting ? t.saving : initial ? t.save : t.add}
         </button>
@@ -641,7 +641,7 @@ function NotTrustedModal({ t, onClose }: { t: Texts; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-neutral-950 border border-amber-500/40 rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+      <div className="relative z-10 w-full max-w-md bg-popover border border-amber-500/40 rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <span className="text-amber-400 text-2xl leading-none">!</span>
           <h2 className="text-lg font-bold text-white">{t.notTrustedTitle}</h2>
@@ -650,7 +650,7 @@ function NotTrustedModal({ t, onClose }: { t: Texts; onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg transition-colors"
+          className="self-start text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-on-accent px-4 py-2 rounded-lg transition-colors"
         >
           {t.notTrustedClose}
         </button>

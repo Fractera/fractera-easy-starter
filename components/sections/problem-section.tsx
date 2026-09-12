@@ -47,7 +47,7 @@ export function ProblemSection() {
           ))}
         </ul>
 
-        <div className="relative w-full grow overflow-hidden rounded-[14px] bg-gray-900 p-6 border border-white/10">
+        <div className="relative w-full grow overflow-hidden rounded-[14px] bg-muted p-6 border border-white/10">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-5 h-5 text-violet-400 shrink-0" />
             <h3 className="text-base font-semibold text-white">{content.problemLabel}</h3>

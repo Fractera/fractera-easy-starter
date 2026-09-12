@@ -84,7 +84,7 @@ export function DomainDnsBlock({
           href={domainUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-lg bg-violet-600 px-3 py-2 text-center text-sm font-bold text-white transition-colors hover:bg-violet-500"
+          className="rounded-lg bg-violet-600 px-3 py-2 text-center text-sm font-bold text-on-accent transition-colors hover:bg-violet-500"
         >
           {t.domainButton}
         </a>

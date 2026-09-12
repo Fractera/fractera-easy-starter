@@ -60,14 +60,14 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
               href={`/${lang}/blog/${featured.slug}`}
               className="group grid grid-cols-1 overflow-hidden rounded-3xl border border-white/10 transition-colors hover:border-violet-500/40 md:grid-cols-2"
             >
-              <div className="relative aspect-video overflow-hidden bg-zinc-900 md:aspect-auto">
+              <div className="relative aspect-video overflow-hidden bg-muted md:aspect-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={featured.ogImage}
                   alt={featured.title}
                   className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
                 />
-                <span className="absolute left-4 top-4 rounded-full bg-violet-600 px-3 py-1 text-xs font-bold text-white">
+                <span className="absolute left-4 top-4 rounded-full bg-violet-600 px-3 py-1 text-xs font-bold text-on-accent">
                   {ui.featured}
                 </span>
               </div>
@@ -107,7 +107,7 @@ export default async function BlogIndex({ params }: { params: Promise<{ lang: st
                   {/* Fixed 4:3 illustration container on the left. Its fixed width
                       makes the 4:3 height — and thus the whole card's height —
                       constant at any screen width (8rem→6rem tall, sm 12rem→9rem). */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={post.ogImage}

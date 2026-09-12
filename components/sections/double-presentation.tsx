@@ -48,7 +48,7 @@ export function DoublePresentation() {
         </div>
         <div className="flex flex-col pt-6">
           <h2 className="text-2xl font-bold mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{item.title}</h2>
-          <div className="relative w-full h-px bg-gray-700 mb-4">
+          <div className="relative w-full h-px bg-border mb-4">
             <div
               key={`slider-${side}-${sliderKey}`}
               className="absolute top-0 left-0 h-full bg-violet-500"
@@ -62,7 +62,7 @@ export function DoublePresentation() {
   }
 
   const renderMobileCard = (item: DpItem) => (
-    <div className="relative flex flex-col rounded-xl bg-gray-900 text-white shadow-lg mb-6 overflow-hidden">
+    <div className="relative flex flex-col rounded-xl bg-muted text-white shadow-lg mb-6 overflow-hidden">
       <div className="w-full relative" style={{ paddingTop: '56.25%' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.imageSrc} alt={item.title} className="absolute inset-0 w-full h-full object-cover rounded-t-xl" />

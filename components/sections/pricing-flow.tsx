@@ -283,7 +283,7 @@ export function PricingFlow() {
               )}
               {poolAvailable !== null && poolAvailable! > 0 && (
                 <button type="button" onClick={handleOneClick}
-                  className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30">
+                  className="w-full bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30">
                   {content.planLabels.subscribeButton.replace('{price}', selectedPlan.price ?? '')}
                 </button>
               )}
@@ -336,7 +336,7 @@ export function PricingFlow() {
                 />
               ) : (
                 <button type="button" onClick={() => openModal()}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30">
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-on-accent font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-emerald-500/30">
                   {content.planLabels.signInButton}
                 </button>
               )}
@@ -423,7 +423,7 @@ function PlanSelector({ plans, selected, onSelect, content }: {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-950 border border-white/40 rounded-2xl shadow-2xl overflow-hidden z-30">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-white/40 rounded-2xl shadow-2xl overflow-hidden z-30">
           {plans.map((plan, i) => {
             const isSelected = plan.id === selected.id
             return (

@@ -118,7 +118,7 @@ export default function ServersPage() {
           <input type="checkbox" checked={showDeleted} onChange={e => setShowDeleted(e.target.checked)} className="accent-violet-500" />
           show deleted
         </label>
-        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+        <button type="submit" className="bg-violet-600 hover:bg-violet-500 text-on-accent font-semibold px-4 py-2 rounded-lg text-sm">
           Search
         </button>
       </form>
@@ -170,7 +170,7 @@ export default function ServersPage() {
         if (!row) return null
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setPendingDelete(null)}>
-            <div className="bg-neutral-950 border border-white/20 rounded-xl p-6 max-w-md w-full flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+            <div className="bg-popover border border-white/20 rounded-xl p-6 max-w-md w-full flex flex-col gap-4" onClick={e => e.stopPropagation()}>
               <h2 className="text-xl font-bold text-white">
                 {pendingDelete.mode === 'soft' ? 'Soft delete server' : 'Hard wipe server'}
               </h2>
@@ -205,8 +205,8 @@ export default function ServersPage() {
                   onClick={performDelete}
                   disabled={working === pendingDelete.id || (pendingDelete.mode === 'hard' && confirmText !== row.subdomain)}
                   className={`text-sm font-bold px-4 py-2 rounded ${pendingDelete.mode === 'hard'
-                    ? 'bg-red-600 hover:bg-red-500 disabled:bg-red-900/50 disabled:text-white/40 text-white'
-                    : 'bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white'} disabled:cursor-not-allowed`}
+                    ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-900/50 disabled:text-white/40 text-on-accent'
+                    : 'bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-on-accent'} disabled:cursor-not-allowed`}
                 >
                   {working === pendingDelete.id ? 'Working…' : (pendingDelete.mode === 'hard' ? 'Wipe & delete' : 'Soft delete')}
                 </button>
@@ -278,7 +278,7 @@ function ServerRow({ r, isOpen, onToggle, onDelete, working }: {
                         type="button"
                         onClick={() => onDelete(r.id, 'hard')}
                         disabled={working}
-                        className="text-xs font-semibold text-red-400 hover:text-red-300 border border-red-500/40 hover:border-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded disabled:opacity-50"
+                        className="text-xs font-semibold text-red-400 hover:text-red-300 border border-red-500/40 hover:border-red-400 hover:bg-red-700/10 px-3 py-1.5 rounded disabled:opacity-50"
                       >
                         Hard wipe (SSH + DNS)
                       </button>

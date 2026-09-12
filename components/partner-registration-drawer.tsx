@@ -116,7 +116,7 @@ export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }:
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[560px] bg-neutral-950 border-l border-white/10 shadow-2xl overflow-y-auto text-white">
+      <div className="fixed right-0 top-0 h-full z-50 w-full md:w-[560px] bg-popover border-l border-white/10 shadow-2xl overflow-y-auto text-white">
         <button
           type="button"
           onClick={onClose}
@@ -166,7 +166,7 @@ export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }:
                 type="button"
                 onClick={handleSubmit}
                 disabled={!agreed || !signedIn || submitting}
-                className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30 disabled:shadow-none"
+                className="w-full inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-on-accent font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-violet-500/30 disabled:shadow-none"
               >
                 {submitting ? (
                   <>
@@ -197,7 +197,7 @@ export function PartnerRegistrationDrawer({ open, onClose, onRegistered, lang }:
               <button
                 type="button"
                 onClick={onClose}
-                className="self-start inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-3 rounded-xl text-base transition-colors"
+                className="self-start inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-on-accent font-bold px-6 py-3 rounded-xl text-base transition-colors"
               >
                 {t.successClose}
               </button>

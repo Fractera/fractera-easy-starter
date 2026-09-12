@@ -38,7 +38,7 @@ export function InfoTooltip({ text }: { text: React.ReactNode }) {
           aria-modal="true"
         >
           <div
-            className="relative max-w-sm w-full bg-neutral-900 border border-violet-500/40 rounded-xl p-5 text-sm leading-relaxed text-gray-200 shadow-xl"
+            className="relative max-w-sm w-full bg-popover border border-violet-500/40 rounded-xl p-5 text-sm leading-relaxed text-gray-200 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button

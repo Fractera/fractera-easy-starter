@@ -40,7 +40,7 @@ export function Hero() {
           <p className="text-6xl font-bold font-serif tracking-tight leading-[0.95] md:text-7xl lg:text-8xl text-white">Fractera</p>
           <h1
             className="text-3xl font-bold font-serif leading-tight md:text-4xl lg:text-5xl max-w-[1250px]"
-            style={{ color: 'white', WebkitTextStroke: '1px rgba(139,92,246,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(139,92,246,0.55), 0 0 36px rgba(139,92,246,0.28)' } as React.CSSProperties}
+            style={{ color: '#0f172a', WebkitTextStroke: '1px rgba(22,163,74,0.8)', paintOrder: 'stroke fill', textShadow: '0 0 18px rgba(22,163,74,0.35), 0 0 36px rgba(22,163,74,0.18)' } as React.CSSProperties}
           >
             {content.heroTitle}
           </h1>
@@ -77,7 +77,7 @@ export function Hero() {
             <div className="h-px w-16 bg-violet-500/70" />
             <p
               className="mt-7 max-w-3xl font-serif text-lg leading-relaxed text-white/85 md:text-xl md:leading-relaxed"
-              style={{ textShadow: '0 0 24px rgba(139,92,246,0.25)' }}
+              style={{ textShadow: '0 0 24px rgba(22,163,74,0.18)' }}
             >
               {content.heroManifesto}
             </p>

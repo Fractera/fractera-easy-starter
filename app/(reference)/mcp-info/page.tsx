@@ -170,7 +170,7 @@ export default function McpInfoPage() {
   const list = getSectionList('en')
 
   return (
-    <main className="flex min-h-screen flex-col bg-white text-zinc-900">
+    <main className="flex min-h-screen flex-col bg-background text-zinc-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <div className="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
         {/* Breadcrumb — matches the BreadcrumbList JSON-LD above */}
