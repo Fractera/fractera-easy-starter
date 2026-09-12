@@ -13,7 +13,7 @@ export function AircraftCarrierManifesto() {
   return (
     <div
       className="rounded-2xl bg-violet-500/[0.04] px-6 py-7 md:px-8 md:py-9 flex flex-col gap-4"
-      style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(139,92,246,0.7)' }}
+      style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(22,163,74,0.7)' }}
     >
       {t.manifesto.body.map((para, i) => (
         <p key={i} className="text-sm md:text-base text-white/85 leading-relaxed">

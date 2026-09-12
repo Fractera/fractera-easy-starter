@@ -20,7 +20,7 @@ const PLATFORMS: Platform[] = [
 
 const CARD_STYLE: React.CSSProperties = {
   animation: 'shimmerBorder 3s ease-in-out infinite',
-  border: '1px solid rgba(139,92,246,0.7)',
+  border: '1px solid rgba(22,163,74,0.7)',
 }
 
 // `showSlider` lets the step-by-step carousel be rendered elsewhere (e.g. as the

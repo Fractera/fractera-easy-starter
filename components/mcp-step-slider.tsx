@@ -56,8 +56,8 @@ export function McpStepSlider() {
         <div
           className={`relative w-[70%] aspect-[1278/630] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition-shadow ease-out ${
             showGlow
-              ? 'shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]'
-              : 'shadow-[0_0_0px_0px_rgba(139,92,246,0)]'
+              ? 'shadow-[0_0_50px_6px_rgba(22,163,74,0.5)]'
+              : 'shadow-[0_0_0px_0px_rgba(22,163,74,0)]'
           }`}
           style={{ transitionDuration: `${MCP_SLIDE_MS}ms` }}
         >

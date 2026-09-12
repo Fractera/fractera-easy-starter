@@ -257,7 +257,7 @@ export function PricingFlow() {
             {/* PAID_PLAN_HIDDEN — НЕ УДАЛЯТЬ НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ: платная карточка «Fractera Pro + Server» ($25/мес, $190/год) временно скрыта */}
             {false && (
             <div className="flex flex-col gap-5 rounded-2xl p-6 bg-gradient-to-br from-violet-950/70 via-violet-900/30 to-black/60"
-              style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(139,92,246,0.7)' }}>
+              style={{ animation: 'shimmerBorder 3s ease-in-out infinite', border: '1px solid rgba(22,163,74,0.7)' }}>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
                   {content.planLabels.recommended}

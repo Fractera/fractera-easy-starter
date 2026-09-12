@@ -5,7 +5,7 @@ import { useHeroContent } from '@/lib/i18n/context'
 // First H2 after the hero — the "Ultimate Scale" hub. Reuses the canonical section
 // header (badge + serif H2 + description, same as ElonTrillion). The three teasers
 // are bordered rounded cards (same style as the bottom note card) with a hover glow
-// reused verbatim from the carousel (shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]).
+// reused verbatim from the carousel (shadow-[0_0_50px_6px_rgba(22,163,74,0.5)]).
 // Order: badge → H2 → description → 3 H3 teaser cards → note card. (Deploy CTAs and
 // the install form no longer live on the homepage — they moved to /deployments/*.)
 
@@ -34,7 +34,7 @@ export function UltimateScale() {
         {t.columns.map((col, i) => (
           <div
             key={i}
-            className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]"
+            className="flex h-full flex-col justify-between text-left rounded-xl border border-white/15 bg-white/[0.02] px-5 py-5 transition-shadow duration-300 hover:border-violet-500/40 hover:shadow-[0_0_50px_6px_rgba(22,163,74,0.5)]"
           >
             <div>
               <h3 className="text-lg font-bold text-white leading-snug">{col.title}</h3>

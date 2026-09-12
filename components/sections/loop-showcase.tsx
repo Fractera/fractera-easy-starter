@@ -152,8 +152,8 @@ export function LoopShowcase() {
       <div
         className={`relative w-full aspect-[16/9] max-w-4xl mx-auto mb-8 rounded-2xl overflow-hidden transition-shadow ease-out ${
           showGlow
-            ? 'shadow-[0_0_50px_6px_rgba(139,92,246,0.5)]'
-            : 'shadow-[0_0_0px_0px_rgba(139,92,246,0)]'
+            ? 'shadow-[0_0_50px_6px_rgba(22,163,74,0.5)]'
+            : 'shadow-[0_0_0px_0px_rgba(22,163,74,0)]'
         }`}
         style={{ transitionDuration: `${FADE_DURATION}ms` }}
       >

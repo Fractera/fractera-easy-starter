@@ -46,7 +46,7 @@ export function blogPost(data: BlogData, lang: string): ContentPost {
       ? (
         <figure className="my-8 flex flex-col gap-3">
           <div
-            className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_0_60px_-15px_rgba(167,139,250,0.35)]"
+            className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_0_60px_-15px_rgba(22,163,74,0.35)]"
             style={meta.heroAspect ? { aspectRatio: meta.heroAspect } : undefined}
           >
             <video

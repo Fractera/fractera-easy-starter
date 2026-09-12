@@ -21,7 +21,7 @@ export function FractеraTestimonial() {
             className="text-center text-[28px] leading-snug tracking-tighter lg:text-2xl md:text-xl bg-clip-text text-transparent"
             style={{
               backgroundImage:
-                'linear-gradient(90deg, rgba(167,139,250,0.2) 0%, rgba(167,139,250,0.9) 25%, #a78bfa 50%, rgba(167,139,250,0.9) 75%, rgba(167,139,250,0.2) 100%)',
+                'linear-gradient(90deg, rgba(22,163,74,0.2) 0%, rgba(22,163,74,0.9) 25%, #4ade80 50%, rgba(22,163,74,0.9) 75%, rgba(22,163,74,0.2) 100%)',
             }}
           >
             Be so involved they can&apos;t tell if you&apos;re crazy or a genius.

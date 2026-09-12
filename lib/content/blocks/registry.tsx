@@ -122,7 +122,7 @@ export const BLOCK_RENDERERS: BlockRenderers = {
           className="bg-clip-text text-center text-[22px] font-medium leading-snug tracking-tight text-transparent md:text-xl"
           style={{
             backgroundImage:
-              'linear-gradient(90deg, rgba(167,139,250,0.35) 0%, rgba(167,139,250,0.95) 25%, #a78bfa 50%, rgba(167,139,250,0.95) 75%, rgba(167,139,250,0.35) 100%)',
+              'linear-gradient(90deg, rgba(22,163,74,0.35) 0%, rgba(22,163,74,0.95) 25%, #4ade80 50%, rgba(22,163,74,0.95) 75%, rgba(22,163,74,0.35) 100%)',
           }}
         >
           {inline(b.text, k)}
