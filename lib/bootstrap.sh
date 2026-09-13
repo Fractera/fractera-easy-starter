@@ -757,6 +757,16 @@ EMBEDDING_BINDING_API_KEY=
 # is ~7x cheaper with quality difference imperceptible for the typical
 # partner workload. Dim must match the model: 1536 for -small, 3072
 # for -large. Mismatched dim crashes LightRAG indexing.
+#
+# OPEN QUESTION, raised 2026-09-13 and deliberately NOT acted on here.
+# The sentence above — "quality difference imperceptible" — was contradicted by
+# measurement, but on a DIFFERENT store: the vector warehouse in the data layer,
+# on Russian text, where -small found 3 of 5 and its score groups overlapped
+# while -large found 5 of 5 with a clear gap. The data layer was switched on that
+# evidence; this engine was not, because nothing here was measured. Carrying a
+# result across corpora is the exact mistake that measurement caught in the first
+# place. Whoever picks this up: measure the graph on its own corpus first, and
+# remember that a switch here means re-indexing everything already stored.
 EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIM=1536
 # Language of entity descriptions and summaries built during indexing.
@@ -782,8 +792,19 @@ DATA_PUBLIC_URL=http://localhost:3300
 APP_DB_PATH=/opt/fractera/app/data/app.db
 DATA_SECRET=$DATA_SECRET
 OPENAI_API_KEY=
-EMBED_MODEL=text-embedding-3-small
-EMBED_DIMS=1536
+# 3-large, measured 2026-09-13 on a Russian corpus: the same five short
+# paragraphs, the same questions, only the model changed.
+#   small (1536): the right passage came back in 3 cases out of 5, and the two
+#     groups of scores OVERLAPPED — worst correct 0.245 against best unrelated
+#     0.247. No threshold could separate a find from its nearest neighbour.
+#   large (3072): 5 out of 5, top-ranked correctly 5 out of 5; correct from
+#     0.357, unrelated up to 0.197 — a gap of 0.16.
+# Embeddings cost ~6x more per volume and loading is ~3x slower; reads are
+# unchanged. For a multilingual store that buys the one thing the store exists
+# for: the ability to say "nothing suitable" and be right.
+# Dim must match the model: 1536 for -small, 3072 for -large.
+EMBED_MODEL=text-embedding-3-large
+EMBED_DIMS=3072
 FRACTERA_IP_NODOMAIN_MODE=true
 ENVEOF
 chmod 600 /opt/fractera/services/data/.env
