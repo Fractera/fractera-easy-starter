@@ -1076,6 +1076,41 @@ soft_step "memory_start" "Starting memory service" \
 # Вреда не было: `command not found`, код 127, установка идёт дальше. Но выглядела строка
 # как рабочий шаг, и следующая правка этого места воскресила бы её осмысленной.
 
+# ── СЛУЖБА ИИ-БРАУЗЕРА (шаг 196-7, 2026-09-14) ─────────────────────────────────
+#
+# 🎯 СЛОВО ВЛАДЕЛЬЦА 2026-09-13: «both always memory and ai-browser»; закон: «все должны присутствовать всегда».
+# Поэтому шаги мягкие и без выбора: сервер без браузера — это работающий сервер и строка в журнале, а не
+# упавшая установка. `maybe_step` здесь не появляется — он не вызывается нигде и ничем не управляет.
+#
+# 🔒 ШАГИ ПОВТОРЯЮТ КОМАНДЫ, КОТОРЫМИ СЛУЖБА ПОДНЯТА НА ТЕСТ-СЕРВЕРЕ (196-1…196-5), А НЕ ПРИДУМАНЫ ЗДЕСЬ:
+#   системные библиотеки — список даёт сам Playwright той версии, с которой сходится протокол движка (196-1:
+#     22 пакета — шрифты, библиотеки X, xvfb); рукописный список устарел бы с первым обновлением движка;
+#   установка — `scripts/install.sh` рядом с кодом: `uv`-окружение и `camoufox==0.5.6` с браузером (~1,5 ГБ)
+#     РЯДОМ со службой в `/opt/fractera/ai-browser-engine`, зависимости `pnpm`, сверка версий Playwright;
+#   сборка — `pnpm build`; запуск — ОДИН процесс pm2, движок служба поднимает сама дочерним (196-2).
+# 🔒 СЕКРЕТА ЗДЕСЬ НЕТ: служба читает склад машины `/etc/fractera/secrets.env` сама, а ключ для чужих
+#   программ рождает человек на её странице. FES публичный — в этом блоке нечего прятать.
+# 🛑 ПОРЯДОК ЗАВИСИТ ОТ СОСЕДЕЙ ВЫШЕ: `uv` ставит шаг `install_lightrag`, `pnpm` — `chat_pnpm`. Их отказ
+#   уронит `install.sh` с названной причиной (`INSTALL_FAIL: …`), а не молча.
+# 🔒 ЖДЁМ НЕ ПОРТ, А ДВИЖОК: `/v1/health` отвечает раньше, чем браузер поднят, и «status":"up» — единственный
+#   признак, что служба умеет открывать страницы.
+AI_BROWSER_REPO="https://github.com/Fractera/fractera-ai-browser-starter.git"
+
+soft_step "ai_browser_clone" "Downloading AI browser service" \
+  "rm -rf /opt/fractera/ai-browser; for a in 1 2 3; do git clone --depth 1 $AI_BROWSER_REPO /opt/fractera/ai-browser </dev/null && break; rm -rf /opt/fractera/ai-browser; sleep 8; done; [ -d /opt/fractera/ai-browser/.git ]"
+
+soft_step "ai_browser_system_libs" "AI browser: system libraries" \
+  "wait_for_apt; npx -y playwright@1.62.0 install-deps firefox"
+
+soft_step "ai_browser_install" "Installing AI browser engine" \
+  "bash /opt/fractera/ai-browser/scripts/install.sh"
+
+soft_step "ai_browser_build" "Building AI browser pages" \
+  "cd /opt/fractera/ai-browser && pnpm build && cd /opt/fractera"
+
+soft_step "ai_browser_start" "Starting AI browser service" \
+  "cd /opt/fractera/ai-browser && PORT=3800 pm2 start server.mjs --name fractera-ai-browser --cwd /opt/fractera/ai-browser && cd /opt/fractera && for i in \$(seq 1 60); do curl -sf http://127.0.0.1:3800/v1/health 2>/dev/null | grep -q '\"status\":\"up\"' && break || sleep 3; done"
+
 # ── АГЕНТ-ПРОГРАММИСТ ДЛЯ ВКЛАДКИ «ТЕРМИНАЛ» (шаг 114, 2026-09-04) ──────────────
 #
 # 🔒 ЧАТ ПРИВОЗИТ ВКЛАДКУ ТЕРМИНАЛА, А CLI НАДО ПОСТАВИТЬ ОТДЕЛЬНО. Вкладка едет с кодом
