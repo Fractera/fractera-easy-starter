@@ -1097,7 +1097,9 @@ soft_step "memory_start" "Starting memory service" \
 AI_BROWSER_REPO="https://github.com/Fractera/fractera-ai-browser-starter.git"
 
 soft_step "ai_browser_clone" "Downloading AI browser service" \
-  "rm -rf /opt/fractera/ai-browser; for a in 1 2 3; do git clone --depth 1 $AI_BROWSER_REPO /opt/fractera/ai-browser </dev/null && break; rm -rf /opt/fractera/ai-browser; sleep 8; done; [ -d /opt/fractera/ai-browser/.git ]"
+  "rm -rf /opt/fractera/ai-browser; for a in 1 2 3; do git clone --depth 1 --branch main $AI_BROWSER_REPO /opt/fractera/ai-browser </dev/null && break; rm -rf /opt/fractera/ai-browser; sleep 8; done; [ -d /opt/fractera/ai-browser/.git ]"
+# 🔒 `--branch main` ЯВНО (закрытие 196, измерено): ветка по умолчанию репозитория службы на GitHub оказалась `new-step-196` —
+# `main` был пуст, когда шаговую ветку отправили первой. Клон «по умолчанию» молча разошёлся бы с `main` со следующим коммитом.
 
 soft_step "ai_browser_system_libs" "AI browser: system libraries" \
   "wait_for_apt; npx -y playwright@1.62.0 install-deps firefox"
