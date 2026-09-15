@@ -1053,9 +1053,18 @@ soft_step "telegrambot_install" "Installing Telegram automation" \
 # ФАЙЛОВОМУ ПУТИ. Через этот шов запись в память была недостижима СУТКИ, а
 # просьба «запиши мой день рождения» стоила 278 секунд при цене операции 1.5 с.
 #
-# 🔒 НИ `npm install`, НИ СБОРКИ ЗДЕСЬ НЕТ, И ЭТО НЕ ЭКОНОМИЯ СТРОК. У службы
-# НОЛЬ зависимостей: `node:http` и всё. Пакет, поставленный ради трёх маршрутов,
-# — ещё один способ не запуститься на чистой машине.
+# 🔒 С ШАГА ПАМЯТИ 203-4 (2026-09-15) ЗДЕСЬ ЕСТЬ УСТАНОВКА ЗАВИСИМОСТЕЙ И СБОРКА. Прежний
+# довод этого блока — у службы нет зависимостей, один http-модуль и три маршрута — устарел:
+# с шагов 183–202 память — приложение Next со страницами, стендом и мастерской, и вход у неё
+# один, `server.mjs`. Слово владельца: «на запуске пользователей получает устойчиво
+# работоспособной память». ✗ Без этой правки новый сервер поднимал старый вход без страниц
+# (измерено чтением блока 2026-09-15), а тест-сервер работал на совсем другой службе.
+#
+# 🔒 КОМАНДЫ ПОВТОРЯЮТ ТЕСТ-СЕРВЕР, А НЕ ПРИДУМАНЫ: доставка памяти собирает `pnpm build` в папке
+# службы и держит один процесс pm2 на `server.mjs`; порядок тот же, что у ИИ-браузера ниже.
+# `pnpm` ставит соседний шаг `chat_pnpm` выше — его отказ уронит установку зависимостей с причиной.
+# 🔒 `--branch main` ЯВНО — урок ИИ-браузера (196-7): ветка по умолчанию на GitHub однажды оказалась
+# шаговой, и клон «по умолчанию» молча разошёлся бы с `main`.
 #
 # 🔒 СЕКРЕТ НЕ ПИШЕТСЯ: служба читает общий склад машины `/etc/fractera/secrets.env`
 # сама. Ключ, скопированный во второе место, расходится с первым при первой смене.
@@ -1065,12 +1074,19 @@ soft_step "telegrambot_install" "Installing Telegram automation" \
 MEMORY_REPO="https://github.com/Fractera/fractera-memory-starter.git"
 
 soft_step "memory_clone" "Downloading memory service" \
-  "rm -rf /opt/fractera/memory; for a in 1 2 3; do git clone --depth 1 $MEMORY_REPO /opt/fractera/memory </dev/null && break; rm -rf /opt/fractera/memory; sleep 8; done; [ -d /opt/fractera/memory/.git ]"
+  "rm -rf /opt/fractera/memory; for a in 1 2 3; do git clone --depth 1 --branch main $MEMORY_REPO /opt/fractera/memory </dev/null && break; rm -rf /opt/fractera/memory; sleep 8; done; [ -d /opt/fractera/memory/.git ]"
+
+soft_step "memory_deps" "Installing memory service dependencies" \
+  "cd /opt/fractera/memory && pnpm install --frozen-lockfile && cd /opt/fractera"
+
+soft_step "memory_build" "Building memory service pages" \
+  "cd /opt/fractera/memory && pnpm build && cd /opt/fractera"
 
 # 🔒 ЖДЁМ ПОРТ ПО ФАКТУ, А НЕ ФИКСИРОВАННОЙ ПАУЗОЙ. Проигранная гонка со стартом
-# службы выглядит как отказ двери — в этом проекте уже оплачено.
+# службы выглядит как отказ двери — в этом проекте уже оплачено. Приложение Next поднимается
+# дольше голого http-сервера, поэтому ждём до 60 проверок, как ИИ-браузер.
 soft_step "memory_start" "Starting memory service" \
-  "cd /opt/fractera/memory && pm2 start server.js --name fractera-memory --cwd /opt/fractera/memory && cd /opt/fractera && for i in \$(seq 1 20); do curl -sf http://127.0.0.1:3700/v1/health >/dev/null 2>&1 && break || sleep 2; done"
+  "cd /opt/fractera/memory && pm2 start server.mjs --name fractera-memory --cwd /opt/fractera/memory && cd /opt/fractera && for i in \$(seq 1 60); do curl -sf http://127.0.0.1:3700/v1/health >/dev/null 2>&1 && break || sleep 2; done"
 # ✗ ВТОРАЯ СТРОКА-СИРОТА УБРАНА ШАГОМ 114 (2026-09-04). Здесь стоял дубль команды запуска
 # без `soft_step` перед ним — та же половина обвала 2026-09-03, что и у `chat_clone` выше.
 # Вреда не было: `command not found`, код 127, установка идёт дальше. Но выглядела строка
