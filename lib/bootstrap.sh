@@ -988,8 +988,32 @@ soft_step "chat_bun" "Bun (Telegram poller runtime)" \
 # ✅ Измерено на живом сервере 2026-09-04, прежде чем править: токена в `.git/config` чата
 # нет — `CHAT_REPO` публичный и токена не несёт, чистить было нечего. То есть дефект был
 # настоящим, а ущерб нулевым, и обе половины названы, чтобы следующая сессия не искала утечку.
+# 🔒 НОВЫЙ СЕРВЕР НЕ ПОЛУЧАЕТ НАШ УЧЁТ РАЗРАБОТКИ — РЕШЕНИЕ ВЛАДЕЛЬЦА 2026-09-17, ДОСЛОВНО: «этот проект
+# станет тестовым, который мы будем в будущем передавать как готовый гостевой сервер; конечно, там не
+# должно быть признаков нашего с тобой теста».
+# ✗ ИЗМЕРЕНО В ТОТ ЖЕ ЧАС: клон везёт 33 наших итога шагов в памяти и 148 в Telegram-службе — заказчик
+# открыл бы мастерскую и увидел ЧУЖУЮ историю разработки как свою.
+# 🔒 ПАПКИ ОСТАЮТСЯ, СОДЕРЖИМОЕ УХОДИТ: пустая папка со своим `README.md` говорит «сюда пишут шаги», а
+# отсутствие папки читается как «учёта здесь не ведут» — и строитель заведёт свой, мимо закона.
+# 🛑 ЧИСТИТСЯ ТОЛЬКО КЛОН НА МАШИНЕ ЗАКАЗЧИКА. В наших репозиториях история остаётся: там она — цена
+# каждого закона, и удалять её нельзя.
+purge_our_history() {
+  local root="$1"
+  [ -d "$root" ] || return 0
+  for d in completed-steps new-steps pre-steps archive; do
+    [ -d "$root/development-docs/development-steps/$d" ] || continue
+    find "$root/development-docs/development-steps/$d" -mindepth 1 ! -name README.md -delete 2>/dev/null || true
+  done
+  [ -d "$root/development-docs/reports" ] && find "$root/development-docs/reports" -mindepth 1 ! -name README.md -delete 2>/dev/null || true
+  rm -f "$root/development-docs/development-steps/current-steps.md" "$root"/development-docs/development-steps/HANDOFF-*.md 2>/dev/null || true
+  return 0
+}
+
 soft_step "chat_clone" "Downloading Telegram automation" \
   "rm -rf /opt/fractera/telegrambot; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/telegrambot </dev/null && break; rm -rf /opt/fractera/telegrambot; sleep 8; done; [ -d /opt/fractera/telegrambot/.git ]"
+
+soft_step "chat_clean_history" "Telegram service: removing vendor development history" \
+  "$(declare -f purge_our_history); purge_our_history /opt/fractera/telegrambot"
 
 # 🔒 THE CHAT DOES NOT KEEP ITS OWN COPY OF THE DATA-LAYER SECRET: it reads the slot's file,
 # named here once. Attachments go to the project's media library — the same warehouse the
@@ -1076,6 +1100,9 @@ MEMORY_REPO="https://github.com/Fractera/fractera-memory-starter.git"
 soft_step "memory_clone" "Downloading memory service" \
   "rm -rf /opt/fractera/memory; for a in 1 2 3; do git clone --depth 1 --branch main $MEMORY_REPO /opt/fractera/memory </dev/null && break; rm -rf /opt/fractera/memory; sleep 8; done; [ -d /opt/fractera/memory/.git ]"
 
+soft_step "memory_clean_history" "Memory service: removing vendor development history" \
+  "$(declare -f purge_our_history); purge_our_history /opt/fractera/memory"
+
 soft_step "memory_deps" "Installing memory service dependencies" \
   "cd /opt/fractera/memory && pnpm install --frozen-lockfile && cd /opt/fractera"
 
@@ -1116,6 +1143,9 @@ soft_step "ai_browser_clone" "Downloading AI browser service" \
   "rm -rf /opt/fractera/ai-browser; for a in 1 2 3; do git clone --depth 1 --branch main $AI_BROWSER_REPO /opt/fractera/ai-browser </dev/null && break; rm -rf /opt/fractera/ai-browser; sleep 8; done; [ -d /opt/fractera/ai-browser/.git ]"
 # 🔒 `--branch main` ЯВНО (закрытие 196, измерено): ветка по умолчанию репозитория службы на GitHub оказалась `new-step-196` —
 # `main` был пуст, когда шаговую ветку отправили первой. Клон «по умолчанию» молча разошёлся бы с `main` со следующим коммитом.
+
+soft_step "ai_browser_clean_history" "AI browser: removing vendor development history" \
+  "$(declare -f purge_our_history); purge_our_history /opt/fractera/ai-browser"
 
 soft_step "ai_browser_system_libs" "AI browser: system libraries" \
   "wait_for_apt; npx -y playwright@1.62.0 install-deps firefox"
