@@ -1012,6 +1012,13 @@ purge_our_history() {
 soft_step "chat_clone" "Downloading Telegram automation" \
   "rm -rf /opt/fractera/telegrambot; for a in 1 2 3; do git clone --depth 1 $CHAT_REPO /opt/fractera/telegrambot </dev/null && break; rm -rf /opt/fractera/telegrambot; sleep 8; done; [ -d /opt/fractera/telegrambot/.git ]"
 
+# 🔒 `screen` СТАВИТСЯ ЯВНО, А НЕ БЕРЁТСЯ ИЗ ОБРАЗА (2026-09-17). В нём живут ВСЕ агентские сессии: канал
+# Telegram агента №1, терминал мастерской службы и её канал управления. ✗ Измерено на нашем сервере: пакет
+# пришёл с образом провайдера (25 июля), установщик его не ставил ни разу — то есть способность держалась на
+# везении образа. У другого провайдера терминал и канал молча не поднялись бы: процесс есть, сессии нет.
+soft_step "screen_install" "Terminal sessions for agents (screen)" \
+  "wait_for_apt; apt-get install -y -qq screen"
+
 soft_step "chat_clean_history" "Telegram service: removing vendor development history" \
   "$(declare -f purge_our_history); purge_our_history /opt/fractera/telegrambot"
 
